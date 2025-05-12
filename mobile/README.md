@@ -1,3 +1,12 @@
+# Running the applicatiion
+CD to ```ConnectIT/mobile```  
+| Platform | Command                         | Notes                                  |
+|----------|----------------------------------|----------------------------------------|
+| Android  | `npx react-native run-android`  | Runs the app on a connected Android device or emulator |
+| iOS      | `npx react-native run-ios`      | Requires macOS and Xcode; runs on iOS simulator or device |
+| Metro    | `npm start` or `npx react-native start` | Starts Metro bundler manually         |
+
+# Default Explanation
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
