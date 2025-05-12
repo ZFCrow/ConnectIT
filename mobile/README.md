@@ -1,5 +1,7 @@
 # Running the applicatiion
 CD to ```ConnectIT/mobile```  
+if you are using android, just turn on dev mode, enable usb debugging from your phone, then run the first command in the table in the ```mobile``` directory.  
+Else, you will need a android emulator, create a empty project in android studio, run the emulator then run the first command in the table in the ```mobile``` directory.   
 | Platform | Command                         | Notes                                  |
 |----------|----------------------------------|----------------------------------------|
 | Android  | `npx react-native run-android`  | Runs the app on a connected Android device or emulator |
