@@ -1,3 +1,8 @@
+# Running the applicatiion
+CD to ```ConnectIT/Web```  
+run ```npm run dev```
+
+# Default explanation
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
