@@ -1,0 +1,22 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtualenv or env dirs
+venv/
+env/
+ENV/
+
+# Local env files
+.env
+
+# Git metadata
+.git/
+.gitignore
+
+# Dockerignore itself
+.dockerignore
+
+# Logs
+*.log

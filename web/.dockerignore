@@ -1,0 +1,23 @@
+# web/.dockerignore
+
+# Don’t send node_modules (we install fresh inside Docker)
+node_modules/
+
+# Don’t send Git metadata
+.git/
+.gitignore
+
+# Ignore your Dockerignore itself
+.dockerignore
+
+# Ignore editor or OS files (if you ever have them)
+.vscode/
+.DS_Store
+Thumbs.db
+
+# If you ever add a build output folder, ignore it too
+dist/
+build/
+
+# Logs
+*.log
