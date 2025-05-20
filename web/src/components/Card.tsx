@@ -13,7 +13,7 @@ export const StyledCard = () => {
       </CardHeader>
 
       <CardContent>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm">
           Dive into quizzes, forums, and real-time chat. Level up your skills today!
         </p>
       </CardContent>

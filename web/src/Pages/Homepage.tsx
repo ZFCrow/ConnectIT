@@ -35,9 +35,13 @@ const Homepage = () => {
   }, []);
   return (
     <>
-    <h1>Message from Flask</h1>
-    <p> {message || "loading..."} </p>
-    <StyledCard/>
+    <div className='flex flex-col text-center'>
+      <h1>Message from Flask: </h1>
+      <p> {message || "loading..."} </p>
+      <StyledCard/>
+    </div>
+
+ 
     </>
   )
 }

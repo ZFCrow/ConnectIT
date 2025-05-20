@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -118,3 +120,17 @@
     @apply bg-background text-foreground;
   }
 } 
+
+/* Global navigation text size overrides */
+[data-slot="navigation-menu"] a,
+[data-slot="navigation-menu"] button,
+.navigation-menu-trigger,
+.navigation-menu-link {
+  font-size: 1.125rem !important; /* text-lg */
+}
+
+/* For dropdown menu items to match */
+.dropdown-menu-content a,
+.dropdown-menu-content button {
+  font-size: 1.125rem !important; 
+}
