@@ -26,6 +26,7 @@ import { UserCircle, LogOut, Moon, Sun, Computer } from "lucide-react"
 
 import { useTheme } from "./theme-provider"
 import clsx from "clsx"
+
 const Navbar = () => { 
     const { theme, setTheme } = useTheme() 
     const isDark = theme === "dark" 
@@ -36,7 +37,7 @@ const Navbar = () => {
                 <NavigationMenuList >
                     <NavigationMenuItem >
                         
-                            <Link to="/" className="flex gap-2 dark:hover:bg-zinc-700 rounded-md px-3 py-1">
+                            <Link to="/" className="bg-amber-200 flex gap-2 dark:bg-zinc-900 dark:hover:!bg-zinc-700 rounded-md px-3 py-1 hover:!bg-amber-100">
                             <Computer/><span>ConnectIT</span>
                             </Link>
                         
@@ -51,26 +52,26 @@ const Navbar = () => {
                         
                         <Link to="/otherpage" className={clsx(
                                 navigationMenuTriggerStyle(),
-                                "dark:bg-zinc-800 dark:hover:bg-zinc-700")}>Job Opportunies Board </Link>
+                                "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 ")}>Job Opportunies Board </Link>
                         
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
                         <Link to="/otherpage" className={clsx(
                                 navigationMenuTriggerStyle(),
-                                "dark:bg-zinc-800 dark:hover:bg-zinc-700")}>Messages </Link>
+                                "dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 hover:!bg-amber-100")}>Messages </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
                         <Link to="/otherpage" className={clsx(
                                 navigationMenuTriggerStyle(),
-                                "dark:bg-zinc-800 dark:hover:bg-zinc-700")}>Quiz </Link>
+                                "dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 hover:!bg-amber-100")}>Quiz </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="rounded-full border ml-2 h-12 w-12">
+                                <Button variant="ghost" size="icon" className="hover:!bg-amber-100 rounded-full border ml-2 h-12 w-12 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 ">
                                     <UserCircle style={{ width: '1.5rem', height: '1.5rem' }} /> 
                                 </Button>
                             </DropdownMenuTrigger>

@@ -7,8 +7,9 @@ import Navbar from './components/Navbar';
 function App() {
   return (
     <>
-    <div className='min-h-screen flex flex-col bg-white text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors'>
+    <div className='min-h-screen flex flex-col bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors'>
       <Navbar/> 
+
       <main className="flex-grow flex items-center justify-center px-4">
         <Routes>
           <Route path="/" element={<Homepage />} />
