@@ -15,7 +15,7 @@ export default defineConfig(({mode}) =>
       : 'http://localhost:5000'; // on your machine
 
   return {
-    plugins: [react(), tailwindcss({config: "./tailwind.config.cjs"})],
+    plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"), 

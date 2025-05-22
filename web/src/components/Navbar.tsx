@@ -29,7 +29,7 @@ import clsx from "clsx"
 const Navbar = () => { 
     const { theme, setTheme } = useTheme() 
     const isDark = theme === "dark" 
-
+    
     return(
         <nav className="flex justify-between px-4 pt-3"> 
             <NavigationMenu >
@@ -37,7 +37,7 @@ const Navbar = () => {
                     <NavigationMenuItem >
                         
                             <Link to="/" className="flex gap-2 dark:hover:bg-zinc-700 rounded-md px-3 py-1">
-                            <Computer/><span>It-Connect</span>
+                            <Computer/><span>ConnectIT</span>
                             </Link>
                         
                     </NavigationMenuItem>
@@ -59,6 +59,12 @@ const Navbar = () => {
                         <Link to="/otherpage" className={clsx(
                                 navigationMenuTriggerStyle(),
                                 "dark:bg-zinc-800 dark:hover:bg-zinc-700")}>Messages </Link>
+                    </NavigationMenuItem>
+
+                    <NavigationMenuItem>
+                        <Link to="/otherpage" className={clsx(
+                                navigationMenuTriggerStyle(),
+                                "dark:bg-zinc-800 dark:hover:bg-zinc-700")}>Quiz </Link>
                     </NavigationMenuItem>
 
                     <NavigationMenuItem>

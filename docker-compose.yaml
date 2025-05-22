@@ -11,37 +11,34 @@ services:
       - "5173:5173" 
     # Use polling so file‐watch works reliably in containers
     environment: 
-      - CHOKIDAR_USEPolling=true 
+      - CHOKIDAR_USEPOLLING=true
     # command: ["npm","run","dev","--","--mode","docker"]
     volumes:
       - ./web:/app # bind‐mount your source code
       - node_modules:/app/node_modules  # mount a **named Docker volume** over that folder
     command: > 
       sh -c "npm ci && npm run dev -- --mode docker"
+
   backend:
     build: 
       context: ./Backend
       dockerfile: backend.Dockerfile 
     container_name: backend 
     ports: 
-      - "5000:5000" 
-    environment: 
-      - FLASK_RUN_HOST=${FLASK_RUN_HOST}
-      - FLASK_RUN_PORT=${FLASK_RUN_PORT}
-      - FLASK_DEBUG=${FLASK_DEBUG} 
+      - "5000:5000"
+    env_file: 
+      - .env     
+
     
-  sql: 
-    image: mysql:8.0
-    container_name: sql 
-    restart: always 
-    environment: 
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD} 
-    ports: 
-      - "3307:3306"
-    volumes: 
-      - ./sql_data:/var/lib/mysql 
+  # sql: 
+  #   image: mysql:8.0
+  #   container_name: sql 
+  #   restart: always 
+  #   env_file: 
+  #     - .env
+  #   ports: 
+  #     - "${MYSQL_LOCAL_PORT}:${MYSQL_CONTAINER_PORT}"
+  #   volumes: 
+  #     - ./sql_data:/var/lib/mysql 
 
 

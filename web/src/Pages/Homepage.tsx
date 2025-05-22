@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import type { AxiosResponse, AxiosError } from 'axios';
 import { StyledCard } from '@/components/Card'; 
-
+import Postcard from '@/components/Postcard';
+import { mockPosts } from '@/components/FakeData/mockPosts';
 
 interface Response {
   message: string;  
@@ -21,6 +22,8 @@ const Homepage = () => {
 
   const [message, setMessage] = useState<string>('');
 
+  const [posts, setPosts] = useState(mockPosts); // use the mock data for now 
+
   useEffect( ()=> {
     api
     .get<Response>('/hello')
@@ -31,14 +34,22 @@ const Homepage = () => {
     })
     .catch ((err: AxiosError) => {
       console.log('APIERROR:', err.message)
-    }) 
+    })
+    
+  
+
   }, []);
   return (
     <>
     <div className='flex flex-col text-center'>
       <h1>Message from Flask: </h1>
       <p> {message || "loading..."} </p>
-      <StyledCard/>
+     
+      
+      {posts.map( (p,i) => (
+        <Postcard key={i} {...p}/>
+      ))
+    }
     </div>
 
  

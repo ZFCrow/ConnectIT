@@ -1,4 +1,8 @@
 env
 .env
 .env.docker
-sql_data
+.env.dev
+.env.prod
+sql_data_dev
+sql_data_prod
+docker-compose.dev.yaml
