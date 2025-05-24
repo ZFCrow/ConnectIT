@@ -7,10 +7,15 @@ import {
   Shuffle,
   BuildingIcon,
   DollarSign,
+  Bookmark,
+  User,
 } from "lucide-react";
 import type { JobListing } from "../../type/jobListing";
 import { Link } from "react-router-dom";
 import { dateLocale, dateFormatOptions } from "./SharedConfig";
+import { useState } from "react";
+import ResumeUploadModal from "./ResumeUploadModal";
+import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
 type Props = { job: JobListing };
 
 const JobCard: React.FC<Props> = ({ job }) => {
@@ -18,6 +23,7 @@ const JobCard: React.FC<Props> = ({ job }) => {
     dateLocale,
     dateFormatOptions
   );
+  const [open, setOpen] = useState(false);
 
   return (
     <div
@@ -26,27 +32,38 @@ const JobCard: React.FC<Props> = ({ job }) => {
         grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_1fr] gap-x-6 gap-y-4
       "
     >
-      {/* Title */}
-      <h2 className="text-2xl font-bold text-white">{job.title}</h2>
-
-      {/* Posted Date with Calendar Icon */}
-      <div className="flex items-center justify-end space-x-3 self-start">
-        {/* Date with calendar icon */}
-        <div className="flex items-center space-x-1 text-sm text-gray-300">
-          <Calendar className="w-4 h-4" />
-          <span>Posted: {posted}</span>
+      {/* Title + Field Tag */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-white">{job.title}</h2>
+          <button
+            aria-label="Save job"
+            className="
+              p-1 rounded-full text-gray-400
+              hover:bg-zinc-800 hover:text-white
+              transition
+            "
+          >
+            <Bookmark className="w-6 h-6" />
+          </button>
         </div>
-        {/* Save bookmark button
-        <button
-          aria-label="Save job"
+        {/* Field badge */}
+        <span
           className="
-            p-1 rounded-full text-gray-400
-            hover:bg-zinc-800 hover:text-white
-            transition
+            inline-block
+            bg-indigo-600 text-white text-xs font-semibold
+            uppercase tracking-wide
+            px-2 py-0.5 rounded
           "
         >
-          <Bookmark className="w-5 h-5" />
-        </button> */}
+          {job.field}
+        </span>
+      </div>
+
+      {/* Posted Date */}
+      <div className="flex items-center justify-end space-x-3 self-start text-sm text-gray-300">
+        <Calendar className="w-4 h-4" />
+        <span>Posted: {posted}</span>
       </div>
 
       {/* Details Column */}
@@ -90,6 +107,13 @@ const JobCard: React.FC<Props> = ({ job }) => {
               <span>{job.workArrangement}</span>
             </span>
           )}
+          {typeof job.yearsOfExperience === "number" &&
+            job.yearsOfExperience > 0 && (
+              <span className="flex items-center gap-1">
+                <User className="w-4 h-4 text-gray-400" />
+                <span>{job.yearsOfExperience} yr(s) exp</span>
+              </span>
+            )}
 
           {/* Salary */}
           <span className="flex items-center gap-1">
@@ -128,6 +152,7 @@ const JobCard: React.FC<Props> = ({ job }) => {
           View Details
         </Link>
         <button
+          onClick={() => setOpen(true)}
           className="
             border border-green-500 text-green-500 text-sm font-medium
             w-full px-4 py-1 rounded-xl
@@ -137,6 +162,13 @@ const JobCard: React.FC<Props> = ({ job }) => {
         >
           Apply Now
         </button>
+        <ResumeUploadModal
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          onSubmit={handleResumeSubmit}
+          jobTitle={job.title}
+          companyName={job.companyName}
+        />
       </div>
     </div>
   );

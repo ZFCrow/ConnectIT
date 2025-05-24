@@ -20,6 +20,8 @@ export const sampleJobs: JobListing[] = [
       "Optimize application for maximum speed and scalability",
       "Collaborate with other team members and stakeholders",
     ],
+    field: "Software Development",
+    yearsOfExperience: 3,
   },
   {
     jobId: 2,
@@ -40,6 +42,8 @@ export const sampleJobs: JobListing[] = [
       "Optimize database queries and schema",
       "Ensure security and data protection",
     ],
+    field: "Software Development",
+    yearsOfExperience: 2,
   },
   {
     jobId: 3,
@@ -60,6 +64,8 @@ export const sampleJobs: JobListing[] = [
       "Monitor system performance and reliability",
       "Implement security best practices",
     ],
+    field: "DevOps",
+    yearsOfExperience: 3,
   },
   {
     jobId: 4,
@@ -80,6 +86,8 @@ export const sampleJobs: JobListing[] = [
       "Build and deploy machine learning models",
       "Collaborate with cross-functional teams to implement data-driven solutions",
     ],
+    field: "Data Science",
+    yearsOfExperience: 2,
   },
   {
     jobId: 5,
@@ -100,5 +108,7 @@ export const sampleJobs: JobListing[] = [
       "Create wireframes and prototypes",
       "Collaborate with developers to implement designs",
     ],
+    field: "Design",
+    yearsOfExperience: 0,
   },
 ];

@@ -6,14 +6,16 @@ import Login from "@/Pages/auth/Login";
 import Navbar from "./components/Navbar";
 import JobListingPage from "./Pages/JobListing";
 import JobDetailPage from "./Pages/JobDetails";
-
+import {
+  jobDetailsRoute,
+  jobListingRoute,
+  applicationRoute,
+} from "@/components/JobOpportunity/SharedConfig";
 function App() {
   return (
     <>
-    <div className=
-          'min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors'
-          >
-      <Navbar/> 
+      <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
+        <Navbar />
 
         <main className="flex-grow flex items-center justify-center">
           <Routes>

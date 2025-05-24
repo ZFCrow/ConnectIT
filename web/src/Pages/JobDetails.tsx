@@ -2,6 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { sampleJobs } from "../components/FakeData/sampleJobs";
 import JobDetailsCard from "../components/JobOpportunity/JobDetailsCard";
+import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
+import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const job = sampleJobs.find((j) => j.jobId === Number(jobId));
@@ -9,7 +11,7 @@ export default function JobDetailPage() {
   if (!job) {
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
-        <Link to="/jobListing" className="text-blue-500 hover:underline">
+        <Link to={jobListingRoute} className="text-blue-500 hover:underline">
           ← Back to listings
         </Link>
         <div className="mt-6 text-center text-gray-400">Job not found.</div>
@@ -36,9 +38,9 @@ export default function JobDetailPage() {
         <ArrowLeft className="w-3 h-3" />
         <span>Back to Listing</span>
       </Link>
-
       {/* Job details in a card */}
       <JobDetailsCard job={job} />
+      <ApplicationToaster />{" "}
     </div>
   );
 }

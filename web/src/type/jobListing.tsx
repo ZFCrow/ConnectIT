@@ -3,6 +3,7 @@ export type JobListing = {
   companyId: number;
   companyName?: string;
   companyAddress?: string;
+  field?: string;
   workArrangement?: string;
   title: string;
   description: string;
@@ -12,4 +13,5 @@ export type JobListing = {
   type: string;
   createdAt: string;
   responsibilities?: string[];
+  yearsOfExperience?: number;
 };

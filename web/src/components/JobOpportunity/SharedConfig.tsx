@@ -4,3 +4,6 @@ export const dateFormatOptions: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 export const dateLocale = "en-UK";
+export const applicationRoute = "/apply";
+export const jobListingRoute = "/jobListings";
+export const jobDetailsRoute = "/jobDetails";

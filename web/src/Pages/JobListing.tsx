@@ -5,7 +5,9 @@ import { sampleJobs } from "../components/FakeData/sampleJobs";
 
 import FilterSection from "../components/JobOpportunity/FilterSection";
 import type { SortOption } from "../components/JobOpportunity/FilterSection";
-
+import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
+import { Link } from "react-router-dom";
+import { Bookmark, CheckCircle } from "lucide-react";
 const ITEMS_PER_PAGE = 10;
 
 const JobListingPage: React.FC = () => {
@@ -57,8 +59,23 @@ const JobListingPage: React.FC = () => {
 
   return (
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-3xl font-bold">Job Opportunities Board</h1>
-
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Job Opportunities Board</h1>
+        <Link
+          to="/savedJobs"
+          className="
+            inline-flex items-center gap-2
+            text-xl font-medium text-blue-500
+            hover:text-blue-600 transition
+          "
+        >
+          <Bookmark className="w-6 h-6" />
+          <span>Saved</span>
+          <span className="mx-1 text-2xl">/</span>
+          <CheckCircle className="w-6 h-6" />
+          <span>Applied Jobs</span>
+        </Link>
+      </div>
       {/* Search */}
       <input
         type="text"
@@ -146,6 +163,7 @@ const JobListingPage: React.FC = () => {
           </div>
         </div>
       </div>
+      <ApplicationToaster />
     </div>
   );
 };
