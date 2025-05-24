@@ -1,6 +1,8 @@
 import Homepage from '@/Pages/Homepage'
 import { Routes, Route, Link } from "react-router-dom";
 import Otherpage from '@/Pages/Otherpage' 
+import Register from '@/Pages/auth/Register'
+import Login from '@/Pages/auth/Login'
 import Navbar from './components/Navbar';
 
 
@@ -16,6 +18,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/otherpage" element={<Otherpage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login/>} />
         </Routes>
       </main>
     </div>
