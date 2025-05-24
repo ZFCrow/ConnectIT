@@ -22,10 +22,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
+import OptionBox from "@/components/OptionBox";
+import { allTags } from "@/components/FakeData/PopularTags"; // import the full list of tags 
+
 const CreatePostbar = () => { 
-    const [title, setTitle] = useState("What's on your mind?"); 
+    const [title, setTitle] = useState("What's on your mind?");
+    const [selectedTags, setSelectedTags] = useState<string[]>([]); // default tags for the user
+
+
     return (
-    <Card className="max-w-xl flex flex-row items-center gap-4 p-4 h-20">
+    <Card className="flex flex-row items-center gap-4 p-4 h-20">
 
         <Avatar>
             <AvatarImage src="https://github.com/shadcn.png" />
@@ -59,6 +65,14 @@ const CreatePostbar = () => {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)} />
                     <Textarea placeholder="What's on your mind?" /> 
+
+                    <OptionBox
+                        allTags={allTags}
+                        selectedTags={selectedTags}
+                        onChange={setSelectedTags}
+                    />
+
+
                 </div>
 
                 <DialogFooter>
