@@ -23,7 +23,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import type { FC } from "react";
-
+import { useState } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; 
 
@@ -31,7 +31,6 @@ import { ChevronUp, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "
 import { Button } from "@/components/ui/button"; 
 
 import { useNavigate } from "react-router-dom";
-
 type Comment = {
     user: string;
     content: string; 
@@ -53,7 +52,8 @@ export type PostProps = {
     title: string;
     content: string;
     comments: Comment[];
-    likes : number 
+    likes : number
+    liked : boolean; // ✅ optional, with default = false  
 };
 
 type PostcardProps = PostProps & {
@@ -61,7 +61,7 @@ type PostcardProps = PostProps & {
 };
 
 
-const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes}) => { 
+const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes,liked}) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -77,6 +77,7 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
     const navigate = useNavigate(); 
     const interactiveClasses = detailMode ? "flex-grow" : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted"; 
+    const [hasLiked, setHasLiked] = useState(liked || false); // Initialize liked state, default to false if not provided 
     return (
         <>
         <Card {...detailMode ? {} : {onClick: () => navigate(`/post/${id}`)} } 
@@ -167,10 +168,17 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                         {/* Buttons in a row */}
                         <div className="flex items-center space-x-4 text-sm text-slate-200">
-                            <Button variant="ghost" size="sm" className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
+                            <Button variant="ghost" size="sm" 
+                            className={
+                                `flex items-center transition-all duration-150  hover:scale-105
+                                ${ hasLiked? 'text-red-500 hover:bg-red-100/20 hover:text-red-500'
+                                    : 'hover:bg-accent'} 
+                            `}
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevent triggering the card click
                                 console.log("Liked!");
+                                setHasLiked(!hasLiked); // Toggle liked state 
+                                
                             }}>
                             <ThumbsUp className="mr-1 h-4 w-4" />
                             Like
@@ -181,6 +189,7 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevent triggering the card click
                                 console.log("comment clicked!");
+                                
                             }}>
                                 <MessageSquare className="mr-1 h-4 w-4" />
                                 Comments ({comments.length})
