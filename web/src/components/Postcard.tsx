@@ -30,6 +30,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronUp, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button"; 
 
+import { useNavigate } from "react-router-dom";
+
 type Comment = {
     user: string;
     content: string; 
@@ -44,19 +46,22 @@ type Label ={
 }
 
 export type PostProps = {
-  user: string;
-  date: string;
-  labels: Label[]; 
-  title: string;
-  content: string;
-  comments: Comment[];
+    id: number;
+    user: string;
+    date: string;
+    labels: Label[]; 
+    title: string;
+    content: string;
+    comments: Comment[];
+    likes : number 
+};
+
+type PostcardProps = PostProps & {
+  detailMode?: boolean; // ✅ optional, with default = false
 };
 
 
-
-
-
-const Postcard: FC<PostProps> = ({user,date,labels,title,content,comments}) => { 
+const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes}) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -70,9 +75,13 @@ const Postcard: FC<PostProps> = ({user,date,labels,title,content,comments}) => {
         lime: "border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white",
     };
 
+    const navigate = useNavigate(); 
+    const interactiveClasses = detailMode ? "flex-grow" : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted"; 
     return (
         <>
-        <Card>
+        <Card {...detailMode ? {} : {onClick: () => navigate(`/post/${id}`)} } 
+            className={`${interactiveClasses}`}
+        >
             <CardHeader>
                 <div className="flex flex-col gap-3">
 
@@ -145,23 +154,44 @@ const Postcard: FC<PostProps> = ({user,date,labels,title,content,comments}) => {
 
 
             <CardFooter className="flex flex-col">
-                <Collapsible className="w-full" defaultOpen={false}>
-                    <div className="flex space-x-2 justify-end ">
-                        <Button variant="ghost" size="sm">
-                            <ThumbsUp className="mr-2 h-4 w-4" /> Like
-                        </Button>
+                <Collapsible className="w-full" defaultOpen= {detailMode}>
 
-                        {/* Just the button, not the whole collapsible */}
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                                <MessageSquare className="mr-2 h-4 w-4" />
+                    <div className="flex flex-col items-end gap-1 mt-2">
+                        {/* Optional likes message */}
+                        {likes > 0 && (
+                            <div className="flex items-center space-x-2 text-blue-500 text-sm">
+                            <ThumbsUp className="h-4 w-4" />
+                            <span>{likes} others have liked this</span>
+                            </div>
+                        )}
+
+                        {/* Buttons in a row */}
+                        <div className="flex items-center space-x-4 text-sm text-slate-200">
+                            <Button variant="ghost" size="sm" className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent triggering the card click
+                                console.log("Liked!");
+                            }}>
+                            <ThumbsUp className="mr-1 h-4 w-4" />
+                            Like
+                            </Button>
+
+                            <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent triggering the card click
+                                console.log("comment clicked!");
+                            }}>
+                                <MessageSquare className="mr-1 h-4 w-4" />
                                 Comments ({comments.length})
                             </Button>
-                        </CollapsibleTrigger>
-                    </div>                        
+                            </CollapsibleTrigger>
+                        </div>
+                    </div>
+                     
                     
 
-                    <CollapsibleContent className="space-y-3 pt-2">
+                    <CollapsibleContent className="space-y-3 pt-2" >
                         {comments.map((c, i) => (
                             <div key={i} className="text-sm">
                             <strong>{c.user}:</strong> {c.content}
@@ -180,12 +210,6 @@ const Postcard: FC<PostProps> = ({user,date,labels,title,content,comments}) => {
 
                 </Collapsible>
 
-
-
-                {/* <Button variant="ghost" size="sm">
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Comment
-                </Button> */}
             </CardFooter>
     
         </Card>

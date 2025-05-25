@@ -1,8 +1,8 @@
-// src/data/mockPosts.js
-export const mockRecentPosts = [
-  { id: "p1", title: "React vs Vue: Which to learn next?" },
-  { id: "p2", title: "Best VSCode extensions in 2025" },
-  { id: "p3", title: "Tailwind tips for Production" },
-  { id: "p4", title: "How to ace your coding interview" },
-  { id: "p5", title: "Effective remote collaboration" },
+
+export const mockRecentPostsLikes = [
+  {userId: 2,postId: 1, title: "React vs Vue: Which to learn next?" },
+  { userId: 2 ,postId: 2, title: "Best VSCode extensions in 2025" },
+  { userId: 2 ,postId: 3, title: "Tailwind tips for Production" },
+  { userId: 1 ,postId: 4, title: "Resume review request" },
+  { userId: 1 ,postId: 5, title: "Thinking of quitting coding altogether" },
 ];

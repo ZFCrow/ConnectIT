@@ -6,22 +6,40 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 
-import type { FC } from "react"; 
 
-interface Job { jobId: string; title: string, companyName: string}
-interface Chat { chatId: string; companyName: string; lastMessage: string }
-interface Post { id: string; title: string; }
+import { 
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter
+} from "@/components/ui/card"
+
+
+import type { FC } from "react"; 
+// Mock data imports
+import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
+import { mockRecentChats } from "@/components/FakeData/MockRecentChats";
+import { mockRecentPostsLikes } from "@/components/FakeData/MockRecentPosts";
+
+import { useNavigate } from "react-router-dom";
 
 export interface FullHeightVerticalBarProps {
-  appliedJobs:   Job[];
-  recentChats:   Chat[];
-  recentPosts:   Post[];
+    userId : number; 
 }
 
 
 const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
-    { appliedJobs, recentChats, recentPosts } 
+    { userId} 
 ) => {
+    // Convert userID to number 
+    const userIdNum = Number(userId); 
+    const appliedJobs = mockAppliedJobs.filter((job) => job.userId === userIdNum);
+    const recentChats = mockRecentChats.filter((chat) => chat.userId === userIdNum);
+    const recentPosts = mockRecentPostsLikes.filter((post) => post.userId === userIdNum);
+    const navigate = useNavigate(); 
+
     return (
         <ScrollArea className="h-screen p-4">
             <Accordion type="multiple" className="space-y-4 ">
@@ -44,10 +62,16 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
                     <AccordionContent>
                     <ul className="space-y-2 text-sm">
                         {recentChats.map((chat) => (
-                        <li key={chat.chatId}>
-                            {chat.companyName}: {chat.lastMessage}
-                        </li>
+                        <Card key={chat.chatId} className="shadow-sm border">
+                            <CardContent className="p-3">
+                            <div className="font-semibold">{chat.companyName}</div>
+                            <div className="text-muted-foreground text-sm truncate">
+                                {chat.lastMessage}
+                            </div>
+                            </CardContent>
+                        </Card>
                         ))}
+
                     </ul>
                     </AccordionContent>
                 </AccordionItem>
@@ -56,8 +80,22 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
                     <AccordionTrigger>👍 Recent Interactions</AccordionTrigger>
                     <AccordionContent>
                     <ul className="space-y-2 text-sm">
+                        {/* {recentPosts.map((post) => (
+                        <li onClick = {() => navigate(`/post/${post.postId}`)}
+                        key={post.postId}>{post.title}</li>
+                        ))} */}
+
                         {recentPosts.map((post) => (
-                        <li key={post.id}>{post.title}</li>
+                        <Card key={post.postId} 
+                                className="hover:bg-muted transition cursor-pointer" 
+                                onClick={() => navigate(`/post/${post.postId}`)}>
+                            <CardContent className="p-3">
+                            <div className="font-medium">{post.title}</div>
+                            <div className="text-muted-foreground text-xs mt-1">
+                                Click to view post
+                            </div>
+                            </CardContent>
+                        </Card>
                         ))}
                     </ul>
                     </AccordionContent>

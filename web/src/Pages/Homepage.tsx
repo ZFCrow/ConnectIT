@@ -9,11 +9,6 @@ import FullHeightVerticalBar from '@/components/FullHeightVerticalBar';
 import { mockPosts } from '@/components/FakeData/mockPosts';
 import { PopularTags } from '@/components/FakeData/PopularTags';
 
-// for the right side bar 
-import { mockRecentChats } from '@/components/FakeData/MockRecentChats';
-import { mockAppliedJobs } from '@/components/FakeData/MockAppliedJobs'; 
-import { mockRecentPosts } from '@/components/FakeData/MockRecentPosts'; 
-
 
 
 interface Response {
@@ -36,9 +31,6 @@ const Homepage = () => {
   const [posts, setPosts] = useState(mockPosts); // use the mock data for now 
   const [tags, setTags] = useState(PopularTags); // use the mock data for now 
 
-  const [appliedJobs, setAppliedJobs] = useState(mockAppliedJobs); 
-  const [recentChats, setRecentChats] = useState(mockRecentChats); 
-  const [recentPosts, setRecentPosts] = useState(mockRecentPosts);
 
   useEffect( ()=> {
     api
@@ -52,10 +44,23 @@ const Homepage = () => {
     .catch ((err: AxiosError) => {
       console.log('APIERROR:', err.message)
     })
-    
-  
-
   }, []);
+
+  const handleSortClick = (criterion: string) => {
+    const sorted = [...posts];
+
+    if (criterion === 'Most Recent') {
+      sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    } else if (criterion === 'Most Liked') {
+      sorted.sort((a, b) => b.likes - a.likes); // if likes exists
+    } else if (criterion === 'Most Commented') {
+      sorted.sort((a, b) => b.comments.length - a.comments.length);
+    }
+
+    setPosts(sorted);
+  };
+
+
   return (
     <>
       <div className='flex w-full gap-6'>
@@ -68,17 +73,14 @@ const Homepage = () => {
         {/* Middle content - grows to fill available space */}
         <div className='flex-1 flex gap-2 flex-col'>
           <CreatePostbar/>
-          {posts.map((p,i) => (
-            <Postcard key={i} {...p}/>
-          ))}
+          {posts.map((p) => {
+            return <Postcard key={p.id} {...p}></Postcard>
+            })}
         </div>
         
         {/* Right sidebar - fixed width */}
         <div className='w-100 flex-shrink-0 ml-4'>
-          <FullHeightVerticalBar
-            appliedJobs={appliedJobs}
-            recentChats={recentChats}
-            recentPosts={recentPosts}
+          <FullHeightVerticalBar userId={1}
           /> 
           
         </div>

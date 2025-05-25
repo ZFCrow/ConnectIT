@@ -6,6 +6,8 @@ import Login from "@/Pages/auth/Login";
 import Navbar from "./components/Navbar";
 import JobListingPage from "./Pages/JobListing";
 import JobDetailPage from "./Pages/JobDetails";
+import Postpage from "@/Pages/Postpage";
+
 import {
   jobDetailsRoute,
   jobListingRoute,
@@ -20,6 +22,7 @@ function App() {
         <main className="flex-grow flex items-center justify-center">
           <Routes>
             <Route path="/" element={<Homepage />} />
+            <Route path="/post/:postID" element={<Postpage />} /> 
             <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
