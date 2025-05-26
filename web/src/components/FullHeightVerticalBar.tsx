@@ -41,8 +41,8 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
     const navigate = useNavigate(); 
 
     return (
-        <ScrollArea className="h-screen p-4">
-            <Accordion type="multiple" className="space-y-4 ">
+        // <ScrollArea className="h-screen p-4">
+            <Accordion type="multiple" className="space-y-4">
 
                 <AccordionItem value="applied">
                     <AccordionTrigger>📄 Recently Applied Job</AccordionTrigger>
@@ -102,7 +102,7 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
                 </AccordionItem>
 
             </Accordion>
-        </ScrollArea>
+        // </ScrollArea>
     )
 } 
 

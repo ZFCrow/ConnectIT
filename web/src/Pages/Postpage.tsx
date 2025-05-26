@@ -23,16 +23,14 @@ const Postpage = () => {
 
 
     return (
-
-
-      <div className='flex w-full gap-20'>
+      <div className='flex w-full gap-20 max-h-screen'>
         
         <div className="ml-3 flex-1">
             <Postcard {...post} detailMode={true} />
         </div>
         
         {/* Right sidebar - fixed width */}
-        <div className='w-100 flex-shrink-0 border-1'>
+        <div className='w-100 flex-shrink-0 sticky top-20'>
           <FullHeightVerticalBar
             userId = {1} 
           /> 

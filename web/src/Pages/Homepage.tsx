@@ -76,23 +76,26 @@ const Homepage = () => {
 
   return (
     <>
-      <div className='flex w-full gap-6'>
+      <div className='flex h-full overflow-hidden'>
         {/* Left sidebar - fixed width */}
-        <div className='w-64 flex-shrink-0 flex flex-col gap-2 mr-4 ml-4 sticky top-20 max-h-screen self-start'> 
+        <div className='w-64 flex-shrink-0 flex flex-col gap-2 p-4'> 
           <ListingCard title="Popular Tags" listofitems={tags} onClick={handleFilterClick} onClickReset={handleReset} type='filter'/>
           <ListingCard title="Sort by" listofitems={["Most Recent","Most Liked","Most Commented"]} onClick={handleSortClick} onClickReset={handleReset} type='sort'/> 
         </div>
         
         {/* Middle content - grows to fill available space */}
-        <div className='flex-1 flex gap-2 flex-col overflow-y-auto'>
-          <CreatePostbar/>
-          {posts.map((p) => {
-            return <Postcard key={p.id} {...p}></Postcard>
-            })}
-        </div>
+          {/* Scrollabel content*/}
+          <div className='flex-1 flex flex-col gap-4 overflow-y-auto px-4 py-3 scrollbar-hide'>
+            <CreatePostbar/>
+            {posts.map((p) => {
+              return <Postcard key={p.id} {...p}></Postcard>
+              })}
+          </div>
+     
+
         
         {/* Right sidebar - fixed width */}
-        <div className='w-100 flex-shrink-0 ml-4 sticky max-h-screen top-20'>
+        <div className='w-72 flex-shrink-0 p-4 h-screen'>
           <FullHeightVerticalBar userId={1}
           /> 
           
