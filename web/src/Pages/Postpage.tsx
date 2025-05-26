@@ -25,9 +25,9 @@ const Postpage = () => {
     return (
 
 
-      <div className='flex  w-full gap-20'>
+      <div className='flex w-full gap-20'>
         
-        <div className="flex-1">
+        <div className="ml-3 flex-1">
             <Postcard {...post} detailMode={true} />
         </div>
         

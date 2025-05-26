@@ -38,7 +38,8 @@ export const mockPosts: PostProps[] = [
     date: "2025-05-17",
     labels: [
       { name: "job-search", color: "red" },
-      { name: "mental-health", color: "pink" }
+      { name: "mental-health", color: "pink" },
+      { name: "career", color: "blue" } 
     ],
     title: "Can’t find work after graduation 😞",
     content:

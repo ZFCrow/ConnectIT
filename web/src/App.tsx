@@ -19,7 +19,7 @@ function App() {
       <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
         <Navbar />
 
-        <main className="flex-grow flex items-center justify-center">
+        <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/post/:postID" element={<Postpage />} /> 

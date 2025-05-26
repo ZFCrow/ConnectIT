@@ -32,7 +32,7 @@ const Navbar = () => {
     const isDark = theme === "dark" 
     
     return(
-        <nav className="flex justify-between px-4 pt-3"> 
+        <nav className="flex justify-between px-4 pt-3 sticky max-h-screen top-0 h-16"> 
             <NavigationMenu >
                 <NavigationMenuList >
                     <NavigationMenuItem >

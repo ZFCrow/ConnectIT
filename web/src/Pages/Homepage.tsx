@@ -60,18 +60,31 @@ const Homepage = () => {
     setPosts(sorted);
   };
 
+  const handleFilterClick = (tag: string) => { 
+    const filteredPosts = mockPosts.filter(post => post.labels.some(label => label.name === tag));
+    setPosts(filteredPosts);
+  } 
+
+  const handleReset = (type: string ) => { 
+    if (type === 'filter') {
+      setPosts(mockPosts); // Reset to original posts
+    } else if (type === 'sort') {
+      setPosts(mockPosts); // Reset to original posts
+    } 
+  }
+
 
   return (
     <>
       <div className='flex w-full gap-6'>
         {/* Left sidebar - fixed width */}
-        <div className='w-64 flex-shrink-0 flex flex-col gap-2 mr-4 ml-4'> 
-          <ListingCard title="Popular Tags" listofitems={tags} onClick={() => {}}/>
-          <ListingCard title="Sort by" listofitems={["Most Recent","Most Liked","Most Commented"]} onClick={() => {}}/> 
+        <div className='w-64 flex-shrink-0 flex flex-col gap-2 mr-4 ml-4 sticky top-20 max-h-screen self-start'> 
+          <ListingCard title="Popular Tags" listofitems={tags} onClick={handleFilterClick} onClickReset={handleReset} type='filter'/>
+          <ListingCard title="Sort by" listofitems={["Most Recent","Most Liked","Most Commented"]} onClick={handleSortClick} onClickReset={handleReset} type='sort'/> 
         </div>
         
         {/* Middle content - grows to fill available space */}
-        <div className='flex-1 flex gap-2 flex-col'>
+        <div className='flex-1 flex gap-2 flex-col overflow-y-auto'>
           <CreatePostbar/>
           {posts.map((p) => {
             return <Postcard key={p.id} {...p}></Postcard>
@@ -79,7 +92,7 @@ const Homepage = () => {
         </div>
         
         {/* Right sidebar - fixed width */}
-        <div className='w-100 flex-shrink-0 ml-4'>
+        <div className='w-100 flex-shrink-0 ml-4 sticky max-h-screen top-20'>
           <FullHeightVerticalBar userId={1}
           /> 
           
