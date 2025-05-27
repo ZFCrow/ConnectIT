@@ -10,22 +10,32 @@ import {
   Bookmark,
   User,
   BookmarkCheck,
+  Edit2,
+  Trash2,
+  User2,
 } from "lucide-react";
 import type { JobListing } from "../../type/jobListing";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { dateLocale, dateFormatOptions } from "./SharedConfig";
 import { useState } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
-type Props = { job: JobListing };
+type Props = { job: JobListing; userType: string };
 
-const JobCard: React.FC<Props> = ({ job }) => {
+const JobCard: React.FC<Props> = ({ job, userType }) => {
+  const navigate = useNavigate();
   const posted = new Date(job.createdAt).toLocaleDateString(
     dateLocale,
     dateFormatOptions
   );
   const [open, setOpen] = useState(false);
-
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this job listing?")) {
+      // TODO: call delete API or update state
+      console.log("Deleting job", job.jobId);
+      // e.g., navigate back or refresh list
+    }
+  };
   return (
     <div
       className="
@@ -33,33 +43,38 @@ const JobCard: React.FC<Props> = ({ job }) => {
         grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_1fr] gap-x-6 gap-y-4
       "
     >
-      {/* Title + Field Tag */}
+      {/* Title + Applicant Count + Actions */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-white">{job.title}</h2>
-          <button
-            aria-label="Save job"
-            className="
-              p-1 rounded-full text-gray-400
-              hover:bg-zinc-800 hover:text-white
-              transition
-            "
-          >
-            {job.saved ? (
-              <BookmarkCheck className="w-6 h-6" />
-            ) : (
-              <Bookmark className="w-6 h-6" />
-            )}
-          </button>
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-2xl font-bold text-white leading-tight">
+            {job.title}
+          </h2>
+
+          {userType === "company" ? (
+            <>
+              <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
+                <User2 className="w-5 h-5 text-gray-300" />
+                <span className="text-sm font-medium text-gray-300">
+                  3 application(s)
+                  {/* TODO: Replace with actual count */}
+                </span>
+              </div>
+            </>
+          ) : job.saved ? (
+            <BookmarkCheck className="w-6 h-6 text-green-500" />
+          ) : (
+            <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+          )}
         </div>
+
         {/* Field badge */}
         <span
           className="
-            inline-block
-            bg-indigo-600 text-white text-xs font-semibold
-            uppercase tracking-wide
-            px-2 py-0.5 rounded
-          "
+      inline-block
+      bg-indigo-600 text-white text-xs font-semibold
+      uppercase tracking-wide
+      px-2 py-0.5 rounded
+    "
         >
           {job.field}
         </span>
@@ -144,41 +159,41 @@ const JobCard: React.FC<Props> = ({ job }) => {
 
       {/* Buttons Column */}
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
+        {userType === "company" && (
+          <>
+            <button
+              onClick={() => navigate(`/company/jobForm/${job.jobId}`)}
+              className="flex items-center justify-center border border-yellow-500 text-yellow-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-yellow-500 hover:text-white transition"
+            >
+              <Edit2 className="w-4 h-4 mr-1" /> Edit
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex items-center justify-center border border-red-500 text-red-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-red-500 hover:text-white transition"
+            >
+              <Trash2 className="w-4 h-4 mr-1" /> Delete
+            </button>
+          </>
+        )}
         <Link
           to={`/jobDetails/${job.jobId}`}
-          className="
-            block text-center
-            border border-blue-500 text-blue-500 text-sm font-medium
-            w-full px-4 py-1 rounded-xl
-            hover:bg-blue-500 hover:text-white
-            transition
-          "
+          className="block text-center border border-blue-500 text-blue-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-blue-500 hover:text-white transition"
         >
           View Details
         </Link>
-
-        {!job.applied ? (
-          <button
-            onClick={() => setOpen(true)}
-            className="
-      border border-green-500 text-green-500 text-sm font-medium
-      w-full px-4 py-1 rounded-xl
-      hover:bg-green-500 hover:text-white
-      transition
-    "
-          >
-            Apply Now
-          </button>
-        ) : (
-          <div
-            className="
-      text-center text-sm text-gray-400 border border-gray-600
-      w-full px-4 py-1 rounded-xl
-    "
-          >
-            Applied
-          </div>
-        )}
+        {userType !== "company" &&
+          (!job.applied ? (
+            <button
+              onClick={() => setOpen(true)}
+              className="border border-green-500 text-green-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-green-500 hover:text-white transition"
+            >
+              Apply Now
+            </button>
+          ) : (
+            <div className="text-center text-sm text-gray-400 border border-gray-600 w-full px-4 py-1 rounded-xl">
+              Applied
+            </div>
+          ))}
         <ResumeUploadModal
           isOpen={open}
           onClose={() => setOpen(false)}

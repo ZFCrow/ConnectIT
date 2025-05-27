@@ -12,13 +12,15 @@ import {
   applicationRoute,
 } from "@/components/JobOpportunity/SharedConfig";
 import MyJobsPage from "./Pages/JobOpportunity/SavedJob";
+import CompanyJobsPage from "./Pages/JobOpportunity/CompanyJobPage";
+import CreateEditJobPage from "./Pages/JobOpportunity/CreateEditJobPage";
 function App() {
   return (
     <>
       <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
         <Navbar />
 
-        <main className="flex-grow flex items-center justify-center">
+        <main className="flex-grow flex items-start justify-center">
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/otherpage" element={<Otherpage />} />
@@ -27,6 +29,11 @@ function App() {
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
             <Route path="/myJobs" element={<MyJobsPage />} />
+            <Route path="/company/myJobs" element={<CompanyJobsPage />} />
+            <Route
+              path="/company/jobForm/:jobId?"
+              element={<CreateEditJobPage />}
+            />
             {/* Add more routes as needed */}
           </Routes>
         </main>

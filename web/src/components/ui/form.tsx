@@ -1,5 +1,5 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<
   HTMLInputElement,
@@ -15,9 +15,9 @@ const Input = React.forwardRef<
       ref={ref}
       {...props}
     />
-  )
-})
-Input.displayName = "Input"
+  );
+});
+Input.displayName = "Input";
 
 const Label = React.forwardRef<
   HTMLLabelElement,
@@ -26,14 +26,14 @@ const Label = React.forwardRef<
   return (
     <label
       ref={ref}
-      className={cn("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+      className={cn(
+        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        className
+      )}
       {...props}
     />
-  )
-})
-Label.displayName = "Label"
+  );
+});
+Label.displayName = "Label";
 
-export { 
-    Input,
-    Label
- }
+export { Input, Label };

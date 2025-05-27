@@ -134,7 +134,9 @@ const JobListingPage: React.FC = () => {
         {/* Job Cards */}
         <div className="flex-1 space-y-6">
           {paginated.length > 0 ? (
-            paginated.map((job) => <JobCard key={job.jobId} job={job} />)
+            paginated.map((job) => (
+              <JobCard key={job.jobId} job={job} userType="user" />
+            ))
           ) : (
             <div className="h-[200px] flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg">
               <span className="text-gray-400 text-lg">No results found.</span>
