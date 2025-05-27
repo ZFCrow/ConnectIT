@@ -4,6 +4,7 @@ import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
+const HARD_CODED_USER_TYPE = "Company"; // TODO: Replace with actual user type from auth/context
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const job = sampleJobs.find((j) => j.jobId === Number(jobId));
@@ -23,7 +24,9 @@ export default function JobDetailPage() {
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
       {/* Back link */}
       <Link
-        to="/jobListing"
+        to={
+          HARD_CODED_USER_TYPE == "Company" ? "/company/myJobs" : "/jobListing"
+        }
         className="
           inline-flex items-center space-x-1
           text-s font-medium
@@ -39,7 +42,7 @@ export default function JobDetailPage() {
         <span>Back to Listing</span>
       </Link>
       {/* Job details in a card */}
-      <JobDetailsCard job={job} />
+      <JobDetailsCard job={job} userType={HARD_CODED_USER_TYPE} />
       <ApplicationToaster />{" "}
     </div>
   );

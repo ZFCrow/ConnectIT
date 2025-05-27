@@ -79,7 +79,9 @@ export default function MyJobsPage() {
       {/* Job Cards */}
       <div className="space-y-6">
         {jobsToShow.length > 0 ? (
-          jobsToShow.map((job) => <JobCard key={job.jobId} job={job} />)
+          jobsToShow.map((job) => (
+            <JobCard key={job.jobId} job={job} userType="user" />
+          ))
         ) : (
           <div className="h-[200px] flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg">
             <span className="text-gray-400 text-lg">

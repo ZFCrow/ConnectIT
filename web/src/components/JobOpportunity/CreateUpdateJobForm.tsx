@@ -21,6 +21,7 @@ const fieldOptions = [
 
 // Default empty job
 const defaultJob = (): JobListing => ({
+  applicants: [],
   jobId: Date.now(),
   companyId: 123,
   title: "",

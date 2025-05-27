@@ -47,6 +47,11 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
       <div className="space-y-1">
         <div className="flex items-baseline gap-3">
           <h2 className="text-2xl font-bold text-white leading-tight">
+            {userType === "company" ? (
+              <span className="text-gray-400">#{job.jobId}</span>
+            ) : (
+              <></>
+            )}{" "}
             {job.title}
           </h2>
 
