@@ -4,13 +4,14 @@ import Otherpage from "@/Pages/Otherpage";
 import Register from "@/Pages/auth/Register";
 import Login from "@/Pages/auth/Login";
 import Navbar from "./components/Navbar";
-import JobListingPage from "./Pages/JobListing";
-import JobDetailPage from "./Pages/JobDetails";
+import JobListingPage from "./Pages/JobOpportunity/JobListing";
+import JobDetailPage from "./Pages/JobOpportunity/JobDetails";
 import {
   jobDetailsRoute,
   jobListingRoute,
   applicationRoute,
 } from "@/components/JobOpportunity/SharedConfig";
+import MyJobsPage from "./Pages/JobOpportunity/SavedJob";
 function App() {
   return (
     <>
@@ -25,6 +26,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
+            <Route path="/myJobs" element={<MyJobsPage />} />
             {/* Add more routes as needed */}
           </Routes>
         </main>

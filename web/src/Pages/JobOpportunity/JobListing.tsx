@@ -1,10 +1,10 @@
 // src/pages/JobListingPage.tsx
 import React, { useState } from "react";
-import JobCard from "../components/JobOpportunity/JobCard";
-import { sampleJobs } from "../components/FakeData/sampleJobs";
+import JobCard from "../../components/JobOpportunity/JobCard";
+import { sampleJobs } from "../../components/FakeData/sampleJobs";
 
-import FilterSection from "../components/JobOpportunity/FilterSection";
-import type { SortOption } from "../components/JobOpportunity/FilterSection";
+import FilterSection from "../../components/JobOpportunity/FilterSection";
+import type { SortOption } from "../../components/JobOpportunity/FilterSection";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
 import { Link } from "react-router-dom";
 import { Bookmark, CheckCircle } from "lucide-react";
@@ -62,7 +62,7 @@ const JobListingPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Job Opportunities Board</h1>
         <Link
-          to="/savedJobs"
+          to="/myJobs"
           className="
             inline-flex items-center gap-2
             text-xl font-medium text-blue-500

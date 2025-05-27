@@ -14,4 +14,6 @@ export type JobListing = {
   createdAt: string;
   responsibilities?: string[];
   yearsOfExperience?: number;
+  applied?: boolean;
+  saved?: boolean;
 };

@@ -9,6 +9,7 @@ import {
   DollarSign,
   Bookmark,
   User,
+  BookmarkCheck,
 } from "lucide-react";
 import type { JobListing } from "../../type/jobListing";
 import { Link } from "react-router-dom";
@@ -44,7 +45,11 @@ const JobCard: React.FC<Props> = ({ job }) => {
               transition
             "
           >
-            <Bookmark className="w-6 h-6" />
+            {job.saved ? (
+              <BookmarkCheck className="w-6 h-6" />
+            ) : (
+              <Bookmark className="w-6 h-6" />
+            )}
           </button>
         </div>
         {/* Field badge */}
@@ -151,17 +156,29 @@ const JobCard: React.FC<Props> = ({ job }) => {
         >
           View Details
         </Link>
-        <button
-          onClick={() => setOpen(true)}
-          className="
-            border border-green-500 text-green-500 text-sm font-medium
-            w-full px-4 py-1 rounded-xl
-            hover:bg-green-500 hover:text-white
-            transition
-          "
-        >
-          Apply Now
-        </button>
+
+        {!job.applied ? (
+          <button
+            onClick={() => setOpen(true)}
+            className="
+      border border-green-500 text-green-500 text-sm font-medium
+      w-full px-4 py-1 rounded-xl
+      hover:bg-green-500 hover:text-white
+      transition
+    "
+          >
+            Apply Now
+          </button>
+        ) : (
+          <div
+            className="
+      text-center text-sm text-gray-400 border border-gray-600
+      w-full px-4 py-1 rounded-xl
+    "
+          >
+            Applied
+          </div>
+        )}
         <ResumeUploadModal
           isOpen={open}
           onClose={() => setOpen(false)}
