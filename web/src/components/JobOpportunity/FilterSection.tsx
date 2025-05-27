@@ -8,6 +8,9 @@ interface FilterSectionProps {
   onFilterTypeChange: (value: string) => void;
   filterArrangement: string;
   onFilterArrangementChange: (value: string) => void;
+  filterField: string;
+  onFilterFieldChange: (v: string) => void;
+  fieldOptions: string[];
   minSalary: string;
   onMinSalaryChange: (value: string) => void;
   maxSalary: string;
@@ -24,6 +27,9 @@ const FilterSection: React.FC<FilterSectionProps> = ({
   onFilterTypeChange,
   filterArrangement,
   onFilterArrangementChange,
+  filterField,
+  onFilterFieldChange,
+  fieldOptions,
   minSalary,
   onMinSalaryChange,
   maxSalary,
@@ -65,7 +71,21 @@ const FilterSection: React.FC<FilterSectionProps> = ({
         ))}
       </select>
     </div>
-
+    {/* Field Selection */}
+    <div className="space-y-1">
+      <label className="block text-sm text-gray-300">Field</label>
+      <select
+        value={filterField}
+        onChange={(e) => onFilterFieldChange(e.target.value)}
+        className="w-full p-2 bg-zinc-800 border border-zinc-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition"
+      >
+        {fieldOptions.map((f) => (
+          <option key={f} value={f}>
+            {f}
+          </option>
+        ))}
+      </select>
+    </div>
     {/* Salary Range */}
     <div className="space-y-1">
       <label className="block text-sm text-gray-300">Salary Range (SGD)</label>

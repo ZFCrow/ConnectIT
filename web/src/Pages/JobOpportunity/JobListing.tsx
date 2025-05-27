@@ -14,11 +14,13 @@ const JobListingPage: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<string>("All");
   const [filterArrangement, setFilterArrangement] = useState<string>("All");
+  const [filterField, setFilterField] = useState<string>("All");
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [currentPage, setCurrentPage] = useState<number>(1);
-
+  const allFields = Array.from(new Set(sampleJobs.map((j) => j.field))).sort();
+  allFields.unshift("All");
   // 1) Filter
   const filtered = sampleJobs.filter((job) => {
     const matchesSearch = job.title
@@ -27,10 +29,16 @@ const JobListingPage: React.FC = () => {
     const matchesType = filterType === "All" || job.type === filterType;
     const matchesArrangement =
       filterArrangement === "All" || job.workArrangement === filterArrangement;
+    const matchesField = filterField === "All" || job.field === filterField;
     const meetsMin = !minSalary || job.minSalary >= Number(minSalary);
     const meetsMax = !maxSalary || job.maxSalary <= Number(maxSalary);
     return (
-      matchesSearch && matchesType && matchesArrangement && meetsMin && meetsMax
+      matchesSearch &&
+      matchesType &&
+      matchesArrangement &&
+      matchesField &&
+      meetsMin &&
+      meetsMax
     );
   });
 
@@ -102,6 +110,12 @@ const JobListingPage: React.FC = () => {
               setFilterArrangement(v);
               setCurrentPage(1);
             }}
+            filterField={filterField}
+            onFilterFieldChange={(v) => {
+              setFilterField(v);
+              setCurrentPage(1);
+            }}
+            fieldOptions={allFields}
             minSalary={minSalary}
             onMinSalaryChange={(v) => {
               setMinSalary(v);
