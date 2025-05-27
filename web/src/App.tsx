@@ -16,13 +16,13 @@ import {
 function App() {
   return (
     <>
-      <div className="h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
+      <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
         <Navbar />
 
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-y-auto scrollbar-hide">
           <Routes>
             <Route path="/" element={<Homepage />} />
-            <Route path="/post/:postID" element={<Postpage />} /> 
+            <Route path="/post/:postID" element={<Postpage />} />
             <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
