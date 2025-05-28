@@ -3,6 +3,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import Otherpage from "@/Pages/Otherpage";
 import Register from "@/Pages/auth/Register";
 import Login from "@/Pages/auth/Login";
+import ProfilePage from "@/Pages/Profile";
 import Navbar from "./components/Navbar";
 import JobListingPage from "./Pages/JobListing";
 import JobDetailPage from "./Pages/JobDetails";
@@ -26,6 +27,7 @@ function App() {
             <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
             {/* Add more routes as needed */}
