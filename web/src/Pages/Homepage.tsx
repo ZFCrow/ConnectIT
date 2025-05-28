@@ -72,9 +72,16 @@ const Homepage = () => {
     }
   };
 
+  const handleHide = (postID: Number) => {
+    // This function will handle hiding a post
+    // For now, we will just filter it out from the posts array
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postID)); 
+  } 
+
+
   return (
     <>
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
         <aside className="w-64 flex-shrink-0 p-4 space-y-2">
           <ListingCard
@@ -98,13 +105,13 @@ const Homepage = () => {
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
           <CreatePostbar />
           {posts.map((p) => {
-            return <Postcard key={p.id} {...p}></Postcard>;
+            return <Postcard key={p.id} {...p} onHide={handleHide}></Postcard>;
           })}
         </section>
 
         {/* Right sidebar - fixed width */}
-        <aside className="w-72 flex-shrink-0 p-4">
-          <FullHeightVerticalBar userId={1} />
+        <aside className="w-72 flex-shrink-0 p-4 overflow-y-auto scrollbar-hide">
+          <FullHeightVerticalBar accountID={1} />
         </aside>
       </div>
     </>

@@ -1,10 +1,7 @@
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
@@ -12,24 +9,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
-import ModeToggle from "@/components/ModeToggle";
 import DropDownButton from "./DropdownButton";
 import { UserCircle, LogOut, Moon, Sun, Computer } from "lucide-react";
 
 import { useTheme } from "./theme-provider";
 import clsx from "clsx";
 
+import { useAuth } from "@/contexts/AuthContext";
+
+
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
+
+  const {accountId, role, logout} = useAuth(); 
+  console.log("Navbar rendered with role:", role);
 
   return (
     <nav
@@ -64,29 +64,33 @@ const Navbar = () => {
             </Link>
           </NavigationMenuItem>
 
-          <NavigationMenuItem>
-            <Link
-              to="/otherpage"
-              className={clsx(
-                navigationMenuTriggerStyle(),
-                "dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 hover:!bg-amber-100"
-              )}
-            >
-              Messages{" "}
-            </Link>
-          </NavigationMenuItem>
+          {role === "company" && (
+            <NavigationMenuItem>
+              <Link
+                to="/jobListing"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                )}
+              >
+                My Jobs
+              </Link>
+            </NavigationMenuItem>
+          )}
 
-          <NavigationMenuItem>
-            <Link
-              to="/otherpage"
-              className={clsx(
-                navigationMenuTriggerStyle(),
-                "dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 hover:!bg-amber-100"
-              )}
-            >
-              Quiz{" "}
-            </Link>
-          </NavigationMenuItem>
+          {role === "user" && (
+            <NavigationMenuItem>
+              <Link
+                to="/quiz"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                )}
+              >
+                Quiz
+              </Link>
+            </NavigationMenuItem>
+          )}
 
           <NavigationMenuItem>
             <DropdownMenu>

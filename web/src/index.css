@@ -2,8 +2,19 @@
 @import "tw-animate-css";
 
 
+/* 
+@plugin "tailwind-scrollbar-hide"; */
 
-@plugin "tailwind-scrollbar-hide";
+
+/* Remove the @plugin line and add these classes manually */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
 
 @custom-variant dark (&:is(.dark *));
 

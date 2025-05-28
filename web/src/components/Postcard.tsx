@@ -57,11 +57,13 @@ export type PostProps = {
 };
 
 type PostcardProps = PostProps & {
-  detailMode?: boolean; // ✅ optional, with default = false
+    detailMode?: boolean; // ✅ optional, with default = false
+    onReport?: () => void; // Optional callback for report action 
+    onHide?: (postId : Number) => void; // Optional callback for hide action 
 };
 
 
-const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes,liked}) => { 
+const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,likes,liked, detailMode,onReport,onHide}) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -105,7 +107,7 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
                             </div>
                         </div>
 
-                        <div>
+                        <div onClick={(e) => e.stopPropagation()} >
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon">
@@ -118,9 +120,13 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
                                     <DropdownMenuItem onSelect={() => console.log("report")}>
                                     <Flag/>Report
                                     </DropdownMenuItem> 
-                                    <DropdownMenuItem onSelect={() => console.log("hide")}>
-                                    <EyeOff/>Hide
-                                    </DropdownMenuItem>
+                                    {
+                                        onHide && (
+                                            <DropdownMenuItem onSelect={() => {onHide(id);}}>
+                                                <EyeOff/>Hide
+                                            </DropdownMenuItem>
+                                        )
+                                    }
                                 </DropdownMenuContent>
                             </DropdownMenu>  
                         </div>

@@ -46,7 +46,7 @@ export const mockPosts: PostProps[] = [
       "It’s been 4 months since I graduated and zero callbacks. I feel worthless, and some days I don’t know why I even get up.",
     comments: [],
     likes: 2,
-    liked: false
+    liked: true
   },
   {
     id: 4,

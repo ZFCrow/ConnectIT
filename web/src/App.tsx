@@ -16,10 +16,10 @@ import {
 function App() {
   return (
     <>
-      <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors">
+      <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors ">
         <Navbar />
 
-        <main className="flex-1 overflow-y-auto scrollbar-hide">
+        <main className="flex-1">
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/post/:postID" element={<Postpage />} />
