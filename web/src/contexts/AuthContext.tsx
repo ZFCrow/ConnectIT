@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setCompanyId(companyId ?? null);
         } 
         else {
-            // for now we hardcode the values 
+            //!!  for now we HARDCODE the values 
             login(1, "company", { companyId: 1}); 
 
         }

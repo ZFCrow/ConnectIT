@@ -29,7 +29,9 @@ const Navbar = () => {
   const isDark = theme === "dark";
 
   const {accountId, role, logout} = useAuth(); 
+
   console.log("Navbar rendered with role:", role);
+  console.log("Navbar rendered with accountId:", accountId); 
 
   return (
     <nav
