@@ -4,8 +4,8 @@ import Otherpage from "@/Pages/Otherpage";
 import Register from "@/Pages/auth/Register";
 import Login from "@/Pages/auth/Login";
 import Navbar from "./components/Navbar";
-import JobListingPage from "./Pages/JobListing";
-import JobDetailPage from "./Pages/JobDetails";
+import JobListingPage from "./Pages/JobOpportunity/JobListing";
+import JobDetailPage from "./Pages/JobOpportunity/JobDetails";
 import Postpage from "@/Pages/Postpage";
 
 import {
@@ -22,7 +22,7 @@ function App() {
       <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors ">
         <Navbar />
 
-        <main className="flex-grow flex items-start justify-center">
+        <main className="flex-1 flex overflow-hidden">
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/post/:postID" element={<Postpage />} />

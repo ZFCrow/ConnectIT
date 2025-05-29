@@ -75,15 +75,14 @@ const Homepage = () => {
   const handleHide = (postID: Number) => {
     // This function will handle hiding a post
     // For now, we will just filter it out from the posts array
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postID)); 
-  } 
-
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postID));
+  };
 
   return (
     <>
       <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
-        <aside className="w-64 flex-shrink-0 p-4 space-y-2">
+        <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           <ListingCard
             title="Popular Tags"
             listofitems={tags}
