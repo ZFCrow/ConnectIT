@@ -1,4 +1,4 @@
-export const PopularTags = ["React","JavaScript","Homeless"];
+export const PopularTags = ["job-search","career","advice","internship"];
 
 export const allTags = [ 
         "career", 
