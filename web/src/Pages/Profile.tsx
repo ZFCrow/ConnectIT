@@ -78,7 +78,9 @@ const ProfilePage = () => {
 
           {isOwner && (
             <ProfileAction>
-              <Button>Edit Profile</Button>
+              <Link to="/profile/edit">
+                <Button>Edit Profile</Button>
+              </Link>
             </ProfileAction>
           )}
 
