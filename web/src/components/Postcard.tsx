@@ -54,6 +54,7 @@ export type PostProps = {
     comments: Comment[];
     likes : number
     liked : boolean; // ✅ optional, with default = false  
+    userId: number
 };
 
 type PostcardProps = PostProps & {
@@ -61,7 +62,7 @@ type PostcardProps = PostProps & {
 };
 
 
-const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes,liked}) => { 
+const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,detailMode,likes,liked, userId}) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",

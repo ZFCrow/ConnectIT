@@ -1,10 +1,28 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Link } from "react-router-dom"
+import {
+  Briefcase,
+  Calendar,
+  DollarSign,
+} from "lucide-react";
+import type { JobListing } from "@/type/jobListing";
+import { dateLocale, dateFormatOptions } from "@/components/JobOpportunity/SharedConfig";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent
+} from "@/components/ui/card";
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { FC } from "react";
+import type { PostProps } from "./Postcard"; // Reuse PostProps for consistency
 
 const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div
     data-slot="profile"
-    className={cn("grid grid-cols-10 gap-6", className)}
+    className={cn("grid grid-cols-10 gap-6 items-start", className)}
     {...props}
   />
 );
@@ -34,7 +52,7 @@ const ProfileCardRight = ({ className, ...props }: React.ComponentProps<"div">) 
 const ProfileTitle = ({ className, ...props }: React.ComponentProps<"h2">) => (
   <h2
     data-slot="profile-title"
-    className={cn("text-xl font-bold", className)}
+    className={cn("text-xl font-bold mb-6", className)}
     {...props}
   />
 );
@@ -82,6 +100,70 @@ const TabPanel = ({ children, isActive }: { children: React.ReactNode; isActive:
   <div className={cn(!isActive && "hidden")}>{children}</div>
 );
 
+type Props = { job: JobListing };
+
+const ProfileJobCard: React.FC<Props> = ({ job }) => {
+  const posted = new Date(job.createdAt).toLocaleDateString(dateLocale, dateFormatOptions);
+
+  return (
+    <div className="border border-zinc-700 bg-zinc-900 p-4 rounded-xl space-y-2 shadow-sm">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-white">{job.title}</h3>
+        <span className="text-xs text-gray-400">{posted}</span>
+      </div>
+      <div className="text-sm text-gray-300 space-y-1">
+        <div>{job.companyName}</div>
+        <div className="flex flex-wrap gap-4">
+          <span className="flex items-center gap-1">
+            <Briefcase className="w-4 h-4 text-gray-400" />
+            {job.type}
+          </span>
+          <span className="flex items-center gap-1">
+            <DollarSign className="w-4 h-4 text-gray-400" />
+            ${job.minSalary.toLocaleString()}–${job.maxSalary.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <Calendar className="w-4 h-4 text-gray-400" />
+            Deadline: {new Date(job.applicationDeadline).toLocaleDateString(dateLocale, dateFormatOptions)}
+          </span>
+        </div>
+      </div>
+      <div className="text-right">
+        <Link
+          to={`/jobDetails/${job.jobId}`}
+          className="text-blue-500 hover:underline text-sm"
+        >
+          View
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+const ProfilePostCard: FC<PostProps> = ({ id, user, date, title, content }) => {
+  return (
+    <Card className="hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted">
+      <CardHeader>
+        <div className="flex items-center space-x-3">
+          <Avatar>
+            <AvatarImage src="https://github.com/shadcn.png" alt={user} />
+            <AvatarFallback>{user[0]}</AvatarFallback>
+          </Avatar>
+
+          <div>
+            <CardTitle className="text-base font-semibold leading-tight">{title}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">{date}</p>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent>
+        <p className="text-sm leading-relaxed line-clamp-3">{content}</p>
+      </CardContent>
+    </Card>
+  );
+};
+
 export {
   Profile,
   ProfileCardLeft,
@@ -93,4 +175,6 @@ export {
   ProfileAction,
   Tabs,
   TabPanel,
+  ProfileJobCard,
+  ProfilePostCard
 };

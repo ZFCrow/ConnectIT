@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Label, Input } from "@/components/ui/form"
+import { Label, Input, RadioButton } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom" 
 import { cn } from "@/lib/utils"
@@ -34,26 +34,20 @@ export function RegisterForm() {
         <div className="space-y-2">
           <Label className="block">I am signing up as a...</Label>
           <div className="flex gap-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="accountType"
-                value="student"
-                checked={accountType === "student"}
-                onChange={() => setAccountType("student")}
-              />
-              Student / IT Enthusiast
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="accountType"
-                value="company"
-                checked={accountType === "company"}
-                onChange={() => setAccountType("company")}
-              />
-              Company
-            </label>
+            <RadioButton
+              label="Student / IT Enthusiast"
+              name="accountType"
+              value="student"
+              checked={accountType === "student"}
+              onChange={() => setAccountType("student")}
+            />
+            <RadioButton
+              label="Company"
+              name="accountType"
+              value="company"
+              checked={accountType === "company"}
+              onChange={() => setAccountType("company")}
+            />
           </div>
         </div>
       </CardContent>

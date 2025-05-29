@@ -12,6 +12,8 @@ import {
   ProfileAction,
   Tabs,
   TabPanel,
+  ProfileJobCard,
+  ProfilePostCard
 } from "@/components/ProfileCard"
 import { Button } from "@/components/ui/button"
 
@@ -94,13 +96,32 @@ const ProfilePage = () => {
             <div className="pt-4">
               {activeTab === "Posts" && (
                 <TabPanel isActive={true}>
-                  <div className="text-sm text-muted-foreground">User posts go here.</div>
+                  {mockPosts ? (
+                    <div className="space-y-4">
+                      {mockPosts.filter((post) => post.userId == userId).map((post) => (
+                        <ProfilePostCard key={post.id} {...post} />
+                      ))}
+                    </div>
+                  ) : (
+                      <div className="text-sm text-muted-foreground">No posts yet.</div>
+                  )}
                 </TabPanel>
               )}
 
               {activeTab === "Job Listings" && user.role === "Company" && (
                 <TabPanel isActive={true}>
-                  <div className="text-sm text-muted-foreground">Company job listings go here.</div>
+                  {sampleJobs && sampleJobs.length > 0 ? (
+                    <div className="space-y-4">
+                      {sampleJobs.filter((job) => job.companyId == userId)
+                      .map((job) => (
+                        <ProfileJobCard key={job.jobId} job={job} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No jobs posted yet.
+                    </div>
+                  )}
                 </TabPanel>
               )}
 
