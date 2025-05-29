@@ -2,7 +2,7 @@ import type { JobListing } from "../../type/jobListing";
 export const sampleJobs: JobListing[] = [
   {
     jobId: 1,
-    companyId: 101,
+    companyId: 2,
     companyName: "Tech Solutions",
     companyAddress: "123 Tech Lane, Silicon Valley, CA",
     title: "Frontend Developer",

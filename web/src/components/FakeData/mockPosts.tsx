@@ -14,7 +14,8 @@ export const mockPosts: PostProps[] = [
       "I’m torn between going into software engineering or investment banking. Anyone here made the jump from one to the other? What pros/cons should I watch out for?",
     comments: [],
     likes: 8,
-    liked: false
+    liked: false,
+    userId: 1
   },
   {
     id: 2,
@@ -30,7 +31,8 @@ export const mockPosts: PostProps[] = [
       "I’ve applied to 15 places and only got 1 interview. How can I stand out on my resume and portfolio as a second-year CS student?",
     comments: [],
     likes: 5,
-    liked: false
+    liked: false,
+    userId: 1
   },
   {
     id: 3,
@@ -46,7 +48,8 @@ export const mockPosts: PostProps[] = [
       "It’s been 4 months since I graduated and zero callbacks. I feel worthless, and some days I don’t know why I even get up.",
     comments: [],
     likes: 2,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 4,
@@ -64,7 +67,8 @@ export const mockPosts: PostProps[] = [
       { user: "ResumeNinja", content: "I can help!" }
     ],
     likes: 12,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 5,
@@ -79,7 +83,8 @@ export const mockPosts: PostProps[] = [
       "After 5 years in web dev, I’m exhausted and burned out. Has anyone successfully pivoted to a non-tech role? How’d you manage the transition?",
     comments: [],
     likes: 6,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 6,
@@ -94,7 +99,8 @@ export const mockPosts: PostProps[] = [
       "I’m looking for fully remote contracts—any platforms or communities you swear by (besides Upwork and LinkedIn)?",
     comments: [],
     likes: 4,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 7,
@@ -109,7 +115,8 @@ export const mockPosts: PostProps[] = [
       "I left tech in 2013 to raise my family and now want back in. What’s the best way to upskill and convince employers I’m ready?",
     comments: [],
     likes: 7,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 8,
@@ -124,7 +131,8 @@ export const mockPosts: PostProps[] = [
       "I’ve sent out resume after resume and nothing. I’m running out of hope—what else can I do before giving up?",
     comments: [],
     likes: 1,
-    liked: false
+    liked: false,
+    userId: 2
   },
   {
     id: 9,
@@ -139,7 +147,8 @@ export const mockPosts: PostProps[] = [
       "I have two toddlers and barely any time to network or prep for interviews. How do other parents keep the job search going without burning out?",
     comments: [],
     likes: 3,
-    liked: false
+    liked: false,
+    userId: 1
   },
   {
     id: 10,
@@ -154,6 +163,7 @@ export const mockPosts: PostProps[] = [
       "I want to switch careers but can’t afford paid courses right now. Which YouTube channels or free MOOCs actually got you hired?",
     comments: [],
     likes: 9,
-    liked: false
+    liked: false,
+    userId: 1
   }
 ];
