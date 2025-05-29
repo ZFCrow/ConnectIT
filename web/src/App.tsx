@@ -32,7 +32,10 @@ function App() {
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
             <Route path="/myJobs" element={<MyJobsPage />} />
-            <Route path="/company/myJobs" element={<CompanyJobsPage />} />
+            <Route
+              path="/company/recruitmentDashboard"
+              element={<CompanyJobsPage />}
+            />
             <Route
               path="/company/jobForm/:jobId?"
               element={<CreateEditJobPage />}

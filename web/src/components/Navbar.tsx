@@ -23,15 +23,14 @@ import clsx from "clsx";
 
 import { useAuth } from "@/contexts/AuthContext";
 
-
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
-  const {accountId, role, logout} = useAuth(); 
+  const { accountId, role, logout } = useAuth();
 
   console.log("Navbar rendered with role:", role);
-  console.log("Navbar rendered with accountId:", accountId); 
+  console.log("Navbar rendered with accountId:", accountId);
 
   return (
     <nav
@@ -69,13 +68,13 @@ const Navbar = () => {
           {role === "company" && (
             <NavigationMenuItem>
               <Link
-                to="/jobListing"
+                to="/company/recruitmentDashboard"
                 className={clsx(
                   navigationMenuTriggerStyle(),
                   "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
                 )}
               >
-                My Jobs
+                Recruitment Dashboard
               </Link>
             </NavigationMenuItem>
           )}

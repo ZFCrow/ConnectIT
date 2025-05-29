@@ -4,11 +4,11 @@ import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
-const HARD_CODED_USER_TYPE = "Company"; // TODO: Replace with actual user type from auth/context
+import { useAuth } from "@/contexts/AuthContext";
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const job = sampleJobs.find((j) => j.jobId === Number(jobId));
-
+  const { role, userId, companyId } = useAuth();
   if (!job) {
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
@@ -25,7 +25,7 @@ export default function JobDetailPage() {
       {/* Back link */}
       <Link
         to={
-          HARD_CODED_USER_TYPE == "Company" ? "/company/myJobs" : "/jobListing"
+          role === "company" ? "/company/recruitmentDashboard" : "/jobListing"
         }
         className="
           inline-flex items-center space-x-1
@@ -42,7 +42,7 @@ export default function JobDetailPage() {
         <span>Back to Listing</span>
       </Link>
       {/* Job details in a card */}
-      <JobDetailsCard job={job} userType={HARD_CODED_USER_TYPE} />
+      <JobDetailsCard job={job} userType={!role ? "" : role} />
       <ApplicationToaster />{" "}
     </div>
   );

@@ -129,7 +129,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
                 "hover:bg-red-500 hover:text-white transition"
               }
             >
-              Delete
+              Reject
             </button>
           </>
         )}

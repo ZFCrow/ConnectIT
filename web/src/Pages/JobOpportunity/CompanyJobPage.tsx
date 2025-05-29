@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import ApplicantsTab from "../../components/JobOpportunity/ApplicantTab";
 import type { Applicant } from "../../type/applicant";
 import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
-const CURRENT_COMPANY_ID = 101; // Replace with auth/context
+const CURRENT_COMPANY_ID = 1; // Replace with auth/context
 
 const CompanyJobsPage: React.FC = () => {
   const navigate = useNavigate();
