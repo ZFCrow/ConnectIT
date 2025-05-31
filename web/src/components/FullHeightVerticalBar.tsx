@@ -40,10 +40,10 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
     const userIdNum = Number(accountID); 
 
     // const accountID 
-    const accountIDNum = 3;
+    const accountIDNum = 1;
 
     // accountID gives me the role and  userID/companyID depending on the context 
-    const role = 0 || "company"
+    const role = 0 || "user"
 
     // users 
     const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([])
