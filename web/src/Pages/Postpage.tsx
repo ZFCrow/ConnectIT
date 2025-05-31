@@ -47,14 +47,13 @@ const Postpage = () => {
         }
     }, [posts, navigate]);
 
-    // // Get the current post from the posts array
-    // const currentPost = posts && posts.length > 0 ? posts[0] : foundPost;
+    const currentPost = posts[0] || foundPost;
 
     return (
         <div className='flex w-full gap-20 h-[calc(100vh-5rem)]'>
             <div className="ml-3 flex-1">
                 <Postcard 
-                    {...foundPost} 
+                    {...currentPost} 
                     detailMode={true}
                     onDelete={handleDeletePost}
                     onDeleteComment={handleDeleteComment}

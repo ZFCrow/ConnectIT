@@ -35,6 +35,14 @@ export const usePostManager = (initialPosts: Post[]) => {
   const handleDeleteComment = (commentId: number) => {
     console.log("Delete comment with ID:", commentId);
     // TODO: Implement comment deletion logic
+    // filter it out from the post's comments 
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => ({
+        ...post,
+        comments: post.comments.filter((comment) => comment.commentId !== commentId),
+      }))
+    );
+    console.log("Comment deleted with ID:", commentId);
   };
 
   const handleHide = (postId: number) => {
