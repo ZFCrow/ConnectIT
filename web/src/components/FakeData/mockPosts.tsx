@@ -1,7 +1,8 @@
-import type { PostProps } from "../Postcard";
+import type { Post } from "@/type/Post"; 
 
-export const mockPosts: PostProps[] = [
+export const mockPosts: Post[] = [
   {
+    accountId: 1,
     id: 1,
     user: "CareerCounselor",
     date: "2025-05-20",
@@ -17,6 +18,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 2,
     id: 2,
     user: "StudentExplorer",
     date: "2025-05-18",
@@ -33,13 +35,14 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 3,
     id: 3,
     user: "JoblessJoe",
     date: "2025-05-17",
     labels: [
       { name: "job-search", color: "red" },
       { name: "mental-health", color: "pink" },
-      { name: "career", color: "blue" } 
+      { name: "career", color: "blue" }
     ],
     title: "Can’t find work after graduation 😞",
     content:
@@ -49,6 +52,7 @@ export const mockPosts: PostProps[] = [
     liked: true
   },
   {
+    accountId: 4,
     id: 4,
     user: "HopefulGrad",
     date: "2025-05-15",
@@ -67,6 +71,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 5,
     id: 5,
     user: "BurntOutDev",
     date: "2025-05-14",
@@ -82,6 +87,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 6,
     id: 6,
     user: "DreamJobSeeker",
     date: "2025-05-12",
@@ -97,6 +103,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 7,
     id: 7,
     user: "MidlifeCoder",
     date: "2025-05-10",
@@ -112,6 +119,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 8,
     id: 8,
     user: "DepressedAmy",
     date: "2025-05-08",
@@ -127,6 +135,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 9,
     id: 9,
     user: "MotivationDad",
     date: "2025-05-05",
@@ -142,6 +151,7 @@ export const mockPosts: PostProps[] = [
     liked: false
   },
   {
+    accountId: 10,
     id: 10,
     user: "TechNewbie",
     date: "2025-05-02",
@@ -157,3 +167,4 @@ export const mockPosts: PostProps[] = [
     liked: false
   }
 ];
+ 

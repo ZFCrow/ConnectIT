@@ -17,8 +17,6 @@ import { useEffect, useState } from "react";
 //user side
 import type { AppliedJob } from "@/type/AppliedJob";
 import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
-import type { QuizAttempt } from "@/type/QuizAttempt";
-import { mockRecentQuizAttempts } from "@/components/FakeData/MockRecentQuizAttempts";
 import type { RecentPostLike } from "@/type/RecentPostLikes";
 import { mockRecentPostsLikes } from "@/components/FakeData/MockRecentPostsLikes";
 
@@ -27,27 +25,15 @@ import type { JobListing } from "@/type/jobListing";
 import { sampleJobs } from "@/components/FakeData/sampleJobs"
 
 
-
-export interface FullHeightVerticalBarProps {
-    accountID : number; 
-}
+import { useAuth } from "@/contexts/AuthContext";
 
 
-const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
-    { accountID} 
-) => {
-    // depends on the context , this is either a userID or companyID  
-    const userIdNum = Number(accountID); 
+const FullHeightVerticalBar = () => {
 
-    // const accountID 
-    const accountIDNum = 1;
-
-    // accountID gives me the role and  userID/companyID depending on the context 
-    const role = 0 || "user"
+    const { accountId, role, userId, companyId } = useAuth();
 
     // users 
     const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([])
-    const [recentQuizzes, setRecentQuizzes] = useState<QuizAttempt[]>([])
     const [recentPosts, setRecentPosts] = useState<RecentPostLike[]>([])
 
     // companies 
@@ -60,34 +46,23 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
 
     const navigate = useNavigate()
 
-
-    // const appliedJobs = mockAppliedJobs.filter((job) => job.userId === userIdNum);
-    // const recentQuizAttempts = mockRecentQuizAttempts.filter((quiz) => quiz.userId === userIdNum);
-    // const recentPosts = mockRecentPostsLikes.filter((post) => post.userId === userIdNum);
-
-    // const navigate = useNavigate(); 
-
     useEffect(() => {
         if (role === "user"){
             // Fetch applied jobs for the user
-            const userAppliedJobs = mockAppliedJobs.filter((job) => job.userId === userIdNum);
+            const userAppliedJobs = mockAppliedJobs.filter((job) => job.userId === userId);
             setAppliedJobs(userAppliedJobs);
 
-            // Fetch recent quiz attempts for the user
-            const userRecentQuizzes = mockRecentQuizAttempts.filter((quiz) => quiz.userId === userIdNum);
-            setRecentQuizzes(userRecentQuizzes);
-
             // Fetch recent posts liked by the user
-            const userRecentPosts = mockRecentPostsLikes.filter((post) => post.accountId === accountIDNum);
+            const userRecentPosts = mockRecentPostsLikes.filter((post) => post.accountId === accountId);
             setRecentPosts(userRecentPosts);
         }
         else if (role === "company") {
             // Fetch jobs posted by the company
-            const companyJobs = sampleJobs.filter((job) => job.companyId === userIdNum);
+            const companyJobs = sampleJobs.filter((job) => job.companyId === companyId);
             setMyJobs(companyJobs);
 
             // Fetch recent posts liked by the user (this needs to be accountID)
-            const companyRecentPosts = mockRecentPostsLikes.filter((post) => post.accountId === accountIDNum);
+            const companyRecentPosts = mockRecentPostsLikes.filter((post) => post.accountId === companyId);
             setRecentPosts(companyRecentPosts);
 
 
@@ -106,7 +81,7 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
         //         { name: "Total Jobs", value: 200 },
         //     ]);
         // } 
-    },[role, userIdNum, accountIDNum]); 
+    },[role, userId, accountId, companyId]); 
 
     const [openSections, setOpenSections] = useState<string[]>([]);
 
@@ -146,30 +121,7 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
                                 </AccordionContent>
                             </AccordionItem>
 
-                            <AccordionItem value="quizzes">
-                                <AccordionTrigger>💬 Recent Quiz</AccordionTrigger>
-                                <AccordionContent>
-                                <ul className="space-y-2 text-sm">
-                                    {recentQuizzes.map((quiz) => (
-                                    <Card key={quiz.id} className="shadow-sm border">
-                                        <CardContent className="p-3">
-                                        <div className="font-semibold">{quiz.quizTitle}</div>
-                                        <div className="text-muted-foreground text-sm truncate">
-                                            {quiz.date}
-                                        </div>
 
-                                        <AnimatedProgressBar
-                                            target={quiz.score}
-                                            isOpen={openSections.includes("quizzes")}
-                                        />
-                                                
-                                        </CardContent>
-                                    </Card>
-                                    ))}
-
-                                </ul>
-                                </AccordionContent>
-                            </AccordionItem>
 
                             {/* <AccordionItem value="posts">
                                 <AccordionTrigger>👍 Recent Interactions</AccordionTrigger>
@@ -216,6 +168,7 @@ const FullHeightVerticalBar: FC<FullHeightVerticalBarProps> = (
                     </AccordionContent>
                     </AccordionItem>
                 )}
+
                 {
                     role === "company" && (
                         <AccordionItem value="myJobs">

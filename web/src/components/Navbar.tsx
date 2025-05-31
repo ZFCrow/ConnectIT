@@ -80,19 +80,7 @@ const Navbar = () => {
             </NavigationMenuItem>
           )}
 
-          {role === "user" && (
-            <NavigationMenuItem>
-              <Link
-                to="/quiz"
-                className={clsx(
-                  navigationMenuTriggerStyle(),
-                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
-                )}
-              >
-                Quiz
-              </Link>
-            </NavigationMenuItem>
-          )}
+
 
           <NavigationMenuItem>
             <DropdownMenu>

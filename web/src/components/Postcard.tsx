@@ -27,43 +27,29 @@ import { useState } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; 
 
-import { ChevronUp, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "lucide-react";
+import { Trash2, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button"; 
 
 import { useNavigate } from "react-router-dom";
-type Comment = {
-    user: string;
-    content: string; 
-}
 
-// Define valid colors as a type union
-type ValidColor = 'red' | 'blue' | 'green' | 'gray' | 'purple' | 'pink' | 'orange' | 'yellow' | 'lime';
+import { useAuth } from "@/contexts/AuthContext";
 
-type Label ={
-    name: string;
-    color: ValidColor; 
-}
 
-export type PostProps = {
-    id: number;
-    user: string;
-    date: string;
-    labels: Label[]; 
-    title: string;
-    content: string;
-    comments: Comment[];
-    likes : number
-    liked : boolean; // ✅ optional, with default = false  
-};
+import type { Post } from "@/type/Post";
+import type { ValidColor } from "@/type/Label";
 
-type PostcardProps = PostProps & {
+
+
+
+type PostcardProps = Post & {
     detailMode?: boolean; // ✅ optional, with default = false
     onReport?: () => void; // Optional callback for report action 
-    onHide?: (postId : Number) => void; // Optional callback for hide action 
+    onHide?: (postId : Number) => void; // Optional callback for hide action
+    onDelete?: (postId: number) => void; // Add delete callback
 };
 
 
-const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,likes,liked, detailMode,onReport,onHide}) => { 
+const Postcard: FC<PostcardProps> = ({accountId: postAccountId, id, user,date,labels,title,content,comments,likes,liked, detailMode,onReport,onHide, onDelete}) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -76,6 +62,7 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
         yellow: "border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white",
         lime: "border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white",
     };
+    const { accountId, role } = useAuth(); // Get the current user's account ID from context 
 
     const navigate = useNavigate(); 
     const interactiveClasses = detailMode ? "flex-grow" : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted"; 
@@ -117,9 +104,17 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                                 {/* The pop-up menu */}
                                 <DropdownMenuContent side="bottom" align="end" className="w-40">
-                                    <DropdownMenuItem onSelect={() => console.log("report")}>
+                                    {/* <DropdownMenuItem onSelect={() => console.log("report")}>
                                     <Flag/>Report
-                                    </DropdownMenuItem> 
+                                    </DropdownMenuItem>  */}
+
+                                    {
+                                        onDelete && ( role === "admin" || accountId === postAccountId) && (
+                                            <DropdownMenuItem onSelect={() => {onDelete(id);}}>
+                                                <Trash2 className="text-red-500"/>Delete
+                                            </DropdownMenuItem> 
+                                        )
+                                    }
                                     {
                                         onHide && (
                                             <DropdownMenuItem onSelect={() => {onHide(id);}}>

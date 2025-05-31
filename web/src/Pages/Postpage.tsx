@@ -31,9 +31,7 @@ const Postpage = () => {
         
         {/* Right sidebar - fixed width */}
         <div className='w-100 flex-shrink-0 sticky top-20 overflow-y-auto scrollbar-hide'>
-          <FullHeightVerticalBar
-            accountID = {1} 
-          /> 
+          <FullHeightVerticalBar/> 
           
         </div>
       </div>
