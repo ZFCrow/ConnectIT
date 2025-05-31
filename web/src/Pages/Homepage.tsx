@@ -9,6 +9,8 @@ import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { PopularTags } from "@/components/FakeData/PopularTags";
 import { useAuth } from "@/contexts/AuthContext"; 
+import { usePostManager } from "@/components/CustomHooks/usePostManger";
+import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 
 import {
   AlertDialog,
@@ -35,29 +37,28 @@ const api = axios.create({
   baseURL: "/api",
 });
 
-
-// Add violation reasons
-const violationReasons = [
-  "Spam or repetitive content",
-  "Harassment or bullying", 
-  "Hate speech or discrimination",
-  "Misinformation or false claims",
-  "Inappropriate or explicit content",
-  "Copyright infringement",
-  "Off-topic or irrelevant content",
-  "Other policy violation"
-];
-
-
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth(); 
   console.log("all URL:", import.meta.env.VITE_BACKEND_URL);
   const [message, setMessage] = useState<string>("");
 
-  const [posts, setPosts] = useState(mockPosts); // use the mock data for now
+  // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
   const [tags, setTags] = useState(PopularTags); // use the mock data for now
-  const [postToDelete, setPostToDelete] = useState<number | null>(null);
-  const [selectedViolations, setSelectedViolations] = useState<string[]>([]); 
+
+
+  const {
+    posts,
+    setPosts,
+    postToDelete,
+    selectedViolations,
+    handleDeletePost,
+    confirmDelete,
+    cancelDelete,
+    setSelectedViolations,
+    handleDeleteComment,
+    handleHide,
+  } = usePostManager(mockPosts);
+
 
 
   useEffect(() => {
@@ -105,39 +106,6 @@ const Homepage = () => {
     }
   };
 
-  const handleHide = (postID: Number) => {
-    // This function will handle hiding a post
-    // For now, we will just filter it out from the posts array
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postID)); 
-  }
-  
-  
-    // Update handleDeletePost to show confirmation
-    const handleDeletePost = (postID: number) => {
-      setPostToDelete(postID);
-    };
-
-    // Actual deletion function
-    const confirmDelete = () => {
-      if (postToDelete) {
-        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
-        setPostToDelete(null);
-        setSelectedViolations([]); // Reset violations after deletion 
-      }
-    };
-
-    const cancelDelete = () => {
-      setPostToDelete(null);
-      setSelectedViolations([]); // Reset violations when canceling 
-    };
-
-  const handleViolationChange = (violation: string, checked: boolean) => {
-    if (checked) {
-      setSelectedViolations(prev => [...prev, violation]);
-    } else {
-      setSelectedViolations(prev => prev.filter(v => v !== violation));
-    }
-  };
 
   return (
     <>
@@ -162,12 +130,16 @@ const Homepage = () => {
 
         {/* Middle content - grows to fill available space */}
         {/* Scrollabel content*/}
+
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
-          <CreatePostbar />
+        {/* Only show CreatePostbar for non-admin users */}
+          {role !== "admin" && <CreatePostbar />}
           {posts.map((p) => {
             return <Postcard key={p.id} {...p} 
                     onHide={handleHide}
-                    onDelete={handleDeletePost}></Postcard>;
+                    onDelete={handleDeletePost}
+                    onDeleteComment={handleDeleteComment}>
+                    </Postcard>
           })}
         </section>
 
@@ -177,42 +149,14 @@ const Homepage = () => {
         </aside>
 
 
-
         {/* Confirmation Dialog */}
-        <AlertDialog open={postToDelete !== null} onOpenChange={(open) => !open && cancelDelete()}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Post</AlertDialogTitle>
-              <AlertDialogDescription>
-                {role === "admin" 
-                  ? "Select the violation reasons for deleting this post:"
-                  : "Are you sure you want to delete this post? This action cannot be undone."
-                }
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            {/* Use OptionBox for violation selection */}
-            {role === "admin" && (
-              <div className="my-4">
-                <OptionBox
-                  allTags={violationReasons}
-                  selectedTags={selectedViolations}
-                  onChange={setSelectedViolations}
-               
-                />
-              </div>
-            )}
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={confirmDelete}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <PostDeleteDialog
+          isOpen={postToDelete !== null}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          selectedViolations={selectedViolations}
+          onViolationChange={setSelectedViolations}
+        />
       </div>
     </>
   );

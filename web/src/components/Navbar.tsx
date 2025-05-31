@@ -75,11 +75,24 @@ const Navbar = () => {
                   "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
                 )}
               >
-                My Jobs
+                My Posted Jobs
               </Link>
             </NavigationMenuItem>
           )}
 
+          {role === "user" && (
+            <NavigationMenuItem>
+              <Link
+                to="/jobListing"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                )}
+              >
+                My Applied Jobs
+              </Link>
+            </NavigationMenuItem>
+          )}
 
 
           <NavigationMenuItem>

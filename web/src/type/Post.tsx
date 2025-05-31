@@ -14,6 +14,8 @@ export type Post = {
 };
 
 type Comment = {
+    accountId: number;
+    commentId: number; 
     user: string;
     content: string; 
 }
