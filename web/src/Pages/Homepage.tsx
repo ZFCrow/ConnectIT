@@ -8,7 +8,7 @@ import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { PopularTags } from "@/components/FakeData/PopularTags";
-import { useAuth } from "@/contexts/AuthContext"; 
+import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostManager } from "@/components/CustomHooks/usePostManger";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 
@@ -24,7 +24,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 import OptionBox from "@/components/OptionBox";
 
 interface Response {
@@ -38,13 +37,12 @@ const api = axios.create({
 });
 
 const Homepage = () => {
-  const { accountId, role, userId, companyId } = useAuth(); 
+  const { accountId, role, userId, companyId } = useAuth();
   console.log("all URL:", import.meta.env.VITE_BACKEND_URL);
   const [message, setMessage] = useState<string>("");
 
   // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
   const [tags, setTags] = useState(PopularTags); // use the mock data for now
-
 
   const {
     posts,
@@ -58,8 +56,6 @@ const Homepage = () => {
     handleDeleteComment,
     handleHide,
   } = usePostManager(mockPosts);
-
-
 
   useEffect(() => {
     api
@@ -106,7 +102,6 @@ const Homepage = () => {
     }
   };
 
-
   return (
     <>
       <div className="flex h-[calc(100vh-5rem)]">
@@ -132,22 +127,25 @@ const Homepage = () => {
         {/* Scrollabel content*/}
 
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
-        {/* Only show CreatePostbar for non-admin users */}
-          {role !== "admin" && <CreatePostbar />}
+          {/* Only show CreatePostbar for non-admin users */}
+          {role !== Role.Admin && <CreatePostbar />}
           {posts.map((p) => {
-            return <Postcard key={p.id} {...p} 
-                    onHide={handleHide}
-                    onDelete={handleDeletePost}
-                    onDeleteComment={handleDeleteComment}>
-                    </Postcard>
+            return (
+              <Postcard
+                key={p.id}
+                {...p}
+                onHide={handleHide}
+                onDelete={handleDeletePost}
+                onDeleteComment={handleDeleteComment}
+              ></Postcard>
+            );
           })}
         </section>
 
         {/* Right sidebar - fixed width */}
         <aside className="w-72 flex-shrink-0 p-4 overflow-y-auto scrollbar-hide">
-          <FullHeightVerticalBar  />
+          <FullHeightVerticalBar />
         </aside>
-
 
         {/* Confirmation Dialog */}
         <PostDeleteDialog

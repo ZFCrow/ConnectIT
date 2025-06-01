@@ -21,7 +21,7 @@ import { UserCircle, LogOut, Moon, Sun, Computer } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import clsx from "clsx";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { Role, useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -53,7 +53,7 @@ const Navbar = () => {
 
       <NavigationMenu>
         <NavigationMenuList>
-          {role !== "company" && (
+          {role !== Role.Company && (
             <NavigationMenuItem>
               <Link
                 to="/jobListing"
@@ -67,7 +67,7 @@ const Navbar = () => {
             </NavigationMenuItem>
           )}
 
-          {role === "company" && (
+          {role === Role.Company && (
             <NavigationMenuItem>
               <Link
                 to="/company/recruitmentDashboard"
@@ -81,7 +81,7 @@ const Navbar = () => {
             </NavigationMenuItem>
           )}
 
-          {role === "user" && (
+          {role === Role.User && (
             <NavigationMenuItem>
               <Link
                 to="/jobListing"

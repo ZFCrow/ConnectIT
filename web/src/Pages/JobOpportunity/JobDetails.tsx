@@ -4,7 +4,7 @@ import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
-import { useAuth } from "@/contexts/AuthContext";
+import { Role, useAuth } from "@/contexts/AuthContext";
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const job = sampleJobs.find((j) => j.jobId === Number(jobId));
@@ -25,7 +25,9 @@ export default function JobDetailPage() {
       {/* Back link */}
       <Link
         to={
-          role === "company" ? "/company/recruitmentDashboard" : "/jobListing"
+          role === Role.Company
+            ? "/company/recruitmentDashboard"
+            : "/jobListing"
         }
         className="
           inline-flex items-center space-x-1

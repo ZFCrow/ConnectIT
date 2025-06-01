@@ -20,6 +20,7 @@ import { dateLocale, dateFormatOptions } from "./SharedConfig";
 import { useState } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
+import { Role } from "@/contexts/AuthContext";
 type Props = { job: JobListing; userType: string };
 
 const JobCard: React.FC<Props> = ({ job, userType }) => {
@@ -47,7 +48,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
       <div className="space-y-1">
         <div className="flex items-baseline gap-3">
           <h2 className="text-2xl font-bold text-white leading-tight">
-            {userType === "company" ? (
+            {userType === Role.Company ? (
               <span className="text-gray-400">#{job.jobId}</span>
             ) : (
               <></>
@@ -55,7 +56,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
             {job.title}
           </h2>
 
-          {userType === "company" ? (
+          {userType === Role.Company ? (
             <>
               <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
                 <User2 className="w-5 h-5 text-gray-300" />
@@ -164,7 +165,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
 
       {/* Buttons Column */}
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
-        {userType === "company" && (
+        {userType === Role.Company && (
           <>
             {/* <button
               onClick={() => navigate(`/company/jobForm/${job.jobId}`)}
@@ -186,7 +187,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
         >
           View Details
         </Link>
-        {userType !== "company" &&
+        {userType !== Role.Company &&
           (!job.applied ? (
             <button
               onClick={() => setOpen(true)}

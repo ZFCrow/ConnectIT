@@ -14,7 +14,7 @@ import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is wh
 import ApplicantCard from "./ApplicantCard";
 import type { Applicant } from "../../type/applicant";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
-import { useAuth } from "@/contexts/AuthContext";
+import { Role, useAuth } from "@/contexts/AuthContext";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
@@ -23,7 +23,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
   const [open, setOpen] = useState(false);
   const { role, userId, companyId } = useAuth();
   const filteredApplicants = useMemo(() => {
-    if (userType === "company") {
+    if (userType === Role.Company) {
       return sampleApplicants.filter((a) => a.jobId === job.jobId);
     }
     return [];
@@ -62,7 +62,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
             <h1 className="text-3xl font-bold text-white flex items-center gap-2">
               {job.title}
             </h1>
-            {userType !== "company" && (
+            {userType !== Role.Company && (
               <button
                 aria-label="Save job"
                 className="
@@ -74,7 +74,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                 <Bookmark className="w-6 h-6" />
               </button>
             )}
-            {userType === "company" && (
+            {userType === Role.Company && (
               <>
                 {/* <Link
                   to={`/company/jobForm/${job.jobId}`}
@@ -162,7 +162,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </li>
         ))}
       </ul>
-      {userType !== "company" && (
+      {userType !== Role.Company && (
         <div className="mt-6 flex items-center space-x-4">
           <Link
             to=""
@@ -187,7 +187,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </div>
         </div>
       )}
-      {userType === "company" && job.jobId === companyId && (
+      {userType === Role.Company && job.jobId === companyId && (
         <section className="mt-8">
           <hr className="mb-4" />
           <div className="flex items-center justify-between mb-4">
