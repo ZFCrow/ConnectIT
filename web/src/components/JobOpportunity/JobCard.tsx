@@ -166,12 +166,12 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
         {userType === "company" && (
           <>
-            <button
+            {/* <button
               onClick={() => navigate(`/company/jobForm/${job.jobId}`)}
               className="flex items-center justify-center border border-yellow-500 text-yellow-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-yellow-500 hover:text-white transition"
             >
               <Edit2 className="w-4 h-4 mr-1" /> Edit
-            </button>
+            </button> */}
             <button
               onClick={handleDelete}
               className="flex items-center justify-center border border-red-500 text-red-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-red-500 hover:text-white transition"

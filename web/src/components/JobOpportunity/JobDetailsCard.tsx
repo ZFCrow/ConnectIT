@@ -75,32 +75,33 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               </button>
             )}
             {userType === "company" && (
-              <Link
-                to={`/company/jobForm/${job.jobId}`}
-                className="
+              <>
+                {/* <Link
+                  to={`/company/jobForm/${job.jobId}`}
+                  className="
               p-1 rounded-full text-gray-400
               hover:bg-zinc-800 hover:text-white
               transition
             "
-              >
-                <Edit2 className="w-6 h-6" />
-              </Link>
+                >
+                  <Edit2 className="w-6 h-6" />
+                </Link> */}
+
+                <button
+                  aria-label="Delete job"
+                  onClick={() => {
+                    //TODO: Handle delete logic here
+                  }}
+                  className="
+              p-1 rounded-full text-gray-400
+              hover:bg-zinc-800 hover:text-white
+              transition
+            "
+                >
+                  <Trash2 className="w-6 h-6" />
+                </button>
+              </>
             )}
-            {
-              <button
-                aria-label="Delete job"
-                onClick={() => {
-                  //TODO: Handle delete logic here
-                }}
-                className="
-              p-1 rounded-full text-gray-400
-              hover:bg-zinc-800 hover:text-white
-              transition
-            "
-              >
-                <Trash2 className="w-6 h-6" />
-              </button>
-            }
           </div>
           {/* Field badge */}
           <span

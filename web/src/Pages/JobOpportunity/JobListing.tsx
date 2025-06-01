@@ -64,7 +64,7 @@ const JobListingPage: React.FC = () => {
   const safePage = Math.min(Math.max(currentPage, 1), totalPages);
   const startIdx = (safePage - 1) * ITEMS_PER_PAGE;
   const paginated = sorted.slice(startIdx, startIdx + ITEMS_PER_PAGE);
-  
+
   return (
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
@@ -84,7 +84,7 @@ const JobListingPage: React.FC = () => {
           <span>Applied Jobs</span>
         </Link>
       </div>
-      {/* Search */}
+      {/* Search
       <input
         type="text"
         placeholder="Search job titles…"
@@ -94,7 +94,7 @@ const JobListingPage: React.FC = () => {
           setCurrentPage(1);
         }}
         className="w-full p-3  border border-zinc-600 rounded-xl"
-      />
+      /> */}
 
       <div className="flex gap-6">
         {/* Filters */}
