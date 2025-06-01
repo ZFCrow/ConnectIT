@@ -30,8 +30,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 8,
-    liked: false,
-    userId: 1
+    liked: false
   },
   {
     accountId: 2,
@@ -63,8 +62,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 5,
-    liked: false,
-    userId: 1
+    liked: false
   },
   {
     accountId: 3,
@@ -96,8 +94,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 2,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 4,
@@ -133,8 +130,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 12,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 5,
@@ -165,8 +161,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 6,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 6,
@@ -197,8 +192,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 4,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 7,
@@ -229,8 +223,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 7,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 8,
@@ -261,8 +254,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 1,
-    liked: false,
-    userId: 2
+    liked: false
   },
   {
     accountId: 9,
@@ -293,8 +285,7 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 3,
-    liked: false,
-    userId: 1
+    liked: false
   },
   {
     accountId: 10,
@@ -325,7 +316,6 @@ export const mockPosts: Post[] = [
       }
     ],
     likes: 9,
-    liked: false,
-    userId: 1
+    liked: false
   }
 ];

@@ -3,6 +3,19 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+const EditProfileCard = ({ className, ...props }: React.ComponentProps<"div">) => {
+  return (
+    <div
+      className={cn(
+        "w-full max-w-3xl mx-auto bg-card text-card-foreground rounded-xl border p-6 shadow-md",
+        className
+      )}
+      {...props}
+    />
+  );
+};
+
+
 const EditProfile = ({ className, ...props }: React.ComponentProps<"form">) => (
   <form
     data-slot="edit-profile"
@@ -41,6 +54,7 @@ const EditProfileActions = ({ children }: { children: React.ReactNode }) => (
 );
 
 export {
+  EditProfileCard,
   EditProfile,
   EditProfileGroup,
   EditProfileField,

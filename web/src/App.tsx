@@ -31,7 +31,7 @@ function App() {
             <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/profile/:viewId" element={<ProfilePage />} />
             <Route path="/profile/edit" element={ <EditProfilePage /> } />
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />

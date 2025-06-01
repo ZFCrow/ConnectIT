@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import React, { useState } from "react";
+import { useState } from "react";
 import { mockUsers } from "@/components/FakeData/mockUser";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
@@ -16,13 +16,15 @@ import {
   ProfilePostCard
 } from "@/components/ProfileCard"
 import { Button } from "@/components/ui/button"
+import { Role, useAuth } from "@/contexts/AuthContext";
 
 
 const ProfilePage = () => {
-    const sessionUser = 1;
-    const { userId } = useParams<{ userId: string }>();
-    const user = mockUsers.find((u) => u.userId === Number(userId));
-      const isOwner = user?.userId === sessionUser
+    const { viewId } = useParams<{ viewId: string }>();
+    const user = mockUsers.find((u) => u.accountId === Number(viewId));
+
+    const { accountId } = useAuth();
+    const isOwner = viewId == accountId
 
     const [activeTab, setActiveTab] = useState("Posts");
 
@@ -41,7 +43,7 @@ const ProfilePage = () => {
           <ProfileTitle>{user.name}</ProfileTitle>
           <ProfileField label="Name: " value={user.name || user.name.toLowerCase().replace(" ", "_")} />
           <ProfileField label="Email: " value={user.email} />
-          {user.role === "Company" && (
+          {user.role === Role.Company && (
             <>
               <ProfileField label="Address: " value={user.address || "-"} />
               <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
@@ -51,7 +53,7 @@ const ProfilePage = () => {
 
         <ProfileCardRight>
           <ProfileTitle>About</ProfileTitle>
-          {user.role === "Company" ? (
+          {user.role === Role.Company ? (
               <ProfileField label="About the Company: " value={user.description || "No company description available."} />
             ) : (
               <>
@@ -88,7 +90,7 @@ const ProfilePage = () => {
             <Tabs
               tabs={[
                 "Posts",
-                ...(user.role === "Company" ? ["Job Listings"] : []),
+                ...(user.role === Role.Company ? ["Job Listings"] : []),
                 ...(isOwner ? ["My Applied Jobs"] : []),
               ]}
               activeTab={activeTab}
@@ -100,7 +102,7 @@ const ProfilePage = () => {
                 <TabPanel isActive={true}>
                   {mockPosts ? (
                     <div className="space-y-4">
-                      {mockPosts.filter((post) => post.userId == userId).map((post) => (
+                      {mockPosts.filter((post) => post.accountId == viewId).map((post) => (
                         <ProfilePostCard key={post.id} {...post} />
                       ))}
                     </div>
@@ -110,11 +112,11 @@ const ProfilePage = () => {
                 </TabPanel>
               )}
 
-              {activeTab === "Job Listings" && user.role === "Company" && (
+              {activeTab === "Job Listings" && user.role === Role.Company && (
                 <TabPanel isActive={true}>
                   {sampleJobs && sampleJobs.length > 0 ? (
                     <div className="space-y-4">
-                      {sampleJobs.filter((job) => job.companyId == userId)
+                      {sampleJobs.filter((job) => job.companyId == viewId)
                       .map((job) => (
                         <ProfileJobCard key={job.jobId} job={job} />
                       ))}
