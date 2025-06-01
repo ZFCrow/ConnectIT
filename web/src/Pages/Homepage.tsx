@@ -8,6 +8,24 @@ import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { PopularTags } from "@/components/FakeData/PopularTags";
+import { useAuth } from "@/contexts/AuthContext"; 
+import { usePostManager } from "@/components/CustomHooks/usePostManger";
+import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+
+import OptionBox from "@/components/OptionBox";
 
 interface Response {
   message: string;
@@ -20,12 +38,28 @@ const api = axios.create({
 });
 
 const Homepage = () => {
+  const { accountId, role, userId, companyId } = useAuth(); 
   console.log("all URL:", import.meta.env.VITE_BACKEND_URL);
-
   const [message, setMessage] = useState<string>("");
 
-  const [posts, setPosts] = useState(mockPosts); // use the mock data for now
+  // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
   const [tags, setTags] = useState(PopularTags); // use the mock data for now
+
+
+  const {
+    posts,
+    setPosts,
+    postToDelete,
+    selectedViolations,
+    handleDeletePost,
+    confirmDelete,
+    cancelDelete,
+    setSelectedViolations,
+    handleDeleteComment,
+    handleHide,
+  } = usePostManager(mockPosts);
+
+
 
   useEffect(() => {
     api
@@ -72,17 +106,12 @@ const Homepage = () => {
     }
   };
 
-  const handleHide = (postID: Number) => {
-    // This function will handle hiding a post
-    // For now, we will just filter it out from the posts array
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postID));
-  };
 
   return (
     <>
       <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
-        <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
+        <aside className="w-64 flex-shrink-0 p-4 space-y-2">
           <ListingCard
             title="Popular Tags"
             listofitems={tags}
@@ -101,17 +130,33 @@ const Homepage = () => {
 
         {/* Middle content - grows to fill available space */}
         {/* Scrollabel content*/}
+
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
-          <CreatePostbar />
+        {/* Only show CreatePostbar for non-admin users */}
+          {role !== "admin" && <CreatePostbar />}
           {posts.map((p) => {
-            return <Postcard key={p.id} {...p} onHide={handleHide}></Postcard>;
+            return <Postcard key={p.id} {...p} 
+                    onHide={handleHide}
+                    onDelete={handleDeletePost}
+                    onDeleteComment={handleDeleteComment}>
+                    </Postcard>
           })}
         </section>
 
         {/* Right sidebar - fixed width */}
         <aside className="w-72 flex-shrink-0 p-4 overflow-y-auto scrollbar-hide">
-          <FullHeightVerticalBar accountID={1} />
+          <FullHeightVerticalBar  />
         </aside>
+
+
+        {/* Confirmation Dialog */}
+        <PostDeleteDialog
+          isOpen={postToDelete !== null}
+          onConfirm={confirmDelete}
+          onCancel={cancelDelete}
+          selectedViolations={selectedViolations}
+          onViolationChange={setSelectedViolations}
+        />
       </div>
     </>
   );

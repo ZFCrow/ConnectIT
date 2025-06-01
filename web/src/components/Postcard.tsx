@@ -27,43 +27,34 @@ import { useState } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"; 
 
-import { ChevronUp, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "lucide-react";
+import { Trash2, MessageSquare, ThumbsUp, MoreVertical, Flag, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button"; 
 
 import { useNavigate } from "react-router-dom";
-type Comment = {
-    user: string;
-    content: string; 
-}
 
-// Define valid colors as a type union
-type ValidColor = 'red' | 'blue' | 'green' | 'gray' | 'purple' | 'pink' | 'orange' | 'yellow' | 'lime';
+import { useAuth } from "@/contexts/AuthContext";
 
-type Label ={
-    name: string;
-    color: ValidColor; 
-}
 
-export type PostProps = {
-    id: number;
-    user: string;
-    date: string;
-    labels: Label[]; 
-    title: string;
-    content: string;
-    comments: Comment[];
-    likes : number
-    liked : boolean; // ✅ optional, with default = false  
-};
+import type { Post } from "@/type/Post";
+import type { ValidColor } from "@/type/Label";
 
-type PostcardProps = PostProps & {
+
+
+
+type PostcardProps = Post & {
     detailMode?: boolean; // ✅ optional, with default = false
     onReport?: () => void; // Optional callback for report action 
-    onHide?: (postId : Number) => void; // Optional callback for hide action 
+    onHide?: (postId : number) => void; // Optional callback for hide action
+    onDelete?: (postId: number) => void; // Add delete callback
+    onDeleteComment?: (commentId: number) => void; // Optional callback for deleting a comment 
 };
 
 
-const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comments,likes,liked, detailMode,onReport,onHide}) => { 
+const Postcard: FC<PostcardProps> = (
+    {
+        accountId: postAccountId, id, user,date,labels,title,content,comments,likes,liked, 
+        detailMode,onHide, onDelete, onDeleteComment
+    }) => { 
 
     const colorMap: Record<ValidColor, string> = {
         red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -76,6 +67,8 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
         yellow: "border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-white",
         lime: "border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white",
     };
+
+    const { accountId, role } = useAuth(); // Get the current user's account ID from context 
 
     const navigate = useNavigate(); 
     const interactiveClasses = detailMode ? "flex-grow" : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted"; 
@@ -93,15 +86,16 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                         <div className="flex items-center space-x-3">
 
-                            <Avatar>
-                                <AvatarImage src="https://github.com/shadcn.png" alt={user} />
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${user}`} />
                                 <AvatarFallback>{user[0]}</AvatarFallback>
                             </Avatar>
 
                             <div>
                                 <CardTitle>{title}</CardTitle>
                                 <CardDescription className="mt-1 text-sm text-muted-foreground flex flex-col items-start gap-2">
-                                    {/* date on its own line */}
+                                    <span className="text-sm font-medium text-blue-600 dark:text-blue-400">@{user}</span>
+                                    {/* Date on its own line */}
                                     <span className="text-xs">{date}</span>
                                 </CardDescription>
                             </div>
@@ -117,9 +111,17 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                                 {/* The pop-up menu */}
                                 <DropdownMenuContent side="bottom" align="end" className="w-40">
-                                    <DropdownMenuItem onSelect={() => console.log("report")}>
+                                    {/* <DropdownMenuItem onSelect={() => console.log("report")}>
                                     <Flag/>Report
-                                    </DropdownMenuItem> 
+                                    </DropdownMenuItem>  */}
+
+                                    {
+                                        onDelete && ( role === "admin" || accountId === postAccountId) && (
+                                            <DropdownMenuItem onSelect={() => {onDelete(id);}}>
+                                                <Trash2 className="text-red-500"/>Delete
+                                            </DropdownMenuItem> 
+                                        )
+                                    }
                                     {
                                         onHide && (
                                             <DropdownMenuItem onSelect={() => {onHide(id);}}>
@@ -174,21 +176,26 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                         {/* Buttons in a row */}
                         <div className="flex items-center space-x-4 text-sm text-slate-200">
-                            <Button variant="ghost" size="sm" 
-                            className={
-                                `flex items-center transition-all duration-150  hover:scale-105
-                                ${ hasLiked? 'text-red-500 hover:bg-red-100/20 hover:text-red-500'
-                                    : 'hover:bg-accent'} 
-                            `}
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent triggering the card click
-                                console.log("Liked!");
-                                setHasLiked(!hasLiked); // Toggle liked state 
-                                
-                            }}>
-                            <ThumbsUp className="mr-1 h-4 w-4" />
-                            Like
-                            </Button>
+                            {
+                                role != "admin" && ( 
+                                        <Button variant="ghost" size="sm" 
+                                        className={
+                                            `flex items-center transition-all duration-150  hover:scale-105
+                                            ${ hasLiked? 'text-red-500 hover:bg-red-100/20 hover:text-red-500'
+                                                : 'hover:bg-accent'} 
+                                        `}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering the card click
+                                            console.log("Liked!");
+                                            setHasLiked(!hasLiked); // Toggle liked state 
+                                            
+                                        }}>
+                                        <ThumbsUp className="mr-1 h-4 w-4" />
+                                        Like
+                                        </Button>
+                                )
+                            }
+
 
                             <CollapsibleTrigger asChild>
                             <Button variant="ghost" size="sm" className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
@@ -208,19 +215,60 @@ const Postcard: FC<PostcardProps> = ({id, user,date,labels,title,content,comment
 
                     <CollapsibleContent className="space-y-3 pt-2" >
                         {comments.map((c, i) => (
-                            <div key={i} className="text-sm">
-                            <strong>{c.user}:</strong> {c.content}
+                            <div key={i} className="flex space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group align-items">
+
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.user}`} />
+                                    <AvatarFallback className="text-xs">{c.user[0]}</AvatarFallback>
+                                </Avatar>
+
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between ">
+                                        <div className="flex items-center space-x-2">
+                                            <span className="font-medium text-sm">{c.user}</span>
+                                            <span className="text-xs text-muted-foreground">2h ago</span>
+                                        </div>
+
+                                    </div>
+                                    <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">{c.content}</p>
+                                </div>
+
+                                {/* Show delete button for admins or comment owner */}
+                                {
+                                    onDeleteComment && (role === "admin" || c.accountId === accountId) && (
+                                        <Button
+                                            variant="ghost"
+                                            size="lg"
+                                            className="
+                                                opacity-0 group-hover:opacity-100 
+                                                transition-opacity duration-200 
+                                                text-red-500 hover:text-red-700 
+                                                p-1 rounded
+                                                border-2"
+                                                
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteComment(c.commentId); // Call the delete comment callback 
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    )
+                                }
                             </div>
                         ))}
 
                         {/* optional add-comment UI */}
-                        <div className="flex space-x-2 pt-2">
-                            <input
-                            className="flex-1 rounded border px-2 py-1"
-                            placeholder="Add a comment…"
-                            />
-                            <Button size="sm">Post</Button>
-                        </div>
+
+                        {role !== "admin" && (
+                            <div className="flex space-x-2 pt-2">
+                                <input
+                                className="flex-1 rounded border px-2 py-1"
+                                placeholder="Add a comment…"
+                                />
+                                <Button size="sm">Post</Button>
+                            </div>
+                        )}
                     </CollapsibleContent>
 
                 </Collapsible>

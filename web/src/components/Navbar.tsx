@@ -82,13 +82,13 @@ const Navbar = () => {
           {role === "user" && (
             <NavigationMenuItem>
               <Link
-                to="/quiz"
+                to="/jobListing"
                 className={clsx(
                   navigationMenuTriggerStyle(),
                   "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
                 )}
               >
-                Quiz
+                My Applied Jobs
               </Link>
             </NavigationMenuItem>
           )}
