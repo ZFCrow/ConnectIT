@@ -1,13 +1,14 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { sampleJobs } from "../components/FakeData/sampleJobs";
-import JobDetailsCard from "../components/JobOpportunity/JobDetailsCard";
+import { sampleJobs } from "../../components/FakeData/sampleJobs";
+import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
+import { Role, useAuth } from "@/contexts/AuthContext";
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const job = sampleJobs.find((j) => j.jobId === Number(jobId));
-
+  const { role, userId, companyId } = useAuth();
   if (!job) {
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
@@ -23,7 +24,11 @@ export default function JobDetailPage() {
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
       {/* Back link */}
       <Link
-        to="/jobListing"
+        to={
+          role === Role.Company
+            ? "/company/recruitmentDashboard"
+            : "/jobListing"
+        }
         className="
           inline-flex items-center space-x-1
           text-s font-medium
@@ -39,7 +44,7 @@ export default function JobDetailPage() {
         <span>Back to Listing</span>
       </Link>
       {/* Job details in a card */}
-      <JobDetailsCard job={job} />
+      <JobDetailsCard job={job} userType={!role ? "" : role} />
       <ApplicationToaster />{" "}
     </div>
   );

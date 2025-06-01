@@ -1,22 +1,50 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
-import { Calendar, Bookmark } from "lucide-react";
+import { Calendar, Bookmark, Trash2, Edit2 } from "lucide-react";
 import {
   dateLocale,
   dateFormatOptions,
   //   applicationRoute,
 } from "./SharedConfig";
+import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
 import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
-
+import ApplicantCard from "./ApplicantCard";
+import type { Applicant } from "../../type/applicant";
+import { sampleApplicants } from "../FakeData/sampleApplicants";
+import { Role, useAuth } from "@/contexts/AuthContext";
 interface Props {
   job: JobListing;
+  userType?: string; // Optional, if needed for user-specific logic
 }
-const JobDetailsCard: React.FC<Props> = ({ job }) => {
+const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
   const [open, setOpen] = useState(false);
+  const { role, userId, companyId } = useAuth();
+  const filteredApplicants = useMemo(() => {
+    if (userType === Role.Company) {
+      return sampleApplicants.filter((a) => a.jobId === job.jobId);
+    }
+    return [];
+  }, [job.jobId, userType]);
 
+  const decoratedApplicants = useMemo(
+    () =>
+      filteredApplicants.map((a) => ({
+        ...a,
+        jobTitle: job.title,
+        jobId: job.jobId,
+      })),
+    [filteredApplicants, job.title, job.jobId]
+  );
+  const [statusFilter, setStatusFilter] = useState<"All" | string>("All");
+  const statusOptions = ["All", "Applied", "Shortlisted", "Rejected"];
+
+  // 4️⃣ Filter decoratedApplicants by status
+  const filteredApplicantsByStatus = decoratedApplicants.filter(
+    (a) => statusFilter === "All" || a.status === statusFilter
+  );
   return (
     <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg space-y-6">
       {/* Resume Upload Modal */}
@@ -34,16 +62,46 @@ const JobDetailsCard: React.FC<Props> = ({ job }) => {
             <h1 className="text-3xl font-bold text-white flex items-center gap-2">
               {job.title}
             </h1>
-            <button
-              aria-label="Save job"
-              className="
+            {userType !== Role.Company && (
+              <button
+                aria-label="Save job"
+                className="
               p-1 rounded-full text-gray-400
               hover:bg-zinc-800 hover:text-white
               transition
             "
-            >
-              <Bookmark className="w-6 h-6" />
-            </button>
+              >
+                <Bookmark className="w-6 h-6" />
+              </button>
+            )}
+            {userType === Role.Company && (
+              <>
+                {/* <Link
+                  to={`/company/jobForm/${job.jobId}`}
+                  className="
+              p-1 rounded-full text-gray-400
+              hover:bg-zinc-800 hover:text-white
+              transition
+            "
+                >
+                  <Edit2 className="w-6 h-6" />
+                </Link> */}
+
+                <button
+                  aria-label="Delete job"
+                  onClick={() => {
+                    //TODO: Handle delete logic here
+                  }}
+                  className="
+              p-1 rounded-full text-gray-400
+              hover:bg-zinc-800 hover:text-white
+              transition
+            "
+                >
+                  <Trash2 className="w-6 h-6" />
+                </button>
+              </>
+            )}
           </div>
           {/* Field badge */}
           <span
@@ -104,29 +162,66 @@ const JobDetailsCard: React.FC<Props> = ({ job }) => {
           </li>
         ))}
       </ul>
-      <div className="mt-6 flex items-center space-x-4">
-        <Link
-          to=""
-          onClick={() => setOpen(true)}
-          className="
+      {userType !== Role.Company && (
+        <div className="mt-6 flex items-center space-x-4">
+          <Link
+            to=""
+            onClick={() => setOpen(true)}
+            className="
             bg-green-500 hover:bg-green-600 text-white font-medium
             px-6 py-2 rounded-xl transition
             "
-        >
-          Apply Now
-        </Link>
+          >
+            Apply Now
+          </Link>
 
-        <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
-          <Calendar className="w-4 h-4" />
-          <time dateTime={job.applicationDeadline}>
-            by{" "}
-            {new Date(job.applicationDeadline).toLocaleDateString(
-              dateLocale,
-              dateFormatOptions
-            )}
-          </time>
+          <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
+            <Calendar className="w-4 h-4" />
+            <time dateTime={job.applicationDeadline}>
+              by{" "}
+              {new Date(job.applicationDeadline).toLocaleDateString(
+                dateLocale,
+                dateFormatOptions
+              )}
+            </time>
+          </div>
         </div>
-      </div>
+      )}
+      {userType === Role.Company && job.jobId === companyId && (
+        <section className="mt-8">
+          <hr className="mb-4" />
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-200">Applicants</h2>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 text-gray-100 rounded px-3 py-1 text-sm"
+            >
+              {statusOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>{" "}
+          <ul className="space-y-5">
+            {filteredApplicantsByStatus.map((app) => (
+              <ApplicantCard
+                key={app.applicantId}
+                applicant={app}
+                onAccept={(id) => {
+                  /* … */
+                  //TODO : Handle accept logic here
+                }}
+                onDelete={(id) => {
+                  /* … */
+                  // TOOD: Handle delete logic here
+                }}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 };

@@ -1,0 +1,82 @@
+// src/components/FakeData/sampleApplicants.ts
+import type { Applicant } from "../../type/applicant";
+
+export const sampleApplicants: Applicant[] = [
+  {
+    applicantId: 1,
+    jobId: 1,
+    firstName: "Alice",
+    lastName: "Ng",
+    email: "alice.ng@example.com",
+    phoneNumber: "+65 9123 4567",
+    resumeUrl: "https://example.com/resumes/alice_ng.pdf",
+    coverLetter: "I’m excited about the opportunity to work with your team!",
+    status: "Applied",
+    appliedAt: "2025-05-20T10:15:00Z",
+    updatedAt: "2025-05-20T10:15:00Z",
+  },
+  {
+    applicantId: 2,
+    jobId: 1,
+    firstName: "Brian",
+    lastName: "Lim",
+    email: "brian.lim@example.com",
+    phoneNumber: "+65 9876 5432",
+    resumeUrl: "https://example.com/resumes/brian_lim.pdf",
+    coverLetter:
+      "With 5 years in frontend development, I’d love to help build great UIs.",
+    status: "Shortlisted",
+    appliedAt: "2025-05-18T14:30:00Z",
+    updatedAt: "2025-05-22T09:00:00Z",
+  },
+  {
+    applicantId: 3,
+    jobId: 1,
+    firstName: "Chen",
+    lastName: "Wei",
+    email: "chen.wei@example.com",
+    // no phoneNumber
+    resumeUrl: "https://example.com/resumes/chen_wei.pdf",
+    // no coverLetter
+    status: "Rejected",
+    appliedAt: "2025-05-19T08:45:00Z",
+  },
+  {
+    applicantId: 4,
+    jobId: 103,
+    firstName: "Diana",
+    lastName: "Tan",
+    email: "diana.tan@example.com",
+    phoneNumber: "+65 9234 5678",
+    resumeUrl: "https://example.com/resumes/diana_tan.pdf",
+    coverLetter: "Looking forward to contributing to your AI research project.",
+    status: "Applied",
+    appliedAt: "2025-05-21T11:00:00Z",
+  },
+  {
+    applicantId: 5,
+    jobId: 102,
+    firstName: "Evan",
+    lastName: "Ho",
+    email: "evan.ho@example.com",
+    phoneNumber: "+65 9345 6789",
+    resumeUrl: "https://example.com/resumes/evan_ho.pdf",
+    coverLetter: "My background in DevOps makes me a great fit for this role.",
+    status: "Applied",
+    appliedAt: "2025-05-22T16:20:00Z",
+    updatedAt: "2025-05-23T10:00:00Z",
+  },
+  {
+    applicantId: 6,
+    jobId: 103,
+    firstName: "Farah",
+    lastName: "Aziz",
+    email: "farah.aziz@example.com",
+    // phoneNumber omitted
+    resumeUrl: "https://example.com/resumes/farah_aziz.pdf",
+    coverLetter: "I bring strong data analysis skills and SQL expertise.",
+    status: "Shortlisted",
+    appliedAt: "2025-05-17T09:30:00Z",
+    updatedAt: "2025-05-24T14:15:00Z",
+  },
+];

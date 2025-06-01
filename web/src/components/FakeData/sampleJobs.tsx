@@ -69,7 +69,7 @@ export const sampleJobs: JobListing[] = [
   },
   {
     jobId: 4,
-    companyId: 104,
+    companyId: 1,
     companyName: "FinTech Labs",
     companyAddress: "101 Finance Blvd, London, UK",
     title: "Data Scientist",
