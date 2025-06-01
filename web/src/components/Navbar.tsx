@@ -53,17 +53,19 @@ const Navbar = () => {
 
       <NavigationMenu>
         <NavigationMenuList>
-          <NavigationMenuItem>
-            <Link
-              to="/jobListing"
-              className={clsx(
-                navigationMenuTriggerStyle(),
-                "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 "
-              )}
-            >
-              Job Opportunies Board{" "}
-            </Link>
-          </NavigationMenuItem>
+          {role !== "company" && (
+            <NavigationMenuItem>
+              <Link
+                to="/jobListing"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 "
+                )}
+              >
+                Job Opportunities Board{" "}
+              </Link>
+            </NavigationMenuItem>
+          )}
 
           {role === "company" && (
             <NavigationMenuItem>
