@@ -22,3 +22,15 @@ services:
       - "3306:3306"
     volumes:
       - ./sql_data_prod:/var/lib/mysql
+
+
+  web:
+    build:
+      context: ./web
+      dockerfile: webProd.Dockerfile
+    container_name: web-prod
+  
+    ports:
+      - "80:80"
+    volumes: []
+    command: []

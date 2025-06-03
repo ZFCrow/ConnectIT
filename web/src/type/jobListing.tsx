@@ -16,4 +16,5 @@ export type JobListing = {
   yearsOfExperience?: number;
   applied?: boolean;
   saved?: boolean;
+  applicants? : any[];
 };

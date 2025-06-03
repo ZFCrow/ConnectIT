@@ -24,7 +24,13 @@ const ProfilePage = () => {
     const user = mockUsers.find((u) => u.accountId === Number(viewId));
 
     const { accountId } = useAuth();
-    const isOwner = viewId == accountId
+    //const isOwner = viewId == accountId
+
+    //  Convert viewId to number for comparison
+    const viewIdNumber = viewId ? Number(viewId) : null;
+  
+    // Fix the comparison - both are now numbers
+    const isOwner = viewIdNumber === accountId;
 
     const [activeTab, setActiveTab] = useState("Posts");
 
@@ -102,7 +108,7 @@ const ProfilePage = () => {
                 <TabPanel isActive={true}>
                   {mockPosts ? (
                     <div className="space-y-4">
-                      {mockPosts.filter((post) => post.accountId == viewId).map((post) => (
+                      {mockPosts.filter((post) => post.accountId == viewIdNumber).map((post) => (
                         <ProfilePostCard key={post.id} {...post} />
                       ))}
                     </div>
@@ -116,7 +122,7 @@ const ProfilePage = () => {
                 <TabPanel isActive={true}>
                   {sampleJobs && sampleJobs.length > 0 ? (
                     <div className="space-y-4">
-                      {sampleJobs.filter((job) => job.companyId == viewId)
+                      {sampleJobs.filter((job) => job.companyId == viewIdNumber)
                       .map((job) => (
                         <ProfileJobCard key={job.jobId} job={job} />
                       ))}

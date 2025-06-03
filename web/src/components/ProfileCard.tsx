@@ -17,7 +17,8 @@ import {
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import type { FC } from "react";
-import type { PostProps } from "./Postcard"; // Reuse PostProps for consistency
+
+import type { Post } from "@/type/Post";
 
 const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div
@@ -140,7 +141,7 @@ const ProfileJobCard: React.FC<Props> = ({ job }) => {
   );
 };
 
-const ProfilePostCard: FC<PostProps> = ({ id, user, date, title, content }) => {
+const ProfilePostCard: FC<Post> = ({ id, user, date, title, content }) => {
   return (
     <Card className="hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted">
       <CardHeader>

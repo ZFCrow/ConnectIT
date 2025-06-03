@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from "path"
 import tailwindcss from "@tailwindcss/vite"
-import { config } from 'process'
-
 
 // https://vite.dev/config/
 export default defineConfig(({mode}) =>
@@ -34,6 +32,12 @@ export default defineConfig(({mode}) =>
       watch: {
         usePolling: true,
       },
+      allowedHosts:[
+        'localhost',
+        '18.221.122.243',
+        'connectitweb.site',
+        'www.connectitweb.site',
+      ]
     }
   }
 
