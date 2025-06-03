@@ -81,16 +81,16 @@ const Navbar = () => {
             </NavigationMenuItem>
           )}
 
-          {role === Role.User && (
+          {role === Role.Admin && (
             <NavigationMenuItem>
               <Link
-                to="/jobListing"
+                to="/companyVerification"
                 className={clsx(
                   navigationMenuTriggerStyle(),
                   "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
                 )}
               >
-                My Applied Jobs
+                Company Verification
               </Link>
             </NavigationMenuItem>
           )}
