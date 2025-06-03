@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import {
   EditProfileCard,
+  EditableAvatar,
   EditProfile,
   EditProfileGroup,
   EditProfileField,
@@ -18,8 +19,9 @@ const EditProfilePage = () => {
     e.preventDefault();
     // Handle form submission
   };
-    const { accountId } = useAuth();
-    const user = mockUsers.find((u) => u.userId === Number(accountId));
+
+  const { accountId } = useAuth();
+  const user = mockUsers.find((u) => u.userId === Number(accountId));
 
   if (!user) {
     return (
@@ -32,6 +34,10 @@ const EditProfilePage = () => {
   return (
     <div className="w-full flex justify-center items-start px-4 py-10 overflow-auto">
       <EditProfileCard>
+        <EditableAvatar
+          imageUrl={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
+          fallbackText={user.name}
+        />
         <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
         <EditProfile onSubmit={handleSubmit}>

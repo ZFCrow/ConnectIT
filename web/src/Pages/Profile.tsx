@@ -5,6 +5,7 @@ import { mockPosts } from "@/components/FakeData/mockPosts";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
 import {
   Profile,
+  ProfileAvatar,
   ProfileCardLeft,
   ProfileCardRight,
   ProfileTitle,
@@ -46,6 +47,7 @@ const ProfilePage = () => {
     <div className="w-4/5 mx-auto px-4 py-8">
       <Profile>
         <ProfileCardLeft>
+          <ProfileAvatar src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} fallbackText={user.name} />
           <ProfileTitle>{user.name}</ProfileTitle>
           <ProfileField label="Name: " value={user.name || user.name.toLowerCase().replace(" ", "_")} />
           <ProfileField label="Email: " value={user.email} />
