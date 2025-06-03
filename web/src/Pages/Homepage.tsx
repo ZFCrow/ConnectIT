@@ -106,7 +106,7 @@ const Homepage = () => {
     <>
       <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
-        <aside className="w-64 flex-shrink-0 p-4 space-y-2">
+        <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           <ListingCard
             title="Popular Tags"
             listofitems={tags}
