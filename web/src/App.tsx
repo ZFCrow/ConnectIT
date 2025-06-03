@@ -9,7 +9,6 @@ import Navbar from "./components/Navbar";
 import JobListingPage from "./Pages/JobOpportunity/JobListing";
 import JobDetailPage from "./Pages/JobOpportunity/JobDetails";
 import Postpage from "@/Pages/Postpage";
-
 import {
   jobDetailsRoute,
   jobListingRoute,
@@ -18,6 +17,7 @@ import {
 import MyJobsPage from "./Pages/JobOpportunity/SavedJob";
 import CompanyJobsPage from "./Pages/JobOpportunity/CompanyJobPage";
 import CreateEditJobPage from "./Pages/JobOpportunity/CreateEditJobPage";
+import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
 function App() {
   return (
     <>
@@ -32,7 +32,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile/:viewId" element={<ProfilePage />} />
-            <Route path="/profile/edit" element={ <EditProfilePage /> } />
+            <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/jobListing" element={<JobListingPage />} />
             <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
             <Route path="/myJobs" element={<MyJobsPage />} />
@@ -43,6 +43,10 @@ function App() {
             <Route
               path="/company/jobForm/:jobId?"
               element={<CreateEditJobPage />}
+            />
+            <Route
+              path="/companyVerification"
+              element={<CompanyVerificationPage />}
             />
             {/* Add more routes as needed */}
           </Routes>
