@@ -16,6 +16,7 @@ import {
   ProfileJobCard,
   ProfilePostCard
 } from "@/components/ProfileCard"
+import  PdfViewerModal  from "@/components/PortfolioModal"
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
 
@@ -34,6 +35,8 @@ const ProfilePage = () => {
     const isOwner = viewIdNumber === accountId;
 
     const [activeTab, setActiveTab] = useState("Posts");
+    const [pdfModalOpen, setPdfModalOpen] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -57,6 +60,13 @@ const ProfilePage = () => {
               <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
             </>
           )}
+          {isOwner && (
+            <ProfileAction>
+              <Link to="/profile/edit">
+                <Button>Edit Profile</Button>
+              </Link>
+            </ProfileAction>
+          )}
         </ProfileCardLeft>
 
         <ProfileCardRight>
@@ -66,33 +76,22 @@ const ProfilePage = () => {
             ) : (
               <>
                 <ProfileField label="Bio: " value={user.bio || "No bio available."} />
-                <ProfileField
-                  label="Portfolio: "
-                  value={
-                    user.portfolioUrl ? (
-                      <a
-                        className="text-blue-500 underline"
-                        href={user.portfolioUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {user.portfolioUrl}
-                      </a>
-                    ) : (
-                      "No portfolio link."
-                    )
-                  }
-                />
+                {user.portfolioUrl && (
+                <div className="pt-2">
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    onClick={() => {
+                      setPdfUrl(user.portfolioUrl);
+                      setPdfModalOpen(true);
+                    }}
+                  >
+                    View Portfolio
+                  </Button>
+                </div>
+                )}
               </>
             )}
-
-          {isOwner && (
-            <ProfileAction>
-              <Link to="/profile/edit">
-                <Button>Edit Profile</Button>
-              </Link>
-            </ProfileAction>
-          )}
 
           <div className="pt-6">
             <Tabs
@@ -145,6 +144,14 @@ const ProfilePage = () => {
             </div>
           </div>
         </ProfileCardRight>
+        {pdfUrl && (
+        <PdfViewerModal
+          isOpen={pdfModalOpen}
+          onClose={() => setPdfModalOpen(false)}
+          pdfUrl={pdfUrl}
+          title={`${user.name}'s Portfolio`}
+        />
+      )}
       </Profile>
     </div>
   );

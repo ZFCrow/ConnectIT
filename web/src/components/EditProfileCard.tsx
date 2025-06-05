@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const EditProfileCard = ({ className, ...props }: React.ComponentProps<"div">) => {
   return (
@@ -63,6 +64,49 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?" }: EditableAvatarProps) =
   );
 };
 
+interface FileUploadProps {
+  name: string;
+  label?: string;
+  accept?: string;
+}
+
+const PortfolioUpload = ({ name, label = "Upload File", accept = ".pdf" }: FileUploadProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleClick = () => inputRef.current?.click();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileName(file.name);
+      // You can send this file to backend or attach it to FormData here
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="font-medium text-sm">{label}</label>
+      <div className="flex items-center gap-4">
+        <Button type="button" variant="secondary" onClick={handleClick}>
+          Upload a file
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          {fileName || "No file selected"}
+        </span>
+      </div>
+      <input
+        type="file"
+        name={name}
+        accept={accept}
+        className="hidden"
+        ref={inputRef}
+        onChange={handleChange}
+      />
+    </div>
+  );
+};
+
 const EditProfile = ({ className, ...props }: React.ComponentProps<"form">) => (
   <form
     data-slot="edit-profile"
@@ -103,6 +147,7 @@ const EditProfileActions = ({ children }: { children: React.ReactNode }) => (
 export {
   EditProfileCard,
   EditableAvatar,
+  PortfolioUpload,
   EditProfile,
   EditProfileGroup,
   EditProfileField,

@@ -7,7 +7,7 @@ export const mockUsers = [
         passwordHash: "neonroO@($NN",
         role: "user",
         bio: "Aspiring software developer",
-        portfolioUrl: ""
+        portfolioUrl: "/test.pdf"
     },
     {
         accountId: 2,

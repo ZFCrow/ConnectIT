@@ -4,6 +4,7 @@ import {
   EditProfileCard,
   EditableAvatar,
   EditProfile,
+  PortfolioUpload,
   EditProfileGroup,
   EditProfileField,
   EditProfileInput,
@@ -56,14 +57,7 @@ const EditProfilePage = () => {
                       <EditProfileTextarea name="bio" placeholder="About yourself..." value={user.bio} />
                   </EditProfileField>
 
-                  <EditProfileField label="Portfolio">
-                      <EditProfileInput
-                      type="url"
-                      name="portfolio"
-                      placeholder="Your portfolio URL"
-                      value={user.portfolioUrl}
-                      />
-                  </EditProfileField>
+                  <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf" />
                   </>
               )}
 
