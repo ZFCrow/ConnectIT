@@ -10,6 +10,6 @@ RUN npm ci
 
 
 # Expose Vite’s dev server port
-EXPOSE 5173
+# EXPOSE 5173
 
 
