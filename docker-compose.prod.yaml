@@ -26,7 +26,6 @@ services:
 
   web:
     build:
-      context: ./web
       dockerfile: webProd.Dockerfile
     container_name: web-prod
   
@@ -48,3 +47,26 @@ services:
     depends_on:
       - web
     restart: unless-stopped
+
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot 
+    profiles: ["ssl"]
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./certbot-www:/var/www/certbot
+    depends_on:
+      - reverse-proxy 
+    entrypoint:
+      - sh
+      - -c
+      - |
+        certbot certonly \
+          --webroot -w /var/www/certbot \
+          --email cheahzhengfeng@gmail.com \
+          --agree-tos --no-eff-email \
+          --rsa-key-size 4096 \
+          --expand \
+          --renew \
+          -d connectitweb.site -d www.connectitweb.site
