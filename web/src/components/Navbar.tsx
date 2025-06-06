@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import DropDownButton from "./DropdownButton";
@@ -28,6 +28,7 @@ const Navbar = () => {
   const isDark = theme === "dark";
 
   const { accountId, role, logout } = useAuth();
+  const navigate = useNavigate();
 
   console.log("Navbar rendered with role:", role);
   console.log("Navbar rendered with accountId:", accountId);
@@ -111,7 +112,7 @@ const Navbar = () => {
                   <DropDownButton
                     icon={<UserCircle className="h-4 w-4" />}
                     text="Profile"
-                    onClick={() => console.log("Profile clicked")}
+                    onClick={() => navigate(`/profile/${accountId}`)}
                   ></DropDownButton>
                 </DropdownMenuItem>
 

@@ -5,6 +5,7 @@ import { mockPosts } from "@/components/FakeData/mockPosts";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
 import {
   Profile,
+  ProfileAvatar,
   ProfileCardLeft,
   ProfileCardRight,
   ProfileTitle,
@@ -15,6 +16,7 @@ import {
   ProfileJobCard,
   ProfilePostCard
 } from "@/components/ProfileCard"
+import  PdfViewerModal  from "@/components/PortfolioModal"
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
 
@@ -33,6 +35,8 @@ const ProfilePage = () => {
     const isOwner = viewIdNumber === accountId;
 
     const [activeTab, setActiveTab] = useState("Posts");
+    const [pdfModalOpen, setPdfModalOpen] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -46,6 +50,7 @@ const ProfilePage = () => {
     <div className="w-4/5 mx-auto px-4 py-8">
       <Profile>
         <ProfileCardLeft>
+          <ProfileAvatar src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} fallbackText={user.name} />
           <ProfileTitle>{user.name}</ProfileTitle>
           <ProfileField label="Name: " value={user.name || user.name.toLowerCase().replace(" ", "_")} />
           <ProfileField label="Email: " value={user.email} />
@@ -54,6 +59,13 @@ const ProfilePage = () => {
               <ProfileField label="Address: " value={user.address || "-"} />
               <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
             </>
+          )}
+          {isOwner && (
+            <ProfileAction>
+              <Link to="/profile/edit">
+                <Button>Edit Profile</Button>
+              </Link>
+            </ProfileAction>
           )}
         </ProfileCardLeft>
 
@@ -64,33 +76,22 @@ const ProfilePage = () => {
             ) : (
               <>
                 <ProfileField label="Bio: " value={user.bio || "No bio available."} />
-                <ProfileField
-                  label="Portfolio: "
-                  value={
-                    user.portfolioUrl ? (
-                      <a
-                        className="text-blue-500 underline"
-                        href={user.portfolioUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {user.portfolioUrl}
-                      </a>
-                    ) : (
-                      "No portfolio link."
-                    )
-                  }
-                />
+                {user.portfolioUrl && (
+                <div className="pt-2">
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    onClick={() => {
+                      setPdfUrl(user.portfolioUrl);
+                      setPdfModalOpen(true);
+                    }}
+                  >
+                    View Portfolio
+                  </Button>
+                </div>
+                )}
               </>
             )}
-
-          {isOwner && (
-            <ProfileAction>
-              <Link to="/profile/edit">
-                <Button>Edit Profile</Button>
-              </Link>
-            </ProfileAction>
-          )}
 
           <div className="pt-6">
             <Tabs
@@ -143,6 +144,14 @@ const ProfilePage = () => {
             </div>
           </div>
         </ProfileCardRight>
+        {pdfUrl && (
+        <PdfViewerModal
+          isOpen={pdfModalOpen}
+          onClose={() => setPdfModalOpen(false)}
+          pdfUrl={pdfUrl}
+          title={`${user.name}'s Portfolio`}
+        />
+      )}
       </Profile>
     </div>
   );

@@ -20,6 +20,11 @@ import type { FC } from "react";
 
 import type { Post } from "@/type/Post";
 
+type ProfileAvatarProps = {
+  src?: string;
+  fallbackText: string;
+};
+
 const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div
     data-slot="profile"
@@ -27,6 +32,19 @@ const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
     {...props}
   />
 );
+
+const ProfileAvatar = ({ src, fallbackText }: ProfileAvatarProps) => {
+  return (
+    <div className="w-full flex justify-center relative -mt-14 mb-2">
+      <div className="w-24 h-24 rounded-full border-4 border-background bg-muted shadow-md overflow-hidden">
+        <Avatar className="w-full h-full">
+          <AvatarImage src={src} alt="User profile" />
+          <AvatarFallback>{fallbackText}</AvatarFallback>
+        </Avatar>
+      </div>
+    </div>
+  );
+};
 
 const ProfileCardLeft = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div
@@ -167,6 +185,7 @@ const ProfilePostCard: FC<Post> = ({ id, user, date, title, content }) => {
 
 export {
   Profile,
+  ProfileAvatar,
   ProfileCardLeft,
   ProfileCardRight,
   ProfileTitle,
