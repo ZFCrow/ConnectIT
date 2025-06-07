@@ -1,11 +1,14 @@
 import React from "react";
 import { Dialog } from "@headlessui/react";
 import { X, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (password: string) => void;
   title?: string;
   description?: string;
   confirmText?: string;
@@ -21,6 +24,13 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   confirmText = "Yes",
   cancelText = "Cancel",
 }) => {
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = () => {
+    onConfirm(password);
+    setPassword("");
+  };
+
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
@@ -39,6 +49,18 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
           {/* Body */}
           <p className="text-sm text-gray-300">{description}</p>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm text-gray-400">
+                Enter your password to confirm:
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">
@@ -49,7 +71,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               {cancelText}
             </button>
             <button
-              onClick={onConfirm}
+              onClick={handleSubmit}
               className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white"
             >
               {confirmText}
