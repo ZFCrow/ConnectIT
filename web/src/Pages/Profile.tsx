@@ -63,7 +63,7 @@ const ProfilePage = () => {
               <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
             </>
           )}
-          {isOwner && (
+          {isOwner && user.role !== Role.Admin && (
             <ProfileAction className="flex flex-col gap-2 sm:flex-row sm:gap-4">
               <Link to="/profile/edit">
                 <Button className="w-full sm:w-auto">Edit Profile</Button>
