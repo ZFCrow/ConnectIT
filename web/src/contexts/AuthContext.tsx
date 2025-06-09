@@ -52,8 +52,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     } else {
       //!!  for now we HARDCODE the values
       // login(1, Role.User, { userId: 1 });
-      // login(1, Role.Company, { companyId: 1 });
-      login(1, Role.Admin);
+      login(1, Role.Company, { companyId: 1 });
+      //login(1, Role.Admin);
     }
   }, []);
 
