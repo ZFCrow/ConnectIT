@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { mockUsers } from "@/components/FakeData/mockUser";
 import { mockPosts } from "@/components/FakeData/mockPosts";
+import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
 import {
   Profile,
@@ -17,6 +18,7 @@ import {
   ProfilePostCard
 } from "@/components/ProfileCard"
 import  PdfViewerModal  from "@/components/PortfolioModal"
+import ConfirmModal from "@/components/CustomDialogs/ConfirmDialog";
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
 
@@ -35,6 +37,7 @@ const ProfilePage = () => {
     const isOwner = viewIdNumber === accountId;
 
     const [activeTab, setActiveTab] = useState("Posts");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
@@ -60,11 +63,18 @@ const ProfilePage = () => {
               <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
             </>
           )}
-          {isOwner && (
-            <ProfileAction>
+          {isOwner && user.role !== Role.Admin && (
+            <ProfileAction className="flex flex-col gap-2 sm:flex-row sm:gap-4">
               <Link to="/profile/edit">
-                <Button>Edit Profile</Button>
+                <Button className="w-full sm:w-auto">Edit Profile</Button>
               </Link>
+              <Button
+                variant="destructive"
+                className="w-full sm:w-auto"
+                onClick={() => setShowDeleteModal(true)}
+              >
+                Delete Account
+              </Button>
             </ProfileAction>
           )}
         </ProfileCardLeft>
@@ -138,7 +148,19 @@ const ProfilePage = () => {
 
               {activeTab === "My Applied Jobs" && isOwner && (
                 <TabPanel isActive={true}>
-                  <div className="text-sm text-muted-foreground">Your applied jobs go here.</div>
+                  {/* {mockAppliedJobs && mockAppliedJobs.length > 0 ? (
+                    <div className="space-y-4">
+                      {mockAppliedJobs.filter((job) => job.userId == accountId)
+                      .map((job) => (
+                        <ProfileJobCard key={job.jobId} job={job} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No jobs applied at the moment.
+                    </div>
+                  )} */}
+                  <div className="text-sm text-muted-foreground">No jobs applied at the moment.</div>
                 </TabPanel>
               )}
             </div>
@@ -152,6 +174,18 @@ const ProfilePage = () => {
           title={`${user.name}'s Portfolio`}
         />
       )}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          setShowDeleteModal(false);
+          console.log("Account deleted"); // Replace with actual deletion logic
+        }}
+        title="Delete your account?"
+        description="This action cannot be undone and will permanently remove your account."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
       </Profile>
     </div>
   );

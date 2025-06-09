@@ -47,8 +47,14 @@ const EditProfilePage = () => {
                   <EditProfileInput name="name" placeholder="Jane Doe" value={user.name} />
               </EditProfileField>
 
-              <EditProfileField label="Email">
-                  <EditProfileInput type="email" name="email" placeholder="You@example.com" value={user.email} />
+              <EditProfileField label="Old Password">
+                  <EditProfileInput type="password" name="oldPassword" />
+              </EditProfileField>
+              <EditProfileField label="New Password">
+                  <EditProfileInput type="password" name="newPassword" />
+              </EditProfileField>
+              <EditProfileField label="Confirm New Password">
+                  <EditProfileInput type="password" name="confirmPassword" />
               </EditProfileField>
 
               {user.role === Role.User && (
