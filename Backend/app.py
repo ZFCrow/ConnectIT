@@ -4,7 +4,8 @@ import os
 from db import sshFlow, noSshFlow
 app = Flask(__name__) 
 import dotenv
-from SQLModels.base import initDatabase
+from SQLModels.base import DatabaseContext
+
 
 # allow all domains to access the API 
 CORS(app)
@@ -37,11 +38,18 @@ def test():
 @app.route('/initDB')
 def init_db():
     
-    tables = initDatabase()
-    print (f"Tables in the database: {tables}") 
-    return jsonify({"message": "Database initialized successfully!",
-                    "tables": [str(table[0]) for table in tables]})  
-        
+    db = DatabaseContext() 
+    success = db.initialize()  # Initialize the database connection and create tables if they don't exist 
+    if success: 
+        tables = db.get_tables()  # Get the list of tables in the database 
+
+        print (f"Tables in the database: {tables}") 
+        return jsonify({
+                        "message": "Database initialized successfully!",
+                        "tables": tables})  
+    else: 
+        return jsonify({"message": "Database initialization failed!"}), 500 
+    
 
 if __name__  == "__main__":
     #! for tssting purposes , we load the .env file and .env.dev 
