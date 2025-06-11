@@ -19,7 +19,8 @@ class DatabaseContext:
         self.ssh_tunnel: Optional[object] = None
         self._is_initialized = False
         self.connection_info = {}
-    
+        self.initialize()  # Automatically initialize on instantiation 
+
     def initialize(self) -> bool:
         """Initialize database connection - equivalent to EF's OnConfiguring"""
         if self._is_initialized:

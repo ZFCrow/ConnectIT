@@ -16,4 +16,10 @@ class PostModel(Base):
     date = Column('date',DateTime, nullable=False,default=datetime.utcnow)
 
     # foreign key to Account Table
-    accountID = Column(Integer, ForeignKey('Account.accountId'), nullable=False)
+    accountId = Column(Integer, ForeignKey('Account.accountId'), nullable=False)
+
+    isDeleted = Column(Integer, default=0, nullable=False) 
+
+
+    # Relationship to Account
+    account = relationship("AccountModel", back_populates="posts")

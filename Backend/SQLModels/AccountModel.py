@@ -12,5 +12,9 @@ class AccountModel(Base):
     # Relationship back to posts (optional)
     posts = relationship("PostModel", back_populates="account")
     
+    def to_dict(self):
+        return {
+            'accountId': self.accountId  # Match the column name
+        }
     def __repr__(self):
         return f"<Account(accountID={self.accountID})>"

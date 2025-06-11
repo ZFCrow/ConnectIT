@@ -50,7 +50,28 @@ def init_db():
     else: 
         return jsonify({"message": "Database initialization failed!"}), 500 
     
-
+@app.route('/post/<int:post_id>')
+def get_post(post_id):
+    """
+    Fetch a post by its ID. 
+    #! testing purposes , shouldnt go to mapper straight! 
+    """
+   
+    from Boundary.PostMapper import PostMapper
+    post = PostMapper.getPostById(post_id)
+    
+    if post:
+        return jsonify({
+            "post_id": post.post_id,
+            "title": post.title,
+            "content": post.content,
+            "date": post.date.isoformat() if post.date else None,  # Convert date to ISO format
+            "account_id": post.account_id,
+            "is_deleted": post.is_deleted
+        })
+    else:
+        return jsonify({"error": "Post not found"}), 404 
+     
 if __name__  == "__main__":
     #! for tssting purposes , we load the .env file and .env.dev 
     dotenv.load_dotenv('.env')
