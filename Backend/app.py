@@ -2,11 +2,13 @@ from flask import Flask, jsonify
 from flask_cors import CORS  
 import os
 from db import sshFlow, noSshFlow
-app = Flask(__name__) 
+
 import dotenv
 from SQLModels.base import DatabaseContext
+from Control.PostControl import PostControl
+from Boundary.Mapper.PostMapper import PostMapper
 
-
+app = Flask(__name__) 
 # allow all domains to access the API 
 CORS(app)
 
@@ -57,25 +59,67 @@ def get_post(post_id):
     #! testing purposes , shouldnt go to mapper straight! 
     """
    
-    from Boundary.PostMapper import PostMapper
     post = PostMapper.getPostById(post_id)
     
     if post:
         return jsonify({
-            "post_id": post.post_id,
-            "title": post.title,
-            "content": post.content,
-            "date": post.date.isoformat() if post.date else None,  # Convert date to ISO format
-            "account_id": post.account_id,
-            "is_deleted": post.is_deleted
+            "id" : post.post_id, 
+            "user" : "",
+            "date" : post.date,
+            "labels": [],
+            "title" : post.title,
+            "content" : post.content,
+            "comments": [{
+                "username": "ZFCrow",
+                "content": "WTf?", 
+                "accountId": 2, 
+                "commentId": 1} ], 
+            "likes": 0,
+            "liked": False, 
+            "accountId": post.account_id, 
         })
     else:
         return jsonify({"error": "Post not found"}), 404 
+
+@app.route('/posts', methods=['GET']) 
+def get_all_posts():
+    """
+    Retrieve all posts from the database.
+    """
+    
+    posts = PostControl.retrieveAllPosts()
+    
+    if posts:
+        return jsonify([{
+            "id": post.post_id,
+            "user": "",
+            "date": post.date,
+            "labels": [],
+            "title": post.title,
+            "content": post.content,
+            "comments": [{"user": "ZFCrow","content": "WTf? "} ],
+            "likes": 0,
+            "liked": False,
+            "accountId": post.account_id,
+        } for post in posts]), 200
+    else:
+        return jsonify({"error": "No posts found"}), 404 
+    
+@app.route('/createPost', methods=['POST']) 
+def createPost(accountId: int , postData: dict):
+    """
+    Create a new post in the database.
+    """
+   
+    success = PostControl.createPost(accountId, postData)
+    
+    if success:
+        return jsonify({"message": "Post created successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to create post"}), 500
      
 if __name__  == "__main__":
-    #! for tssting purposes , we load the .env file and .env.dev 
-    dotenv.load_dotenv('.env')
-    dotenv.load_dotenv('.env.dev')  
+  
     # Read host, port, and debug from env, with sensible defaults
     host  = os.environ.get("FLASK_RUN_HOST")
     port  = int(os.environ.get("FLASK_RUN_PORT"))

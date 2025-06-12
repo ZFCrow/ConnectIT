@@ -17,14 +17,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 1,
         accountId: 1,   // FinancePro’s account ID
-        user: "FinancePro",
+        username: "FinancePro",
+        displayPicUrl: "",
         content:
           "I moved from tech to finance last year. The work-life balance shifted a lot—more long hours in banking, but you learn a ton about financial modeling."
       },
       {
         commentId: 2,
         accountId: 12,   // EngToBanker’s account ID
-        user: "EngToBanker",
+        username: "EngToBanker",
+        displayPicUrl: "",
         content:
           "I did the reverse: finance into tech. The analytical skills helped, but you’ll need to brush up on coding if you go into software engineering."
       }
@@ -49,14 +51,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 3,
         accountId: 13,   // ResumeGuru’s account ID
-        user: "ResumeGuru",
+        username: "ResumeGuru",
+        displayPicUrl: "",
         content:
           "Highlight any open-source contributions or personal projects on GitHub. Recruiters love to see code you’ve actually written."
       },
       {
         commentId: 4,
         accountId: 14,   // InternAlum’s account ID
-        user: "InternAlum",
+        username: "InternAlum",
+        displayPicUrl: "",
         content:
           "Tailor your resume to each position. Use keywords from the job description—ATS filters matter more than you think."
       }
@@ -81,14 +85,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 5,
         accountId: 15,   // SupportivePeer’s account ID
-        user: "SupportivePeer",
+        username: "SupportivePeer",
+        displayPicUrl: "",
         content:
           "Hang in there! It took me 3 months to land something. Consider doing small freelance gigs or volunteering to build experience."
       },
       {
         commentId: 6,
         accountId: 16,   // CareerCoach’s account ID
-        user: "CareerCoach",
+        username: "CareerCoach",
+        displayPicUrl: "",
         content:
           "Your mental health is important. Maybe schedule a mock interview with a friend or career center to boost confidence and technique."
       }
@@ -112,19 +118,22 @@ export const mockPosts: Post[] = [
       {
         commentId: 7,
         accountId: 17,  // TechGuru’s account ID
-        user: "TechGuru",
+        username: "TechGuru",
+        displayPicUrl: "",
         content: "DM me"
       },
       {
         commentId: 8,
         accountId: 18,  // ResumeNinja’s account ID
-        user: "ResumeNinja",
+        username: "ResumeNinja",
+        displayPicUrl: "",
         content: "I can help!"
       },
       {
         commentId: 9,
         accountId: 19,  // FrontendFan’s account ID
-        user: "FrontendFan",
+        username: "FrontendFan",
+        displayPicUrl: "",
         content:
           "Make sure you mention React, Tailwind CSS, and any live demos. Recruiters love to see deployed projects—link to your portfolio."
       }
@@ -148,14 +157,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 10,
         accountId: 20,  // ExDevNowPM’s account ID
-        user: "ExDevNowPM",
+        username: "ExDevNowPM",
+        displayPicUrl: "",
         content:
           "I transitioned to product management last year. Focus on transferable skills like stakeholder communication and project planning."
       },
       {
         commentId: 11,
         accountId: 21,  // CounselorKate’s account ID
-        user: "CounselorKate",
+        username: "CounselorKate",
+        displayPicUrl: "",
         content:
           "Burnout is real—sometimes a short sabbatical or a part-time role can help rekindle passion before a full pivot."
       }
@@ -179,14 +190,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 12,
         accountId: 22,  // RemoteExpert’s account ID
-        user: "RemoteExpert",
+        username: "RemoteExpert",
+        displayPicUrl: "",
         content:
           "Check out Toptal and RemoteOK. Also, GitHub Discussions often has leads for short-term freelance gigs."
       },
       {
         commentId: 13,
         accountId: 23,  // DevNomad’s account ID
-        user: "DevNomad",
+        username: "DevNomad",
+        displayPicUrl: "",
         content:
           "I’ve had luck with AngelList and We Work Remotely. Don’t sleep on niche Slack communities for specific tech stacks."
       }
@@ -210,14 +223,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 14,
         accountId: 24,  // CareerPivot’s account ID
-        user: "CareerPivot",
+        username: "CareerPivot",
+        displayPicUrl: "",
         content:
           "Consider building a small portfolio of updated projects—maybe a full-stack CRUD app using modern frameworks to show you’re current."
       },
       {
         commentId: 15,
         accountId: 25,  // HiringManager’s account ID
-        user: "HiringManager",
+        username: "HiringManager",
+        displayPicUrl: "",
         content:
           "Be honest about your gap but emphasize volunteer work or courses taken. Many companies appreciate transferable skills and fresh perspectives."
       }
@@ -241,14 +256,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 16,
         accountId: 26,  // MotivationCoach’s account ID
-        user: "MotivationCoach",
+        username: "MotivationCoach",
+        displayPicUrl: "",
         content:
           "Try networking events or local meetups—even a brief conversation can lead to referrals. Keep your head up; persistence pays off."
       },
       {
         commentId: 17,
         accountId: 27,  // RecruiterJane’s account ID
-        user: "RecruiterJane",
+        username: "RecruiterJane",
+        displayPicUrl: "",
         content:
           "Make sure your resume is tailored to each application. Generic resumes often get passed over by ATS or hiring managers."
       }
@@ -272,14 +289,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 18,
         accountId: 28,  // BusyMomDev’s account ID
-        user: "BusyMomDev",
+        username: "BusyMomDev",
+        displayPicUrl: "",
         content:
           "I carve out 30 minutes each morning before the kids wake up to apply for jobs. Even small, consistent efforts add up over time."
       },
       {
         commentId: 19,
         accountId: 29,  // TimeMgmtCoach’s account ID
-        user: "TimeMgmtCoach",
+        username: "TimeMgmtCoach",
+        displayPicUrl: "",
         content:
           "Use job alerts to automate part of the search and set realistic daily limits. Schedule interview prep in small, feasible blocks."
       }
@@ -303,14 +322,16 @@ export const mockPosts: Post[] = [
       {
         commentId: 20,
         accountId: 30,  // FreeCodeFan’s account ID
-        user: "FreeCodeFan",
+        username: "FreeCodeFan",
+        displayPicUrl: "",
         content:
           "freeCodeCamp.org is great for full-stack basics. Also check out CS50 on edX—it’s rigorous and well recognized by employers."
       },
       {
         commentId: 21,
         accountId: 31,  // YouTubeTeacher’s account ID
-        user: "YouTubeTeacher",
+        username: "YouTubeTeacher",
+        displayPicUrl: "",
         content:
           "Traversy Media and The Net Ninja have excellent playlists. Follow along by building real projects, not just watching."
       }

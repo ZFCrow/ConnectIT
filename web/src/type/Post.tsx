@@ -1,4 +1,9 @@
-import type { Label } from "@/type/Label"; 
+import type { Label  } from "@/type/Label"; 
+import type { Comment} from "@/type/Comment";
+import { z } from 'zod'; 
+import { LabelSchema } from "@/type/Label";
+import { CommentSchema } from "@/type/Comment"; 
+
 
 export type Post = {
     id: number;
@@ -13,9 +18,20 @@ export type Post = {
     accountId : number;
 };
 
-type Comment = {
-    accountId: number;
-    commentId: number; 
-    user: string;
-    content: string; 
-}
+//! zod schema for Post 
+
+export const PostSchema = z.object({
+    id: z.number(),
+    user: z.string(),
+    date: z.string(), // ISO date string
+    labels: z.array(LabelSchema), // Array of Label objects
+    title: z.string().min(1, "Title is required"),
+    content: z.string().min(1, "Content is required"),
+    comments: z.array(CommentSchema), // Array of Comment objects
+    likes: z.number().int().nonnegative(), // Non-negative integer for likes
+    liked: z.boolean().optional().default(false), // Optional boolean with default value false
+    accountId: z.number(), // Account ID associated with the post
+}); 
+
+export type ValidatedPost = z.infer<typeof PostSchema>; 
+export const PostsArraySchema = z.array(PostSchema); 

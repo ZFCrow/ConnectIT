@@ -249,10 +249,10 @@ const Postcard: FC<PostcardProps> = ({
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.user}`}
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
                     />
                     <AvatarFallback className="text-xs">
-                      {c.user[0]}
+                      {c.username[0]}
                     </AvatarFallback>
                   </Avatar>
 

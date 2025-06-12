@@ -11,7 +11,9 @@ from pathlib import Path
 Base = declarative_base()
 
 class DatabaseContext:
-    """Database context manager with SSH tunnel support - similar to Entity Framework DbContext"""
+    """
+    Database context manager with SSH tunnel support - similar to Entity Framework DbContext
+    """
     
     def __init__(self):
         self.engine: Optional[object] = None

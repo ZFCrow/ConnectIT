@@ -20,3 +20,14 @@ class Post:
             account_id=post_model.accountId,
             is_deleted=post_model.isDeleted
         ) 
+    
+    @classmethod 
+    def from_dict(cls, data):
+        return cls(
+            post_id=data.get('post_id'),
+            title=data.get('title'),
+            content=data.get('content'),
+            date=data.get('date'),
+            account_id=data.get('account_id'),
+            is_deleted=data.get('is_deleted', 0)
+        ) 

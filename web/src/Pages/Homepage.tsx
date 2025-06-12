@@ -1,35 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import type { AxiosResponse, AxiosError } from "axios";
-
 import Postcard from "@/components/Postcard";
 import CreatePostbar from "@/components/CreatePostbar";
 import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
+import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { PopularTags } from "@/components/FakeData/PopularTags";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostManager } from "@/components/CustomHooks/usePostManger";
-import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
+import { PostSchema, PostsArraySchema, ValidatedPost } from "@/type/Post";
+import {z } from 'zod'; 
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-
-import OptionBox from "@/components/OptionBox";
-
-interface Response {
-  message: string;
-  status: number;
-}
 
 // form the base url first
 const api = axios.create({
@@ -38,8 +20,6 @@ const api = axios.create({
 
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
-  console.log("all URL:", import.meta.env.VITE_BACKEND_URL);
-  const [message, setMessage] = useState<string>("");
 
   // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
   const [tags, setTags] = useState(PopularTags); // use the mock data for now
@@ -57,18 +37,27 @@ const Homepage = () => {
     handleHide,
   } = usePostManager(mockPosts);
 
+  //test the api call to call post/1 
   useEffect(() => {
-    api
-      .get<Response>("/test")
-      .then((res: AxiosResponse<Response>) => {
-        console.log(res.data);
-        setMessage(res.data.message);
-        console.log("API:", res.data.status);
-        console.log("Message:", message);
-      })
-      .catch((err: AxiosError) => {
-        console.log("APIERROR:", err.message);
-      });
+    const fetchPosts = async () => { 
+      try{
+        const response = await api.get('/post/1'); 
+        console.log("Fetched post:", response.data); 
+        
+        //* validate 
+        const validatedPost : ValidatedPost = PostSchema.parse(response.data); 
+        console.log("Validated post:", validatedPost); 
+
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          console.error("Validation error:", error.errors);
+        } else {
+          console.error("Error fetching posts:", error);
+        }
+        
+      }
+    }
+    fetchPosts()
   }, []);
 
   const handleSortClick = (criterion: string) => {
