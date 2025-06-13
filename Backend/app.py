@@ -82,6 +82,15 @@ def register():
     else:
         return jsonify({"error": "Failed to create account"}), 500
     
+@app.route('/profile/disable/<int:account_id>', methods=['POST'])
+def disable(account_id):
+    success = ViewProfile.disableAccount(account_id)
+
+    if success:
+        return jsonify({"message": "Account disabled successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to disable account"}), 500
+    
 @app.route('/post/<int:post_id>')
 def get_post(post_id):
     """

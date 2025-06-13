@@ -18,7 +18,7 @@ class CompanyModel(Base):
     
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
-    # account = relationship("AccountModel", back_populates="company")
+    account = relationship("AccountModel", back_populates="company")
 
     def to_dict(self):
         return {

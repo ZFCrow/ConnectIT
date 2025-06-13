@@ -26,8 +26,8 @@ class AccountModel(Base):
     
     # Relationship back to posts (optional)
     posts = relationship("PostModel", back_populates="account")
-    # user = relationship("UserModel", back_populates="account")
-    # company = relationship("CompanyModel", back_populates="account")
+    user = relationship("UserModel", back_populates="account", uselist=False)
+    company = relationship("CompanyModel", back_populates="account", uselist=False)
     
     def to_dict(self):
         return {

@@ -17,7 +17,7 @@ class UserModel(Base):
     
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
-    # account = relationship("AccountModel", back_populates="user")
+    account = relationship("AccountModel", back_populates="user")
 
     def to_dict(self):
         return {

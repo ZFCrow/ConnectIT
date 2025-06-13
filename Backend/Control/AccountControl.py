@@ -16,3 +16,13 @@ class AccountControl:
     def getAccountById(accountId: int) -> Account:
         return AccountMapper.getAccountById(accountId)
     
+    @staticmethod
+    def updateAccount(accountData: dict) -> bool:
+        account = Account.from_dict(accountData)
+
+        return AccountMapper.updateAccount(account)
+    
+    @staticmethod
+    def disableAccount(accountId: int) -> bool:
+        return AccountMapper.disableAccount(accountId)
+    

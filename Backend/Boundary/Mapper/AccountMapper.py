@@ -6,6 +6,7 @@ from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
 from typing import Optional
+from sqlalchemy.orm import joinedload
 import traceback
 
 
@@ -14,25 +15,26 @@ class AccountMapper:
     @staticmethod
     def getAccountById(accountId) -> Optional[Account]:
         with db_context.session_scope() as session:
-            account = session.query(AccountModel).filter(AccountModel.accountId == accountId).first()
-            
+            account = session.query(AccountModel)\
+                .options(joinedload(AccountModel.user), joinedload(AccountModel.company))\
+                .filter(AccountModel.accountId == accountId)\
+                .first()
+
             if not account:
                 return None
 
             account_data = account.to_dict()
 
-            if account_data['role'] == Role.User.value:
-                user_model = session.query(UserModel).filter(UserModel.accountId == accountId).first()
-                if user_model:
-                    user_data = user_model.to_dict()
-                    user_data.update(account_data)  # Add account data to user
+            if account.role == Role.User:
+                if account.user:
+                    user_data = account.user.to_dict()
+                    user_data.update(account_data)
                     return User.from_dict(user_data)
 
-            elif account_data['role'] == Role.Company.value:
-                company_model = session.query(CompanyModel).filter(CompanyModel.accountId == accountId).first()
-                if company_model:
-                    company_data = company_model.to_dict()
-                    company_data.update(account_data)  # Add account data to company
+            elif account.role == Role.Company:
+                if account.company:
+                    company_data = account.company.to_dict()
+                    company_data.update(account_data)
                     return Company.from_dict(company_data)
             
     @staticmethod
@@ -64,6 +66,66 @@ class AccountMapper:
             
         except Exception as e:
             print(f"Error creating account: {e}")
+            traceback.print_exc()
+            return False
+        
+    @staticmethod
+    def updateAccount(account: Account) -> bool:
+        try:
+            with db_context.session_scope() as session:
+                accountModel = session.query(AccountModel).filter_by(accountId=account.accountId).first()
+                
+                if not accountModel:
+                    print(f"No account found with ID: {account.accountId}")
+                    return False
+
+                # Update base Account fields
+                accountModel.name = account.name
+                accountModel.email = account.email
+                accountModel.profilePicUrl = getattr(account, "profilePicUrl", '')
+                accountModel.isDisabled = getattr(account, "isDisabled", False)
+
+                # Role-specific updates
+                if account.role == Role.User.value:
+                    userModel = session.query(UserModel).filter_by(accountId=account.accountId).first()
+                    if userModel and isinstance(account, User):
+                        userModel.bio = account.bio
+                        userModel.portfolioUrl = account.portfolioUrl
+
+                elif account.role == Role.Company.value:
+                    companyModel = session.query(CompanyModel).filter_by(accountId=account.accountId).first()
+                    if companyModel and isinstance(account, Company):
+                        companyModel.description = account.description
+                        companyModel.location = account.location
+                        companyModel.verified = account.verified
+
+                session.commit()
+                return True
+
+        except Exception as e:
+            print(f"Error updating account: {e}")
+            traceback.print_exc()
+            return False
+        
+
+    @staticmethod
+    def disableAccount(accountId: int) -> bool:
+        try:
+            with db_context.session_scope() as session:
+                accountModel = session.query(AccountModel).filter_by(accountId=accountId).first()
+                
+                if not accountModel:
+                    print(f"No account found with ID: {accountId}")
+                    return False
+
+                # Update base Account fields
+                accountModel.isDisabled = True
+
+                session.commit()
+                return True
+
+        except Exception as e:
+            print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
         

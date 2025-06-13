@@ -9,4 +9,8 @@ class ViewProfile:
     def viewAccount(accountId: int):
         return AccountControl.getAccountById(accountId)
     
+    @staticmethod
+    def disableAccount(accountId: int):
+        return AccountControl.disableAccount(accountId)
+    
     
