@@ -1,7 +1,6 @@
 export const mockUsers = [
     {
         accountId: 1,
-        userId: 1,
         name: "John Doe",
         email: "john@gmail.com",
         passwordHash: "neonroO@($NN",
@@ -11,7 +10,6 @@ export const mockUsers = [
     },
     {
         accountId: 2,
-        companyId: 1,
         name: "TechNova Pte Ltd",
         email: "hr@technova.sg",
         passwordHash: "N2!dk8Lxm",

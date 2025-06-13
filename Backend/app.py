@@ -1,4 +1,4 @@
-from flask import Flask, jsonify 
+from flask import Flask, jsonify, request
 from flask_cors import CORS  
 import os
 from db import sshFlow, noSshFlow
@@ -7,6 +7,8 @@ import dotenv
 from SQLModels.base import DatabaseContext
 from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
+from Boundary.Register import Register
+from Boundary.ViewProfile import ViewProfile
 
 app = Flask(__name__) 
 # allow all domains to access the API 
@@ -51,6 +53,34 @@ def init_db():
                         "tables": tables})  
     else: 
         return jsonify({"message": "Database initialization failed!"}), 500 
+    
+@app.route('/profile/<int:account_id>', methods=['GET'])
+def view_profile(account_id):
+    account = ViewProfile.viewAccount(account_id)
+
+    if account:
+        return jsonify({
+            "accountId" : account.accountId,
+            "name" : account.name,
+            "email" : account.email,
+            "passwordHash" : account.passwordHash,
+            "passwordSalt" : account.passwordSalt,
+            "role" : account.role,
+            "isDisabled" : account.isDisabled
+        })
+    
+    else:
+        return jsonify({"error": "Account not found"}), 404
+
+@app.route('/register', methods=['POST'])
+def register():
+    accountData = request.get_json()
+    success = Register.registerAccount(accountData)
+
+    if success:
+        return jsonify({"message": "Account created successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to create account"}), 500
     
 @app.route('/post/<int:post_id>')
 def get_post(post_id):
