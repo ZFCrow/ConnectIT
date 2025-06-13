@@ -13,3 +13,19 @@ class Label:
             description=data.get('description', ''),
             color=data.get('color', '')
         ) 
+    
+    @classmethod 
+    def to_dict(cls, label: 'Label') -> dict:
+        return {
+            "labelId": label.labelID,
+            "name": label.description,
+            "color": label.color
+        } 
+    @classmethod
+    def fromLabelModel(cls, label_model) -> 'Label':
+        return cls(
+            labelID=label_model.labelId,
+            description=label_model.description,
+            color=label_model.color.value if label_model.color else ''
+        ) 
+    

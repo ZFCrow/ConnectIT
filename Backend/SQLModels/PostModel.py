@@ -8,7 +8,7 @@ class PostModel(Base):
     __tablename__ = "Post"
 
     # pri key 
-    postID = Column(Integer, primary_key=True, autoincrement=True) 
+    postId = Column(Integer, primary_key=True, autoincrement=True) 
     title = Column(String(255), nullable=False) 
     content = Column(String(1000), nullable=False)
     
@@ -21,5 +21,8 @@ class PostModel(Base):
     isDeleted = Column(Integer, default=0, nullable=False) 
 
 
-    # Relationship to Account
-    account = relationship("AccountModel", back_populates="posts")
+    # Relationship
+    account = relationship("AccountModel", back_populates="post")
+    postLabels = relationship("PostLabelModel", back_populates="post") 
+    comments = relationship("CommentModel", back_populates="post")
+    postLikes = relationship("PostLikesModel", back_populates="post") 

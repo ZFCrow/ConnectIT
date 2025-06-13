@@ -10,9 +10,10 @@ import { PopularTags } from "@/components/FakeData/PopularTags";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostManager } from "@/components/CustomHooks/usePostManger";
 import { PostSchema, PostsArraySchema, ValidatedPost } from "@/type/Post";
-import {z } from 'zod'; 
-
-
+import {set, z } from 'zod'; 
+import { Post } from "@/type/Post"; 
+import { Label } from "@/type/Label";
+import { Comment } from "@/type/Comment";
 // form the base url first
 const api = axios.create({
   baseURL: "/api",
@@ -41,13 +42,43 @@ const Homepage = () => {
   useEffect(() => {
     const fetchPosts = async () => { 
       try{
-        const response = await api.get('/post/1'); 
+        const response = await api.get('/posts'); 
         console.log("Fetched post:", response.data); 
         
-        //* validate 
-        const validatedPost : ValidatedPost = PostSchema.parse(response.data); 
-        console.log("Validated post:", validatedPost); 
+        // //* validate 
+        // const validatedPost : ValidatedPost = PostSchema.parse(response.data); 
+        // console.log("Validated post:", validatedPost); 
 
+        // validate an array of posts 
+        const validatedPosts: ValidatedPost[] = PostsArraySchema.parse(response.data); 
+
+        // convert the validated posts to posts 
+        const convertedPosts: Post[] = validatedPosts.map((post) => ({ 
+          id : post.id, 
+          username: post.username, 
+          date: post.date, 
+          labels: post.labels.map((label): Label => ({
+            labelId: label.labelId, 
+            name: label.name, 
+            color: label.color,
+          })), 
+          title: post.title, 
+          content: post.content, 
+          comments: post.comments.map((comment): Comment => ({ 
+            accountId: comment.accountId, 
+            createdAt: comment.createdAt, 
+            commentId: comment.commentId, 
+            username: comment.username, 
+            content: comment.content, 
+            displayPicUrl: comment.displayPicUrl ? comment.displayPicUrl : undefined, // optional field 
+          })), 
+          likes: post.likes, 
+          liked: post.liked ?? false, // default to false if not provided 
+          accountId: post.accountId, // ensure accountId is included 
+          displayPicUrl: post.displayPicUrl ? post.displayPicUrl : undefined, // optional field 
+        })); 
+
+        setPosts(convertedPosts); // set the posts state with validated posts
       } catch (error) {
         if (error instanceof z.ZodError) {
           console.error("Validation error:", error.errors);

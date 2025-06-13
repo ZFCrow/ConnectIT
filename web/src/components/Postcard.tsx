@@ -54,7 +54,7 @@ type PostcardProps = Post & {
 const Postcard: FC<PostcardProps> = ({
   accountId: postAccountId,
   id,
-  user,
+  username,
   date,
   labels,
   title,
@@ -103,16 +103,16 @@ const Postcard: FC<PostcardProps> = ({
               <div className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${user}`}
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
                   />
-                  <AvatarFallback>{user[0]}</AvatarFallback>
+                  <AvatarFallback>{username}</AvatarFallback>
                 </Avatar>
 
                 <div>
                   <CardTitle>{title}</CardTitle>
                   <CardDescription className="mt-1 text-sm text-muted-foreground flex flex-col items-start gap-2">
                     <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                      @{user}
+                      @{username}
                     </span>
                     {/* Date on its own line */}
                     <span className="text-xs">{date}</span>
@@ -252,14 +252,14 @@ const Postcard: FC<PostcardProps> = ({
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
                     />
                     <AvatarFallback className="text-xs">
-                      {c.username[0]}
+                      {c.username}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="flex-1">
                     <div className="flex items-center justify-between ">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm">{c.user}</span>
+                        <span className="font-medium text-sm">{c.username}</span>
                         <span className="text-xs text-muted-foreground">
                           2h ago
                         </span>

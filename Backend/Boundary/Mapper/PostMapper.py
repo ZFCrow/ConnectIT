@@ -1,7 +1,13 @@
 from SQLModels.base import db_context
 from SQLModels.PostModel import PostModel
-from Entity.Post import Post  
+
 from typing import Optional 
+from sqlalchemy.orm import joinedload 
+from SQLModels.AccountModel import AccountModel 
+from SQLModels.CommentModel import CommentModel
+from SQLModels.PostLabelModel import PostLabelModel 
+from Entity.Post import Post  
+from Entity.Label import Label 
 class PostMapper: 
     """
     Mapper class for handling database operations related to Post entities.
@@ -24,10 +30,37 @@ class PostMapper:
     def getAllPosts() -> list[Post]:
         """
         Fetch all posts from the database.
+        fetch from post , commetn and postlabel tables
         """
         with db_context.session_scope() as session:
-            posts = session.query(PostModel).all()
-            return [Post.from_PostModel(post) for post in posts] if posts else [] 
+            posts = session.query(PostModel).options(
+                joinedload(PostModel.account),  # Load the associated account 
+                joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels 
+                joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
+                joinedload(PostModel.postLikes)  # Load associated likes 
+            ).all()
+            #! now i need to retrieve all the label entity for each post and put it in each post
+            listofPostEntities = [] 
+            if posts: 
+                for post in posts: 
+                    for postLikesModel in post.postLikes: 
+                        # get the account from the postLikesModel 
+                        print (f"Post liked by : {postLikesModel.accountId}") 
+
+                    # find the labels , find the correct label entity , 
+                    labelsModels = [pl.label for pl in post.postLabels] # these are the label models 
+                    labels = [Label.fromLabelModel(lm) for lm in labelsModels]  # convert to label entities 
+                    
+                    # find the comments, then create the comment entities from post entity
+                    commentModels = [cm for cm in post.comments] 
+                    # create the post entity and pass the labels 
+                    postEntity = Post.from_PostModel(post, labels) 
+                    # add the comments to the post entity 
+                    postEntity.populateComments(commentModels) 
+
+                    listofPostEntities.append(postEntity) 
+            return listofPostEntities 
+            # return [Post.from_PostModel(post) for post in posts] if posts else [] 
         
     @staticmethod 
     def createPost(post: Post) -> bool : 
