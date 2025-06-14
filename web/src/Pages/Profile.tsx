@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios"
 import { mockUsers } from "@/components/FakeData/mockUser";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
@@ -21,7 +22,11 @@ import  PdfViewerModal  from "@/components/PortfolioModal"
 import ConfirmModal from "@/components/CustomDialogs/ConfirmDialog";
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
+import { User, UserSchema, ValidatedUser } from "@/type/user";
 
+const api = axios.create({
+  baseURL: "/api",
+});
 
 const ProfilePage = () => {
     const { viewId } = useParams<{ viewId: string }>();
@@ -40,6 +45,16 @@ const ProfilePage = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+    // useEffect(() => {
+    //   try {
+    //     const response = await api.get(`/profile/${accountId}`)
+    //     console.log("Fetched account:", response.data)
+
+    //     const validatedUser: User = UserSchema.parse(response.data)
+
+    //   }
+    // })
 
   if (!user) {
     return (

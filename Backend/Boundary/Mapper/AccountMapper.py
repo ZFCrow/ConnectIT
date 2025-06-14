@@ -81,9 +81,8 @@ class AccountMapper:
 
                 # Update base Account fields
                 accountModel.name = account.name
-                accountModel.email = account.email
-                accountModel.profilePicUrl = getattr(account, "profilePicUrl", '')
-                accountModel.isDisabled = getattr(account, "isDisabled", False)
+                if hasattr(account, "profilePicUrl") and account.profilePicUrl != '':
+                    accountModel.profilePicUrl = getattr(account, "profilePicUrl") 
 
                 # Role-specific updates
                 if account.role == Role.User.value:

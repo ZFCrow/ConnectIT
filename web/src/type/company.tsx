@@ -10,4 +10,5 @@ export interface Company {
   //   phone: string;
   uploadedDocumentUrl: string; // URL or path to the verification document
   status: "Pending" | "Verified" | "Rejected";
+  accountId: number;
 }

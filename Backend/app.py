@@ -9,6 +9,7 @@ from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
 from Boundary.Register import Register
 from Boundary.ViewProfile import ViewProfile
+from Boundary.EditProfile import EditProfile
 
 app = Flask(__name__) 
 # allow all domains to access the API 
@@ -81,6 +82,34 @@ def register():
         return jsonify({"message": "Account created successfully!"}), 201
     else:
         return jsonify({"error": "Failed to create account"}), 500
+    
+@app.route('/profile/edit/<int:account_id>', methods=['GET'])
+def edit_profile(account_id):
+    account = ViewProfile.viewAccount(account_id)
+
+    if account:
+        return jsonify({
+            "accountId" : account.accountId,
+            "name" : account.name,
+            "email" : account.email,
+            "passwordHash" : account.passwordHash,
+            "passwordSalt" : account.passwordSalt,
+            "role" : account.role,
+            "isDisabled" : account.isDisabled
+        })
+    
+    else:
+        return jsonify({"error": "Account not found"}), 404
+    
+@app.route('/profile/save', methods=['POST'])
+def save_profile():
+    updated_data = request.get_json()
+    success = EditProfile.saveProfile(updated_data)
+
+    if success:
+        return jsonify({"message": "Profile saved successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to save profile"}), 500
     
 @app.route('/profile/disable/<int:account_id>', methods=['POST'])
 def disable(account_id):
