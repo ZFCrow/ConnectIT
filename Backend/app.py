@@ -22,7 +22,7 @@ from db import sshFlow, noSshFlow
 from SQLModels.base import DatabaseContext
 from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
-
+from Boundary.PostBoundary import PostBoundary 
 
 
 
@@ -107,7 +107,8 @@ def get_all_posts():
     Retrieve all posts from the database.
     """
     
-    posts = PostControl.retrieveAllPosts()
+    # posts = PostControl.retrieveAllPosts()
+    posts = PostBoundary.handleRetrieveAllPosts()  # Use the boundary to handle the retrieval of all posts 
     
     if posts:
         allPosts = [] 

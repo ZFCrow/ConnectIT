@@ -80,6 +80,14 @@ class PostMapper:
                 ) 
                 session.add(postModel)
 
+                for label in post.associated_labels: 
+                    # Create a PostLabelModel for each label associated with the post
+                    postLabelModel = PostLabelModel(
+                        postId=postModel.postID,  # Use the auto-incremented ID after flush
+                        labelId=label.labelID  # Assuming labelID is the ID of the label entity
+                    )
+                    session.add(postLabelModel) 
+
 
                 # FLUSH : send INSERT to db, gets the auto-incremented ID 
                 session.flush()

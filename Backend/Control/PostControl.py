@@ -1,6 +1,8 @@
 from Boundary.Mapper.PostMapper import PostMapper 
 from Entity.Post import Post 
 from SQLModels.PostModel import PostModel as Postmodel 
+from Boundary.TableDataGateway import LabelGateway
+
 class PostControl: 
     def __init__(self):
         pass 
@@ -27,4 +29,16 @@ class PostControl:
         posts = PostMapper.getAllPosts() 
 
         return posts 
+    
+
+    @staticmethod 
+    def createPost(postData : dict) -> bool: 
+        """
+        Create a new post in the database.
+        """
+        # should retrieve the labels from the postData and get them from the label gateway ?
+        labels : str = postData.get('labels', []) # should be a list of label IDs
+        listofLabels = LabelGateway.getLabelsByIds(labels)  # 
+        post = Post.from_dict(postData, labels=listofLabels)  # Create Post entity from dictionary and labels 
+        return PostMapper.createPost(post) 
 
