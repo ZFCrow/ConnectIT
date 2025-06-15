@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 
 export const Role = {
-  User: "user",
-  Admin: "admin",
-  Company: "company",
+  User: "User",
+  Admin: "Admin",
+  Company: "Company",
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];

@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios"
-import { mockUsers } from "@/components/FakeData/mockUser";
 import { mockPosts } from "@/components/FakeData/mockPosts";
 import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
@@ -22,18 +21,20 @@ import  PdfViewerModal  from "@/components/PortfolioModal"
 import ConfirmModal from "@/components/CustomDialogs/ConfirmDialog";
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
-import { User, UserSchema, ValidatedUser } from "@/type/user";
+import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
 
 const api = axios.create({
   baseURL: "/api",
 });
 
+type AccountData = ValidatedUser | ValidatedCompany;
+
 const ProfilePage = () => {
     const { viewId } = useParams<{ viewId: string }>();
-    const user = mockUsers.find((u) => u.accountId === Number(viewId));
+    
+    const [user, setUser] = useState<AccountData | null>(null);
 
     const { accountId } = useAuth();
-    //const isOwner = viewId == accountId
 
     //  Convert viewId to number for comparison
     const viewIdNumber = viewId ? Number(viewId) : null;
@@ -46,15 +47,33 @@ const ProfilePage = () => {
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    // useEffect(() => {
-    //   try {
-    //     const response = await api.get(`/profile/${accountId}`)
-    //     console.log("Fetched account:", response.data)
+  useEffect(() => {
+    const fetchAccount = async () => {
+      try {
+        const response = await axios.get(`/api/profile/${viewId}`);
+        const data = response.data;
 
-    //     const validatedUser: User = UserSchema.parse(response.data)
+        let parsed;
+        switch (data.role) {
+          case Role.User:
+            parsed = UserSchema.parse(data);
+            break;
+          case Role.Company:
+            parsed = CompanySchema.parse(data);
+            break;
+          default:
+            throw new Error("Unsupported account role");
+        }
 
-    //   }
-    // })
+        setUser(parsed);
+        console.log("Validated account:", parsed);
+      } catch (error) {
+        console.error("Failed to load account:", error);
+      }
+    };
+
+    fetchAccount();
+  }, []);
 
   if (!user) {
     return (
@@ -74,8 +93,8 @@ const ProfilePage = () => {
           <ProfileField label="Email: " value={user.email} />
           {user.role === Role.Company && (
             <>
-              <ProfileField label="Address: " value={user.address || "-"} />
-              <ProfileField label="Verified: " value={user.verified ? "Yes" : "No"} />
+              <ProfileField label="Address: " value={(user as Company).location || "-"} />
+              <ProfileField label="Verified: " value={(user as Company).verified ? "Yes" : "No"} />
             </>
           )}
           {isOwner && user.role !== Role.Admin && (
@@ -97,17 +116,17 @@ const ProfilePage = () => {
         <ProfileCardRight>
           <ProfileTitle>About</ProfileTitle>
           {user.role === Role.Company ? (
-              <ProfileField label="About the Company: " value={user.description || "No company description available."} />
+              <ProfileField label="About the Company: " value={(user as Company).description || "No company description available."} />
             ) : (
               <>
-                <ProfileField label="Bio: " value={user.bio || "No bio available."} />
-                {user.portfolioUrl && (
+                <ProfileField label="Bio: " value={(user as User).bio || "No bio available."} />
+                {(user as User).portfolioUrl && (
                 <div className="pt-2">
                   <Button
                     className="w-full"
                     variant="secondary"
                     onClick={() => {
-                      setPdfUrl(user.portfolioUrl);
+                      setPdfUrl((user as User).portfolioUrl);
                       setPdfModalOpen(true);
                     }}
                   >
@@ -134,7 +153,7 @@ const ProfilePage = () => {
                 <TabPanel isActive={true}>
                   {mockPosts ? (
                     <div className="space-y-4">
-                      {mockPosts.filter((post) => post.accountId == viewIdNumber).map((post) => (
+                      {mockPosts.filter((post) => post.accountId == user.accountId).map((post) => (
                         <ProfilePostCard key={post.id} {...post} />
                       ))}
                     </div>

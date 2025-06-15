@@ -1,4 +1,6 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import {
   EditProfileCard,
@@ -12,8 +14,14 @@ import {
   EditProfileActions,
 } from "@/components/EditProfileCard";
 import { Button } from "@/components/ui/button";
-import { mockUsers } from "@/components/FakeData/mockUser";
 import { Role, useAuth } from "@/contexts/AuthContext";
+import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
+
+const api = axios.create({
+  baseURL: "/api",
+});
+
+type AccountData = ValidatedUser | ValidatedCompany;
 
 const EditProfilePage = () => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,7 +30,36 @@ const EditProfilePage = () => {
   };
 
   const { accountId } = useAuth();
-  const user = mockUsers.find((u) => u.userId === Number(accountId));
+  const [user, setUser] = useState<AccountData | null>(null);
+
+  useEffect(() => {
+      const fetchAccount = async () => {
+        try {
+          const response = await axios.get(`/api/profile/${accountId}`);
+          const data = response.data;
+  
+          let parsed;
+          switch (data.role) {
+            case Role.User:
+              parsed = UserSchema.parse(data);
+              break;
+            case Role.Company:
+              parsed = CompanySchema.parse(data);
+              break;
+            default:
+              throw new Error("Unsupported account role");
+          }
+  
+          setUser(parsed);
+          console.log("Validated account:", parsed);
+        } catch (error) {
+          console.error("Failed to load account:", error);
+        }
+      };
+  
+      fetchAccount();
+    }, []);
+  
 
   if (!user) {
     return (
@@ -60,7 +97,7 @@ const EditProfilePage = () => {
               {user.role === Role.User && (
                   <>
                   <EditProfileField label="Bio">
-                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={user.bio} />
+                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={(user as User).bio} />
                   </EditProfileField>
 
                   <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf" />
@@ -70,11 +107,11 @@ const EditProfilePage = () => {
               {user.role === Role.Company && (
                   <>
                   <EditProfileField label="Address">
-                      <EditProfileInput name="address" placeholder="Company address" value={user.address} />
+                      <EditProfileInput name="address" placeholder="Company address" value={(user as Company).location} />
                   </EditProfileField>
 
                   <EditProfileField label="Description">
-                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={user.description} />
+                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={(user as Company).description} />
                   </EditProfileField>
                   </>
               )}
