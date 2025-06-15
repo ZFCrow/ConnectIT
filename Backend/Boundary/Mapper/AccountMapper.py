@@ -85,18 +85,17 @@ class AccountMapper:
                     accountModel.profilePicUrl = getattr(account, "profilePicUrl") 
 
                 # Role-specific updates
-                if account.role == Role.User.value:
+                if accountModel.role == Role.User:
                     userModel = session.query(UserModel).filter_by(accountId=account.accountId).first()
-                    if userModel and isinstance(account, User):
-                        userModel.bio = account.bio
-                        userModel.portfolioUrl = account.portfolioUrl
+                    if userModel:
+                        userModel.bio = getattr(account, "bio", userModel.bio)
+                        userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
 
-                elif account.role == Role.Company.value:
+                elif accountModel.role == Role.Company:
                     companyModel = session.query(CompanyModel).filter_by(accountId=account.accountId).first()
-                    if companyModel and isinstance(account, Company):
-                        companyModel.description = account.description
-                        companyModel.location = account.location
-                        companyModel.verified = account.verified
+                    if companyModel:
+                        companyModel.description = getattr(account, "description", companyModel.description)
+                        companyModel.location = getattr(account, "location", companyModel.location)
 
                 session.commit()
                 return True

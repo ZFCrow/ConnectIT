@@ -1,5 +1,8 @@
 from Boundary.Mapper.AccountMapper import AccountMapper
+from SQLModels.AccountModel import Role
 from Entity.Account import Account
+from Entity.User import User
+from Entity.Company import Company
 
 
 class AccountControl:
@@ -18,7 +21,15 @@ class AccountControl:
     
     @staticmethod
     def updateAccount(accountData: dict) -> bool:
-        account = Account.from_dict(accountData)
+        role = accountData.get("role")
+        role = Role(role)
+        if role == Role.User:
+            account = User.from_dict(accountData)
+        elif role == Role.Company:
+            account = Company.from_dict(accountData)
+        else:
+            print("Invalid or missing role")
+            return False
 
         return AccountMapper.updateAccount(account)
     

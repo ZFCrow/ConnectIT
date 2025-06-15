@@ -24,13 +24,18 @@ const api = axios.create({
 type AccountData = ValidatedUser | ValidatedCompany;
 
 const EditProfilePage = () => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission
-  };
-
   const { accountId } = useAuth();
   const [user, setUser] = useState<AccountData | null>(null);
+
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNew, setConfirm] = useState("")
+  const [bio, setBio] = useState("")
+  const [portfolioUrl, setPortfolioUrl] = useState("")
+  const [profilePicUrl, setProfilePic] = useState("")
+  const [location, setLocation] = useState("")
+  const [description, setDesc] = useState("")
 
   useEffect(() => {
       const fetchAccount = async () => {
@@ -51,6 +56,20 @@ const EditProfilePage = () => {
           }
   
           setUser(parsed);
+
+          setName(parsed.name || "");
+          setProfilePic(parsed.profilePicUrl || "");
+
+          if (parsed.role === Role.User) {
+            const u = parsed as User;
+            setBio(u.bio || "");
+            setPortfolioUrl(u.portfolioUrl || "");
+          } else if (parsed.role === Role.Company) {
+            const c = parsed as Company;
+            setLocation(c.location || "");
+            setDesc(c.description || "");
+          }
+
           console.log("Validated account:", parsed);
         } catch (error) {
           console.error("Failed to load account:", error);
@@ -58,7 +77,33 @@ const EditProfilePage = () => {
       };
   
       fetchAccount();
-    }, []);
+    }, [accountId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if passwords have value, then if old pw correct, then if 
+    // new pws match
+
+    const updatedData = {
+      accountId,
+      name, 
+      bio,
+      portfolioUrl: null, // Need fix this
+      location,
+      description,
+      profilePicUrl,
+      role: user.role,
+    }
+
+    try{
+      const response = await axios.post("/api/profile/save", updatedData)
+
+      console.log("Saved", response.data)
+    } catch (err: any){
+      console.log("Failed to save profile", err)
+    }
+  };
   
 
   if (!user) {
@@ -81,7 +126,8 @@ const EditProfilePage = () => {
         <EditProfile onSubmit={handleSubmit}>
           <EditProfileGroup>
               <EditProfileField label="Full Name">
-                  <EditProfileInput name="name" placeholder="Jane Doe" value={user.name} />
+                  <EditProfileInput name="name" placeholder="John Doe" value={name}
+                  onChange={(e) => setName(e.target.value)} />
               </EditProfileField>
 
               <EditProfileField label="Old Password">
@@ -97,7 +143,8 @@ const EditProfilePage = () => {
               {user.role === Role.User && (
                   <>
                   <EditProfileField label="Bio">
-                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={(user as User).bio} />
+                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
+                      onChange={(e) => setBio(e.target.value)} />
                   </EditProfileField>
 
                   <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf" />
@@ -107,11 +154,13 @@ const EditProfilePage = () => {
               {user.role === Role.Company && (
                   <>
                   <EditProfileField label="Address">
-                      <EditProfileInput name="address" placeholder="Company address" value={(user as Company).location} />
+                      <EditProfileInput name="address" placeholder="Company address" value={location}
+                      onChange={(e) => setLocation(e.target.value)} />
                   </EditProfileField>
 
                   <EditProfileField label="Description">
-                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={(user as Company).description} />
+                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
+                      onChange={(e) => setDesc(e.target.value)} />
                   </EditProfileField>
                   </>
               )}
