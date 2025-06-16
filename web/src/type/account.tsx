@@ -22,7 +22,7 @@ export const AccountSchema = z.object({
   passwordSalt: z.string(),
   role: z.nativeEnum(Role),
   isDisabled: z.boolean(),
-  profilePicUrl: z.string().url().optional()
+  profilePicUrl: z.string().url().nullable().optional()
 });
 
 export type ValidatedAccount = z.infer<typeof AccountSchema>;
@@ -36,7 +36,7 @@ export type User = Account & {
 
 export const UserSchema = AccountSchema.extend({
   userId: z.number().optional(),
-  bio: z.string().optional(),
+  bio: z.string().nullable().optional(),
   portfolioUrl: z.string().url().nullable().optional()
 });
 
@@ -52,8 +52,8 @@ export type Company = Account & {
 
 export const CompanySchema = AccountSchema.extend({
   companyId: z.number().optional(),
-  description: z.string().optional(),
-  location: z.string().optional(),
+  description: z.string().nullable().optional(),
+  location: z.string().nullable().optional(),
   verified: z.boolean()
 });
 

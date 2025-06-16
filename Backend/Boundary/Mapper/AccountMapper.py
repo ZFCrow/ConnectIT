@@ -36,6 +36,37 @@ class AccountMapper:
                     company_data = account.company.to_dict()
                     company_data.update(account_data)
                     return Company.from_dict(company_data)
+                
+            elif account.role == Role.Admin:
+                return Account.from_dict(account_data)
+            
+    @staticmethod
+    def getAccountByEmail(email) -> Optional[Account]:
+        with db_context.session_scope() as session:
+            account = session.query(AccountModel)\
+                .options(joinedload(AccountModel.user), joinedload(AccountModel.company))\
+                .filter(AccountModel.email == email)\
+                .first()
+            
+            if not account:
+                return None
+
+            account_data = account.to_dict()
+
+            if account.role == Role.User:
+                if account.user:
+                    user_data = account.user.to_dict()
+                    user_data.update(account_data)
+                    return User.from_dict(user_data)
+
+            elif account.role == Role.Company:
+                if account.company:
+                    company_data = account.company.to_dict()
+                    company_data.update(account_data)
+                    return Company.from_dict(company_data)
+                
+            elif account.role == Role.Admin:
+                return Account.from_dict(account_data)
             
     @staticmethod
     def createAccount(account: Account) -> bool:
@@ -116,7 +147,6 @@ class AccountMapper:
                     print(f"No account found with ID: {accountId}")
                     return False
 
-                # Update base Account fields
                 accountModel.isDisabled = True
 
                 session.commit()

@@ -25,8 +25,6 @@ export function RegisterForm() {
       return
     }
 
-    // Hash before storing
-
     try {
       const response = await axios.post("/api/register", {
         name,

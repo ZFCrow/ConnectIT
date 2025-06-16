@@ -21,13 +21,15 @@ import  PdfViewerModal  from "@/components/PortfolioModal"
 import ConfirmModal from "@/components/CustomDialogs/ConfirmDialog";
 import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
-import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
+import { User, UserSchema, ValidatedUser, 
+  Company, CompanySchema, ValidatedCompany,
+AccountSchema, ValidatedAccount } from "@/type/account";
 
 const api = axios.create({
-  baseURL: "/api",
-});
+  baseURL: "/api"
+})
 
-type AccountData = ValidatedUser | ValidatedCompany;
+type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
 const ProfilePage = () => {
     const { viewId } = useParams<{ viewId: string }>();
@@ -35,7 +37,7 @@ const ProfilePage = () => {
     
     const [user, setUser] = useState<AccountData | null>(null);
 
-    const { accountId } = useAuth();
+    const { accountId, logout } = useAuth();
 
     //  Convert viewId to number for comparison
     const viewIdNumber = viewId ? Number(viewId) : null;
@@ -62,6 +64,9 @@ const ProfilePage = () => {
           case Role.Company:
             parsed = CompanySchema.parse(data);
             break;
+          case Role.Admin:
+            parsed = AccountSchema.parse(data);
+            break;
           default:
             throw new Error("Unsupported account role");
         }
@@ -83,7 +88,8 @@ const ProfilePage = () => {
       });
       console.log("Account disabled:", response.data);
       // Redirect to home page and logout?
-      navigate('/')
+      logout();
+      navigate('/');
 
     } catch (err) {
       console.error("Failed to disable account:", err);
@@ -97,6 +103,14 @@ const ProfilePage = () => {
       </div>
     );
   }
+
+  // if (user.isDisabled){
+  //   return (
+  //     <div className="w-4/5 mx-auto px-4 py-8">
+  //       <div className="mt-6 text-center text-gray-400">This user's account is disabled.</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="w-4/5 mx-auto px-4 py-8">

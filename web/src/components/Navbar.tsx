@@ -133,7 +133,10 @@ const Navbar = () => {
                   <DropDownButton
                     icon={<LogOut className="h-4 w-4 text-red-500" />}
                     text="Logout"
-                    onClick={() => console.log("Logout clicked")}
+                    onClick={() => {
+                      logout();
+                      navigate("/");
+                    }}
                   ></DropDownButton>
                 </DropdownMenuItem>
               </DropdownMenuContent>

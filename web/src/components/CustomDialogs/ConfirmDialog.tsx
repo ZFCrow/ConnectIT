@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import { Dialog } from "@headlessui/react";
 import { X, AlertTriangle } from "lucide-react";
 import { useState } from "react";

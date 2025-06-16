@@ -8,9 +8,13 @@ from SQLModels.base import DatabaseContext
 from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
 from Boundary.AccountBoundary import AccountBoundary
+from Routes.profile import profile_bp
+from Routes.auth import auth_bp
 
 app = Flask(__name__) 
 # allow all domains to access the API 
+app.register_blueprint(profile_bp)
+app.register_blueprint(auth_bp)
 CORS(app)
 
 
@@ -52,61 +56,6 @@ def init_db():
                         "tables": tables})  
     else: 
         return jsonify({"message": "Database initialization failed!"}), 500 
-    
-@app.route('/profile/<int:account_id>', methods=['GET'])
-def get_user(account_id):
-    account = AccountBoundary.viewAccount(account_id)
-
-    if account:
-        base_data = {
-            "accountId": account.accountId,
-            "name": account.name,
-            "email": account.email,
-            "passwordHash": account.passwordHash,
-            "passwordSalt": account.passwordSalt,
-            "role": account.role,
-            "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl
-        }
-
-        optional_keys = ["bio", "portfolioUrl", "description", "location", "verified"]
-        optional_data = {key: getattr(account, key) for key in optional_keys if hasattr(account, key)}
-
-        return jsonify({**base_data, **optional_data})
-    
-    else:
-        return jsonify({"error": "Account not found"}), 404
-
-@app.route('/register', methods=['POST'])
-def register():
-    accountData = request.get_json()
-    success = AccountBoundary.registerAccount(accountData)
-
-    if success:
-        return jsonify({"message": "Account created successfully!"}), 201
-    else:
-        return jsonify({"error": "Failed to create account"}), 500
-    
-@app.route('/profile/save', methods=['POST'])
-def save_profile():
-    updated_data = request.get_json()
-    success = AccountBoundary.saveProfile(updated_data)
-
-    if success:
-        return jsonify({"message": "Profile saved successfully!"}), 201
-    else:
-        return jsonify({"error": "Failed to save profile"}), 500
-    
-@app.route('/profile/disable/<int:account_id>', methods=['POST'])
-def disable(account_id):
-    auth_data = request.get_json()
-
-    success = AccountBoundary.disableAccount(account_id, auth_data)
-
-    if success:
-        return jsonify({"message": "Account disabled successfully!"}), 201
-    else:
-        return jsonify({"error": "Failed to disable account"}), 500
     
 @app.route('/post/<int:post_id>')
 def get_post(post_id):

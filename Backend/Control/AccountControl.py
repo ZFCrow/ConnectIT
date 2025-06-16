@@ -23,6 +23,25 @@ class AccountControl:
         return AccountMapper.createAccount(account)
     
     @staticmethod
+    def authenticateAccount(accountData: dict) -> Account:
+        email = accountData.get('email', '')
+        account = AccountMapper.getAccountByEmail(email)
+        
+        password = accountData.get('password', '')
+        salt = account.passwordSalt
+
+        # TODO: Use salt to hash pass from authData and compare
+
+        # salted_input = (password + salt).encode("utf-8")
+        # hashed_input = hashlib.sha256(salted_input).hexdigest()
+
+        # if hashed_input != account.passwordHash:
+        #     print("Incorrect password")
+        #     return None
+
+        return account
+    
+    @staticmethod
     def getAccountById(accountId: int) -> Account:
         return AccountMapper.getAccountById(accountId)
     

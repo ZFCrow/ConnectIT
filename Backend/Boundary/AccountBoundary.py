@@ -10,6 +10,10 @@ class AccountBoundary:
         return AccountControl.createAccount(accountData)
     
     @staticmethod
+    def loginAccount(accountData: dict):
+        return AccountControl.authenticateAccount(accountData)
+    
+    @staticmethod
     def viewAccount(accountId: int):
         return AccountControl.getAccountById(accountId)
 
