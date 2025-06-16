@@ -20,6 +20,5 @@ class PostModel(Base):
 
     isDeleted = Column(Integer, default=0, nullable=False) 
 
-
     # Relationship to Account
     account = relationship("AccountModel", back_populates="posts")

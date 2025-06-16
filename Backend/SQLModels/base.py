@@ -181,8 +181,11 @@ class DatabaseContext:
         """Register all models with Base - equivalent to EF's DbSet properties"""
         try:
             from .AccountModel import AccountModel
+            from .CompanyModel import CompanyModel
             from .UserModel import UserModel
             from .PostModel import PostModel
+            from .JobListingModel import JobListingModel
+            from .ResponsibilityModel import ResponsibilityModel
             # Add other models as you create them
             
             registered_models = [cls.__name__ for cls in Base.__subclasses__()]

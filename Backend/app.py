@@ -7,9 +7,11 @@ import dotenv
 from SQLModels.base import DatabaseContext
 from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
+from job_route import job_listing_bp
 
 app = Flask(__name__) 
 # allow all domains to access the API 
+app.register_blueprint(job_listing_bp)   
 CORS(app)
 
 
