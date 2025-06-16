@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios"
 import { mockPosts } from "@/components/FakeData/mockPosts";
@@ -31,6 +31,7 @@ type AccountData = ValidatedUser | ValidatedCompany;
 
 const ProfilePage = () => {
     const { viewId } = useParams<{ viewId: string }>();
+    const navigate = useNavigate();
     
     const [user, setUser] = useState<AccountData | null>(null);
 
@@ -74,6 +75,20 @@ const ProfilePage = () => {
 
     fetchAccount();
   }, []);
+
+  const handleConfirmDisable = async (password: string) => {
+    try {
+      const response = await axios.post(`/api/profile/disable/${accountId}`, {
+        password,
+      });
+      console.log("Account disabled:", response.data);
+      // Redirect to home page and logout?
+      navigate('/')
+
+    } catch (err) {
+      console.error("Failed to disable account:", err);
+    }
+  };
 
   if (!user) {
     return (
@@ -211,7 +226,8 @@ const ProfilePage = () => {
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={() => {
+        onConfirm={(password) => {
+          handleConfirmDisable(password)
           setShowDeleteModal(false);
           console.log("Account deleted"); // Replace with actual deletion logic
         }}

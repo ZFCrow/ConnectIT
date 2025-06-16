@@ -18,6 +18,6 @@ class AccountBoundary:
         return AccountControl.updateAccount(accountData)
     
     @staticmethod
-    def disableAccount(accountId: int):
-        return AccountControl.disableAccount(accountId)
+    def disableAccount(accountId: int, authData: dict):
+        return AccountControl.disableAccount(accountId, authData)
     

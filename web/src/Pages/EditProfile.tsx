@@ -82,17 +82,15 @@ const EditProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if passwords have value, then if old pw correct, then if 
-    // new pws match
-
+    // TO ADD OLD PW AND NEW PW IN
     const updatedData = {
       accountId,
       name, 
-      bio,
-      portfolioUrl: null, // Need fix this
-      location,
-      description,
-      profilePicUrl,
+      bio: bio.trim() || null,
+      portfolioUrl: portfolioUrl.trim() || null,
+      location: location.trim() || null,
+      description: description.trim() || null,
+      profilePicUrl: profilePicUrl.trim() || null,
       role: user.role,
     }
 

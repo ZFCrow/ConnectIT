@@ -99,7 +99,9 @@ def save_profile():
     
 @app.route('/profile/disable/<int:account_id>', methods=['POST'])
 def disable(account_id):
-    success = AccountBoundary.disableAccount(account_id)
+    auth_data = request.get_json()
+
+    success = AccountBoundary.disableAccount(account_id, auth_data)
 
     if success:
         return jsonify({"message": "Account disabled successfully!"}), 201
