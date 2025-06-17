@@ -42,7 +42,14 @@ export default function JobDetailPage() {
     }
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
-        <Link to={jobListingRoute} className="text-blue-500 hover:underline">
+        <Link
+          to={
+            role === Role.Company
+              ? "/company/recruitmentDashboard"
+              : "/jobListing"
+          }
+          className="text-blue-500 hover:underline"
+        >
           ← Back to listings
         </Link>
         <div className="mt-6 text-center text-gray-400">Job not found.</div>

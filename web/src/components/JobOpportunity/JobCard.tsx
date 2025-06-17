@@ -23,6 +23,7 @@ import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is wh
 import { Role } from "@/contexts/AuthContext";
 import axios from "axios";
 import DeleteJobModal from "./DeleteJobModal";
+import { useDeleteJob } from "@/utility/handleDeleteJob";
 
 type Props = { job: JobListing; userType: string };
 
@@ -34,22 +35,15 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
   );
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const { deleteJob, loading } = useDeleteJob(() => {
+    setDeleteOpen(false);
+    window.location.reload();
+  });
 
   const handleDeleteClick = () => setDeleteOpen(true);
-
-  const handleDeleteConfirm = async () => {
-    setDeleting(true);
-    try {
-      await axios.delete(`/api/deleteJob/${job.jobId}`);
-      // Option 1: Call parent to refresh jobs list (preferred)
-      window.location.reload(); // fallback if not using parent state
-    } catch (err) {
-      alert("Failed to delete job. Please try again." + err);
-      setDeleting(false);
-    }
+  const handleDeleteConfirm = () => {
+    deleteJob(job.jobId);
   };
-  console.log("JobCard:", job);
 
   return (
     <div
@@ -226,7 +220,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
           open={deleteOpen}
           onCancel={() => setDeleteOpen(false)}
           onConfirm={handleDeleteConfirm}
-          loading={deleting}
+          loading={loading}
           jobTitle={job.title}
         />
       </div>

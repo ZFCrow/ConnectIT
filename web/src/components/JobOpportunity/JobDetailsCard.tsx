@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
 import { Calendar, Bookmark, Trash2, Edit2 } from "lucide-react";
 import {
@@ -15,12 +15,29 @@ import ApplicantCard from "./ApplicantCard";
 import type { Applicant } from "../../type/applicant";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
 import { Role, useAuth } from "@/contexts/AuthContext";
+import { useDeleteJob } from "@/utility/handleDeleteJob";
+import DeleteJobModal from "./DeleteJobModal";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
 }
 const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
+  //for application modal
   const [open, setOpen] = useState(false);
+  //for delete modal
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const { deleteJob, loading } = useDeleteJob(() => {
+    setDeleteOpen(false);
+    navigate("/company/recruitmentDashboard");
+
+    window.location.reload();
+  });
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleDeleteConfirm = () => {
+    deleteJob(job.jobId);
+  };
   const { role, userId, companyId } = useAuth();
   const filteredApplicants = useMemo(() => {
     if (userType === Role.Company) {
@@ -90,6 +107,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                 <button
                   aria-label="Delete job"
                   onClick={() => {
+                    handleDeleteClick();
                     //TODO: Handle delete logic here
                   }}
                   className="
@@ -100,6 +118,13 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                 >
                   <Trash2 className="w-6 h-6" />
                 </button>
+                <DeleteJobModal
+                  open={deleteOpen}
+                  onCancel={() => setDeleteOpen(false)}
+                  onConfirm={handleDeleteConfirm}
+                  loading={loading}
+                  jobTitle={job.title}
+                />
               </>
             )}
           </div>
