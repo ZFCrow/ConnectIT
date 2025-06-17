@@ -74,8 +74,7 @@ def init_db():
 @app.route('/post/<int:post_id>', methods = ["POST"])
 def delete_post(post_id):
     """
-    Fetch a post by its ID. 
-    #! testing purposes , shouldnt go to mapper straight! 
+    Delete a post by its ID. 
     """
     data = request.get_json()  # Get the JSON data from the request 
     # should have violations and the accountId in the data 

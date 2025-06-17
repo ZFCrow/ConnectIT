@@ -103,7 +103,10 @@ export function ViolationPicker({ allViolations, selected, onChange }: Violation
         {selected.length > 0 && (
             <div className="flex flex-wrap gap-1">
             {selected.map((tag) => (
-                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => toggle(tag)}>
+                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => {
+                  const next = toggle(tag);
+                  onChange(next);
+                }}>
                 {tag.name}
                 <X
                     className="h-3 w-3" 

@@ -163,10 +163,13 @@ export const usePostManager = () => {
 
   const confirmDelete = async () => { 
     if (postToDelete) {
+      const listofViolationsID : number[] = selectedViolations.map((violation) => violation.violationId); // get the list of violation IDs from selected violations 
+      console.log("List of violations to send:", listofViolationsID); 
       try {
         const response = await api.post(`/post/${postToDelete}`, {
           accountId: accountId, // use the accountId from the auth context
-          data: { violations: selectedViolations }, // send the selected violations
+      
+          data: { violations: listofViolationsID }, // send the selected violations
         });
 
         if (response.status === 200) {

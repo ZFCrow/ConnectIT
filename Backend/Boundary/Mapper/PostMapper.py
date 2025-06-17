@@ -119,7 +119,7 @@ class PostMapper:
                 post = session.query(PostModel).filter(PostModel.postId == postId).first()
                 if post:
                     post.isDeleted = True 
-                    session.commit()
+                    # session.commit()
                     print(f"Post with ID {postId} marked as deleted.") 
                     # If there are violations, create entries in the PostViolation table 
 
