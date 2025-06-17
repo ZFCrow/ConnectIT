@@ -112,7 +112,9 @@ class AccountMapper:
                 # Update base Account fields
                 accountModel.name = account.name
                 if hasattr(account, "profilePicUrl") and account.profilePicUrl != '':
-                    accountModel.profilePicUrl = getattr(account, "profilePicUrl") 
+                    accountModel.profilePicUrl = getattr(account, "profilePicUrl")
+                if hasattr(account, 'passwordHash') and account.passwordHash != '':
+                    accountModel.passwordHash = getattr(account, 'passwordHash')
 
                 # Role-specific updates
                 if accountModel.role == Role.User:

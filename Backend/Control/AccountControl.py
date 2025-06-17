@@ -40,14 +40,42 @@ class AccountControl:
     
     @staticmethod
     def updateAccount(accountData: dict) -> bool:
+        password = accountData.get('password', '')
+        newPass = accountData.get('newPassword', '')
+        confirmPass = accountData.get('confirmNew', '')
+
+        # Get the existing account to access the stored hash/salt
+        target_acc = AccountMapper.getAccountById(accountData['accountId'])
+
+        # Only if ALL password-related field are filled, validate and attempt update
+        # This abit weird, might need change
+        if password and newPass and confirmPass:
+            # Verify old password
+            if not AuthUtils.verify_hash_password(password, target_acc.passwordHash):
+                print("Old password is incorrect.")
+                return False
+
+            # Check new passwords match
+            if newPass != '' and confirmPass != '' and newPass != confirmPass:
+                print("New passwords do not match.")
+                return False
+
+            # Generate new hash and salt for the new password
+            new_hash = AuthUtils.hash_password(newPass)
+            accountData['passwordHash'] = new_hash
+
+        # Remove password fields that aren't used in database
+        accountData.pop('password', None)
+        accountData.pop('newPassword', None)
+        accountData.pop('confirmNew', None)
+
         account = Account.from_dict(accountData)
 
-        # TODO: Get Old PW from acc, crosscheck with dict PW, if ok hash New PW
-        # and pass new hash and salt to dict before conversion
-
-        if account.role == Role.User.value:
+        # Now construct entity after password check
+        role = accountData.get("role", "")
+        if role == Role.User.value:
             account = User.from_dict(accountData)
-        elif account.role == Role.Company.value:
+        elif role == Role.Company.value:
             account = Company.from_dict(accountData)
         else:
             print("Invalid or missing role")

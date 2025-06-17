@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   EditProfileCard,
   EditableAvatar,
@@ -36,6 +36,8 @@ const EditProfilePage = () => {
   const [profilePicUrl, setProfilePic] = useState("")
   const [location, setLocation] = useState("")
   const [description, setDesc] = useState("")
+
+  const navigate = useNavigate();
 
   useEffect(() => {
       const fetchAccount = async () => {
@@ -84,7 +86,7 @@ const EditProfilePage = () => {
 
     // TO ADD OLD PW AND NEW PW IN (Check if any of the fields are not empty)
     // If not, send all
-    const updatedData = {
+    const updatedData: any = {
       accountId,
       name, 
       bio: bio.trim() || null,
@@ -95,10 +97,18 @@ const EditProfilePage = () => {
       role: user.role,
     }
 
+    // Only if all are filled
+    if (password && newPassword && confirmNew) {
+      updatedData.password = password;
+      updatedData.newPassword = newPassword;
+      updatedData.confirmNew = confirmNew;
+    }
+
     try{
       const response = await axios.post("/api/profile/save", updatedData)
-
       console.log("Saved", response.data)
+      navigate(`/profile/${accountId}`);
+
     } catch (err: any){
       console.log("Failed to save profile", err)
     }
