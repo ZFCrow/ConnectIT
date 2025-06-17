@@ -131,10 +131,11 @@ def createPost():
         print (f"in app.py: accountId: {accountId}, postData: {postData}")
         
         
-        success = PostBoundary.createPost(accountId, postData)  # Use the boundary to create the post 
+        post, success = PostBoundary.createPost(accountId, postData)  # Use the boundary to create the post 
         
         if success:
-            return jsonify({"message": "Post created successfully!"}), 201
+            # return jsonify({"message": "Post created successfully!"}), 201
+            return jsonify(post.toDict()), 201 
         else:
             return jsonify({"error": "Failed to create post"}), 500
     except Exception as e:

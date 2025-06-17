@@ -5,7 +5,10 @@ import type { Comment } from '@/type/Comment';
 import { PostsArraySchema, ValidatedPost } from '@/type/Post'; 
 import {  z } from 'zod'; 
 
-import axios from 'axios'; 
+import { api } from '@/api/api'; // import the api instance 
+import { useAuth } from '@/contexts/AuthContext'; // import the auth context
+import { create } from 'domain';
+
 
 export const usePostManager = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -15,16 +18,16 @@ export const usePostManager = () => {
   
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [selectedViolations, setSelectedViolations] = useState<string[]>([]);
+  
   const handleDeletePost = (postID: number) => {
     setPostToDelete(postID);
   };
 
-  const api = axios.create({
-    baseURL: "/api",
-    });
+  const { accountId } = useAuth(); // get the accountId from the auth context 
 
   const fetchPosts = async () => { 
     try{
+      
       const response = await api.get('/posts'); 
       console.log("Fetched post:", response.data); 
       // validate an array of posts 
@@ -91,6 +94,56 @@ export const usePostManager = () => {
     setFilteredPosts(result); // update the filtered posts state 
   }, [allPosts, activeFilter, activeSortby]); // re-run when these change 
 
+
+
+  //Function to create a new post 
+  const createPost = async (postData :{
+    title: string;
+    content: string; 
+    labels: number[]; // array of label IDs 
+  }) :  Promise<any> => { 
+
+    try{
+      console.log("Creating post with data:", postData);
+
+      const response = await api.post('/createPost', {
+        accountId: accountId, // use the accountId from the auth context
+        postData: postData, // pass the post data 
+      });
+
+      if (response.status === 201) { 
+        // create a new post object based on the response data 
+        //! not validated yet, so make sure the response data matches the Post type 
+        const newPost: Post = {
+          id: response.data.id, // assuming the response contains the new post ID
+          username: response.data.username,
+          date: response.data.date,
+          labels: response.data.labels.map((label: Label) => ({
+            labelId: label.labelId,
+            name: label.name,
+            color: label.color,
+          })),
+          title: postData.title,
+          content: postData.content,
+          comments: [],
+          likes: 0,
+          liked: false, // default to false
+          accountId: accountId, // use the accountId from the auth context
+          displayPicUrl: response.data.displayPicUrl ? response.data.displayPicUrl : undefined, // optional field
+        };
+        setAllPosts((prevPosts) => [...prevPosts, newPost]);
+        setFilteredPosts((prevPosts) => [...prevPosts, newPost]); // also update filtered posts 
+        console.log("Post created successfully:", newPost);
+        return {success : true, post: newPost}; // return success and the new post 
+
+       } else {
+        console.error("Failed to create post:", response.statusText); }
+
+  } catch (error) {
+      console.error("Error creating post:", error);
+  }
+};
+
   const confirmDelete = () => {
     if (postToDelete) {
       setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
@@ -136,7 +189,8 @@ export const usePostManager = () => {
     activeFilter, 
     setActiveFilter, 
     activeSortby, 
-    setActiveSortBy,  
+    setActiveSortBy, 
+    createPost, 
     postToDelete,
     selectedViolations,
     handleDeletePost,

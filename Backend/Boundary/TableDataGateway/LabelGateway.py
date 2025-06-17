@@ -2,7 +2,7 @@ from SQLModels.base import db_context
 from SQLModels.LabelModel import LabelModel 
 from Entity.Label import Label 
 from typing import Optional, List, Dict 
-
+from sqlalchemy.orm import joinedload 
 
 
 class LabelGateway: 
@@ -19,7 +19,9 @@ class LabelGateway:
         """
 
         with db_context.session_scope() as session:
-            labelModels = session.query(LabelModel).all()
+            labelModels = session.query(LabelModel).options(
+                joinedload(LabelModel.postLabels) # Load associated post labels 
+              ).all() 
             if labelModels:
                 LabelGateway.labelsCache = {lm.labelId : Label.fromLabelModel(lm) for lm in labelModels}  
                 return list(LabelGateway.labelsCache.values())

@@ -62,6 +62,7 @@ class Post:
             accountId=data.get('accountId'),
             associated_labels=labels,  # Labels should be passed as a list of Label entities 
             isDeleted=data.get('is_deleted', 0)
+            
         )
     
     def toDict(self) -> Dict[str, Any]:

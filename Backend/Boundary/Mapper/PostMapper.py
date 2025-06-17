@@ -65,7 +65,7 @@ class PostMapper:
     @staticmethod 
     def createPost(post: Post) -> bool : 
         """
-        Create a new post in the database.
+        Create a new post in the database.s
         """ 
         try: 
 
@@ -91,11 +91,14 @@ class PostMapper:
                     session.add(postLabelModel) 
 
 
-
+                # load the account to get username 
+                account = session.query(AccountModel).filter(AccountModel.accountId == post.accountId).first()
 
                 print (f"Post created with ID: {postModel.postId}") 
 
                 post.post_id = postModel.postId  # Update the post ID with the auto-incremented ID from the database 
+                post.accountUsername = account.name if account else None
+                
                 return True  # Return True to indicate success 
         except Exception as e: 
             print(f"Error creating post: {e}") 

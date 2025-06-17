@@ -43,30 +43,29 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
 
-type PostcardProps = Post & {
+type PostcardProps = {
+  post: Post; // The post object containing all necessary data
   detailMode?: boolean; // ✅ optional, with default = false
-  onReport?: () => void; // Optional callback for report action
   onHide?: (postId: number) => void; // Optional callback for hide action
   onDelete?: (postId: number) => void; // Add delete callback
   onDeleteComment?: (commentId: number) => void; // Optional callback for deleting a comment
 };
 
-const Postcard: FC<PostcardProps> = ({
-  accountId: postAccountId,
-  id,
-  username,
-  date,
-  labels,
-  title,
-  content,
-  comments,
-  likes,
-  liked,
-  detailMode,
-  onHide,
-  onDelete,
-  onDeleteComment,
-}) => {
+const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDeleteComment}) => {
+
+  const {
+    id,
+    username,
+    date,
+    labels,
+    title,
+    content,
+    comments,
+    likes,
+    liked,
+    accountId: postAccountId, // The account ID of the post owner
+  } = post; // Destructure the post object
+
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
     blue: "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white",
@@ -89,11 +88,20 @@ const Postcard: FC<PostcardProps> = ({
   const interactiveClasses = detailMode
     ? "flex-grow"
     : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted";
+
   const [hasLiked, setHasLiked] = useState(liked || false); // Initialize liked state, default to false if not provided
+  
+  const handlePostClick = () => {
+    navigate(`/post/${id}`, {
+      state : {post},
+    });
+  } 
+
+
   return (
     <>
       <Card
-        {...(detailMode ? {} : { onClick: () => navigate(`/post/${id}`) })}
+        {...(detailMode ? {} : { onClick: () => handlePostClick() })} // Only add onClick if not in detail mode
         className={`${interactiveClasses}`}
       >
         <CardHeader>

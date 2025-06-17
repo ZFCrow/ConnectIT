@@ -7,24 +7,12 @@ import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 import { PopularTags } from "@/components/FakeData/PopularTags";
 import { Role, useAuth } from "@/contexts/AuthContext";
-import { usePostManager } from "@/components/CustomHooks/usePostManger";
-import { PostSchema, PostsArraySchema, ValidatedPost } from "@/type/Post";
-import {set, z } from 'zod'; 
-import { Post } from "@/type/Post"; 
-import { Label } from "@/type/Label";
-import { Comment } from "@/type/Comment";
-
-
-// form the base url first
-const api = axios.create({
-  baseURL: "/api",
-});
+import { usePostContext } from "@/contexts/PostContext";
+import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
+import { create } from "domain";
 
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
-
-  // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
-  const [tags, setTags] = useState(PopularTags); // use the mock data for now
 
   const {
     allPosts,
@@ -36,6 +24,7 @@ const Homepage = () => {
     setActiveFilter,
     activeSortby,
     setActiveSortBy, 
+    createPost,
     postToDelete,
     selectedViolations,
     handleDeletePost,
@@ -44,24 +33,19 @@ const Homepage = () => {
     setSelectedViolations,
     handleDeleteComment,
     handleHide,
-  } = usePostManager(); 
+  } = usePostContext(); // custom hook to manage posts
   
+
+  const {
+    allLabels,
+    setAllLabels,
+    popularLabels,
+    fetchLabels,
+  } = useLabelManager(); // custom hook to manage labels
   
-  const [allLabels , setAllLabels] = useState<Label[]>([]); // all the tags fetched from the server
 
   useEffect(() => {
-    // fetch all labels
-    const fetchLabels = async () => {
-            try{
-                const res = await api.get('/labels'); 
-                console.log("Fetched labels:", res.data); 
 
-                setAllLabels(res.data); // set the all tags state with the fetched labels
-            }
-            catch (error) { 
-                console.error("Error fetching labels:", error);
-            } 
-        }
     fetchPosts()
     fetchLabels(); // fetch the labels on mount s
   }, []);
@@ -73,7 +57,7 @@ const Homepage = () => {
         <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           <ListingCard
             title="Popular Tags"
-            listofitems={tags}
+            listofitems={popularLabels.map ((label) => label.name)}
             onClick= {setActiveFilter}
           
           />
@@ -90,12 +74,13 @@ const Homepage = () => {
 
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
           {/* Only show CreatePostbar for non-admin users */}
-          {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} />}
+          {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} createPostFunction={createPost}/>}
+          
           {filteredPosts.map((p) => {
             return (
               <Postcard
                 key={p.id}
-                {...p}
+                post={p}
                 onHide={handleHide}
                 onDelete={handleDeletePost}
                 onDeleteComment={handleDeleteComment}

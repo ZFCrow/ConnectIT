@@ -23,7 +23,7 @@ class PostControl:
     
 
     @staticmethod 
-    def createPost(postData : dict) -> bool: 
+    def createPost(postData : dict) -> tuple[Post, bool]:
         """
         Create a new post in the database.
         """
@@ -31,5 +31,6 @@ class PostControl:
         labels : str = postData.get('labels', []) # should be a list of label IDs
         listofLabels = LabelGateway.getLabelsbyIds(labels)  # 
         post = Post.fromDict(postData, labels=listofLabels)  # Create Post entity from dictionary and labels 
-        return PostMapper.createPost(post) 
+        success = PostMapper.createPost(post) 
+        return post, success  # Return the created post and success status 
 

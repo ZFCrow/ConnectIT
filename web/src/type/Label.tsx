@@ -10,6 +10,7 @@ export type Label ={
     name: string;
     color: ValidColor; 
     labelId: number; // Optional label ID for existing labels
+    numberofUses?: number; // Optional field to track the number of uses
 }
 
 //! zod schema for Label 
@@ -19,4 +20,5 @@ export const LabelSchema = z.object({
         errorMap: () => ({ message: "Invalid color" }), // Custom error message for invalid color
     }),
     labelId: z.number().optional(), // Optional label ID for existing labels
+    numberofUses: z.number().optional(), // Optional field to track the number of uses 
 })
