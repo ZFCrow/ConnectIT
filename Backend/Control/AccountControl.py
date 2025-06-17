@@ -3,6 +3,7 @@ from SQLModels.AccountModel import Role
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
+from Security import AuthUtils
 
 
 class AccountControl:
@@ -14,8 +15,7 @@ class AccountControl:
         # TODO: Hash password here before convert to Account type
         if "password" in accountData and accountData["password"]:
             # hashed = bcrypt.hashpw(accountData["password"].encode("utf-8"), bcrypt.gensalt())
-            accountData["passwordHash"] = ""  # Store as string
-            accountData["passwordSalt"] = ""
+            accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
             del accountData["password"]  # Remove plain password
 
         account = Account.from_dict(accountData)
@@ -28,7 +28,12 @@ class AccountControl:
         account = AccountMapper.getAccountByEmail(email)
         
         password = accountData.get('password', '')
-        salt = account.passwordSalt
+
+        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+
+        if not auth:
+            return None
+
 
         # TODO: Use salt to hash pass from authData and compare
 
@@ -69,7 +74,11 @@ class AccountControl:
 
         # TODO: Use salt to hash pass from authData
         password = authData.get('password', '')
-        salt = account.passwordSalt
+
+        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+
+        if not auth:
+            return False
 
         # salted_input = (password + salt).encode("utf-8")
         # hashed_input = hashlib.sha256(salted_input).hexdigest()
