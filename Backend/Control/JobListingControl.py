@@ -32,6 +32,15 @@ class JobListingControl:
         # Example: return self.db.query(Job).all()
         print("Retrieving all job listings")
         return JobListingMapper.getAllJobListings()  # Assuming JobListingMapper has a getAllJobListings method
+    
+    @staticmethod
+    def getAllJobListings(company_id: int = None):
+        """
+        Retrieves all job listings.
+        """
+        # Example: return self.db.query(Job).all()
+        print("Retrieving all job listings")
+        return JobListingMapper.getAllJobListings(company_id)  
     @staticmethod
     def deleteJob( jobId: int):
         """

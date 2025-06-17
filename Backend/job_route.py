@@ -11,6 +11,13 @@ def get_all_job_listings():
     listings = JobListingControl.getAllJobListings()  # implement this in your control
     return jsonify([l.to_dict() for l in listings]), 200
 
+@job_listing_bp.route("/companyJobListings/<int:company_id>", methods=["GET"])
+def get_company_job_listings(company_id):
+    # Pass company_id so you only get jobs for that company
+    listings = JobListingControl.getAllJobListings(company_id=company_id)
+    return jsonify([l.to_dict() for l in listings]), 200
+
+
 # POST new job listing
 @job_listing_bp.route("/addJob", methods=["POST"])
 def create_job_listing():

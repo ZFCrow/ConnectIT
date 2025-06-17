@@ -4,9 +4,10 @@ import type { JobListing } from "../../type/jobListing";
 import { sampleJobs } from "../FakeData/sampleJobs";
 
 // Static lists
-const jobTypes = ["Full-Time", "Part-Time", "Contract", "Internship"];
-const arrangements = ["Remote", "Hybrid", "Office"];
+const jobTypes = ["Full Time", "Part Time", "Contract", "Internship"];
+const arrangements = ["Remote", "Hybrid", "Onsite"];
 const fieldOptions = [
+  "UI/UX",
   "Software Development",
   "Design",
   "Marketing",
@@ -34,6 +35,7 @@ const defaultJob = (): JobListing => ({
   createdAt: new Date().toISOString(),
   applicationDeadline: new Date().toISOString(),
   responsibilities: [""],
+  experiencePreferred: 0,
 });
 
 interface JobFormProps {
@@ -177,8 +179,14 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
             <input
               id="minSalary"
               type="number"
-              value={form.minSalary}
-              onChange={(e) => change("minSalary", +e.target.value)}
+              step={100}
+              value={form.minSalary === 0 ? "" : form.minSalary}
+              onChange={(e) =>
+                change(
+                  "minSalary",
+                  e.target.value === "" ? "" : +e.target.value
+                )
+              }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -192,11 +200,33 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
             <input
               id="maxSalary"
               type="number"
-              value={form.maxSalary}
-              onChange={(e) => change("maxSalary", +e.target.value)}
+              step={100}
+              value={form.maxSalary === 0 ? "" : form.maxSalary}
+              onChange={(e) =>
+                change(
+                  "maxSalary",
+                  e.target.value === "" ? "" : +e.target.value
+                )
+              }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
+        <div>
+          <label
+            htmlFor="experiencePreferred"
+            className="block text-sm font-medium text-gray-300 mb-1"
+          >
+            Experience Preferred (years)
+          </label>
+          <input
+            id="experiencePreferred"
+            type="number"
+            min={0}
+            value={form.experiencePreferred ?? 0}
+            onChange={(e) => change("experiencePreferred", +e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
+          />
         </div>
       </fieldset>
 

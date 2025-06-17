@@ -59,7 +59,24 @@ class JobListingMapper:
             )
             # build pure-python entities while session is open
             return [JobListing.from_JobListingModel(o) for o in orm_list]
-        
+    @staticmethod
+    def getAllJobListings(company_id:int) -> list["JobListing"]:
+        """
+        Retrieves every job listing with its company + responsibilities.
+        """
+        with db_context.session_scope() as session:
+            orm_list = (
+                session.query(JobListingModel)
+                .options(
+                    selectinload(JobListingModel.company),
+                    selectinload(JobListingModel.responsibilities),
+                )
+                .filter(JobListingModel.companyId == company_id)
+                .all()
+            )
+            # build pure-python entities while session is open
+            return [JobListing.from_JobListingModel(o) for o in orm_list]
+         
     @staticmethod
     def deleteJob(jobId: int) -> bool:
         """

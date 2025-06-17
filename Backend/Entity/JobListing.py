@@ -195,11 +195,11 @@ class JobListing:
             createdAt=created_at,
             workArrangement=WorkArrangement(work_arrangement),
             fieldOfWork=Field(field_of_work),
-            jobScope=data.get('jobScope') or data.get('job_scope'),
             responsibilities=data.get('responsibilities', []),
             isDeleted=data.get('isDeleted') or data.get('is_deleted', False),
             company=data.get('company'),
-            jobApplication=data.get('jobApplication') or data.get('job_application')
+            jobApplication=data.get('jobApplication') or data.get('job_application'),
+            experiencePreferred=data.get('experiencePreferred') or data.get('experience_preferred', 0),
         )
     def to_dict(self) -> dict:
         return {
@@ -218,6 +218,7 @@ class JobListing:
             "company": (
                 self.company.to_dict() if self.company else None
             ),
+            "experiencePreferred": self.experiencePreferred,
         }
     @classmethod
     def from_JobListingModel(cls, orm_obj) -> "JobListing":
@@ -235,5 +236,6 @@ class JobListing:
             responsibilities    = [r.responsibility for r in orm_obj.responsibilities],
             isDeleted           = orm_obj.isDeleted,
             company             = Company.from_model(orm_obj.company),
-            jobApplication      = [],                       # fill when needed
+            jobApplication      = [],                 # fill when needed
+            experiencePreferred = orm_obj.experiencePreferred if orm_obj.experiencePreferred is not None else 0,
         )

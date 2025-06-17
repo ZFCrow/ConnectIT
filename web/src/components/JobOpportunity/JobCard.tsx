@@ -21,6 +21,9 @@ import { useState } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
 import { Role } from "@/contexts/AuthContext";
+import axios from "axios";
+import DeleteJobModal from "./DeleteJobModal";
+
 type Props = { job: JobListing; userType: string };
 
 const JobCard: React.FC<Props> = ({ job, userType }) => {
@@ -30,13 +33,24 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
     dateFormatOptions
   );
   const [open, setOpen] = useState(false);
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this job listing?")) {
-      // TODO: call delete API or update state
-      console.log("Deleting job", job.jobId);
-      // e.g., navigate back or refresh list
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteClick = () => setDeleteOpen(true);
+
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
+    try {
+      await axios.delete(`/api/deleteJob/${job.jobId}`);
+      // Option 1: Call parent to refresh jobs list (preferred)
+      window.location.reload(); // fallback if not using parent state
+    } catch (err) {
+      alert("Failed to delete job. Please try again." + err);
+      setDeleting(false);
     }
   };
+  console.log("JobCard:", job);
+
   return (
     <div
       className="
@@ -82,7 +96,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
       px-2 py-0.5 rounded
     "
         >
-          {job.field}
+          {job.fieldOfWork}
         </span>
       </div>
 
@@ -94,10 +108,10 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
 
       {/* Details Column */}
       <div className="space-y-2">
-        {(job.companyName || job.companyAddress) && (
+        {(job.company.name || job.company.location) && (
           <div className="text-sm text-gray-400">
-            {job.companyName}
-            {job.companyAddress ? ` @ ${job.companyAddress}` : ""}
+            {job.company.name}
+            {job.company.location ? ` @ ${job.company.location}` : ""}
           </div>
         )}
         {/* Description clamped to 3 lines */}
@@ -115,7 +129,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
           {/* Job Type */}
           <span className="flex items-center gap-1">
             <Briefcase className="w-4 h-4 text-gray-400" />
-            <span>{job.type}</span>
+            <span>{job.jobType}</span>
           </span>
 
           {/* Work Arrangement */}
@@ -133,11 +147,11 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
               <span>{job.workArrangement}</span>
             </span>
           )}
-          {typeof job.yearsOfExperience === "number" &&
-            job.yearsOfExperience > 0 && (
+          {typeof job.experiencePreferred === "number" &&
+            job.experiencePreferred > 0 && (
               <span className="flex items-center gap-1">
                 <User className="w-4 h-4 text-gray-400" />
-                <span>{job.yearsOfExperience} yr(s) exp</span>
+                <span>{job.experiencePreferred} yr(s) exp</span>
               </span>
             )}
 
@@ -174,7 +188,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
               <Edit2 className="w-4 h-4 mr-1" /> Edit
             </button> */}
             <button
-              onClick={handleDelete}
+              onClick={handleDeleteClick}
               className="flex items-center justify-center border border-red-500 text-red-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-red-500 hover:text-white transition"
             >
               <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -206,6 +220,14 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
           onSubmit={handleResumeSubmit}
           jobTitle={job.title}
           companyName={job.companyName}
+        />
+        {/* Delete Modal */}
+        <DeleteJobModal
+          open={deleteOpen}
+          onCancel={() => setDeleteOpen(false)}
+          onConfirm={handleDeleteConfirm}
+          loading={deleting}
+          jobTitle={job.title}
         />
       </div>
     </div>
