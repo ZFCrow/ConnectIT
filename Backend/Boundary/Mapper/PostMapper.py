@@ -75,26 +75,27 @@ class PostMapper:
                     title=post.title,
                     content=post.content,
                     date=post.date,
-                    accountId=post.account_id,
-                    isDeleted=post.is_deleted
+                    accountId=post.accountId,
+                    isDeleted=post.isDeleted
                 ) 
                 session.add(postModel)
-
+                # FLUSH : send INSERT to db, gets the auto-incremented ID 
+                session.flush()
+                # After flushing, postModel.postId will have the auto-incremented ID 
                 for label in post.associated_labels: 
                     # Create a PostLabelModel for each label associated with the post
                     postLabelModel = PostLabelModel(
-                        postId=postModel.postID,  # Use the auto-incremented ID after flush
-                        labelId=label.labelID  # Assuming labelID is the ID of the label entity
+                        postId=postModel.postId,  # Use the auto-incremented ID after flush
+                        labelId=label.labelId  # Assuming labelID is the ID of the label entity
                     )
                     session.add(postLabelModel) 
 
 
-                # FLUSH : send INSERT to db, gets the auto-incremented ID 
-                session.flush()
 
-                print (f"Post created with ID: {postModel.postID}") 
 
-                post.post_id = postModel.postID  # Update the post ID with the auto-incremented ID from the database 
+                print (f"Post created with ID: {postModel.postId}") 
+
+                post.post_id = postModel.postId  # Update the post ID with the auto-incremented ID from the database 
                 return True  # Return True to indicate success 
         except Exception as e: 
             print(f"Error creating post: {e}") 

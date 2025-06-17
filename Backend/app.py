@@ -20,12 +20,10 @@ from flask_cors import CORS
 import os
 from db import sshFlow, noSshFlow
 from SQLModels.base import DatabaseContext
-from Control.PostControl import PostControl
 from Boundary.Mapper.PostMapper import PostMapper
 from Boundary.PostBoundary import PostBoundary 
-
-
-
+from Boundary.LabelBoundary import LabelBoundary 
+import traceback
 
 
 app = Flask(__name__) 
@@ -118,19 +116,48 @@ def get_all_posts():
     else:
         return jsonify({"error": "No posts found"}), 404 
     
-# @app.route('/createPost', methods=['POST']) 
-# def createPost(accountId: int , postData: dict):
-#     """
-#     Create a new post in the database.
-#     """
-   
-#     success = PostControl.createPost(accountId, postData)
+@app.route('/createPost', methods=['POST']) 
+def createPost():
+
+    """
+    Create a new post in the database.
+    """
+    try: 
+        data = request.get_json()  # Get the JSON data from the request 
+        if not data or 'accountId' not in data or 'postData' not in data: 
+            return jsonify({"error": "Missing required fields"}), 400 
+        accountId = data['accountId'] 
+        postData = data['postData'] 
+        print (f"in app.py: accountId: {accountId}, postData: {postData}")
+        
+        
+        success = PostBoundary.createPost(accountId, postData)  # Use the boundary to create the post 
+        
+        if success:
+            return jsonify({"message": "Post created successfully!"}), 201
+        else:
+            return jsonify({"error": "Failed to create post"}), 500
+    except Exception as e:
+        print(f"Error creating post: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     
-#     if success:
-#         return jsonify({"message": "Post created successfully!"}), 201
-#     else:
-#         return jsonify({"error": "Failed to create post"}), 500
-     
+@app.route('/labels', methods=['GET'])
+def getAllLabels():
+    """
+    Retrieve all labels from the database.
+    """
+    try:
+        labels = LabelBoundary.handleRetrieveAllLabels()  # Use the boundary to handle the retrieval of all labels
+        if labels:
+            return jsonify([label.toDict() for label in labels]), 200  # Convert each label to a dictionary
+        else:
+            return jsonify({"error": "No labels found"}), 404
+    except Exception as e:
+        print(f"Error retrieving labels: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
+    
 if __name__  == "__main__":
 
 

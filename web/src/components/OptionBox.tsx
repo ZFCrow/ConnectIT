@@ -2,24 +2,25 @@ import { useState, useCallback } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface OptionBoxProps {
-  allTags: string[];
-  selectedTags: string[];
-  onChange: (tags: string[]) => void;
+import type { Label } from "@/type/Label"; // Import the Label type 
+
+// interface OptionBoxProps {
+//   allTags: string[];
+//   selectedTags: string[];
+//   onChange: (tags: string[]) => void;
+// }
+
+interface OptionBoxProps { 
+  allTags: Label[]; // Use Label type for tags
+  selectedTags: Label[]; // Use Label type for selected tags 
+  onChange: (tags: Label[]) => void; // Callback to handle tag changes
 }
 
 const OptionBox = ({ allTags, selectedTags, onChange }: OptionBoxProps) => {
@@ -27,19 +28,20 @@ const OptionBox = ({ allTags, selectedTags, onChange }: OptionBoxProps) => {
   const [search, setSearch] = useState("");
   
   // Improved toggle function
-  const toggleTag = useCallback((tag: string) => {
-    onChange(
-      selectedTags.includes(tag)
-        ? selectedTags.filter((t) => t !== tag)
-        : [...selectedTags, tag]
-    );
+  const toggleTag = useCallback((tag: Label) => { 
+    const isSelected = selectedTags.some(selected => selected.name === tag.name); 
+    const newSelectedTags = isSelected
+      ? selectedTags.filter(selected => selected.name !== tag.name) // Remove tag if already selected
+      : [...selectedTags, tag]; // Add tag if not selected 
     // Keep popover open
     setOpen(true);
+    onChange(newSelectedTags); // Call onChange with the updated tags 
+
   }, [selectedTags, onChange]);
 
   // Filter tags based on search
   const filteredTags = allTags.filter(tag => 
-    tag.toLowerCase().includes(search.toLowerCase())
+    tag.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -74,11 +76,11 @@ const OptionBox = ({ allTags, selectedTags, onChange }: OptionBoxProps) => {
             ) : (
               filteredTags.map((tag) => (
                 <div
-                  key={tag}
+                  key={tag.name}
                   className="flex items-center justify-between px-2 py-1.5 text-sm rounded-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
                   onClick={() => toggleTag(tag)}
                 >
-                  <span>{tag}</span>
+                  <span>{tag.name}</span>
                   {selectedTags.includes(tag) && (
                     <Check className="h-4 w-4" />
                   )}
@@ -93,8 +95,8 @@ const OptionBox = ({ allTags, selectedTags, onChange }: OptionBoxProps) => {
         {selectedTags.length > 0 && (
             <div className="flex flex-wrap gap-1">
             {selectedTags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => toggleTag(tag)}>
-                {tag}
+                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => toggleTag(tag)}>
+                {tag.name}
                 <X
                     className="h-3 w-3" 
                 />

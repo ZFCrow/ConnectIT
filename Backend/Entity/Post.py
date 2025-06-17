@@ -5,6 +5,7 @@ from Entity.Label import Label
 from Entity.Comment import Comment 
 from SQLModels.PostModel import PostModel 
 from SQLModels.CommentModel import CommentModel 
+import pytz 
 @dataclass 
 class Post: 
     # base data that tallys with the database 
@@ -27,6 +28,11 @@ class Post:
     likes : int = 0  # Placeholder for likes count 
     liked : bool = False  # Placeholder for liked status 
 
+    @staticmethod
+    def getSingaporeTimezone() -> pytz.timezone:
+        """Get Singapore timezone"""
+        return datetime.now(pytz.timezone('Asia/Singapore')).replace(tzinfo=None)  
+    
     @classmethod
     def from_PostModel(cls, post_model: PostModel, labels:List[Label] ) -> 'Post':
         """Create Post entity from PostModel instance"""
@@ -46,14 +52,15 @@ class Post:
         ) 
     
     @classmethod 
-    def from_dict(cls, data: Dict[str, Any]) -> 'Post':
+    def fromDict(cls, data: Dict[str, Any], labels : list[Label]) -> 'Post':
         """Create Post entity from dictionary"""
         return cls(
-            post_id=data.get('post_id'),
+            post_id=data.get('id', 0),  # Default to 0 if not provided 
             title=data.get('title'),
             content=data.get('content'),
-            date=data.get('date'),
-            accountId=data.get('account_id'),
+            date=data.get('date', cls.getSingaporeTimezone()),  # Default to current Singapore time if not provided 
+            accountId=data.get('accountId'),
+            associated_labels=labels,  # Labels should be passed as a list of Label entities 
             isDeleted=data.get('is_deleted', 0)
         )
     
@@ -63,7 +70,7 @@ class Post:
             "id": self.post_id, 
             "username": self.accountUsername, 
             "date": self.date.isoformat() if isinstance(self.date, datetime) else self.date,
-            "labels": [label.to_dict(label) for label in self.associated_labels], 
+            "labels": [label.toDict() for label in self.associated_labels], 
             "title": self.title, 
             "content": self.content, 
             "comments": [comment.toDict(comment) for comment in self.associated_comments], 

@@ -42,8 +42,11 @@ class LabelGateway:
                 return label
             else:
                 return None 
+            
+
+            
     @staticmethod 
-    def getLabelbyIds(labelIds: List[int]) -> List[Label]: 
+    def getLabelsbyIds(labelIds: List[int]) -> List[Label]: 
         """
         Find labels by a list of ids
         -> search in cache first, then db 
@@ -53,7 +56,7 @@ class LabelGateway:
             if labelId in LabelGateway.labelsCache:
                 labels.append(LabelGateway.labelsCache[labelId])
             else:
-                label = LabelGateway.getlabelById(labelId)
+                label = LabelGateway.getLabelbyId(labelId)
                 if label:
                     labels.append(label)
         return labels 
