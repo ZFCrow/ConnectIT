@@ -10,25 +10,22 @@ import {
 } from "@/components/ui/popover";
 
 import type { Label } from "@/type/Label"; // Import the Label type 
+import type { Violation } from "@/type/Violation";
 
-// interface OptionBoxProps {
-//   allTags: string[];
-//   selectedTags: string[];
-//   onChange: (tags: string[]) => void;
-// }
+export type Tag = Label | Violation; // Define AllTags type as an array of Label or Violation 
 
 interface OptionBoxProps { 
-  allTags: Label[]; // Use Label type for tags
-  selectedTags: Label[]; // Use Label type for selected tags 
-  onChange: (tags: Label[]) => void; // Callback to handle tag changes
-}
+  allTags: Tag[]; // Use AllTags type for all available tags 
+  selectedTags: Tag[]
+  onChange: (tags: Tag[]) => void; // Callback to handle tag selection changes
+} 
 
 const OptionBox = ({ allTags, selectedTags, onChange }: OptionBoxProps) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   
   // Improved toggle function
-  const toggleTag = useCallback((tag: Label) => { 
+  const toggleTag = useCallback((tag: Tag) => { 
     const isSelected = selectedTags.some(selected => selected.name === tag.name); 
     const newSelectedTags = isSelected
       ? selectedTags.filter(selected => selected.name !== tag.name) // Remove tag if already selected

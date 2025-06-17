@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import type { Post } from '@/type/Post';
 import type { Label } from '@/type/Label';
 import type { Comment } from '@/type/Comment'; 
@@ -8,7 +8,7 @@ import {  z } from 'zod';
 import { api } from '@/api/api'; // import the api instance 
 import { useAuth } from '@/contexts/AuthContext'; // import the auth context
 import { create } from 'domain';
-
+import { useViolationManager } from './useViolationManager';
 
 export const usePostManager = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -17,14 +17,21 @@ export const usePostManager = () => {
   const [activeSortby, setActiveSortBy] = useState<string | null>(null); 
   
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
-  const [selectedViolations, setSelectedViolations] = useState<string[]>([]);
-  
-  const handleDeletePost = (postID: number) => {
-    setPostToDelete(postID);
-  };
 
   const { accountId } = useAuth(); // get the accountId from the auth context 
 
+  const { 
+    allViolations, 
+    fetchViolations,
+    selectedViolations,
+    setSelectedViolations ,
+  } = useViolationManager(); // get the violations from the violation manager 
+  
+  useEffect(() => { 
+    fetchViolations(); // fetch the violations on mount 
+  }, []); // empty dependency array to run only once on mount 
+  
+  
   const fetchPosts = async () => { 
     try{
       
@@ -71,6 +78,7 @@ export const usePostManager = () => {
     }
   }
 
+
   useEffect(() =>{
     let result = [...allPosts]; // start with all posts 
 
@@ -93,6 +101,9 @@ export const usePostManager = () => {
     }
     setFilteredPosts(result); // update the filtered posts state 
   }, [allPosts, activeFilter, activeSortby]); // re-run when these change 
+
+
+
 
 
 
@@ -144,15 +155,37 @@ export const usePostManager = () => {
   }
 };
 
-  const confirmDelete = () => {
-    if (postToDelete) {
-      setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
-      setFilteredPosts(allPosts); 
-      setPostToDelete(null);
-      setSelectedViolations([]);
-      console.log("Post deleted with violations:", selectedViolations);
-    }
+
+  const handleDeletePost = (postID: number) => {
+    setPostToDelete(postID);
   };
+
+
+  const confirmDelete = async () => { 
+    if (postToDelete) {
+      try {
+        const response = await api.delete(`/post/${postToDelete}`, {
+          data: { violations: selectedViolations }, // send the selected violations
+        });
+
+        if (response.status === 200) {
+          setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
+          setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
+          setPostToDelete(null);
+          if (selectedViolations.length > 0) {
+            console.log("Post deleted with violations:", selectedViolations);
+            setSelectedViolations([]);
+          }  
+          
+         
+        } else {
+          console.error("Failed to delete post:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error deleting post:", error);
+      }
+    }
+  } 
 
   const cancelDelete = () => {
     setPostToDelete(null);
@@ -199,5 +232,6 @@ export const usePostManager = () => {
     setSelectedViolations,
     handleDeleteComment,
     handleHide,
+    allViolations
   };
 };

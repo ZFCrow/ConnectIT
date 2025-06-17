@@ -26,3 +26,4 @@ class PostModel(Base):
     postLabels = relationship("PostLabelModel", back_populates="post") 
     comments = relationship("CommentModel", back_populates="post")
     postLikes = relationship("PostLikesModel", back_populates="post") 
+    postViolations = relationship("PostViolationModel", back_populates="post") 

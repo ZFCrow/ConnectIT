@@ -26,7 +26,7 @@ import {FC }  from "react"; // import FC from react
 import type { Post } from "@/type/Post"; // import the Post type 
 import { set } from "zod";
 
-
+import { LabelPicker } from "./LabelPicker";
 
 // createpostbar props 
 type CreatePostbarProps = { 
@@ -126,9 +126,14 @@ const CreatePostbar  : FC<CreatePostbarProps> = ({
                         onChange={(e) => setContent(e.target.value)} 
                     /> 
 
-                    <OptionBox
+                    {/* <OptionBox
                         allTags={retrievedTags}
                         selectedTags={selectedTags}
+                        onChange={setSelectedTags}
+                    /> */}
+                    <LabelPicker
+                        allLabels={retrievedTags}
+                        selected={selectedTags}
                         onChange={setSelectedTags}
                     />
 

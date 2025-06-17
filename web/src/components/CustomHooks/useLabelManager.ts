@@ -7,6 +7,8 @@ export const useLabelManager = () => {
    
     const [allLabels, setAllLabels] = useState<Label[]>([]);
     const [popularLabels, setPopularLabels] = useState<Label[]>([]); // Popular labels for quick access 
+    
+    // ? i dont think its used anywhere 
     const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
 
 

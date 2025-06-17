@@ -45,8 +45,7 @@ const Homepage = () => {
   
 
   useEffect(() => {
-
-    fetchPosts()
+    fetchPosts(); // fetch the posts on mount
     fetchLabels(); // fetch the labels on mount s
   }, []);
 
@@ -97,10 +96,6 @@ const Homepage = () => {
         {/* Confirmation Dialog */}
         <PostDeleteDialog
           isOpen={postToDelete !== null}
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-          selectedViolations={selectedViolations}
-          onViolationChange={setSelectedViolations}
         />
       </div>
     </>

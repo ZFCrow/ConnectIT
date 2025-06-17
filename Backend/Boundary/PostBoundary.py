@@ -1,5 +1,6 @@
 from Control.PostControl import PostControl 
 from Entity.Post import Post 
+
 class PostBoundary: 
     def __init__(self):
         pass 
@@ -21,4 +22,14 @@ class PostBoundary:
         Handle the retrieval of all posts.
         """
         return PostControl.retrieveAllPosts() 
+    
+
+
+    @staticmethod 
+    def handleDeletePost(postId: int, violations : list[int]) -> bool:
+        """
+        Handle the deletion of a post by its ID.
+        """
+        print(f"Post boundary: Deleting post with ID: {postId}")
+        return PostControl.deletePost(postId, violations)  # Call the control layer to delete the post by its ID and handle violations 
     

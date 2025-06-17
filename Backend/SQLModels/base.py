@@ -191,6 +191,9 @@ class DatabaseContext:
             from .PostLikesModel import PostLikesModel 
             from .PostLikesModel import PostLikesModel 
             
+            from .PostViolationModel import PostViolationModel
+            from .ViolationModel import ViolationModel
+            
             # Add other models as you create them
             
             registered_models = [cls.__name__ for cls in Base.__subclasses__()]

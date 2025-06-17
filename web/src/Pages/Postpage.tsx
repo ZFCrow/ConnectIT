@@ -7,20 +7,21 @@ import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 import type { Post } from "@/type/Post";
 
 const Postpage = () => {
-  const { id: postID } = useParams<{ id: string }>();
+  const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
   const { allPosts, handleDeletePost, postToDelete, confirmDelete, cancelDelete, selectedViolations, setSelectedViolations } = usePostContext();
 
-  const idNum = postID ? Number(postID) : NaN;
+  const idNum = postId ? Number(postId) : NaN;
+  console.log("Post ID:", idNum);
   if (isNaN(idNum)) return <Navigate to="/" replace />;
 
   // Priority: first try to grab post passed via navigation state, otherwise look it up
   const statePost = (location.state as { post?: Post })?.post;
   const post = statePost ?? allPosts.find((p) => p.id === idNum);
 
-  // If there's no relevant post (deleted or never existed), redirect
+  //If there's no relevant post (deleted or never existed), redirect
   useEffect(() => {
     if (!post) {
       navigate("/", { replace: true });

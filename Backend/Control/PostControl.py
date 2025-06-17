@@ -2,6 +2,7 @@ from Boundary.Mapper.PostMapper import PostMapper
 from Entity.Post import Post 
 from SQLModels.PostModel import PostModel as Postmodel 
 from Boundary.TableDataGateway.LabelGateway import LabelGateway
+from Boundary.TableDataGateway.ViolationGateway import ViolationGateway 
 
 class PostControl: 
     def __init__(self):
@@ -33,4 +34,14 @@ class PostControl:
         post = Post.fromDict(postData, labels=listofLabels)  # Create Post entity from dictionary and labels 
         success = PostMapper.createPost(post) 
         return post, success  # Return the created post and success status 
+    
+
+    @staticmethod 
+    def deletePost(postId: int, violations: list[int]) -> bool:
+        """
+        Delete a post by its ID.
+        """
+        violations = ViolationGateway.getViolationsByIds(violations)  # Retrieve violations by their IDs 
+        success = PostMapper.deletePost(postId=postId, violations=violations)  # Call the mapper to delete the post
+        return success  # Return the success status of the deletion 
 

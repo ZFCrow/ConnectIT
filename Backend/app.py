@@ -1,17 +1,17 @@
 
-# from pathlib import Path
-# from dotenv import load_dotenv , find_dotenv 
-# # Read host, port, and debug from env, with sensible defaults
-# # automatically finds the nearest .env file by walking up
-# env_path = find_dotenv(usecwd=True)
-# if not env_path:
-#     raise RuntimeError("Couldn't locate a .env file")
-# load_dotenv(env_path, override=False)
+from pathlib import Path
+from dotenv import load_dotenv , find_dotenv 
+# Read host, port, and debug from env, with sensible defaults
+# automatically finds the nearest .env file by walking up
+env_path = find_dotenv(usecwd=True)
+if not env_path:
+    raise RuntimeError("Couldn't locate a .env file")
+load_dotenv(env_path, override=False)
 
-# # then load .env.dev if present, overriding vars
-# dev_env = Path(env_path).parent / ".env.dev"
-# if dev_env.exists():
-#     load_dotenv(dev_env, override=True)
+# then load .env.dev if present, overriding vars
+dev_env = Path(env_path).parent / ".env.dev"
+if dev_env.exists():
+    load_dotenv(dev_env, override=True)
 
 
 
@@ -23,6 +23,7 @@ from SQLModels.base import DatabaseContext
 from Boundary.Mapper.PostMapper import PostMapper
 from Boundary.PostBoundary import PostBoundary 
 from Boundary.LabelBoundary import LabelBoundary 
+from Boundary.ViolationBoundary import ViolationBoundary
 import traceback
 
 
@@ -70,34 +71,27 @@ def init_db():
     else: 
         return jsonify({"message": "Database initialization failed!"}), 500 
     
-@app.route('/post/<int:post_id>')
-def get_post(post_id):
+@app.route('/post/<int:post_id>', methods = ["POST"])
+def delete_post(post_id):
     """
     Fetch a post by its ID. 
     #! testing purposes , shouldnt go to mapper straight! 
     """
-   
-    post = PostMapper.getPostById(post_id)
+    data = request.get_json()  # Get the JSON data from the request 
+    # should have violations and the accountId in the data 
+    if not data or 'accountId' not in data: 
+        return jsonify({"error": "Missing required fields"}), 400 
     
-    if post:
-        return jsonify({
-            "id" : post.post_id, 
-            "user" : "",
-            "date" : post.date,
-            "labels": [],
-            "title" : post.title,
-            "content" : post.content,
-            "comments": [{
-                "username": "ZFCrow",
-                "content": "WTf?", 
-                "accountId": 2, 
-                "commentId": 1} ], 
-            "likes": 0,
-            "liked": False, 
-            "accountId": post.accountId, 
-        })
+    accountId = data['accountId'] 
+    violations = data.get('violations', [])  # Get the violations if they exist, else default to an empty list 
+
+
+    success = PostBoundary.handleDeletePost(post_id, violations=violations)  # Use the boundary to handle the deletion of the post by its ID 
+
+    if success: 
+        return jsonify({"message": f"Post with ID {post_id} deleted successfully! with account {accountId} and violations {violations}"}), 200 
     else:
-        return jsonify({"error": "Post not found"}), 404 
+        return jsonify({"error": f"Failed to delete post with ID {post_id}"}), 500 
 
 @app.route('/posts', methods=['GET']) 
 def get_all_posts():
@@ -158,6 +152,24 @@ def getAllLabels():
         print(f"Error retrieving labels: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500 
+    
+
+@app.route('/violations', methods=['GET'])
+def violations():
+    """
+    Endpoint to check for violations.
+    """
+    try:
+        violations = ViolationBoundary.handleRetrieveAllViolations()  # Use the boundary to handle the retrieval of all violations 
+        if violations:
+            return jsonify([violation.toDict() for violation in violations]), 200  # Convert each violation to a dictionary
+        else:
+            return jsonify({"message": "No violations found"}), 404 
+
+    except Exception as e:
+        print(f"Error checking violations: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
     
 if __name__  == "__main__":
 

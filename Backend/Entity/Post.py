@@ -3,6 +3,9 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from Entity.Label import Label
 from Entity.Comment import Comment 
+from Entity.Violation import Violation 
+
+
 from SQLModels.PostModel import PostModel 
 from SQLModels.CommentModel import CommentModel 
 import pytz 
@@ -19,7 +22,7 @@ class Post:
     # classes for associated data 
     associated_labels: List[Label] = field(default_factory=list)  
     associated_comments: List[Comment] = field(default_factory=list)  # Placeholder for comments, can be replaced with actual Comment class 
-
+    associated_violations: List[Violation] = field(default_factory=list)  # Placeholder for violations, can be replaced with actual Violation class 
 
     # Additional fields for account information (not creating a separate Account entity) 
     accountUsername: Optional[str] = None 

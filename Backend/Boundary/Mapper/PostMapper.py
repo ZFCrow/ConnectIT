@@ -6,8 +6,10 @@ from sqlalchemy.orm import joinedload
 from SQLModels.AccountModel import AccountModel 
 from SQLModels.CommentModel import CommentModel
 from SQLModels.PostLabelModel import PostLabelModel 
+from SQLModels.PostViolationModel import PostViolationModel
 from Entity.Post import Post  
 from Entity.Label import Label 
+from Entity.Violation import Violation
 class PostMapper: 
     """
     Mapper class for handling database operations related to Post entities.
@@ -20,7 +22,7 @@ class PostMapper:
         Fetch a post by its ID. 
         """
         with db_context.session_scope() as session:
-            post = session.query(PostModel).filter(PostModel.postID == postId).first()
+            post = session.query(PostModel).filter(PostModel.postId == postId).first()
             if post:
                 return Post.from_PostModel(post) 
             else:
@@ -102,6 +104,42 @@ class PostMapper:
                 return True  # Return True to indicate success 
         except Exception as e: 
             print(f"Error creating post: {e}") 
+            return False 
+        
+
+    @staticmethod 
+    def deletePost(postId: int, violations : list[Violation]) -> bool:
+        """
+        we will update the isDeleted field to True instead of deleting the post from the database.
+        This allows us to keep the post in the database for historical purposes while marking it as deleted. 
+        violations is a list of violations ranging from none to multiple violations. create them in postviolation table if it exists. 
+        """
+        try:
+            with db_context.session_scope() as session:
+                post = session.query(PostModel).filter(PostModel.postId == postId).first()
+                if post:
+                    post.isDeleted = True 
+                    session.commit()
+                    print(f"Post with ID {postId} marked as deleted.") 
+                    # If there are violations, create entries in the PostViolation table 
+
+                    if violations:
+                        for violation in violations:
+                            # Assuming PostViolationModel exists and has postId and violationId fields
+                            postViolationModel = PostViolationModel(
+                                postId=postId,
+                                violationId=violation.violationId  # Assuming Violation entity has a violationId field
+                            )
+                            session.add(postViolationModel)
+                        session.commit()
+
+
+                    return True
+                else:
+                    print(f"Post with ID {postId} not found.") 
+                    return False 
+        except Exception as e:
+            print(f"Error deleting post with ID {postId}: {e}") 
             return False 
 
 
