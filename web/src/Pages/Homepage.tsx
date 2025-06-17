@@ -80,9 +80,7 @@ const Homepage = () => {
               <Postcard
                 key={p.id}
                 post={p}
-                onHide={handleHide}
-                onDelete={handleDeletePost}
-                onDeleteComment={handleDeleteComment}
+                detailMode = {false}
               ></Postcard>
             );
           })}

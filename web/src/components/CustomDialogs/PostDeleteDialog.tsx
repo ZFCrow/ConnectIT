@@ -27,10 +27,12 @@ import { ViolationPicker } from "../ViolationPicker";
 
 interface PostDeleteDialogProps {
   isOpen: boolean;
+  onDeleteSuccess?: () => void; // Optional callback for successful deletion 
 }
 
 const PostDeleteDialog = ({
   isOpen,
+  onDeleteSuccess = () => {}, // Default to empty function if not provided 
 }: PostDeleteDialogProps) => {
 
 
@@ -75,7 +77,10 @@ const PostDeleteDialog = ({
         <AlertDialogFooter>
           <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={confirmDelete}
+            onClick={() => {
+              confirmDelete()
+              onDeleteSuccess(); // Call the success callback after deletion 
+            }}
             disabled={role === Role.Admin && selectedViolations.length === 0}
             className="bg-red-600 hover:bg-red-700 disabled:bg-gray-300"
           >

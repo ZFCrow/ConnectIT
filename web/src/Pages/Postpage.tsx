@@ -10,8 +10,10 @@ const Postpage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const { allPosts, handleDeletePost, postToDelete, confirmDelete, cancelDelete, selectedViolations, setSelectedViolations } = usePostContext();
+  const [isDeleted, setIsDeleted] = useState(false); 
+  const { 
+    allPosts, 
+    postToDelete } = usePostContext();
 
   const idNum = postId ? Number(postId) : NaN;
   console.log("Post ID:", idNum);
@@ -26,7 +28,10 @@ const Postpage = () => {
     if (!post) {
       navigate("/", { replace: true });
     }
-  }, [post, navigate]);
+    if (isDeleted) {
+      navigate("/", { replace: true });
+    } 
+  }, [post, navigate,isDeleted]);
 
   if (!post) return null;
 
@@ -36,9 +41,6 @@ const Postpage = () => {
         <Postcard
           post={post}
           detailMode
-          onHide={() => {}}
-          onDelete={() => handleDeletePost(post.id)}
-          onDeleteComment={() => {}}
         />
       </div>
 
@@ -47,11 +49,8 @@ const Postpage = () => {
       </aside>
 
       <PostDeleteDialog
-        isOpen={postToDelete === post.id}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-        selectedViolations={selectedViolations}
-        onViolationChange={setSelectedViolations}
+        isOpen={postToDelete !== null} 
+        onDeleteSuccess={() => setIsDeleted(true)} // Set isDeleted to true on successful deletion 
       />
     </div>
   );

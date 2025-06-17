@@ -42,16 +42,16 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 
 import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
+import { usePostContext } from "@/contexts/PostContext";
+
+
 
 type PostcardProps = {
   post: Post; // The post object containing all necessary data
   detailMode?: boolean; // ✅ optional, with default = false
-  onHide?: (postId: number) => void; // Optional callback for hide action
-  onDelete?: (postId: number) => void; // Add delete callback
-  onDeleteComment?: (commentId: number) => void; // Optional callback for deleting a comment
 };
 
-const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDeleteComment}) => {
+const Postcard: FC<PostcardProps> = ({ post, detailMode}) => {
 
   const {
     id,
@@ -65,6 +65,9 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDel
     liked,
     accountId: postAccountId, // The account ID of the post owner
   } = post; // Destructure the post object
+
+
+  const { handleDeletePost, handleHide, handleDeleteComment } = usePostContext(); // Get the delete and hide functions from context 
 
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -146,21 +149,21 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDel
                                     <Flag/>Report
                                     </DropdownMenuItem>  */}
 
-                    {onDelete &&
+                    {handleDeletePost &&
                       (role === Role.Admin || accountId === postAccountId) && (
                         <DropdownMenuItem
                           onSelect={() => {
-                            onDelete(id);
+                            handleDeletePost(id);
                           }}
                         >
                           <Trash2 className="text-red-500" />
                           Delete
                         </DropdownMenuItem>
                       )}
-                    {onHide && (
+                    {handleHide && (
                       <DropdownMenuItem
                         onSelect={() => {
-                          onHide(id);
+                          handleHide(id);
                         }}
                       >
                         <EyeOff />
@@ -279,7 +282,7 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDel
                   </div>
 
                   {/* Show delete button for admins or comment owner */}
-                  {onDeleteComment &&
+                  {handleDeleteComment &&
                     (role === Role.Admin || c.accountId === accountId) && (
                       <Button
                         variant="ghost"
@@ -292,7 +295,7 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode, onHide, onDelete, onDel
                                                 border-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteComment(c.commentId); // Call the delete comment callback
+                          handleDeleteComment(c.commentId); // Call the delete comment callback
                         }}
                       >
                         <Trash2 className="h-4 w-4" />

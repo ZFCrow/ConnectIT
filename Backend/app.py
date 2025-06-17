@@ -1,17 +1,17 @@
 
-from pathlib import Path
-from dotenv import load_dotenv , find_dotenv 
-# Read host, port, and debug from env, with sensible defaults
-# automatically finds the nearest .env file by walking up
-env_path = find_dotenv(usecwd=True)
-if not env_path:
-    raise RuntimeError("Couldn't locate a .env file")
-load_dotenv(env_path, override=False)
+# from pathlib import Path
+# from dotenv import load_dotenv , find_dotenv 
+# # Read host, port, and debug from env, with sensible defaults
+# # automatically finds the nearest .env file by walking up
+# env_path = find_dotenv(usecwd=True)
+# if not env_path:
+#     raise RuntimeError("Couldn't locate a .env file")
+# load_dotenv(env_path, override=False)
 
-# then load .env.dev if present, overriding vars
-dev_env = Path(env_path).parent / ".env.dev"
-if dev_env.exists():
-    load_dotenv(dev_env, override=True)
+# # then load .env.dev if present, overriding vars
+# dev_env = Path(env_path).parent / ".env.dev"
+# if dev_env.exists():
+#     load_dotenv(dev_env, override=True)
 
 
 
@@ -83,8 +83,9 @@ def delete_post(post_id):
         return jsonify({"error": "Missing required fields"}), 400 
     
     accountId = data['accountId'] 
+    #violations = data.get('violations', [])  # Get the violations if they exist, else default to an empty list 
+    data = data.get('data', {})  # Get the data field if it exists, else default to an empty dictionary
     violations = data.get('violations', [])  # Get the violations if they exist, else default to an empty list 
-
 
     success = PostBoundary.handleDeletePost(post_id, violations=violations)  # Use the boundary to handle the deletion of the post by its ID 
 

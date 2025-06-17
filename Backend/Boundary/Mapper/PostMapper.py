@@ -40,7 +40,7 @@ class PostMapper:
                 joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels 
                 joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
                 joinedload(PostModel.postLikes)  # Load associated likes 
-            ).all()
+            ).filter(PostModel.isDeleted == 0).all() # Only fetch non-deleted posts
             #! now i need to retrieve all the label entity for each post and put it in each post
             listofPostEntities = [] 
             if posts: 

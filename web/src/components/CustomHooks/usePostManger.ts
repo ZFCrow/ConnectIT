@@ -164,7 +164,8 @@ export const usePostManager = () => {
   const confirmDelete = async () => { 
     if (postToDelete) {
       try {
-        const response = await api.delete(`/post/${postToDelete}`, {
+        const response = await api.post(`/post/${postToDelete}`, {
+          accountId: accountId, // use the accountId from the auth context
           data: { violations: selectedViolations }, // send the selected violations
         });
 
@@ -175,7 +176,9 @@ export const usePostManager = () => {
           if (selectedViolations.length > 0) {
             console.log("Post deleted with violations:", selectedViolations);
             setSelectedViolations([]);
-          }  
+          }  else {
+            console.log("Post deleted without violations"); 
+          }
           
          
         } else {
