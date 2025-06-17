@@ -10,7 +10,6 @@ import {
 import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
-import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
 import ApplicantCard from "./ApplicantCard";
 import type { Applicant } from "../../type/applicant";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
@@ -68,7 +67,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
       <ResumeUploadModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onSubmit={handleResumeSubmit}
+        onSubmit={(file: File) => {}}
         jobTitle={job.title}
         companyName={job.companyName}
       />
@@ -79,7 +78,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
             <h1 className="text-3xl font-bold text-white flex items-center gap-2">
               {job.title}
             </h1>
-            {userType !== Role.Company && (
+            {userType === Role.User ? (
               <button
                 aria-label="Save job"
                 className="
@@ -90,10 +89,11 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               >
                 <Bookmark className="w-6 h-6" />
               </button>
-            )}
-            {userType === Role.Company && (
-              <>
-                {/* <Link
+            ) : (
+              userType === Role.Company ||
+              (userType === Role.Admin && (
+                <>
+                  {/* <Link
                   to={`/company/jobForm/${job.jobId}`}
                   className="
               p-1 rounded-full text-gray-400
@@ -104,28 +104,29 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                   <Edit2 className="w-6 h-6" />
                 </Link> */}
 
-                <button
-                  aria-label="Delete job"
-                  onClick={() => {
-                    handleDeleteClick();
-                    //TODO: Handle delete logic here
-                  }}
-                  className="
+                  <button
+                    aria-label="Delete job"
+                    onClick={() => {
+                      handleDeleteClick();
+                      //TODO: Handle delete logic here
+                    }}
+                    className="
               p-1 rounded-full text-gray-400
               hover:bg-zinc-800 hover:text-white
               transition
             "
-                >
-                  <Trash2 className="w-6 h-6" />
-                </button>
-                <DeleteJobModal
-                  open={deleteOpen}
-                  onCancel={() => setDeleteOpen(false)}
-                  onConfirm={handleDeleteConfirm}
-                  loading={loading}
-                  jobTitle={job.title}
-                />
-              </>
+                  >
+                    <Trash2 className="w-6 h-6" />
+                  </button>
+                  <DeleteJobModal
+                    open={deleteOpen}
+                    onCancel={() => setDeleteOpen(false)}
+                    onConfirm={handleDeleteConfirm}
+                    loading={loading}
+                    jobTitle={job.title}
+                  />
+                </>
+              ))
             )}
           </div>
           {/* Field badge */}
@@ -174,10 +175,10 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               </span>
             </span>
           )}
-        <span>
+        {/* <span>
           <b className="text-gray-400">Location: </b>
           {job.company.location}
-        </span>
+        </span> */}
       </div>
       <h2 className="text-xl font-semibold text-gray-200">Job Description</h2>
       <p className="text-gray-200 whitespace-pre-line">{job.description}</p>
@@ -191,8 +192,8 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </li>
         ))}
       </ul>
-      {userType !== Role.Company && (
-        <div className="mt-6 flex items-center space-x-4">
+      <div className="mt-6 flex items-center space-x-4">
+        {userType === Role.User && (
           <Link
             to=""
             onClick={() => setOpen(true)}
@@ -203,19 +204,19 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           >
             Apply Now
           </Link>
+        )}
 
-          <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
-            <Calendar className="w-4 h-4" />
-            <time dateTime={job.applicationDeadline}>
-              by{" "}
-              {new Date(job.applicationDeadline).toLocaleDateString(
-                dateLocale,
-                dateFormatOptions
-              )}
-            </time>
-          </div>
+        <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
+          <Calendar className="w-4 h-4" />
+          <time dateTime={job.applicationDeadline}>
+            by{" "}
+            {new Date(job.applicationDeadline).toLocaleDateString(
+              dateLocale,
+              dateFormatOptions
+            )}
+          </time>
         </div>
-      )}
+      </div>
       {userType === Role.Company && job.jobId === companyId && (
         <section className="mt-8">
           <hr className="mb-4" />

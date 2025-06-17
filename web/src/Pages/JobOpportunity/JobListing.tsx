@@ -9,12 +9,14 @@ import { Bookmark, CheckCircle } from "lucide-react";
 import { JobListing } from "@/type/jobListing";
 import { JobListingSchema } from "@/type/jobListing";
 import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ITEMS_PER_PAGE = 10;
 
 const JobListingPage: React.FC = () => {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const { role } = useAuth();
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -182,7 +184,7 @@ const JobListingPage: React.FC = () => {
             </div>
           ) : paginated.length > 0 ? (
             paginated.map((job) => (
-              <JobCard key={job.jobId} job={job} userType="user" />
+              <JobCard key={job.jobId} job={job} userType={role} />
             ))
           ) : (
             <div className="h-[200px] flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg">

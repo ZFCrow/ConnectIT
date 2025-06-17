@@ -86,14 +86,13 @@ class JobListingMapper:
             
         else: 
             """
-            Retrieves every job listing with its company + responsibilities.
+            Retrieves every job listing with its company .
             """  
             with db_context.session_scope() as session:
                 orm_list = (
                     session.query(JobListingModel)
                     .options(
                         selectinload(JobListingModel.company),
-                        # selectinload(JobListingModel.responsibilities),
                     )
                     .filter(JobListingModel.companyId == company_id)
                     .all()

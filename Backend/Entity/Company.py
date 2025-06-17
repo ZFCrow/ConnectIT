@@ -30,7 +30,6 @@ class Company(Account):
             name=model.account.name,
             email=model.account.email,
             passwordHash=model.account.passwordHash,
-            passwordSalt=model.account.passwordSalt,
             profilePicUrl=model.account.profilePicUrl,
             role=model.account.role,
             isDisabled=model.account.isDisabled,
@@ -55,7 +54,6 @@ class Company(Account):
             "name":          raw["name"],
             "email":         raw["email"],
             "passwordHash":  raw["passwordHash"],
-            "passwordSalt":  raw["passwordSalt"],
             "profilePicUrl": raw["profilePicUrl"],
             "role":          raw["role"],        # already value-str thanks to loop
             "isDisabled":    raw["isDisabled"],

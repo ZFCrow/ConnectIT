@@ -1,6 +1,7 @@
 # job_listing_routes.py
 
 from flask import Blueprint, request, jsonify
+from Control.JobApplicationControl import JobApplicationControl
 from Control.JobListingControl import JobListingControl  # Import your control class
 
 job_listing_bp = Blueprint("job_listing", __name__)
@@ -23,7 +24,6 @@ def get_company_job_listings(company_id):
     listings = JobListingControl.getAllJobListings(company_id=company_id)
     return jsonify([l.to_dict() for l in listings]), 200
 
-
 # POST new job listing
 @job_listing_bp.route("/addJob", methods=["POST"])
 def create_job_listing():
@@ -41,3 +41,18 @@ def delete_job_listing(jobId):
     """
     success = JobListingControl.deleteJob(jobId)
     return jsonify({"message": "Job listing deleted successfully!"}) if success else jsonify({"error": "Failed to delete job listing"}), 200
+
+@job_listing_bp.route("/applyJob", methods=["POST"])
+def apply_job():
+    """
+    Applies for a job listing.
+    """
+    userId = request.json.get("userId")
+    jobId = request.json.get("jobId")
+    if not jobId:
+        return jsonify({"error": "Job ID is required"}), 400
+    if not userId:
+        return jsonify({"error": "User ID is required"}), 400
+    
+    success = JobApplicationControl.applyJob(jobId, userId)
+    return jsonify({"message": "Application submitted successfully!"}) if success else jsonify({"error": "Failed to apply for job"}), 200

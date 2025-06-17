@@ -19,11 +19,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { dateLocale, dateFormatOptions } from "./SharedConfig";
 import { useState } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
-import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
 import { Role } from "@/contexts/AuthContext";
 import axios from "axios";
 import DeleteJobModal from "./DeleteJobModal";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
+import { useApplyJob } from "@/utility/handleApplyJob";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Props = { job: JobListing; userType: string };
 
@@ -34,6 +35,18 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
     dateFormatOptions
   );
   const [open, setOpen] = useState(false);
+  const { applyJob, applicationLoading } = useApplyJob({
+    onSuccess: () => {
+      setOpen(false);
+      window.location.reload();
+    },
+  });
+  const handleResumeSubmit = (file: File) => {
+    // Pass jobId and userId to applyJob
+    applyJob(job.jobId, userId, file);
+    // Optionally close the modal here or on success
+  };
+  const { userId } = useAuth(); // Get userId from context/auth
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteJob, loading } = useDeleteJob(() => {
     setDeleteOpen(false);
@@ -74,11 +87,13 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
                 </span>
               </div>
             </>
-          ) : job.saved ? (
-            <BookmarkCheck className="w-6 h-6 text-green-500" />
-          ) : (
-            <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
-          )}
+          ) : userType === Role.User ? (
+            job.saved ? (
+              <BookmarkCheck className="w-6 h-6 text-green-500" />
+            ) : (
+              <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+            )
+          ) : null}
         </div>
 
         {/* Field badge */}
@@ -195,8 +210,8 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
         >
           View Details
         </Link>
-        {userType !== Role.Company &&
-          (!job.applied ? (
+        {userType === Role.User ? (
+          !job.applied ? (
             <button
               onClick={() => setOpen(true)}
               className="border border-green-500 text-green-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-green-500 hover:text-white transition"
@@ -207,11 +222,20 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
             <div className="text-center text-sm text-gray-400 border border-gray-600 w-full px-4 py-1 rounded-xl">
               Applied
             </div>
-          ))}
+          )
+        ) : userType === Role.Admin ? (
+          <button
+            onClick={() => setDeleteOpen(true)}
+            className="border border-red-500 text-red-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-red-500 hover:text-white transition"
+          >
+            Delete for moderation
+          </button>
+        ) : null}
         <ResumeUploadModal
           isOpen={open}
           onClose={() => setOpen(false)}
           onSubmit={handleResumeSubmit}
+          loading={applicationLoading}
           jobTitle={job.title}
           companyName={job.companyName}
         />

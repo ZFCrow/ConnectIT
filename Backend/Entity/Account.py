@@ -6,9 +6,8 @@ class Account:
     name: str
     email: str
     passwordHash: str
-    passwordSalt: str
     profilePicUrl: str
-
+    
     role: str
     isDisabled: bool
 
@@ -19,7 +18,6 @@ class Account:
             name=data.get('name', ''),
             email=data.get('email', ''),
             passwordHash=data.get('passwordHash', ''),
-            passwordSalt=data.get('passwordSalt', ''),
             profilePicUrl=data.get('profilePicUrl', ''),
             role = data.get('role', ''),
             isDisabled=data.get('isDisabled', False)

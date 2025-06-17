@@ -58,17 +58,17 @@ class JobListingControl:
         return success
         # TODO: Replace with actual database logic
 
-    def acceptApplicant(self, applicantId: int, jobId: int):
-        """
-        Accepts an applicant for a job listing.
-        """
-        # Example: update applicant/job status in DB
-        print(f"Accepting applicant {applicantId} for job {jobId}")
-        # TODO: Replace with actual database logic
+    # def acceptApplicant(self, applicantId: int, jobId: int):
+    #     """
+    #     Accepts an applicant for a job listing.
+    #     """
+    #     # Example: update applicant/job status in DB
+    #     print(f"Accepting applicant {applicantId} for job {jobId}")
+    #     # TODO: Replace with actual database logic
 
-    def rejectApplicant(self, applicantId: int, jobId: int):
-        """
-        Rejects an applicant for a job listing.
-        """
-        print(f"Rejecting applicant {applicantId} for job {jobId}")
-        # TODO: Replace with actual database logic
+    # def rejectApplicant(self, applicantId: int, jobId: int):
+    #     """
+    #     Rejects an applicant for a job listing.
+    #     """
+    #     print(f"Rejecting applicant {applicantId} for job {jobId}")
+    #     # TODO: Replace with actual database logic

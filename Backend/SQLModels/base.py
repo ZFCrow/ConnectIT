@@ -185,6 +185,7 @@ class DatabaseContext:
             from .UserModel import UserModel
             from .PostModel import PostModel
             from .JobListingModel import JobListingModel
+            from .JobApplicationModel import JobApplicationModel
             from .ResponsibilityModel import ResponsibilityModel
             # Add other models as you create them
             
