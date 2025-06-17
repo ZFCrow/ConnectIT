@@ -101,14 +101,12 @@ def get_all_posts():
     
     # posts = PostControl.retrieveAllPosts()
     posts = PostBoundary.handleRetrieveAllPosts()  # Use the boundary to handle the retrieval of all posts 
-    
+    allPosts = [] 
     if posts:
-        allPosts = [] 
+        
         for post in posts: 
             allPosts.append(post.toDict())  # Convert each post entity to a dictionary for JSON serialization
-        return jsonify(allPosts), 200  # Return the list of posts as JSON
-    else:
-        return jsonify({"error": "No posts found"}), 404 
+    return jsonify(allPosts), 200  # Return the list of posts as JSON
     
 @app.route('/createPost', methods=['POST']) 
 def createPost():
