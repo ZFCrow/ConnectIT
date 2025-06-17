@@ -11,6 +11,12 @@ def get_all_job_listings():
     listings = JobListingControl.getAllJobListings()  # implement this in your control
     return jsonify([l.to_dict() for l in listings]), 200
 
+# GET a single job detail
+@job_listing_bp.route("/jobDetails/<int:job_id>", methods=["GET"])
+def get_job_details(job_id):
+    listings = JobListingControl.getJobDetails(job_id)  # implement this in your control
+    return jsonify(listings.to_dict()) if listings else jsonify({"error": "Job not found"}), 200
+
 @job_listing_bp.route("/companyJobListings/<int:company_id>", methods=["GET"])
 def get_company_job_listings(company_id):
     # Pass company_id so you only get jobs for that company

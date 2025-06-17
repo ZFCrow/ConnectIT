@@ -233,7 +233,7 @@ class JobListing:
             createdAt           = orm_obj.createdAt,
             workArrangement     = orm_obj.workArrangement,  # Enum
             fieldOfWork         = orm_obj.fieldOfWork,      # Enum
-            responsibilities    = [r.responsibility for r in orm_obj.responsibilities],
+            responsibilities    = [r.responsibility for r in orm_obj.responsibilities if r.responsibility is not None],
             isDeleted           = orm_obj.isDeleted,
             company             = Company.from_model(orm_obj.company),
             jobApplication      = [],                 # fill when needed

@@ -24,23 +24,27 @@ class JobListingControl:
         else:
             return False
         
+ 
     @staticmethod
-    def getAllJobListings():
+    def getJobDetails(job_id):
         """
-        Retrieves all job listings.
+        Retrieves job details by job_id.
         """
-        # Example: return self.db.query(Job).all()
-        print("Retrieving all job listings")
-        return JobListingMapper.getAllJobListings()  # Assuming JobListingMapper has a getAllJobListings method
+        # Example: return self.db.query(Job).filter_by(job_id=job_id).first()
+        print(f"Retrieving job details for job_id: {job_id}")
+        return JobListingMapper.getJobDetails(job_id)
     
     @staticmethod
     def getAllJobListings(company_id: int = None):
         """
         Retrieves all job listings.
         """
-        # Example: return self.db.query(Job).all()
-        print("Retrieving all job listings")
-        return JobListingMapper.getAllJobListings(company_id)  
+        if (company_id is None):
+            print("Retrieving all job listings")
+            return JobListingMapper.getAllJobListings()  # Assuming JobListingMapper has a getAllJobListings method
+        else:
+            print("Retrieving all job listings")
+            return JobListingMapper.getAllJobListings(company_id)  
     @staticmethod
     def deleteJob( jobId: int):
         """

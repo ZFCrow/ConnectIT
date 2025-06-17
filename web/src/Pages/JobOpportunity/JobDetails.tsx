@@ -5,11 +5,41 @@ import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
 import { Role, useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
+import { JobListing, JobListingSchema } from "@/type/jobListing";
+import { useEffect, useState } from "react";
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
-  const job = sampleJobs.find((j) => j.jobId === Number(jobId));
+  const [job, setJob] = useState<JobListing | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchJob = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`/api/jobDetails/${jobId}`);
+        // Use zod or your own type validation here if needed
+        setJob(JobListingSchema.parse(res.data));
+      } catch (err) {
+        setJob(null);
+        console.error("Failed to fetch job details", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (jobId) fetchJob();
+  }, [jobId]);
+  // const job = sampleJobs.find((j) => j.jobId === Number(jobId));
   const { role, userId, companyId } = useAuth();
   if (!job) {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center min-h-[30vh]">
+          <span className="text-gray-400 text-lg animate-pulse">
+            Loading job details…
+          </span>
+        </div>
+      );
+    }
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
         <Link to={jobListingRoute} className="text-blue-500 hover:underline">

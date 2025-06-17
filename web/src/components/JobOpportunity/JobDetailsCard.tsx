@@ -112,7 +112,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
             px-2 py-0.5 rounded
           "
           >
-            {job.field}
+            {job.fieldOfWork}
           </span>
         </div>
         <div className="flex items-center gap-1 text-sm text-gray-300">
@@ -124,14 +124,14 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
       </div>{" "}
       <div className="flex flex-wrap gap-4 text-sm text-gray-300">
         <span>
-          <b className="text-gray-400">Company:</b> {job.companyName}
+          <b className="text-gray-400">Company:</b> {job.company.name}
         </span>
         <span>
-          <b className="text-gray-400">Location:</b>
-          {job.companyAddress}
+          <b className="text-gray-400">Location: </b>
+          {job.company.location}
         </span>
         <span>
-          <b className="text-gray-400">Type:</b> {job.type}
+          <b className="text-gray-400">Type:</b> {job.jobType}
         </span>
         <span>
           <b className="text-gray-400">Work Arr.:</b> {job.workArrangement}
@@ -149,6 +149,10 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               </span>
             </span>
           )}
+        <span>
+          <b className="text-gray-400">Location: </b>
+          {job.company.location}
+        </span>
       </div>
       <h2 className="text-xl font-semibold text-gray-200">Job Description</h2>
       <p className="text-gray-200 whitespace-pre-line">{job.description}</p>
