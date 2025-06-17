@@ -11,11 +11,9 @@
         title? : string; 
         listofitems? : string[];
         onClick : (criterion:string) => void;  
-        onClickReset : (type: 'filter'   | 'sort') => void; // function to reset the filter or sort 
-        type: 'filter' | 'sort'; // type of the listing card, either filter or sort 
     }
 
-    const ListingCard: FC<ListingCardProps> = ({title,listofitems,onClick, onClickReset, type}) => { 
+    const ListingCard: FC<ListingCardProps> = ({title,listofitems,onClick}) => { 
         const [selected, setSelected] = useState<string | null>(null);
         return (
             <Card>
@@ -41,7 +39,7 @@
                     <Button 
                         variant="ghost"
                         onClick={() => {
-                            onClickReset(type)
+                            onClick(null)
                             setSelected(null)}}> reset</Button>
                 </CardContent>
             </Card>
