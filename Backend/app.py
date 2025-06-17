@@ -10,6 +10,7 @@ from Boundary.Mapper.PostMapper import PostMapper
 from Boundary.AccountBoundary import AccountBoundary
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
+from Security import ValidateCaptcha
 
 app = Flask(__name__) 
 # allow all domains to access the API 
@@ -122,6 +123,24 @@ def createPost(accountId: int , postData: dict):
         return jsonify({"message": "Post created successfully!"}), 201
     else:
         return jsonify({"error": "Failed to create post"}), 500
+    
+# Route for HCaptcha token verification
+@app.route("/verify-captcha", methods=["POST"])
+def verify_captcha_endpoint():
+    print("Received request at /verify-captcha endpoint.")
+    data = request.get_json()
+    token = data.get("token")
+
+    if not token:
+        return jsonify({
+            "success": False,
+            "message": "Missing CAPTCHA token"
+        }), 400
+
+    result = ValidateCaptcha.verify_hcaptcha(token)
+    print(f"Token received: {token}")
+
+    return jsonify(result), 200 if result["success"] else 400
      
 if __name__  == "__main__":
   

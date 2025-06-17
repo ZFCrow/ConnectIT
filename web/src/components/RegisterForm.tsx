@@ -8,6 +8,10 @@ import { useState } from "react"
 import axios from "axios"
 import { Role } from "@/contexts/AuthContext"
 
+// captcha
+import { HCaptchaForm } from "@/components/HcaptchaForm" // Import HCaptchaForm
+import { useCaptchaVerification } from "@/components/CaptchaVerification";
+
 export function RegisterForm() {
   const [accountType, setAccountType] = useState<Role>(Role.User)
   const [name, setName] = useState("")
@@ -17,6 +21,10 @@ export function RegisterForm() {
   const [error, setError] = useState("")
   const navigate = useNavigate()
 
+  // Captcha 
+  const { captchaVerificationStatus, verifyCaptchaToken } = useCaptchaVerification();
+  const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -24,6 +32,13 @@ export function RegisterForm() {
       setError("Passwords do not match.")
       return
     }
+
+    if (captchaVerificationStatus !== 'Verified') {
+      setError("Please complete the CAPTCHA verification.");
+      console.warn('CAPTCHA has not been successfully verified. Please complete the CAPTCHA.');
+      return;
+    }
+
 
     try {
       const response = await axios.post("/api/register", {
@@ -88,6 +103,15 @@ export function RegisterForm() {
                 />
               </div>
             </div>
+
+            {/*Captcha*/}
+            <div className="mt-4">
+              <HCaptchaForm
+                sitekey={HCAPTCHA_SITEKEY}
+                onTokenChange={verifyCaptchaToken} // This connects the HCaptcha completion to your verification logic
+              />
+            </div>
+
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </CardContent>
 
