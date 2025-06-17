@@ -16,7 +16,7 @@ export function LoginForm() {
   const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e. preventDefault()
+    e.preventDefault()
 
     try{
       const response = await axios.post("/api/login", {
@@ -63,13 +63,13 @@ export function LoginForm() {
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="you@example.com" value={email}
-              onChange={(e) => setEmail(e.target.value)} />
+              onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="********" value={password}
-              onChange={(e) => setPassword(e.target.value)} />
+              onChange={(e) => setPassword(e.target.value)} required />
             </div>
 
             <p className="text-sm text-muted-foreground text-center">

@@ -7,7 +7,6 @@ export type Account = {
   name: string;
   email: string;
   passwordHash: string;
-  passwordSalt: string;
   role: Role;
   isDisabled: boolean;
   profilePicUrl?: string;
@@ -19,7 +18,6 @@ export const AccountSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().min(1, "Email is required"),
   passwordHash: z.string(),
-  passwordSalt: z.string(),
   role: z.nativeEnum(Role),
   isDisabled: z.boolean(),
   profilePicUrl: z.string().url().nullable().optional()

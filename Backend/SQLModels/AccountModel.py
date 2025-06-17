@@ -18,7 +18,6 @@ class AccountModel(Base):
     name = Column(String(45), nullable=False)
     email = Column(String(45), nullable=False)
     passwordHash = Column(String(128), nullable=False)
-    passwordSalt = Column(String(128), nullable=False)
     profilePicUrl = Column(String(45), nullable=True)
 
     role = Column(Enum(Role), nullable=False)
@@ -35,7 +34,6 @@ class AccountModel(Base):
             'name': self.name,
             'email': self.email,
             'passwordHash': self.passwordHash,
-            'passwordSalt': self.passwordSalt,
             'profilePicUrl': self.profilePicUrl,
             'role': self.role.value if hasattr(self.role, 'value') else str(self.role),
             'isDisabled': self.isDisabled

@@ -11,7 +11,6 @@ def register():
     if errors:
         return jsonify({"errors": errors}), 400
 
-    #accountData = request.get_json()
     success = AccountBoundary.registerAccount(payload)
 
     if success:
@@ -26,7 +25,6 @@ def login():
     if errors:
         return jsonify({"errors": errors}), 400
 
-    #accountData = request.get_json()
     account = AccountBoundary.loginAccount(payload)
     if not account:
         return jsonify({"message": "Incorrect credentials"}), 401
@@ -37,7 +35,6 @@ def login():
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "passwordSalt": account.passwordSalt,
             "role": account.role,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl

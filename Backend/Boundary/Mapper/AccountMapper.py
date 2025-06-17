@@ -76,7 +76,6 @@ class AccountMapper:
                     name=account.name,
                     email=account.email,
                     passwordHash=account.passwordHash,
-                    passwordSalt=account.passwordSalt,
                     role=account.role
                 )
                 session.add(accountModel)

@@ -12,9 +12,7 @@ class AccountControl:
 
     @staticmethod
     def createAccount(accountData: dict) -> bool:
-        # TODO: Hash password here before convert to Account type
         if "password" in accountData and accountData["password"]:
-            # hashed = bcrypt.hashpw(accountData["password"].encode("utf-8"), bcrypt.gensalt())
             accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
             del accountData["password"]  # Remove plain password
 
@@ -33,16 +31,6 @@ class AccountControl:
 
         if not auth:
             return None
-
-
-        # TODO: Use salt to hash pass from authData and compare
-
-        # salted_input = (password + salt).encode("utf-8")
-        # hashed_input = hashlib.sha256(salted_input).hexdigest()
-
-        # if hashed_input != account.passwordHash:
-        #     print("Incorrect password")
-        #     return None
 
         return account
     
@@ -69,23 +57,14 @@ class AccountControl:
     
     @staticmethod
     def disableAccount(accountId: int, authData: dict) -> bool:
-        # Get associated account and check pw
         account = AccountMapper.getAccountById(accountId)
 
-        # TODO: Use salt to hash pass from authData
         password = authData.get('password', '')
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
         if not auth:
             return False
-
-        # salted_input = (password + salt).encode("utf-8")
-        # hashed_input = hashlib.sha256(salted_input).hexdigest()
-
-        # if hashed_input != account.passwordHash:
-        #     print("Incorrect password")
-        #     return False
 
         return AccountMapper.disableAccount(accountId)
     

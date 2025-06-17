@@ -82,7 +82,8 @@ const EditProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TO ADD OLD PW AND NEW PW IN
+    // TO ADD OLD PW AND NEW PW IN (Check if any of the fields are not empty)
+    // If not, send all
     const updatedData = {
       accountId,
       name, 
@@ -125,17 +126,20 @@ const EditProfilePage = () => {
           <EditProfileGroup>
               <EditProfileField label="Full Name">
                   <EditProfileInput name="name" placeholder="John Doe" value={name}
-                  onChange={(e) => setName(e.target.value)} />
+                  onChange={(e) => setName(e.target.value)} required />
               </EditProfileField>
 
               <EditProfileField label="Old Password">
-                  <EditProfileInput type="password" name="oldPassword" />
+                  <EditProfileInput type="password" name="oldPassword" value={password}
+                  onChange={(e) => setPassword(e.target.value)} />
               </EditProfileField>
               <EditProfileField label="New Password">
-                  <EditProfileInput type="password" name="newPassword" />
+                  <EditProfileInput type="password" name="newPassword" value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)} />
               </EditProfileField>
               <EditProfileField label="Confirm New Password">
-                  <EditProfileInput type="password" name="confirmPassword" />
+                  <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
+                  onChange={(e) => setConfirm(e.target.value)} />
               </EditProfileField>
 
               {user.role === Role.User && (

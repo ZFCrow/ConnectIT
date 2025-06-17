@@ -13,7 +13,6 @@ def get_user(account_id):
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "passwordSalt": account.passwordSalt,
             "role": account.role,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl

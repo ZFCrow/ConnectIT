@@ -66,22 +66,22 @@ export function RegisterForm() {
             <div className="space-y-1">
               <Label htmlFor="name">Name</Label>
               <Input id="name" type="text" placeholder="Your name" className="dark:bg-gray-800 dark:border-gray-600"
-              onChange={(e) => setName(e.target.value)} value={name} />
+              onChange={(e) => setName(e.target.value)} value={name} required />
             </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="You@example.com" className="dark:bg-gray-800 dark:border-gray-600"
-              onChange={(e) => setEmail(e.target.value)} value={email} />
+              onChange={(e) => setEmail(e.target.value)} value={email} required />
             </div>
             <div className="space-y-1">
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="********" className="dark:bg-gray-800 dark:border-gray-600"
-              onChange={(e) => setPassword(e.target.value)} value={password} />
+              onChange={(e) => setPassword(e.target.value)} value={password} required />
             </div>
             <div className="space-y-1">
               <Label htmlFor="confirm-password">Confirm Password</Label>
               <Input id="confirm-password" type="password" placeholder="********" className="dark:bg-gray-800 dark:border-gray-600"
-              onChange={(e) => setConfirm(e.target.value)} value={confirmPassword} />
+              onChange={(e) => setConfirm(e.target.value)} value={confirmPassword} required />
             </div>
 
             <div className="space-y-2">
