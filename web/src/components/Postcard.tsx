@@ -137,7 +137,17 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                       @{username}
                     </span>
                     {/* Date on its own line */}
-                    <span className="text-xs">{date}</span>
+                    <span className="text-xs">
+                      {/* undefined so it uses the browser's locale settings  */}
+                      {new Date(date).toLocaleDateString(undefined,{ 
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}</span>
+                  
                   </CardDescription>
                 </div>
               </div>
@@ -156,9 +166,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     align="end"
                     className="w-40"
                   >
-                    {/* <DropdownMenuItem onSelect={() => console.log("report")}>
-                                    <Flag/>Report
-                                    </DropdownMenuItem>  */}
 
                     {handleDeletePost &&
                       (role === Role.Admin || accountId === postAccountId) && (
@@ -284,7 +291,14 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                       <div className="flex items-center space-x-2">
                         <span className="font-medium text-sm">{c.username}</span>
                         <span className="text-xs text-muted-foreground">
-                          2h ago
+                          {new Date(c.createdAt).toLocaleDateString('en-SG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })}
                         </span>
                       </div>
                     </div>

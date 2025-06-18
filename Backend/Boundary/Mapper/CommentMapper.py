@@ -15,12 +15,15 @@ class CommentMapper:
         Create a new comment in the database.
         """
         with db_context.session_scope() as session:
-            comment_model = CommentModel(
-                content=comment.content,
-                accountId=comment.accountId,
-                postId=comment.postId,
-                isDeleted=comment.isDeleted
-            )
+            # comment_model = CommentModel(
+            #     content=comment.content,
+            #     accountId=comment.accountId,
+            #     postId=comment.postId,
+            #     isDeleted=comment.isDeleted,
+            #     created
+
+            # )
+            comment_model = comment.toCommentModel() 
             session.add(comment_model)
             session.commit()
             return Comment.from_CommentModel(comment_model)  # Return the created Comment entity

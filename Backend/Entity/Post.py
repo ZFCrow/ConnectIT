@@ -9,6 +9,8 @@ from Entity.Violation import Violation
 from SQLModels.PostModel import PostModel 
 from SQLModels.CommentModel import CommentModel 
 import pytz 
+
+
 @dataclass 
 class Post: 
     # base data that tallys with the database 

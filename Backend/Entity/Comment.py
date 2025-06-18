@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime 
 from typing import Union 
 import pytz 
-
-
+from SQLModels.CommentModel import CommentModel 
 @dataclass 
 class Comment: 
     commentId: int 
@@ -17,6 +16,12 @@ class Comment:
     #! Additional fields for account information (not creating a separate Account entity) 
     accountUsername: str = None 
     accountDisplayPicture: str = None 
+
+    @staticmethod
+    def getSingaporeTimezone() -> pytz.timezone:
+        """Get Singapore timezone"""
+        return datetime.now(pytz.timezone('Asia/Singapore')).replace(tzinfo=None)  
+    
 
 
     @classmethod
@@ -33,18 +38,17 @@ class Comment:
             accountUsername=comment_model.account.name if comment_model.account else None,
             accountDisplayPicture=comment_model.account.profilePicUrl if comment_model.account else None
         ) 
-    
-    # @classmethod
-    # def toDict (cls, comment: 'Comment') -> dict:
-    #     """Convert Comment entity to dictionary"""
-    #     return {
-    #         'commentId': comment.commentId,
-    #         'createdAt': comment.createdAt.isoformat() if isinstance(comment.createdAt, datetime) else comment.createdAt,
-    #         'accountId': comment.accountId,
-    #         'username': comment.accountUsername,
-    #         'content': comment.content,
-    #         'displayPicUrl': comment.accountDisplayPicture
-    #     } 
+
+    def toCommentModel(self) -> 'CommentModel':
+        """Convert Comment entity to CommentModel for database operations"""
+        return CommentModel(
+            #commentId=self.commentId,
+            content=self.content,
+            createdAt=self.createdAt,
+            accountId=self.accountId,
+            postId=self.postId,
+            isDeleted=int(self.isDeleted)  # Convert bool to int for database storage
+        ) 
     
     def toDict (self) -> dict:
         """Convert Comment entity to dictionary for JSON serialization"""
@@ -59,12 +63,13 @@ class Comment:
             'displayPicUrl': self.accountDisplayPicture
         }
 
-    @staticmethod
-    def getSingaporeTimezone() -> pytz.timezone:
-        """Get Singapore timezone"""
-        return datetime.now(pytz.timezone('Asia/Singapore')).replace(tzinfo=None)  
+    # @staticmethod
+    # def nowSG() -> pytz.timezone:
+    #     """Get Singapore timezone"""
+    #     print (f"Getting current time in Singapore timezone: {SINGAPORE_TZ}") 
+    #     return datetime.now(SINGAPORE_TZ) 
+    
         
-
 
     @classmethod 
     def fromDict(cls, data: dict) -> 'Comment':
@@ -73,7 +78,7 @@ class Comment:
         return cls(
             commentId=data.get('commentId', 0),
             content=data.get('content', ''),
-            createdAt=data.get('createdAt', cls.getSingaporeTimezone()), 
+            createdAt=cls.getSingaporeTimezone(),  # Default to current Singapore time if not provided
             accountId=data.get('accountId', 0),
             postId=data.get('postId', 0),
             isDeleted=data.get('isDeleted', False),
