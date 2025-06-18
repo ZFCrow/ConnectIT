@@ -23,18 +23,6 @@ const Postpage = () => {
   //const statePost = (location.state as { post?: Post })?.post;
   const post = allPosts.find((p) => p.id === idNum);
 
-  // //If there's no relevant post (deleted or never existed), redirect
-  // useEffect(() => {
-  //   if (!post) {
-  //     navigate("/", { replace: true });
-  //   }
-  //   if (isDeleted) {
-  //     navigate("/", { replace: true });
-  //   } 
-  // }, [post, navigate,isDeleted]);
-
-  // if (!post) return null;
-
   useEffect(() => {
     // If the post is not found, redirect to home
     if (!post) {
@@ -54,7 +42,7 @@ const Postpage = () => {
 
   return (
     <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
-      <div className="ml-3 flex-1">
+      <div className="ml-3 flex-1 overflow-y-auto scrollbar-hide">
         <Postcard
           postId= {idNum} 
           detailMode

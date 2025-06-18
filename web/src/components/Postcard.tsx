@@ -57,7 +57,8 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     handleHide, 
     handleDeleteComment,
     allPosts,
-    toggleLikePost 
+    toggleLikePost,
+    createComment,
   } = usePostContext(); // Get the delete and hide functions from context 
 
   // using postID to find the specific post in the context 
@@ -102,7 +103,8 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted";
 
   const [hasLiked, setHasLiked] = useState(liked || false); // Initialize liked state, default to false if not provided
-  
+  const [commentContent, setCommentContent] = useState(""); // State for comment input 
+
   const handlePostClick = () => {
     navigate(`/post/${id}`, {
       //state : {id},
@@ -321,8 +323,29 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                   <input
                     className="flex-1 rounded border px-2 py-1"
                     placeholder="Add a comment…"
+                    value={commentContent} 
+                    onChange={(e) => {
+                      e.stopPropagation(); // Prevent triggering the card click
+                      setCommentContent(e.target.value)} 
+                    }
+                    onClick={(e => e.stopPropagation())} // Prevent triggering the card click}
+
+              
                   />
-                  <Button size="sm">Post</Button>
+                  <Button 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the card click
+                      if (commentContent.trim() !== "") {
+                        createComment(id, {
+                          content: commentContent,
+                          postId: id, 
+                        })
+                        setCommentContent(""); // Clear the input after posting
+                        console.log("Comment posted:", commentContent)}
+                      
+                    }}
+                    >Post</Button>
                 </div>
               )}
             </CollapsibleContent>

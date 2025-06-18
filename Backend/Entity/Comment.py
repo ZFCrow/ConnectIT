@@ -1,6 +1,8 @@
 from dataclasses import dataclass 
 from datetime import datetime 
 from typing import Union 
+import pytz 
+
 
 @dataclass 
 class Comment: 
@@ -20,11 +22,11 @@ class Comment:
     @classmethod
     def from_CommentModel(cls, comment_model) -> 'Comment':
         """Create Comment entity from CommentModel instance"""
-        createdAt = cls._parse_datetime(comment_model.createdAt)
+        #createdAt = cls._parse_datetime(comment_model.createdAt)
         return cls(
             commentId=comment_model.commentId,
             content=comment_model.content,
-            createdAt=createdAt,
+            createdAt=comment_model.createdAt ,
             accountId=comment_model.accountId,
             postId=comment_model.postId,
             isDeleted=bool(comment_model.isDeleted),
@@ -32,40 +34,49 @@ class Comment:
             accountDisplayPicture=comment_model.account.profilePicUrl if comment_model.account else None
         ) 
     
-    @classmethod
-    def toDict (cls, comment: 'Comment') -> dict:
-        """Convert Comment entity to dictionary"""
+    # @classmethod
+    # def toDict (cls, comment: 'Comment') -> dict:
+    #     """Convert Comment entity to dictionary"""
+    #     return {
+    #         'commentId': comment.commentId,
+    #         'createdAt': comment.createdAt.isoformat() if isinstance(comment.createdAt, datetime) else comment.createdAt,
+    #         'accountId': comment.accountId,
+    #         'username': comment.accountUsername,
+    #         'content': comment.content,
+    #         'displayPicUrl': comment.accountDisplayPicture
+    #     } 
+    
+    def toDict (self) -> dict:
+        """Convert Comment entity to dictionary for JSON serialization"""
         return {
-            'commentId': comment.commentId,
-            'createdAt': comment.createdAt.isoformat() if isinstance(comment.createdAt, datetime) else comment.createdAt,
-            'accountId': comment.accountId,
-            'username': comment.accountUsername,
-            'content': comment.content,
-            'displayPicUrl': comment.accountDisplayPicture
-        } 
+            'commentId': self.commentId,
+            'content': self.content,
+            'createdAt': self.createdAt.isoformat() if isinstance(self.createdAt, datetime) else self.createdAt,
+            'accountId': self.accountId,
+            'postId': self.postId,
+            'isDeleted': self.isDeleted,
+            'username': self.accountUsername,
+            'displayPicUrl': self.accountDisplayPicture
+        }
 
     @staticmethod
-    def _parse_datetime(date_input: Union[str, datetime]) -> datetime:
-        """Parse various date formats to datetime object"""
-        if isinstance(date_input, datetime):
-            return date_input
-        elif isinstance(date_input, str):
-            # ✅ Try different string formats
-            try:
-                # ISO format: "2025-06-13T10:30:00"
-                return datetime.fromisoformat(date_input.replace('Z', '+00:00'))
-            except ValueError:
-                try:
-                    # Alternative format: "2025-06-13 10:30:00"
-                    return datetime.strptime(date_input, "%Y-%m-%d %H:%M:%S")
-                except ValueError:
-                    try:
-                        # Date only: "2025-06-13"
-                        return datetime.strptime(date_input, "%Y-%m-%d")
-                    except ValueError:
-                        # ✅ Fallback to current time
-                        print(f"Warning: Could not parse date '{date_input}', using current time")
-                        return datetime.now()
-        else:
-            # ✅ Fallback for other types
-            return datetime.now()
+    def getSingaporeTimezone() -> pytz.timezone:
+        """Get Singapore timezone"""
+        return datetime.now(pytz.timezone('Asia/Singapore')).replace(tzinfo=None)  
+        
+
+
+    @classmethod 
+    def fromDict(cls, data: dict) -> 'Comment':
+        """Create Comment entity from dictionary"""
+        # createdAt = cls._parse_datetime(data.get('createdAt', datetime.now()))
+        return cls(
+            commentId=data.get('commentId', 0),
+            content=data.get('content', ''),
+            createdAt=data.get('createdAt', cls.getSingaporeTimezone()), 
+            accountId=data.get('accountId', 0),
+            postId=data.get('postId', 0),
+            isDeleted=data.get('isDeleted', False),
+            accountUsername=data.get('accountUsername', None),
+            accountDisplayPicture=data.get('accountDisplayPicture', None)
+        ) 

@@ -77,7 +77,7 @@ class Post:
             "labels": [label.toDict() for label in self.associated_labels], 
             "title": self.title, 
             "content": self.content, 
-            "comments": [comment.toDict(comment) for comment in self.associated_comments], 
+            "comments": [ comment.toDict() for comment in self.associated_comments],  # Convert comments to dicts
             "likes": self.likes,  # Count of likes 
             "liked": self.liked,  # Placeholder for liked status 
             "accountId": self.accountId, 

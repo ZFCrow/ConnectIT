@@ -178,6 +178,40 @@ export const usePostManager = () => {
 } 
 
 
+  // function to create comment 
+  const createComment = async (
+    postId: number, 
+    commentContent: { 
+      content: string;
+      postId: number; 
+    }) => {
+    try {
+      const response = await api.post(`/comment/${postId}`, {
+        accountId: accountId, // use the accountId from the auth context
+        comment: commentContent, // pass the comment }
+      }); 
+      if (response.status === 201) {
+        const newComment: Comment = {
+          accountId: accountId, // use the accountId from the auth context
+          createdAt: response.data.createdAt,
+          commentId: response.data.commentId,
+          username: response.data.username,
+          content: commentContent.content,
+          displayPicUrl: response.data.displayPicUrl ? response.data.displayPicUrl : undefined, // optional field
+        };
+        setAllPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, comments: [...post.comments, newComment] } : post
+          )
+        );
+        console.log("Comment created successfully:", newComment); 
+      }
+    } catch (error) { 
+      console.error("Error creating comment:", error);
+    } 
+  }
+
+
   const handleDeletePost = (postID: number) => {
     setPostToDelete(postID);
   };
@@ -263,6 +297,7 @@ export const usePostManager = () => {
     allViolations,
     loading,
     setLoading,
-    toggleLikePost
+    toggleLikePost,
+    createComment, 
   };
 };
