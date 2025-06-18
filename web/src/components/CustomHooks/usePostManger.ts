@@ -13,6 +13,7 @@ import { useViolationManager } from './useViolationManager';
 export const usePostManager = () => {
   const [allPosts, setAllPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState<Post[]>([]);
+  const [recentlyInteractedPost, setRecentlyInteractedPost] = useState<Post[]>([]); // state to hold the most recent posts interacted by the user 
   const [activeFilter, setActiveFilter] = useState<string | null>(null); 
   const [activeSortby, setActiveSortBy] = useState<string | null>(null); 
   
@@ -105,7 +106,21 @@ export const usePostManager = () => {
   }, [allPosts, activeFilter, activeSortby]); // re-run when these change 
 
 
+  // figure out recently itneracted post - recently commented 
+  // check all post and check with comment.accountId === accountId 
+  // then take out the recent 3 with the createdat 
+  useEffect(() => {
+    const recentPosts = allPosts
+      .filter((post) => post.comments.some((comment) => comment.accountId === accountId))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 3); // get the most recent 3 posts with comments by the user
 
+    if (recentPosts.length > 0) {
+      setRecentlyInteractedPost(recentPosts); // set the most recent post
+    } else {
+      setRecentlyInteractedPost(null); // no recent posts found
+    }
+  }, [allPosts, accountId]); // re-run when allPosts or accountId changes
 
 
 
@@ -164,7 +179,7 @@ export const usePostManager = () => {
       if (response.status === 200) {
         setAllPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post.id === postId ? { ...post, liked: !post.liked, likes: response.data.likes } : post
+            post.id === postId ? { ...post, liked: !post.liked } : post
           )
         );
         console.log("Post liked/unliked successfully:", response.data);
@@ -299,5 +314,6 @@ export const usePostManager = () => {
     setLoading,
     toggleLikePost,
     createComment, 
+    recentlyInteractedPost, // expose the recently interacted post state
   };
 };
