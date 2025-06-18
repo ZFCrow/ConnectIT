@@ -1,3 +1,4 @@
+from SQLModels.SavedJobModel import SavedJobModel
 from SQLModels.FieldOfWorkModel import FieldOfWorkModel
 from SQLModels.JobApplicationModel import JobApplicationModel
 from SQLModels.UserModel import UserModel
@@ -117,4 +118,56 @@ class JobListingMapper:
                 return False
             
             session.delete(job_listing)
+            return True
+        
+    @staticmethod
+    def getBookmarkedJobIds(userId: int) -> list[int]:
+        """
+        Retrieves all bookmarked job IDs for a user.
+        :param userId: ID of the user to retrieve bookmarked job IDs for.
+        :return: List of bookmarked job IDs.
+        """
+        with db_context.session_scope() as session:
+            job_ids = (
+                session.query(SavedJobModel.jobListingId)
+                .filter_by(userId=userId)
+                .all()
+            )
+            # job_ids is a list of one-tuples, so flatten it
+            return [jid[0] for jid in job_ids]
+    @staticmethod
+    def addBookmark(userId: int, jobId: int) -> bool:
+        """
+        Adds a job to the user's bookmarks.
+        :param userId: ID of the user.
+        :param jobId: ID of the job to bookmark.
+        :return: True if bookmark was added successfully, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            existing_bookmark = session.query(SavedJobModel).filter_by(
+                userId=userId, jobListingId=jobId
+            ).first()
+            if existing_bookmark:
+                return False  # Already bookmarked
+            
+            new_bookmark = SavedJobModel(userId=userId, jobListingId=jobId)
+            session.add(new_bookmark)
+            return True
+        
+    @staticmethod
+    def removeBookmark(userId: int, jobId: int) -> bool:
+        """
+        Removes a job from the user's bookmarks.
+        :param userId: ID of the user.
+        :param jobId: ID of the job to remove from bookmarks.
+        :return: True if bookmark was removed successfully, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            bookmark = session.query(SavedJobModel).filter_by(
+                userId=userId, jobListingId=jobId
+            ).first()
+            if not bookmark:
+                return False  # Not bookmarked
+            
+            session.delete(bookmark)
             return True

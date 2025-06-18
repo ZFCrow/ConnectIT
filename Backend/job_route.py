@@ -95,3 +95,44 @@ def get_field_of_work():
     Retrieves all field of work options.
     """
     return FieldOfWorkTDG.getAllFieldOfWork()
+
+@job_listing_bp.route("/getBookmarkedJob/<int:userId>", methods=["GET"])
+def get_bookmarked_jobs(userId):
+    """
+    Retrieves all bookmarked job IDs for a user.
+    """
+    bookmarked_job_ids = JobListingControl.getBookmarkedJobIds(userId)
+    return jsonify(bookmarked_job_ids), 200
+
+@job_listing_bp.route("/getAppliedJobId/<int:userId>", methods=["GET"])
+def get_applied_jobs(userId):
+    """
+    Retrieves all applied job IDs for a user.
+    """
+    applied_job_ids = JobApplicationControl.getAppliedJobIds(userId)
+    return jsonify(applied_job_ids), 200
+
+@job_listing_bp.route("/addBookmark", methods=["POST"])
+def add_bookmark():
+    """
+    Adds a job to the user's bookmarks.
+    """
+    userId = request.json.get("userId")
+    jobId = request.json.get("jobId")
+    if not userId or not jobId:
+        return jsonify({"error": "User ID and Job ID are required"}), 400
+    
+    success = JobListingControl.addBookmark(userId, jobId)
+    return jsonify({"message": "Job bookmarked successfully!"}) if success else jsonify({"error": "Failed to bookmark job"}), 200
+
+@job_listing_bp.route("/removeBookmark/<int:userId>/<int:jobId>", methods=["DELETE"])
+def remove_bookmark(userId, jobId):
+    """
+    Removes a job from the user's bookmarks.
+    """
+ 
+    if not userId or not jobId:
+        return jsonify({"error": "User ID and Job ID are required"}), 400
+    
+    success = JobListingControl.removeBookmark(userId, jobId)
+    return jsonify({"message": "Job removed from bookmarks successfully!"}) if success else jsonify({"error": "Failed to remove job from bookmarks"}), 200

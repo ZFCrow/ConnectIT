@@ -9,25 +9,49 @@ import { Bookmark, CheckCircle } from "lucide-react";
 import { JobListing } from "@/type/jobListing";
 import { JobListingSchema } from "@/type/jobListing";
 import axios from "axios";
-import { useAuth } from "@/contexts/AuthContext";
+import { Role, useAuth } from "@/contexts/AuthContext";
 
 const ITEMS_PER_PAGE = 10;
 
 const JobListingPage: React.FC = () => {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
-  const { role } = useAuth();
+  const { role, userId } = useAuth();
 
   useEffect(() => {
     const fetchJobs = async () => {
-      setLoading(true); // start loading
+      setLoading(true);
       try {
+        // Default arrays
+        let bookmarkedIds: number[] = [];
+        let appliedIds: number[] = [];
+
+        // Fetch bookmarks and applied jobs if user
+        if (role === Role.User && userId) {
+          // Fetch bookmarks
+          const bookmarkRes = await axios.get(
+            `/api/getBookmarkedJob/${userId}`
+          );
+          bookmarkedIds = bookmarkRes.data ?? [];
+
+          // Fetch applied job IDs
+          const appliedRes = await axios.get(`/api/getAppliedJobId/${userId}`);
+          appliedIds = appliedRes.data ?? [];
+        }
+        // Fetch all jobs
         const res = await axios.get("/api/joblistings");
+
+        // Validate and add isBookmarked/isApplied
         const jobs = Array.isArray(res.data)
           ? res.data
               .map((item) => {
                 try {
-                  return JobListingSchema.parse(item);
+                  const job = JobListingSchema.parse(item);
+                  return {
+                    ...job,
+                    isBookmarked: bookmarkedIds.includes(job.jobId),
+                    isApplied: appliedIds.includes(job.jobId),
+                  };
                 } catch (err) {
                   console.error("Invalid job listing:", err, item);
                   return null;
@@ -39,11 +63,11 @@ const JobListingPage: React.FC = () => {
       } catch (err) {
         console.error("Error loading job listings:", err);
       } finally {
-        setLoading(false); // always end loading
+        setLoading(false);
       }
     };
     fetchJobs();
-  }, []);
+  }, [role, userId]);
 
   const [filterType, setFilterType] = useState<string>("All");
   const [filterArrangement, setFilterArrangement] = useState<string>("All");
@@ -184,7 +208,12 @@ const JobListingPage: React.FC = () => {
             </div>
           ) : paginated.length > 0 ? (
             paginated.map((job) => (
-              <JobCard key={job.jobId} job={job} userType={role} />
+              <JobCard
+                key={job.jobId}
+                job={job}
+                userType={role}
+                setJobListings={setJobListings}
+              />
             ))
           ) : (
             <div className="h-[200px] flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg">

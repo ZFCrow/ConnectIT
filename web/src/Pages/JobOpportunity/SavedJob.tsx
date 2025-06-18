@@ -1,8 +1,12 @@
 // src/pages/MyJobsPage.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import JobCard from "../../components/JobOpportunity/JobCard";
 import { sampleJobs } from "../../components/FakeData/sampleJobs";
-import type { JobListing } from "../../type/jobListing";
+import { JobListingSchema, type JobListing } from "../../type/jobListing";
+import axios from "axios";
+import { useAuth, Role } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -10,18 +14,61 @@ export default function MyJobsPage() {
   const [tab, setTab] = useState<"saved" | "applied">("saved");
   const [savedPage, setSavedPage] = useState(1);
   const [appliedPage, setAppliedPage] = useState(1);
+  const [jobListings, setJobListings] = useState<JobListing[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { role, userId } = useAuth();
+  useEffect(() => {
+    const fetchJobs = async () => {
+      setLoading(true);
+      try {
+        // Fetch bookmarked & applied IDs
+        let bookmarkedIds: number[] = [];
+        let appliedIds: number[] = [];
 
-  // Replace these with your real data source (e.g. context or localStorage)
-  sampleJobs.forEach((job) => {
-    job.saved = job.jobId % 2 === 1; // odd → saved
-    job.applied = job.jobId % 2 === 0; // even → applied
-  });
-  const savedJobIds = sampleJobs.filter((j) => j.saved).map((j) => j.jobId);
-  const appliedJobIds = sampleJobs.filter((j) => j.applied).map((j) => j.jobId);
+        if (role === Role.User && userId) {
+          const bookmarkRes = await axios.get(
+            `/api/getBookmarkedJob/${userId}`
+          );
+          bookmarkedIds = bookmarkRes.data ?? [];
 
-  const savedJobs = sampleJobs.filter((j) => savedJobIds.includes(j.jobId));
-  const appliedJobs = sampleJobs.filter((j) => appliedJobIds.includes(j.jobId));
+          const appliedRes = await axios.get(`/api/getAppliedJobId/${userId}`);
+          appliedIds = appliedRes.data ?? [];
+        }
 
+        // Fetch all jobs
+        const res = await axios.get("/api/joblistings");
+
+        // Add isBookmarked/isApplied fields for each job
+        const jobs = Array.isArray(res.data)
+          ? res.data
+              .map((item) => {
+                try {
+                  const job = JobListingSchema.parse(item);
+                  return {
+                    ...job,
+                    isBookmarked: bookmarkedIds.includes(job.jobId),
+                    isApplied: appliedIds.includes(job.jobId),
+                  };
+                } catch (err) {
+                  console.error("Invalid job listing:", err, item);
+                  return null;
+                }
+              })
+              .filter(Boolean)
+          : [];
+        setJobListings(jobs as JobListing[]);
+      } catch (err) {
+        console.error("Error loading job listings:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobs();
+  }, [role, userId]);
+
+  // Filter by isBookmarked / isApplied fields
+  const savedJobs = jobListings.filter((job) => job.isBookmarked);
+  const appliedJobs = jobListings.filter((job) => job.isApplied);
   const totalSavedPages = Math.max(
     1,
     Math.ceil(savedJobs.length / ITEMS_PER_PAGE)
@@ -44,6 +91,26 @@ export default function MyJobsPage() {
 
   return (
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
+      <Link
+        to={
+          role === Role.Company
+            ? "/company/recruitmentDashboard"
+            : "/jobListing"
+        }
+        className="
+          inline-flex items-center space-x-1
+          text-s font-medium
+          text-gray-300 bg-zinc-800
+          px-2 py-1 rounded
+          hover:bg-gray-700 hover:text-white
+          transition-colors
+          -mt-2
+          mb-2  
+        "
+      >
+        <ArrowLeft className="w-3 h-3" />
+        <span>Back to Listing</span>
+      </Link>
       <h1 className="text-3xl font-bold">My Jobs</h1>
 
       {/* Tabs */}
@@ -78,9 +145,20 @@ export default function MyJobsPage() {
 
       {/* Job Cards */}
       <div className="space-y-6">
-        {jobsToShow.length > 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-60">
+            <span className="text-lg text-gray-400 animate-pulse">
+              Loading...
+            </span>
+          </div>
+        ) : jobsToShow.length > 0 ? (
           jobsToShow.map((job) => (
-            <JobCard key={job.jobId} job={job} userType="user" />
+            <JobCard
+              key={job.jobId}
+              job={job}
+              setJobListings={setJobListings}
+              userType={role}
+            />
           ))
         ) : (
           <div className="h-[200px] flex items-center justify-center bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg">

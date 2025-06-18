@@ -17,7 +17,7 @@ class JobApplicationModel(Base):
   # Assuming status is a string like "Applied", "Accepted", "Rejected"
     appliedAt = Column(DateTime, nullable=False)  # Assuming appliedAt is a timestamp
     resumeURL = Column(String, nullable=False, default= "https://www.example.com/")  #
-    job_listing = relationship(
+    jobListing = relationship(
         "JobListingModel",
         back_populates="jobApplication"
     )

@@ -46,3 +46,12 @@ class JobApplicationControl:
         """
         print(f"Retrieving applications for company with companyId: {companyId}")
         return JobApplicationMapper.getApplicationsByCompanyId(companyId)
+    @staticmethod
+    def getAppliedJobIds(userId: int):
+        """
+        Retrieves all job applications submitted by a user.
+        :param userId: ID of the user to retrieve applications for.
+        :return: List of JobApplicationModel instances.
+        """
+        print(f"Retrieving applications for user with userId: {userId}")
+        return JobApplicationMapper.getAppliedJobIds(userId)

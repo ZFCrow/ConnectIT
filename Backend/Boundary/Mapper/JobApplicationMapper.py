@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from Entity.JobListing import JobListing
 from SQLModels.UserModel import UserModel
 from SQLModels.JobListingModel import JobListingModel
 from Entity.JobApplication import JobApplication, Status
@@ -75,3 +76,20 @@ class JobApplicationMapper:
             print(f"Retrieved {len(applications)} applications for company {companyId} with job IDs {job_ids}")
             print(f"Applications: {applications}")
             return [JobApplication.from_model(a) for a in applications]
+    
+    @staticmethod
+    def getAppliedJobIds(userId: int) -> list[int]:
+        """
+        Retrieves all job IDs that the user has applied for.
+        :param userId: ID of the user.
+        :return: List of job IDs.
+        """
+        with db_context.session_scope() as session:
+            job_ids = (
+                session.query(JobApplicationModel.jobId)
+                .filter(JobApplicationModel.userId == userId)
+                .distinct()
+                .all()
+            )
+            # job_ids will be a list of one-tuples: [(id1,), (id2,), ...]
+            return [jid[0] for jid in job_ids]

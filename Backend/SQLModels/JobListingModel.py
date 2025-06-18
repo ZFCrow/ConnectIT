@@ -39,19 +39,19 @@ class JobListingModel(Base):
     company = relationship("CompanyModel", lazy="selectin")     ##TODO: Update to use actual model when integrated
     fieldOfWork = relationship(
             "FieldOfWorkModel",
-            back_populates="job_listing",
+            back_populates="jobListing",
             lazy="selectin",
         )
     # Relationship to JobApplicationModel
     responsibilities = relationship(
         "ResponsibilityModel",
-        back_populates="job_listing",
+        back_populates="jobListing",
         lazy="selectin",
         cascade="all, delete-orphan"
     )
     jobApplication = relationship(
         "JobApplicationModel",
-        back_populates="job_listing",
+        back_populates="jobListing",
         lazy="selectin",
         cascade="all, delete-orphan"
     )

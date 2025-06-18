@@ -9,7 +9,7 @@ class FieldOfWorkModel(Base):
     description = Column(String(100), unique=True, nullable=False)
 
     # Reverse relationship to JobListingModel
-    job_listing = relationship(
+    jobListing = relationship(
         "JobListingModel",
         back_populates="fieldOfWork",
         lazy="selectin"

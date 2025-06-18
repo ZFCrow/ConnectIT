@@ -17,6 +17,7 @@ export default function JobDetailPage() {
       setLoading(true);
       try {
         const res = await axios.get(`/api/jobDetails/${jobId}`);
+
         // Use zod or your own type validation here if needed
         setJob(JobListingSchema.parse(res.data));
       } catch (err) {
@@ -48,9 +49,19 @@ export default function JobDetailPage() {
               ? "/company/recruitmentDashboard"
               : "/jobListing"
           }
-          className="text-blue-500 hover:underline"
+          className="
+          inline-flex items-center space-x-1
+          text-s font-medium
+          text-gray-300 bg-zinc-800
+          px-2 py-1 rounded
+          hover:bg-gray-700 hover:text-white
+          transition-colors
+          -mt-2
+          mb-2  
+        "
         >
-          ← Back to listings
+          <ArrowLeft className="w-3 h-3" />
+          <span>Back to Listing</span>
         </Link>
         <div className="mt-6 text-center text-gray-400">Job not found.</div>
       </div>

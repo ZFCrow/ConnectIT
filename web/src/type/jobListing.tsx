@@ -10,35 +10,6 @@ export const JobTypeEnum = z.enum([
 
 export const WorkArrangementEnum = z.enum(["Onsite", "Remote", "Hybrid"]);
 
-export const FieldEnum = z.enum([
-  "UI/UX",
-  "Software Engineering",
-  "Data Science",
-  "Cyber Security",
-  "Cloud Engineering",
-  "Product Management",
-  "Business Analysis",
-  "Project Management",
-  "Mobile Development",
-  "Web Development",
-  "Network Engineering",
-  "Game Development",
-  "Quality Assurance",
-  "DevOps",
-  "Artificial Intelligence",
-  "Machine Learning",
-  "IT Support",
-  "Database Administration",
-  "Embedded Systems",
-  "Blockchain",
-  "Robotics",
-  "Digital Marketing",
-  "Graphic Design",
-  "FinTech",
-  "Sales Engineering",
-  "Other",
-]);
-
 export const JobListingSchema = z.object({
   jobId: z.number(),
   title: z.string(),
@@ -57,4 +28,10 @@ export const JobListingSchema = z.object({
   jobApplication: z.array(JobApplicationSchema).optional(),
   numApplicants: z.number().optional(), // Number of applicants for the job
 });
+export const FrontendJobListingSchema = JobListingSchema.extend({
+  isBookmarked: z.boolean().default(false),
+  isApplied: z.boolean().default(false),
+});
+
+export type FrontendJobListing = z.infer<typeof FrontendJobListingSchema>;
 export type JobListing = z.infer<typeof JobListingSchema>;

@@ -8,7 +8,7 @@ class ResponsibilityModel(Base):
     responsibilityId = Column(Integer, primary_key=True, autoincrement=True)
     jobId = Column(Integer, ForeignKey("JobListing.jobId"), nullable=False)
     responsibility = Column(String, nullable=False)
-    job_listing = relationship(
+    jobListing = relationship(
         "JobListingModel",
         back_populates="responsibilities",
         lazy="selectin"

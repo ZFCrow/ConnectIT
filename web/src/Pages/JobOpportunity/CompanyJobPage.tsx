@@ -30,8 +30,6 @@ const CompanyJobsPage: React.FC = () => {
           axios.get(`/api/companyJobListings/${CURRENT_COMPANY_ID}`),
           axios.get(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
         ]);
-        console.log("appsRes.data →", appsRes.data);
-        console.log("jobsRes.data →", jobsRes.data);
 
         // Parse and validate
         const jobs = Array.isArray(jobsRes.data)

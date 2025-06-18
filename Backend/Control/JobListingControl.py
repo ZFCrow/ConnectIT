@@ -58,6 +58,28 @@ class JobListingControl:
         return success
         # TODO: Replace with actual database logic
 
+    @staticmethod
+    def getBookmarkedJobIds(userId: int):
+        """
+        Retrieves all bookmarked job IDs for a user.
+        """
+        print(f"Retrieving bookmarked job IDs for userId: {userId}")
+        return JobListingMapper.getBookmarkedJobIds(userId)  # Assuming JobListingMapper has a getBookmarkedJobId method
+    
+    @staticmethod
+    def addBookmark(userId: int, jobId: int):
+        """
+        Adds a job to the user's bookmarks.
+        """
+        print(f"Adding jobId {jobId} to bookmarks for userId {userId}")
+        return JobListingMapper.addBookmark(userId, jobId)
+    @staticmethod
+    def removeBookmark(userId: int, jobId: int):
+        """
+        Removes a job from the user's bookmarks.
+        """
+        print(f"Removing jobId {jobId} from bookmarks for userId {userId}")
+        return JobListingMapper.removeBookmark(userId, jobId)
     # def acceptApplicant(self, applicantId: int, jobId: int):
     #     """
     #     Accepts an applicant for a job listing.

@@ -25,10 +25,15 @@ import DeleteJobModal from "./DeleteJobModal";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
 import { useApplyJob } from "@/utility/handleApplyJob";
 import { useAuth } from "@/contexts/AuthContext";
+import { handleBookmarkToggle } from "@/utility/handleBookmark";
 
-type Props = { job: JobListing; userType: string };
+type Props = {
+  job: JobListing;
+  userType: string;
+  setJobListings: React.Dispatch<React.SetStateAction<JobListing[]>>;
+};
 
-const JobCard: React.FC<Props> = ({ job, userType }) => {
+const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
   const navigate = useNavigate();
   const posted = new Date(job.createdAt).toLocaleDateString(
     dateLocale,
@@ -76,13 +81,26 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
             )}{" "}
             {job.title}
           </h2>
-          {userType === Role.User ? (
-            job.saved ? (
-              <BookmarkCheck className="w-6 h-6 text-green-500" />
-            ) : (
-              <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
-            )
-          ) : null}
+          <span
+            onClick={() =>
+              handleBookmarkToggle(
+                userId,
+                job.jobId,
+                job.isBookmarked,
+                setJobListings
+              )
+            }
+          >
+            {userType === Role.User ? (
+              job.isBookmarked ? (
+                (console.log("Job is bookmarked:", job.isBookmarked),
+                (<BookmarkCheck className="w-6 h-6 text-green-500" />))
+              ) : (
+                <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+              )
+            ) : null}
+          </span>
+
           <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
             <User2 className="w-5 h-5 text-gray-300" />
             <span className="text-sm font-medium text-gray-300">
@@ -206,7 +224,7 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
           View Details
         </Link>
         {userType === Role.User ? (
-          !job.applied ? (
+          !job.isApplied ? (
             <button
               onClick={() => setOpen(true)}
               className="border border-green-500 text-green-500 text-sm font-medium w-full px-4 py-1 rounded-xl hover:bg-green-500 hover:text-white transition"
