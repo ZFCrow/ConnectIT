@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
 import { Calendar, Bookmark, Trash2, Edit2 } from "lucide-react";
@@ -11,11 +11,15 @@ import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
 import ApplicantCard from "./ApplicantCard";
-import type { Applicant } from "../../type/JobApplicationSchema";
+import type {
+  Applicant,
+  JobApplication,
+} from "../../type/JobApplicationSchema";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
 import DeleteJobModal from "./DeleteJobModal";
+import { useApplicantActions } from "@/utility/handleApplication";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
@@ -38,29 +42,26 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
     deleteJob(job.jobId);
   };
   const { role, userId, companyId } = useAuth();
-  const filteredApplicants = useMemo(() => {
-    if (userType === Role.Company) {
-      return sampleApplicants.filter((a) => a.jobId === job.jobId);
-    }
-    return [];
-  }, [job.jobId, userType]);
 
-  const decoratedApplicants = useMemo(
-    () =>
-      filteredApplicants.map((a) => ({
-        ...a,
-        jobTitle: job.title,
-        jobId: job.jobId,
-      })),
-    [filteredApplicants, job.title, job.jobId]
-  );
   const [statusFilter, setStatusFilter] = useState<"All" | string>("All");
-  const statusOptions = ["All", "Applied", "Shortlisted", "Rejected"];
+  const statusOptions = ["All", "Applied", "Accepted", "Rejected"];
+  // 1️⃣ Make a local copy of applicants so we can update them
+  const [localApplicants, setLocalApplicants] = useState<JobApplication[]>([]);
+  const { acceptLoadingId, rejectLoadingId, handleAccept, handleReject } =
+    useApplicantActions(setLocalApplicants);
+  useEffect(() => {
+    setLocalApplicants(job.jobApplication ?? []);
+  }, [job.jobApplication]);
+  const applicants = (localApplicants ?? []).map((app) => ({
+    ...app,
+    jobTitle: job.title,
+    jobId: job.jobId,
+  }));
 
-  // 4️⃣ Filter decoratedApplicants by status
-  const filteredApplicantsByStatus = decoratedApplicants.filter(
+  const filteredApplicantsByStatus = applicants.filter(
     (a) => statusFilter === "All" || a.status === statusFilter
   );
+
   return (
     <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg space-y-6">
       {/* Resume Upload Modal */}
@@ -217,7 +218,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </time>
         </div>
       </div>
-      {userType === Role.Company && job.jobId === companyId && (
+      {userType === Role.Company && (
         <section className="mt-8">
           <hr className="mb-4" />
           <div className="flex items-center justify-between mb-4">
@@ -237,16 +238,12 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           <ul className="space-y-5">
             {filteredApplicantsByStatus.map((app) => (
               <ApplicantCard
-                key={app.applicantId}
+                key={app.applicationId} // ← make sure it's applicationId!
                 applicant={app}
-                onAccept={(id) => {
-                  /* … */
-                  //TODO : Handle accept logic here
-                }}
-                onDelete={(id) => {
-                  /* … */
-                  // TOOD: Handle delete logic here
-                }}
+                acceptLoading={acceptLoadingId === app.applicationId}
+                rejectLoading={rejectLoadingId === app.applicationId}
+                onAccept={() => handleAccept(app.applicationId)}
+                onDelete={() => handleReject(app.applicationId)}
               />
             ))}
           </ul>

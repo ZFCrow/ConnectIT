@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { JobApplicationSchema } from "./JobApplicationSchema";
 
 export const JobTypeEnum = z.enum([
   "Part Time",
@@ -53,6 +54,6 @@ export const JobListingSchema = z.object({
   experiencePreferred: z.number().optional(),
   isDeleted: z.boolean().optional(),
   company: z.any().optional(), // You can replace this with a stricter schema if needed
-  jobApplication: z.array(z.any()).optional(),
+  jobApplication: z.array(JobApplicationSchema).optional(),
 });
 export type JobListing = z.infer<typeof JobListingSchema>;

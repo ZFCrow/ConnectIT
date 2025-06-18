@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
-import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
+import { ApplicationToaster } from "@/components/CustomToaster";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import { JobListing, JobListingSchema } from "@/type/jobListing";

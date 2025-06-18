@@ -1,3 +1,5 @@
+from SQLModels.JobApplicationModel import JobApplicationModel
+from SQLModels.UserModel import UserModel
 from Entity.JobListing import JobListing
 from SQLModels.ResponsibilityModel import ResponsibilityModel
 from SQLModels.JobListingModel import JobListingModel
@@ -58,7 +60,7 @@ class JobListingMapper:
                 .options(
                     selectinload(JobListingModel.company),
                     selectinload(JobListingModel.responsibilities),
-                    selectinload(JobListingModel.jobApplication)
+                    selectinload(JobListingModel.jobApplication).selectinload(JobApplicationModel.user).selectinload(UserModel.account)
                 )
                 .filter(JobListingModel.jobId == job_id)
                 .first()

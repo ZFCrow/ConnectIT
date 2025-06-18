@@ -105,7 +105,7 @@ const CompanyJobsPage: React.FC = () => {
         {loading ? (
           <div className="flex items-center justify-center h-60">
             <span className="text-lg text-gray-400 animate-pulse">
-              Loading jobs...
+              Loading...
             </span>
           </div>
         ) : activeTab === "jobs" ? (

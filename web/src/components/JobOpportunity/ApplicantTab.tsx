@@ -4,6 +4,8 @@ import type { JobApplication } from "../../type/JobApplicationSchema";
 import ApplicantCard from "./ApplicantCard";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useApplicantActions } from "@/utility/handleApplication";
+import { ApplicationToaster } from "../CustomToaster";
 
 interface ApplicantsTabProps {
   jobs: JobListing[];
@@ -18,14 +20,13 @@ const ApplicantsTab: React.FC<ApplicantsTabProps> = ({ jobs, applicants }) => {
 
   // 1️⃣ Make a local copy of applicants so we can update them
   const [localApplicants, setLocalApplicants] = useState<JobApplication[]>([]);
-  const [acceptLoadingId, setAcceptLoadingId] = useState<number | null>(null);
-  const [rejectLoadingId, setRejectLoadingId] = useState<number | null>(null);
+  const { acceptLoadingId, rejectLoadingId, handleAccept, handleReject } =
+    useApplicantActions(setLocalApplicants);
 
-  // 2️⃣ Sync local state to prop on mount or when applicants prop changes
   useEffect(() => {
+    // Initialize local applicants from props
     setLocalApplicants(applicants);
   }, [applicants]);
-
   // 3️⃣ Decorate with job title
   const decorated = useMemo(() => {
     return localApplicants
@@ -43,53 +44,9 @@ const ApplicantsTab: React.FC<ApplicantsTabProps> = ({ jobs, applicants }) => {
       (statusFilter === "All" || status === statusFilter)
   );
 
-  // 5️⃣ Update status locally on Accept
-  const handleAccept = async (applicationId: number) => {
-    setAcceptLoadingId(applicationId);
-
-    try {
-      await axios.post(`/api/approveApplication/${applicationId}`);
-      setLocalApplicants((prev) =>
-        prev.map((app) =>
-          app.applicationId === applicationId
-            ? { ...app, status: "Accepted" }
-            : app
-        )
-      );
-      toast.success("Applicant accepted!");
-    } catch (err) {
-      toast.error("Failed to accept applicant.");
-      console.error("Accept error:", err);
-    } finally {
-      setAcceptLoadingId(null);
-    }
-  };
-
-  // 6️⃣ Remove applicant locally on Delete
-  const handleDelete = async (applicationId: number) => {
-    setRejectLoadingId(applicationId);
-
-    try {
-      await axios.delete(`/api/rejectApplication/${applicationId}`);
-      setLocalApplicants((prev) =>
-        prev.map((app) =>
-          app.applicationId === applicationId
-            ? { ...app, status: "Rejected" }
-            : app
-        )
-      );
-      toast.success("Applicant rejected/removed.");
-    } catch (err) {
-      toast.error("Failed to reject applicant.");
-      console.error("Delete error:", err);
-    } finally {
-      setRejectLoadingId(null);
-    }
-  };
-
   return (
     <div>
-      {/* Filters */}
+      <ApplicationToaster /> {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <select
           value={jobFilter}
@@ -125,7 +82,7 @@ const ApplicantsTab: React.FC<ApplicantsTabProps> = ({ jobs, applicants }) => {
               acceptLoading={acceptLoadingId === app.applicationId}
               rejectLoading={rejectLoadingId === app.applicationId}
               onAccept={() => handleAccept(app.applicationId)}
-              onDelete={() => handleDelete(app.applicationId)}
+              onDelete={() => handleReject(app.applicationId)}
             />
           ))}
         </ul>

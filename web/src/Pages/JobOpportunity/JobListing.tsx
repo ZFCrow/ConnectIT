@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import JobCard from "../../components/JobOpportunity/JobCard";
 import FilterSection from "../../components/JobOpportunity/FilterSection";
 import type { SortOption } from "../../components/JobOpportunity/FilterSection";
-import { ApplicationToaster } from "@/components/JobOpportunity/ResumeUploadModal";
+import { ApplicationToaster } from "@/components/CustomToaster";
 import { Link } from "react-router-dom";
 import { Bookmark, CheckCircle } from "lucide-react";
 import { JobListing } from "@/type/jobListing";

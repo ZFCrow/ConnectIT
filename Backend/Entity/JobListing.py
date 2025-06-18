@@ -219,6 +219,9 @@ class JobListing:
                 self.company.to_dict() if self.company else None
             ),
             "experiencePreferred": self.experiencePreferred,
+            "jobApplication": [
+                app.to_dict() for app in self.jobApplication
+            ] if self.jobApplication else [],
         }
     @classmethod
     def from_JobListingModel(cls, orm_obj) -> "JobListing":
@@ -236,6 +239,6 @@ class JobListing:
             responsibilities    = [r.responsibility for r in orm_obj.responsibilities if r.responsibility is not None],
             isDeleted           = orm_obj.isDeleted,
             company             = Company.from_model(orm_obj.company),
-            jobApplication      = [],                 # fill when needed
+            jobApplication      = [JobApplication.from_model(a) for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
             experiencePreferred = orm_obj.experiencePreferred if orm_obj.experiencePreferred is not None else 0,
         )
