@@ -19,6 +19,10 @@ export const usePostManager = () => {
   
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(false); // loading state for fetching posts 
+  const [deletePostLoading, setDeletePostLoading] = useState<boolean>(false); // loading state for deleting posts 
+  const [createPostLoading, setCreatePostLoading] = useState<boolean>(false); // loading state for creating posts
+
+
 
   const { accountId } = useAuth(); // get the accountId from the auth context 
 
@@ -144,6 +148,7 @@ export const usePostManager = () => {
   }) :  Promise<any> => { 
 
     try{
+      setCreatePostLoading(true); // set loading to true while creating post 
       console.log("Creating post with data:", postData);
 
       const response = await api.post('/createPost', {
@@ -182,6 +187,9 @@ export const usePostManager = () => {
   } catch (error) {
       console.error("Error creating post:", error);
   }
+    finally {
+      setCreatePostLoading(false); // set loading to false after creating post 
+    }
 };
 
   // FUNCTION TO toggle likes 
@@ -246,9 +254,16 @@ export const usePostManager = () => {
 
   const confirmDelete = async () => { 
     if (postToDelete) {
+      setDeletePostLoading(true); // set loading to true while deleting post 
       const listofViolationsID : number[] = selectedViolations.map((violation) => violation.violationId); // get the list of violation IDs from selected violations 
       console.log("List of violations to send:", listofViolationsID); 
       try {
+        // navigate 
+
+        //setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
+        //setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
+        
+
         const response = await api.post(`/post/${postToDelete}`, {
           accountId: accountId, // use the accountId from the auth context
       
@@ -256,9 +271,9 @@ export const usePostManager = () => {
         });
 
         if (response.status === 200) {
-          setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
-          setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postToDelete));
           setPostToDelete(null);
+
+
           if (selectedViolations.length > 0) {
             console.log("Post deleted with violations:", selectedViolations);
             setSelectedViolations([]);
@@ -273,6 +288,9 @@ export const usePostManager = () => {
       } catch (error) {
         console.error("Error deleting post:", error);
       }
+      finally { 
+        setDeletePostLoading(false); // set loading to false after deleting post 
+      } 
     }
   } 
 
@@ -281,19 +299,6 @@ export const usePostManager = () => {
     setSelectedViolations([]);
   };
 
-
-  // const handleDeleteComment = (commentId: number) => {
-  //   console.log("Delete comment with ID:", commentId);
-  //   // TODO: Implement comment deletion logic
-  //   // filter it out from the post's comments 
-  //   setAllPosts((prevPosts) =>
-  //     prevPosts.map((post) => ({
-  //       ...post,
-  //       comments: post.comments.filter((comment) => comment.commentId !== commentId),
-  //     }))
-  //   );
-  //   console.log("Comment deleted with ID:", commentId);
-  // };
 
 
   const handleDeleteComment = async (commentId: number) => { 
@@ -349,5 +354,7 @@ export const usePostManager = () => {
     toggleLikePost,
     createComment, 
     recentlyInteractedPost, // expose the recently interacted post state
+    deletePostLoading, // expose the delete post loading state 
+    createPostLoading, // expose the create post loading state
   }
 };

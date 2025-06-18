@@ -16,17 +16,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-
-import OptionBox from "@/components/OptionBox";
-import axios from "axios";
+import { usePostContext } from "@/contexts/PostContext";
 
 import type {Label} from "@/type/Label"; // import the Label type 
-import { Role ,useAuth } from "@/contexts/AuthContext";
 import {FC }  from "react"; // import FC from react 
 import type { Post } from "@/type/Post"; // import the Post type 
-import { set } from "zod";
 
 import { LabelPicker } from "./LabelPicker";
+import { create } from "domain";
 
 // createpostbar props 
 type CreatePostbarProps = { 
@@ -36,11 +33,14 @@ type CreatePostbarProps = {
     onPostCreated?: (post: Post) => void;
 } 
 
+
 const CreatePostbar  : FC<CreatePostbarProps> = ({ 
     retrievedTags, 
     createPostFunction ,
     onPostCreated = () => {}, // default to empty function if not provided 
  }) => { 
+
+    const { createPostLoading } = usePostContext(); // get the post context 
 
 
     const [title, setTitle] = useState("What's on your mind?");
@@ -107,44 +107,56 @@ const CreatePostbar  : FC<CreatePostbarProps> = ({
             </DialogTrigger>
             
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Create a new post</DialogTitle>
+                {
+                    createPostLoading ? (
+                <DialogHeader> 
+                    <DialogTitle>please wait...</DialogTitle> 
                     <DialogDescription>
-                        Share your thoughts with the community!
-                    </DialogDescription>
-                </DialogHeader>
+                        Your post is being created, please wait.
+                    </DialogDescription> 
+                </DialogHeader> 
+                    ) : (
 
-                <div className="grid gap-4 py-4">
-                    <Input 
-                        placeholder="Title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)} />
+                   <>
+                    <DialogHeader>
+                        <DialogTitle>Create a new post</DialogTitle>
+                        <DialogDescription>
+                            Share your thoughts with the community!
+                        </DialogDescription>
+                    </DialogHeader>
 
-                    <Textarea 
-                        placeholder="What's on your mind?" 
-                        value ={content} 
-                        onChange={(e) => setContent(e.target.value)} 
-                    /> 
+                    <div className="grid gap-4 py-4">
+                        <Input 
+                            placeholder="Title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)} />
 
-                    {/* <OptionBox
-                        allTags={retrievedTags}
-                        selectedTags={selectedTags}
-                        onChange={setSelectedTags}
-                    /> */}
-                    <LabelPicker
-                        allLabels={retrievedTags}
-                        selected={selectedTags}
-                        onChange={setSelectedTags}
-                    />
+                        <Textarea 
+                            placeholder="What's on your mind?" 
+                            value ={content} 
+                            onChange={(e) => setContent(e.target.value)} 
+                        /> 
+
+                        <LabelPicker
+                            allLabels={retrievedTags}
+                            selected={selectedTags}
+                            onChange={setSelectedTags}
+                        />
 
 
-                </div>
+                    </div>
 
-                <DialogFooter>
-                    <Button 
-                        type="submit"
-                        onClick={handlePostSubmit}>Post</Button>
-                </DialogFooter>
+                    <DialogFooter>
+                        <Button 
+                            type="submit"
+                            onClick={handlePostSubmit}>Post</Button>
+                    </DialogFooter>
+                    </>
+
+                    )
+                }
+            
+
             </DialogContent>
         </Dialog>
 

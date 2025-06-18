@@ -4,16 +4,15 @@ import { use, useEffect, useState } from "react";
 import Postcard from "@/components/Postcard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
-import type { Post } from "@/type/Post";
 
 const Postpage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  //const location = useLocation();
   const [isDeleted, setIsDeleted] = useState(false); 
   const { 
     allPosts, 
-    postToDelete } = usePostContext();
+    postToDelete, 
+    deletePostLoading } = usePostContext();
 
   const idNum = postId ? Number(postId) : NaN;
   console.log("Post ID:", idNum);
@@ -32,7 +31,7 @@ const Postpage = () => {
 
   useEffect(() => {
     // If the post is deleted, redirect to home
-    if (isDeleted) {
+    if (isDeleted && !deletePostLoading) {
       navigate("/", { replace: true });
     }
   }), [isDeleted, navigate];
@@ -43,10 +42,20 @@ const Postpage = () => {
   return (
     <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
       <div className="ml-3 flex-1 overflow-y-auto scrollbar-hide">
-        <Postcard
-          postId= {idNum} 
-          detailMode
-        />
+
+        {!deletePostLoading &&
+          post ? (
+            <Postcard
+              postId={idNum}
+              detailMode
+            />
+          ) : (
+            <div className="text-center text-gray-500 mt-10">
+              {isDeleted ? "Post has been deleted." : "Loading post..."}
+            </div>
+          )  
+
+        }
       </div>
 
       <aside className="w-72 flex-shrink-0 sticky top-20 overflow-y-auto scrollbar-hide">

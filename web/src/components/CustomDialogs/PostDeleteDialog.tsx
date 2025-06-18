@@ -78,6 +78,7 @@ const PostDeleteDialog = ({
           <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
+              
               confirmDelete()
               onDeleteSuccess(); // Call the success callback after deletion 
             }}
