@@ -57,7 +57,7 @@ class JobListing:
         fieldOfWork: Field,
         responsibilities: List[str],
         experiencePreferred: int = 0,
-
+        numApplicants: int = 0,
         isDeleted: bool = False,
         company: Optional [Company] = None,
         jobApplication: Optional[List[JobApplication]] = None,
@@ -74,6 +74,7 @@ class JobListing:
         self.workArrangement = workArrangement
         self.fieldOfWork = fieldOfWork
         self.isDeleted = isDeleted
+        self.numApplicants = numApplicants
         self.experiencePreferred = experiencePreferred
         self.responsibilities = responsibilities 
         self.jobApplication = jobApplication if jobApplication is not None else []
@@ -200,6 +201,7 @@ class JobListing:
             company=data.get('company'),
             jobApplication=data.get('jobApplication') or data.get('job_application'),
             experiencePreferred=data.get('experiencePreferred') or data.get('experience_preferred', 0),
+            numApplicants=data.get('numApplicants') or data.get('num_applicants', 0),
         )
     def to_dict(self) -> dict:
         return {
@@ -219,12 +221,13 @@ class JobListing:
                 self.company.to_dict() if self.company else None
             ),
             "experiencePreferred": self.experiencePreferred,
+            "numApplicants": self.numApplicants,
             "jobApplication": [
                 app.to_dict() for app in self.jobApplication
             ] if self.jobApplication else [],
         }
     @classmethod
-    def from_JobListingModel(cls, orm_obj) -> "JobListing":
+    def from_JobListingModel(cls, orm_obj, numApplicants=0) -> "JobListing":
         return cls(
             jobId               = orm_obj.jobId,
             title               = orm_obj.title,
@@ -241,4 +244,5 @@ class JobListing:
             company             = Company.from_model(orm_obj.company),
             jobApplication      = [JobApplication.from_model(a) for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
             experiencePreferred = orm_obj.experiencePreferred if orm_obj.experiencePreferred is not None else 0,
+            numApplicants       = numApplicants
         )

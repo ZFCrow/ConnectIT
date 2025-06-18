@@ -55,5 +55,6 @@ export const JobListingSchema = z.object({
   isDeleted: z.boolean().optional(),
   company: z.any().optional(), // You can replace this with a stricter schema if needed
   jobApplication: z.array(JobApplicationSchema).optional(),
+  numApplicants: z.number().optional(), // Number of applicants for the job
 });
 export type JobListing = z.infer<typeof JobListingSchema>;

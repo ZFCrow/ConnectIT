@@ -4,6 +4,7 @@ from Entity.JobListing import JobListing
 from SQLModels.ResponsibilityModel import ResponsibilityModel
 from SQLModels.JobListingModel import JobListingModel
 from SQLModels.base import db_context
+from sqlalchemy import func
 
 from sqlalchemy.orm import selectinload
 
@@ -65,43 +66,39 @@ class JobListingMapper:
                 .filter(JobListingModel.jobId == job_id)
                 .first()
             )
+
             if not job_listing:
                 return None
-            return JobListing.from_JobListingModel(job_listing)
+            numApplicants = (
+                session.query(func.count(JobApplicationModel.applicationId))
+                .filter(JobApplicationModel.jobId == job_id)
+                .scalar()
+            )
+            return JobListing.from_JobListingModel(job_listing,numApplicants=numApplicants)
     
     @staticmethod
     def getAllJobListings(company_id:int = None) -> list["JobListing"]:
         
-        if(company_id is None):
-            """
-            Retrieves every job listing with its company + responsibilities.
-            """
-            with db_context.session_scope() as session:
-                orm_list = (
-                    session.query(JobListingModel)
-                    .options(
-                        selectinload(JobListingModel.company),
-                    )
-                    .all()
+        with db_context.session_scope() as session:
+            # Build base query
+            base_query = (
+                session.query(
+                    JobListingModel,
+                    func.count(JobApplicationModel.applicationId).label("numApplicants")
                 )
-                # build pure-python entities while session is open
-                return [JobListing.from_JobListingModel(o) for o in orm_list]
-            
-        else: 
-            """
-            Retrieves every job listing with its company .
-            """  
-            with db_context.session_scope() as session:
-                orm_list = (
-                    session.query(JobListingModel)
-                    .options(
-                        selectinload(JobListingModel.company),
-                    )
-                    .filter(JobListingModel.companyId == company_id)
-                    .all()
-                )
-                # build pure-python entities while session is open
-                return [JobListing.from_JobListingModel(o) for o in orm_list]
+                .outerjoin(JobApplicationModel, JobListingModel.jobId == JobApplicationModel.jobId)
+                .options(selectinload(JobListingModel.company))
+                .group_by(JobListingModel.jobId)
+            )
+            if company_id is not None:
+                base_query = base_query.filter(JobListingModel.companyId == company_id)
+            orm_results = base_query.all()
+
+            # Each result is (JobListingModel, numApplicants)
+            return [
+                JobListing.from_JobListingModel(orm, numApplicants)
+                for orm, numApplicants in orm_results
+            ]
          
     @staticmethod
     def deleteJob(jobId: int) -> bool:

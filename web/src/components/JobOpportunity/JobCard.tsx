@@ -76,24 +76,19 @@ const JobCard: React.FC<Props> = ({ job, userType }) => {
             )}{" "}
             {job.title}
           </h2>
-
-          {userType === Role.Company ? (
-            <>
-              <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
-                <User2 className="w-5 h-5 text-gray-300" />
-                <span className="text-sm font-medium text-gray-300">
-                  3 application(s)
-                  {/* TODO: Replace with actual count */}
-                </span>
-              </div>
-            </>
-          ) : userType === Role.User ? (
+          {userType === Role.User ? (
             job.saved ? (
               <BookmarkCheck className="w-6 h-6 text-green-500" />
             ) : (
               <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
             )
           ) : null}
+          <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
+            <User2 className="w-5 h-5 text-gray-300" />
+            <span className="text-sm font-medium text-gray-300">
+              {job.numApplicants || 0} application(s)
+            </span>
+          </div>
         </div>
 
         {/* Field badge */}

@@ -22,7 +22,7 @@ def get_job_details(job_id):
 def get_company_job_listings(company_id):
     # Pass company_id so you only get jobs for that company
     listings = JobListingControl.getAllJobListings(company_id=company_id)
-    print(f"Company job listings: {listings}")
+    print(f"Company job listings: {[l.to_dict() for l in listings]}")
     return jsonify([l.to_dict() for l in listings]), 200
 
 # POST new job listing

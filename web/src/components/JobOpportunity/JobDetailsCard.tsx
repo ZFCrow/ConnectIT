@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
-import { Calendar, Bookmark, Trash2, Edit2 } from "lucide-react";
+import { Calendar, Bookmark, Trash2, Edit2, User2 } from "lucide-react";
 import {
   dateLocale,
   dateFormatOptions,
@@ -90,11 +90,9 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               >
                 <Bookmark className="w-6 h-6" />
               </button>
-            ) : (
-              userType === Role.Company ||
-              (userType === Role.Admin && (
-                <>
-                  {/* <Link
+            ) : userType === Role.Company || userType === Role.Admin ? (
+              <>
+                {/* <Link
                   to={`/company/jobForm/${job.jobId}`}
                   className="
               p-1 rounded-full text-gray-400
@@ -105,30 +103,34 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                   <Edit2 className="w-6 h-6" />
                 </Link> */}
 
-                  <button
-                    aria-label="Delete job"
-                    onClick={() => {
-                      handleDeleteClick();
-                      //TODO: Handle delete logic here
-                    }}
-                    className="
+                <button
+                  aria-label="Delete job"
+                  onClick={() => {
+                    handleDeleteClick();
+                  }}
+                  className="
               p-1 rounded-full text-gray-400
               hover:bg-zinc-800 hover:text-white
               transition
             "
-                  >
-                    <Trash2 className="w-6 h-6" />
-                  </button>
-                  <DeleteJobModal
-                    open={deleteOpen}
-                    onCancel={() => setDeleteOpen(false)}
-                    onConfirm={handleDeleteConfirm}
-                    loading={loading}
-                    jobTitle={job.title}
-                  />
-                </>
-              ))
-            )}
+                >
+                  <Trash2 className="w-6 h-6" />
+                </button>
+                <DeleteJobModal
+                  open={deleteOpen}
+                  onCancel={() => setDeleteOpen(false)}
+                  onConfirm={handleDeleteConfirm}
+                  loading={loading}
+                  jobTitle={job.title}
+                />
+              </>
+            ) : null}
+            <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
+              <User2 className="w-5 h-5 text-gray-300" />
+              <span className="text-sm font-medium text-gray-300">
+                {job.numApplicants || 0} application(s)
+              </span>
+            </div>
           </div>
           {/* Field badge */}
           <span
