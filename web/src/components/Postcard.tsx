@@ -171,7 +171,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                           Delete
                         </DropdownMenuItem>
                       )}
-                    {handleHide && (
+                    {!detailMode && ( // Only show hide option if not in detail mode 
                       <DropdownMenuItem
                         onSelect={() => {
                           handleHide(id);

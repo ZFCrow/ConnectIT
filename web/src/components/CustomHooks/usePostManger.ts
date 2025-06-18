@@ -112,9 +112,21 @@ export const usePostManager = () => {
   useEffect(() => {
     const recentPosts = allPosts
       .filter((post) => post.comments.some((comment) => comment.accountId === accountId))
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 3); // get the most recent 3 posts with comments by the user
-
+      // give this post a temporary "date" field based on the most recent comment date by the user 
+      .map((post) => ({
+        ...post,
+        recentlyInteractedDateTime: post.comments
+          .filter((comment) => comment.accountId === accountId)
+          .reduce((latest, comment) => {
+            const commentDate = new Date(comment.createdAt);
+            return commentDate > latest ? commentDate : latest;
+          }, new Date(0)), // start with the earliest date
+      })) 
+      //.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => b.recentlyInteractedDateTime.getTime() - a.recentlyInteractedDateTime.getTime()) // sort by the most recent comment date 
+      .slice(0, 5); // get the most recent 5 posts with comments by the user
+    
+    
     if (recentPosts.length > 0) {
       setRecentlyInteractedPost(recentPosts); // set the most recent post
     } else {
@@ -284,7 +296,8 @@ export const usePostManager = () => {
   };
 
   const handleHide = (postId: number) => {
-    setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    // setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId)); 
   };
 
 
