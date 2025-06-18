@@ -11,7 +11,7 @@ import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
 import ApplicantCard from "./ApplicantCard";
-import type { Applicant } from "../../type/applicant";
+import type { Applicant } from "../../type/JobApplicationSchema";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { useDeleteJob } from "@/utility/handleDeleteJob";

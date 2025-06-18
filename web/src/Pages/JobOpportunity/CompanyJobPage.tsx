@@ -4,7 +4,11 @@ import type { JobListing } from "../../type/jobListing";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import ApplicantsTab from "../../components/JobOpportunity/ApplicantTab";
-import type { Applicant } from "../../type/applicant";
+import {
+  JobApplicationSchema,
+  type Applicant,
+  type JobApplication,
+} from "../../type/JobApplicationSchema";
 import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
 import axios from "axios";
 import { JobListingSchema } from "../../type/jobListing";
@@ -16,16 +20,20 @@ const CompanyJobsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"jobs" | "applicants">("jobs");
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
   useEffect(() => {
-    const fetchJobs = async () => {
+    async function fetchData() {
       setLoading(true);
       try {
-        const res = await axios.get(
-          "/api/companyJobListings/" + CURRENT_COMPANY_ID
-        );
-        const jobs = Array.isArray(res.data)
-          ? res.data
+        // Fetch both in parallel
+        const [jobsRes, appsRes] = await Promise.all([
+          axios.get(`/api/companyJobListings/${CURRENT_COMPANY_ID}`),
+          axios.post(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
+        ]);
+
+        // Parse and validate
+        const jobs = Array.isArray(jobsRes.data)
+          ? jobsRes.data
               .map((item) => {
                 try {
                   return JobListingSchema.parse(item);
@@ -36,25 +44,27 @@ const CompanyJobsPage: React.FC = () => {
               })
               .filter(Boolean)
           : [];
-        // Only show jobs for THIS company
-        setJobListings(
-          (jobs as JobListing[]).filter(
-            (job) => job.company.companyId === CURRENT_COMPANY_ID
-          )
-        );
+        setJobListings(jobs as JobListing[]);
+        console.log("Applications:", appsRes);
+
+        const applications = JobApplicationSchema.array().parse(appsRes.data);
+        console.log("Applications:", applications);
+        setJobApplications(applications);
       } catch (err) {
-        console.error("Error loading job listings:", err);
+        console.error(
+          "Error loading jobs or applications:",
+          err.response || err
+        );
       } finally {
         setLoading(false);
       }
-    };
-    fetchJobs();
+    }
+    fetchData();
   }, []);
-
   // applicants in this company
-  const applicants: Applicant[] = sampleApplicants.filter((applicant) =>
-    jobListings.some((job) => job.jobId === applicant.jobId)
-  );
+  // const applicants: Applicant[] = sampleApplicants.filter((applicant) =>
+  //   jobListings.some((job) => job.jobId === applicant.jobId)
+  // );
 
   return (
     <div className="w-4/5 mx-auto pt-4 pb-2">
@@ -108,7 +118,7 @@ const CompanyJobsPage: React.FC = () => {
           )
         ) : (
           <div>
-            <ApplicantsTab applicants={applicants} jobs={jobListings} />
+            <ApplicantsTab applicants={jobApplications} jobs={jobListings} />
           </div>
         )}
       </div>

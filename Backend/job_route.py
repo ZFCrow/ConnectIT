@@ -22,6 +22,7 @@ def get_job_details(job_id):
 def get_company_job_listings(company_id):
     # Pass company_id so you only get jobs for that company
     listings = JobListingControl.getAllJobListings(company_id=company_id)
+    print(f"Company job listings: {listings}")
     return jsonify([l.to_dict() for l in listings]), 200
 
 # POST new job listing
@@ -56,3 +57,26 @@ def apply_job():
     
     success = JobApplicationControl.applyJob(jobId, userId)
     return jsonify({"message": "Application submitted successfully!"}) if success else jsonify({"error": "Failed to apply for job"}), 200
+@job_listing_bp.route("/approveApplication/<int:applicationId>", methods=["POST"])
+def approve_application(applicationId):
+    """
+    Approves a job application by applicationId.
+    """
+    success = JobApplicationControl.approveApplication(applicationId)
+    return jsonify({"message": "Application approved successfully!"}) if success else jsonify({"error": "Failed to approve application"}), 200
+
+@job_listing_bp.route("/rejectApplication/<int:applicationId>", methods=["DELETE"])
+def reject_application(applicationId):
+    """
+    Rejects a job application by applicationId.
+    """
+    success = JobApplicationControl.rejectApplication(applicationId)
+    return jsonify({"message": "Application rejected successfully!"}) if success else jsonify({"error": "Failed to reject application"}), 200
+
+@job_listing_bp.route("/getApplicantsByCompanyId/<int:companyId>", methods=["POST"])
+def getApplicantsByCompanyId(companyId):
+    """
+    Approves a job application by applicationId.
+    """
+    applicants=JobApplicationControl.getApplicationsByCompanyId(companyId)
+    return jsonify([applicant.to_dict() for applicant in applicants]) if applicants else jsonify({"error": "No applicants found"}), 200

@@ -58,6 +58,7 @@ class JobListingMapper:
                 .options(
                     selectinload(JobListingModel.company),
                     selectinload(JobListingModel.responsibilities),
+                    selectinload(JobListingModel.jobApplication)
                 )
                 .filter(JobListingModel.jobId == job_id)
                 .first()

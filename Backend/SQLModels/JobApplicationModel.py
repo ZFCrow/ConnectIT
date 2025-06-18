@@ -21,3 +21,7 @@ class JobApplicationModel(Base):
         "JobListingModel",
         back_populates="jobApplication"
     )
+    user= relationship(
+        "UserModel",
+        back_populates="jobApplications"
+    )

@@ -12,7 +12,9 @@ class JobApplication:
         applicationId: int,
         jobId: int,
         userId: int,
-        username: str,
+        name: str,
+        email: str,
+        bio: str,
         status: Status,
         appliedAt: datetime,
         resumeURL: str
@@ -20,7 +22,9 @@ class JobApplication:
         self.applicationId = applicationId
         self.jobId = jobId
         self.userId = userId
-        self.username = username
+        self.email = email
+        self.bio = bio
+        self.name = name
         self.status = status
         self.appliedAt = appliedAt
         self.resumeURL = resumeURL
@@ -60,3 +64,57 @@ class JobApplication:
 
     def setResumeURL(self, url: str) -> None:
         self.resumeURL = url
+
+    def from_dict(cls, raw: dict) -> 'JobApplication':
+        """
+        Converts a dictionary to a JobApplication object.
+        :param raw: Dictionary containing job application data.
+        :return: JobApplication object.
+        """
+        return cls(
+            applicationId=raw["applicationId"],
+            jobId=raw["jobId"],
+            userId=raw["userId"],
+            name=raw["name"],
+            email=raw["email"],
+            bio=raw["bio"],
+            status=Status(raw["status"]),
+            appliedAt=raw["appliedAt"],
+            resumeURL=raw["resumeURL"]
+        )
+    
+    def to_dict(self) -> dict:
+        """
+        Converts the JobApplication object to a dictionary.
+        :return: Dictionary representation of the JobApplication.
+        """
+        return {
+            "applicationId": self.applicationId,
+            "jobId": self.jobId,
+            "userId": self.userId,
+            "name": self.name,
+            "email": self.email,
+            "bio": self.bio,
+            "status": self.status.value,  # Convert Enum to string
+            "appliedAt": self.appliedAt.isoformat(),  # Convert datetime to ISO string
+            "resumeURL": self.resumeURL
+        }
+    
+    @classmethod
+    def from_model(cls, model) -> 'JobApplication':
+        """
+        Converts a SQLAlchemy model to a JobApplication object.
+        :param model: SQLAlchemy model instance.
+        :return: JobApplication object.
+        """
+        return cls(
+            applicationId=model.applicationId,
+            jobId=model.jobId,
+            userId=model.userId,
+            name=model.user.account.name,
+            email=model.user.account.email,
+            bio=model.user.bio,
+            status=model.status,
+            appliedAt=model.appliedAt,
+            resumeURL=model.resumeURL
+        )

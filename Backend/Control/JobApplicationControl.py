@@ -10,7 +10,23 @@ class JobApplicationControl:
         """
         # self.db = DatabaseConnection()  # Example: Initialize database connection
         print("JobListingControl initialized")
-
+    @staticmethod
+    def approveApplication(applicationId: int):
+        """
+        Approves a job application by applicationId.
+        :param applicationId: ID of the application to approve.
+        """
+        print(f"Approving application with applicationId: {applicationId}")
+        return JobApplicationMapper.approveApplication(applicationId)
+    
+    @staticmethod
+    def rejectApplication(applicationId: int):
+        """
+        Rejects a job application by applicationId.
+        :param applicationId: ID of the application to reject.
+        """
+        print(f"Rejecting application with applicationId: {applicationId}")
+        return JobApplicationMapper.rejectApplication(applicationId)
     @staticmethod
     def applyJob(jobId: int, userId: int):
         """
@@ -20,3 +36,13 @@ class JobApplicationControl:
         """
         print(f"Applying for job with jobId: {jobId} by userId: {userId}")
         return JobApplicationMapper.applyJob(jobId, userId)
+
+    @staticmethod
+    def getApplicationsByCompanyId(companyId: int):
+        """
+        Retrieves all applications for jobs that belong to the given company.
+        :param companyId: ID of the company to retrieve applications for.
+        :return: List of JobApplicationModel instances.
+        """
+        print(f"Retrieving applications for company with companyId: {companyId}")
+        return JobApplicationMapper.getApplicationsByCompanyId(companyId)

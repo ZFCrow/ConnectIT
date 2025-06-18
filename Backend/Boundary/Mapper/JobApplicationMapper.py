@@ -1,7 +1,11 @@
 from datetime import datetime
-from Entity.JobApplication import Status
+import logging
+from SQLModels.UserModel import UserModel
+from SQLModels.JobListingModel import JobListingModel
+from Entity.JobApplication import JobApplication, Status
 from SQLModels.JobApplicationModel import JobApplicationModel
 from SQLModels.base import db_context
+from sqlalchemy.orm import selectinload
 
 class JobApplicationMapper:
     @staticmethod
@@ -28,7 +32,7 @@ class JobApplicationMapper:
         with db_context.session_scope() as session:
             application = session.query(JobApplicationModel).filter(JobApplicationModel.applicationId == applicationId).first()
             if application:
-                application.status = Status.Approved  # Assuming Status is an enum with Approved value
+                application.status = Status.ACCEPTED  # Assuming Status is an enum with Approved value
                 session.commit()
                 return True
             return False
@@ -42,7 +46,32 @@ class JobApplicationMapper:
         with db_context.session_scope() as session:
             application = session.query(JobApplicationModel).filter(JobApplicationModel.applicationId == applicationId).first()
             if application:
-                application.status = Status.Rejected  # Assuming Status is an enum with Rejected value
+                application.status = Status.REJECTED  # Assuming Status is an enum with Rejected value
                 session.commit()
                 return True
             return False
+        
+    @staticmethod
+    def getApplicationsByCompanyId(companyId: int):
+        """
+        Retrieves all applications for jobs that belong to the given company.
+        :param companyId: ID of the company to retrieve applications for.
+        :return: List of JobApplicationModel instances.
+        """
+        with db_context.session_scope() as session:
+            # 1. Get all job IDs belonging to this company
+            job_ids = session.query(JobListingModel.jobId).filter(
+                JobListingModel.companyId == companyId
+            ).all()
+            # job_ids is a list of 1-tuples: [(1,), (2,), ...], so flatten:
+            job_ids = [jid for (jid,) in job_ids]
+            if not job_ids:
+                return []
+            print(f"Retrieved {len(job_ids)} job IDs for company {companyId}: {job_ids}")
+            # 2. Get all applications where jobId is in that list
+            applications = session.query(JobApplicationModel).options(selectinload(JobApplicationModel.user).selectinload(UserModel.account)).filter(
+                JobApplicationModel.jobId.in_(job_ids)
+            ).all()
+            print(f"Retrieved {len(applications)} applications for company {companyId} with job IDs {job_ids}")
+            print(f"Applications: {applications}")
+            return [JobApplication.from_model(a) for a in applications]
