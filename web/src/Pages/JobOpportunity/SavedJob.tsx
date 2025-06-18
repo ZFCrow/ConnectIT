@@ -105,7 +105,7 @@ export default function MyJobsPage() {
           hover:bg-gray-700 hover:text-white
           transition-colors
           -mt-2
-          mb-2  
+          mb-5  
         "
       >
         <ArrowLeft className="w-3 h-3" />
@@ -126,7 +126,7 @@ export default function MyJobsPage() {
               : "text-gray-400"
           }`}
         >
-          Saved Jobs
+          Saved Jobs ({savedJobs.length})
         </button>
         <button
           onClick={() => {
@@ -139,7 +139,7 @@ export default function MyJobsPage() {
               : "text-gray-400"
           }`}
         >
-          Applied Jobs
+          Applied Jobs ({appliedJobs.length})
         </button>
       </div>
 

@@ -92,7 +92,7 @@ export default function JobDetailPage() {
         <span>Back to Listing</span>
       </Link>
       {/* Job details in a card */}
-      <JobDetailsCard job={job} userType={!role ? "" : role} />
+      <JobDetailsCard job={job} userType={!role ? "" : role} setJob={setJob} />
       <ApplicationToaster />{" "}
     </div>
   );

@@ -1,7 +1,14 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
-import { Calendar, Bookmark, Trash2, Edit2, User2 } from "lucide-react";
+import {
+  Calendar,
+  Bookmark,
+  Trash2,
+  Edit2,
+  User2,
+  BookmarkCheck,
+} from "lucide-react";
 import {
   dateLocale,
   dateFormatOptions,
@@ -20,11 +27,13 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
 import DeleteJobModal from "./DeleteJobModal";
 import { useApplicantActions } from "@/utility/handleApplication";
+import { handleBookmarkToggle } from "@/utility/handleBookmark";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
+  setJob: React.Dispatch<React.SetStateAction<JobListing | null>>; // For updating job state after deletion
 }
-const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
+const JobDetailsCard: React.FC<Props> = ({ job, userType, setJob }) => {
   //for application modal
   const [open, setOpen] = useState(false);
   //for delete modal
@@ -80,16 +89,25 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               {job.title}
             </h1>
             {userType === Role.User ? (
-              <button
-                aria-label="Save job"
-                className="
-              p-1 rounded-full text-gray-400
-              hover:bg-zinc-800 hover:text-white
-              transition
-            "
+              <span
+                onClick={() =>
+                  handleBookmarkToggle(
+                    userId,
+                    job.jobId,
+                    job.isBookmarked,
+                    setJob
+                  )
+                }
               >
-                <Bookmark className="w-6 h-6" />
-              </button>
+                {userType === Role.User ? (
+                  job.isBookmarked ? (
+                    (console.log("Job is bookmarked:", job.isBookmarked),
+                    (<BookmarkCheck className="w-6 h-6 text-green-500" />))
+                  ) : (
+                    <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+                  )
+                ) : null}
+              </span>
             ) : userType === Role.Company || userType === Role.Admin ? (
               <>
                 {/* <Link

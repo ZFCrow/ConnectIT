@@ -23,13 +23,14 @@ const CreateEditJobPage: React.FC = () => {
       createdAt: job.createdAt,
       minSalary: job.minSalary,
       maxSalary: job.maxSalary,
-      jobType: job.type, // Ensure matches backend expected enum value
-      fieldOfWork: job.field, // Ditto here
+      jobType: job.jobType, // Ensure matches backend expected enum value
+      fieldOfWork: job.fieldOfWork, // Ditto here
       workArrangement: job.workArrangement,
       responsibilities: job.responsibilities,
-      experiencePreferred: job.yearsOfExperience ?? 0,
+      experiencePreferred: job.experiencePreferred ?? 0,
       isDeleted: false,
     };
+    console.log("Submitting job payload:", payload);
     try {
       const response = await axios.post("/api/addJob", payload, {
         headers: { "Content-Type": "application/json" },

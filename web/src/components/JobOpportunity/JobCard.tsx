@@ -163,7 +163,7 @@ const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
               {job.workArrangement === "Hybrid" && (
                 <Shuffle className="w-4 h-4 text-gray-400" />
               )}
-              {job.workArrangement === "Office" && (
+              {job.workArrangement === "Onsite" && (
                 <BuildingIcon className="w-4 h-4 text-gray-400" />
               )}
               <span>{job.workArrangement}</span>
