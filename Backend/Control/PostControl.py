@@ -45,3 +45,11 @@ class PostControl:
         success = PostMapper.deletePost(postId=postId, violations=violations)  # Call the mapper to delete the post
         return success  # Return the success status of the deletion 
 
+
+    @staticmethod 
+    def toggleLikes(postId: int, accountId: int) -> dict[bool, str ]:
+        """
+        Toggle the like status of a post for a given account.
+        """
+        msg = PostMapper.createDeletePostLikes(postId=postId, accountId=accountId) 
+        return msg # Return the success status of the like toggle operation 

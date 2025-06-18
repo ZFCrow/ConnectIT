@@ -7,6 +7,7 @@ from SQLModels.AccountModel import AccountModel
 from SQLModels.CommentModel import CommentModel
 from SQLModels.PostLabelModel import PostLabelModel 
 from SQLModels.PostViolationModel import PostViolationModel
+from SQLModels.PostLikesModel import PostLikesModel 
 from Entity.Post import Post  
 from Entity.Label import Label 
 from Entity.Violation import Violation
@@ -143,7 +144,44 @@ class PostMapper:
             return False 
 
 
-
-
+    @staticmethod
+    def createDeletePostLikes(postId: int, accountId: int) -> dict[bool, str ]:
+        """
+        Create a like for a post by an account.
+        """
+        try:
+            with db_context.session_scope() as session:
+                # Check if the like already exists
+                existing_like = session.query(PostLikesModel).filter(
+                    PostLikesModel.postId == postId,
+                    PostLikesModel.accountId == accountId
+                ).first()
+                # we remove the like if it exists, otherwise we create a new like 
+                if existing_like:
+                    session.delete(existing_like) 
+                    print(f"Like removed for post ID {postId} by account ID {accountId}.") 
+                    return {
+                        "success": True,
+                        "message": f"Like removed for post ID {postId} by account ID {accountId}."
+                    } 
+                else: 
+                    # Create a new like
+                    new_like = PostLikesModel(
+                        postId=postId,
+                        accountId=accountId
+                    )
+                    session.add(new_like)
+                    print(f"Like added for post ID {postId} by account ID {accountId}.") 
+            
+                    return {
+                        "success": True,
+                        "message": f"Like added for post ID {postId} by account ID {accountId}."
+                    } 
+        except Exception as e: 
+            print(f"Error toggling like for post ID {postId} by account ID {accountId}: {e}") 
+            return {
+                "success": False,
+                "message": f"Error toggling like for post ID {postId} by account ID {accountId}: {e}"
+            } 
 
 

@@ -157,6 +157,26 @@ export const usePostManager = () => {
   }
 };
 
+  // FUNCTION TO toggle likes 
+  const toggleLikePost = async (postId: number) => {
+    try {
+      const response = await api.post(`/toggleLikes/${postId}/${accountId}`); // send a post request to like the post
+      if (response.status === 200) {
+        setAllPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, liked: !post.liked, likes: response.data.likes } : post
+          )
+        );
+        console.log("Post liked/unliked successfully:", response.data);
+      } else {
+        console.error("Failed to toggle like:", response.statusText);
+      } 
+    } catch (error) { 
+      console.error("Error toggling like:", error);
+    
+  }
+} 
+
 
   const handleDeletePost = (postID: number) => {
     setPostToDelete(postID);
@@ -243,5 +263,6 @@ export const usePostManager = () => {
     allViolations,
     loading,
     setLoading,
+    toggleLikePost
   };
 };

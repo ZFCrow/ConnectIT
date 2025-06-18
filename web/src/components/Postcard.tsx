@@ -44,15 +44,26 @@ import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
 import { usePostContext } from "@/contexts/PostContext";
 
-
-
 type PostcardProps = {
-  post: Post; // The post object containing all necessary data
+  //post: Post; // The post object containing all necessary data
+  postId: number; 
   detailMode?: boolean; // ✅ optional, with default = false
 };
 
-const Postcard: FC<PostcardProps> = ({ post, detailMode}) => {
+const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
 
+  const { 
+    handleDeletePost, 
+    handleHide, 
+    handleDeleteComment,
+    allPosts,
+    toggleLikePost 
+  } = usePostContext(); // Get the delete and hide functions from context 
+
+  // using postID to find the specific post in the context 
+  const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID 
+  
+  // destructure the post object to get the necessary data 
   const {
     id,
     username,
@@ -63,11 +74,9 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode}) => {
     comments,
     likes,
     liked,
-    accountId: postAccountId, // The account ID of the post owner
-  } = post; // Destructure the post object
+    accountId: postAccountId, // account ID of the post owner
+  } = postData;
 
-
-  const { handleDeletePost, handleHide, handleDeleteComment } = usePostContext(); // Get the delete and hide functions from context 
 
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -96,7 +105,7 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode}) => {
   
   const handlePostClick = () => {
     navigate(`/post/${id}`, {
-      state : {post},
+      //state : {id},
     });
   } 
 
@@ -226,8 +235,9 @@ const Postcard: FC<PostcardProps> = ({ post, detailMode}) => {
                                         `}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      console.log("Liked!");
+                      //console.log("Liked!");
                       setHasLiked(!hasLiked); // Toggle liked state
+                      toggleLikePost(id); // Call the like function
                     }}
                   >
                     <ThumbsUp className="mr-1 h-4 w-4" />

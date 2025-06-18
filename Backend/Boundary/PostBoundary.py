@@ -33,3 +33,10 @@ class PostBoundary:
         print(f"Post boundary: Deleting post with ID: {postId}")
         return PostControl.deletePost(postId, violations)  # Call the control layer to delete the post by its ID and handle violations 
     
+    @staticmethod
+    def handleToggleLikes(postId: int, accountId: int) -> dict[bool, str]:
+        """
+        Handle toggling the like status of a post for a given account.
+        """
+        print(f"Post boundary: Toggling likes for post ID: {postId} by account ID: {accountId}")
+        return PostControl.toggleLikes(postId, accountId)  # Call the control layer to toggle likes for the post    

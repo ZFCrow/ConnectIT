@@ -1,6 +1,6 @@
 import { useParams, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { usePostContext } from "@/contexts/PostContext";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Postcard from "@/components/Postcard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
@@ -9,7 +9,7 @@ import type { Post } from "@/type/Post";
 const Postpage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
+  //const location = useLocation();
   const [isDeleted, setIsDeleted] = useState(false); 
   const { 
     allPosts, 
@@ -20,26 +20,43 @@ const Postpage = () => {
   if (isNaN(idNum)) return <Navigate to="/" replace />;
 
   // Priority: first try to grab post passed via navigation state, otherwise look it up
-  const statePost = (location.state as { post?: Post })?.post;
-  const post = statePost ?? allPosts.find((p) => p.id === idNum);
+  //const statePost = (location.state as { post?: Post })?.post;
+  const post = allPosts.find((p) => p.id === idNum);
 
-  //If there's no relevant post (deleted or never existed), redirect
+  // //If there's no relevant post (deleted or never existed), redirect
+  // useEffect(() => {
+  //   if (!post) {
+  //     navigate("/", { replace: true });
+  //   }
+  //   if (isDeleted) {
+  //     navigate("/", { replace: true });
+  //   } 
+  // }, [post, navigate,isDeleted]);
+
+  // if (!post) return null;
+
   useEffect(() => {
+    // If the post is not found, redirect to home
     if (!post) {
-      navigate("/", { replace: true });
+      setIsDeleted(true); // Set isDeleted to true to trigger deletion state
     }
+  }, [post]);
+
+  useEffect(() => {
+    // If the post is deleted, redirect to home
     if (isDeleted) {
       navigate("/", { replace: true });
-    } 
-  }, [post, navigate,isDeleted]);
+    }
+  }), [isDeleted, navigate];
 
-  if (!post) return null;
+
+
 
   return (
     <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
       <div className="ml-3 flex-1">
         <Postcard
-          post={post}
+          postId= {idNum} 
           detailMode
         />
       </div>

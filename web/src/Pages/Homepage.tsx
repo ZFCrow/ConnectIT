@@ -109,7 +109,7 @@ const Homepage = () => {
               return (
                 <Postcard
                   key={p.id}
-                  post={p}
+                  postId={p.id}
                   detailMode={false}
                 />
               );

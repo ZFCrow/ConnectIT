@@ -169,6 +169,20 @@ def violations():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
+@app.route('/toggleLikes/<int:post_id>/<int:account_id>', methods=['POST'] )
+def toggleLikes(post_id, account_id):
+    """
+    Toggle the like status of a post for a given account.
+    """
+    try:
+        result = PostBoundary.handleToggleLikes(post_id, account_id)  # Use the boundary to handle toggling likes 
+        return jsonify(result), 200  # Return the result as JSON
+    except Exception as e:
+        print(f"Error toggling likes: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
+    
+
 if __name__  == "__main__":
 
 
