@@ -14,7 +14,7 @@ interface ViolationPickerProps {
 }
 
 export function ViolationPicker({ allViolations, selected, onChange }: ViolationPickerProps) {
-  const { open, setOpen, search, setSearch, filtered, toggle } =
+  const { open, setOpen, search, setSearch, filtered, toggle, removeItem } =
     useOptionLogic<Violation, "name">(allViolations, selected, "name");
 
   return (
@@ -72,7 +72,12 @@ export function ViolationPicker({ allViolations, selected, onChange }: Violation
                 onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="max-h-72 overflow-y-auto p-1">
+          <div 
+          className="max-h-72 overflow-y-auto p-1 overscroll-contain"
+          onWheel={(e) => {
+            // Prevent scroll propagation to the parent
+            e.stopPropagation();
+          }}>
             {filtered.length === 0 ? (
               <p className="p-2 text-sm text-muted-foreground">No tags found</p>
             ) : (
@@ -104,7 +109,7 @@ export function ViolationPicker({ allViolations, selected, onChange }: Violation
             <div className="flex flex-wrap gap-1">
             {selected.map((tag) => (
                 <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => {
-                  const next = toggle(tag);
+                  const next = removeItem(tag);
                   onChange(next);
                 }}>
                 {tag.name}

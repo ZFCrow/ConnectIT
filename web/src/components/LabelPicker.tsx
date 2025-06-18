@@ -14,7 +14,7 @@ interface LabelPickerProps {
 }
 
 export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps) {
-  const { open, setOpen, search, setSearch, filtered, toggle } = useOptionLogic<Label, "name">(
+  const { open, setOpen, search, setSearch, filtered, toggle, removeItem } = useOptionLogic<Label, "name">(
     allLabels,
     selected,
     "name"
@@ -38,7 +38,7 @@ export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps)
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-full p-0 " align="start">
           <div className="border-b p-2">
             <input
                 className="w-full bg-transparent focus:outline-none placeholder:text-muted-foreground"
@@ -47,7 +47,12 @@ export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps)
                 onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="max-h-72 overflow-y-auto p-1">
+          <div 
+          className="max-h-72 overflow-y-auto p-1 overscroll-contain"
+          onWheel={(e) => {
+            // Prevent scroll propagation to the parent
+            e.stopPropagation();
+          }}>
             {filtered.length === 0 ? (
               <p className="p-2 text-sm text-muted-foreground">No tags found</p>
             ) : (
@@ -78,7 +83,10 @@ export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps)
         {selected.length > 0 && (
             <div className="flex flex-wrap gap-1">
             {selected.map((tag) => (
-                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => toggle(tag)}>
+                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => {
+                  const next = removeItem(tag);
+                  onChange(next);
+                }}>
                 {tag.name}
                 <X
                     className="h-3 w-3" 

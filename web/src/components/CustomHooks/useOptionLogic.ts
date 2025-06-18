@@ -30,5 +30,15 @@ export function useOptionLogic<T, K extends keyof T>(
     [key, selectedItems]
   );
 
-  return { open, setOpen, search, setSearch, filtered, toggle };
+  const removeItem = useCallback( 
+    (item: T) => {
+      console.log("Removing item:", item);
+      const next = selectedItems.filter((s) => s[key] !== item[key]);
+      //setOpen(true);
+      return next;
+    },
+    [key, selectedItems]
+  ); 
+
+  return { open, setOpen, search, setSearch, filtered, toggle, removeItem };
 }
