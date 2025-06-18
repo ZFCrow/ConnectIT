@@ -82,7 +82,7 @@ export const usePostManager = () => {
   }
 
 
-  useEffect(() =>{
+  useEffect(() => {
     let result = [...allPosts]; // start with all posts 
 
     //apply active filter if any 
@@ -282,26 +282,47 @@ export const usePostManager = () => {
   };
 
 
-  const handleDeleteComment = (commentId: number) => {
-    console.log("Delete comment with ID:", commentId);
-    // TODO: Implement comment deletion logic
-    // filter it out from the post's comments 
-    setAllPosts((prevPosts) =>
-      prevPosts.map((post) => ({
-        ...post,
-        comments: post.comments.filter((comment) => comment.commentId !== commentId),
-      }))
-    );
-    console.log("Comment deleted with ID:", commentId);
-  };
+  // const handleDeleteComment = (commentId: number) => {
+  //   console.log("Delete comment with ID:", commentId);
+  //   // TODO: Implement comment deletion logic
+  //   // filter it out from the post's comments 
+  //   setAllPosts((prevPosts) =>
+  //     prevPosts.map((post) => ({
+  //       ...post,
+  //       comments: post.comments.filter((comment) => comment.commentId !== commentId),
+  //     }))
+  //   );
+  //   console.log("Comment deleted with ID:", commentId);
+  // };
+
+
+  const handleDeleteComment = async (commentId: number) => { 
+    console.log("delete comment with ID:", commentId); 
+    try {
+      const response = await api.post(`/deleteComment/${commentId}`,{
+        accountId: accountId, // use the accountId from the auth context
+      }); // send a delete request to delete the comment 
+      if (response.status === 200) {
+        setAllPosts((prevPosts) =>
+          prevPosts.map((post) => ({
+            ...post,
+            comments: post.comments.filter((comment) => comment.commentId !== commentId),
+          }))
+        );
+        console.log("Comment deleted successfully with ID:", commentId);
+      } else {
+        console.error("Failed to delete comment:", response.statusText);
+      } 
+    } catch (error) { 
+      console.error("Error deleting comment:", error);
+    }
+  } 
 
   const handleHide = (postId: number) => {
     // setAllPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
     setFilteredPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId)); 
-  };
+  }
 
-
-  
 
   return {
     allPosts,
@@ -328,5 +349,5 @@ export const usePostManager = () => {
     toggleLikePost,
     createComment, 
     recentlyInteractedPost, // expose the recently interacted post state
-  };
+  }
 };

@@ -24,3 +24,21 @@ class CommentMapper:
             session.add(comment_model)
             session.commit()
             return Comment.from_CommentModel(comment_model)  # Return the created Comment entity
+        
+
+
+    @staticmethod 
+    def deleteComment(commentId: int) -> bool:
+        """
+        Delete a comment by its ID.
+        But it will not delete the comment, just mark it as deleted.
+        """
+
+        with db_context.session_scope() as session:
+            comment_model = session.query(CommentModel).filter(CommentModel.commentId == commentId).first()
+            if comment_model:
+                comment_model.isDeleted = True
+                session.commit()
+                return True
+            else:
+                return False 

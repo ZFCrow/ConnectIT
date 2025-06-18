@@ -206,6 +206,29 @@ def addComment(post_id):
         print(f"Error adding comment: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500 
+    
+
+@app.route('/deleteComment/<comment_id>', methods=['POST'])
+def deleteComment(comment_id):
+    """
+    Delete a comment by its ID.
+    """
+    try:
+        data = request.get_json()  # Get the JSON data from the request 
+        if not data or 'accountId' not in data: 
+            return jsonify({"error": "Missing required fields"}), 400 
+        
+        accountId = data['accountId'] 
+        success = CommentBoundary.handleDeleteComment(comment_id)  # Use the boundary to handle deleting the comment 
+        if success: 
+            return jsonify({"message": f"Comment with ID {comment_id} deleted successfully!"}), 200 
+        else:
+            return jsonify({"error": f"Failed to delete comment with ID {comment_id}"}), 500 
+    except Exception as e:
+        print(f"Error deleting comment: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
+     
 
 if __name__  == "__main__":
 

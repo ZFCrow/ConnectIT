@@ -14,3 +14,15 @@ class CommentBoundary:
         comment = CommentControl.createComment(commentData)  # Call the control layer to create the comment
         print(f"Comment boundary: Created comment with ID {comment.commentId}.")
         return comment  # Return the created comment entity 
+    
+
+    @staticmethod 
+    def handleDeleteComment(commentId: int) -> bool:
+        """
+        Handle the deletion of a comment by its ID.
+        This will not delete the comment, just mark it as deleted.
+        """
+        print(f"Comment boundary: Deleting comment with ID {commentId}.")
+        result = CommentControl.deleteComment(commentId)  # Call the control layer to delete the comment
+        print(f"Comment boundary: Comment deletion result: {result}.")
+        return result  # Return the result of the deletion operation 
