@@ -187,6 +187,7 @@ class DatabaseContext:
             from .JobListingModel import JobListingModel
             from .JobApplicationModel import JobApplicationModel
             from .ResponsibilityModel import ResponsibilityModel
+            from .FieldOfWorkModel import FieldOfWorkModel
             # Add other models as you create them
             
             registered_models = [cls.__name__ for cls in Base.__subclasses__()]

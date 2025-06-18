@@ -1,3 +1,4 @@
+from SQLModels.FieldOfWorkModel import FieldOfWorkModel
 from SQLModels.JobApplicationModel import JobApplicationModel
 from SQLModels.UserModel import UserModel
 from Entity.JobListing import JobListing
@@ -15,27 +16,31 @@ class JobListingMapper:
         Adds a new job listing to the database.
         :param job_data: dict containing job details.
         """
-        
-        job_listing_model = JobListingModel(
-            # jobId is auto-increment, don't need to set unless updating
-            companyId=company_id,
-            title=jobListing.title,
-            description=jobListing.description,
-            applicationDeadline=jobListing.applicationDeadline,
-            experiencePreferred=jobListing.experiencePreferred,
-            minSalary=jobListing.minSalary,
-            maxSalary=jobListing.maxSalary,
-            jobType=jobListing.jobType.value,
-            fieldOfWork=jobListing.fieldOfWork.value,
-            createdAt=jobListing.createdAt,
-            workArrangement=jobListing.workArrangement.value,
-            isDeleted= jobListing.isDeleted
-        )
-     
-        
         with db_context.session_scope() as session:
+            
+            field: FieldOfWorkModel = session.query(FieldOfWorkModel).filter(
+                    func.lower(FieldOfWorkModel.description) == jobListing.fieldOfWork
+                ).first()
+            
+            job_listing_model = JobListingModel(
+                # jobId is auto-increment, don't need to set unless updating
+                companyId=company_id,
+                title=jobListing.title,
+                description=jobListing.description,
+                applicationDeadline=jobListing.applicationDeadline,
+                experiencePreferred=jobListing.experiencePreferred,
+                minSalary=jobListing.minSalary,
+                maxSalary=jobListing.maxSalary,
+                jobType=jobListing.jobType.value,
+                fieldOfWorkId=field.fieldOfWorkId,
+                createdAt=jobListing.createdAt,
+                workArrangement=jobListing.workArrangement.value,
+                isDeleted= jobListing.isDeleted
+            )
+     
             session.add(job_listing_model)
             session.flush()
+        
             ## Add the responsibilities to the job listing
             for responsibility in jobListing.responsibilities:
 
@@ -60,6 +65,7 @@ class JobListingMapper:
                 session.query(JobListingModel)
                 .options(
                     selectinload(JobListingModel.company),
+                    selectinload(JobListingModel.fieldOfWork),  # <-- load fieldOfWork relation
                     selectinload(JobListingModel.responsibilities),
                     selectinload(JobListingModel.jobApplication).selectinload(JobApplicationModel.user).selectinload(UserModel.account)
                 )
@@ -87,7 +93,7 @@ class JobListingMapper:
                     func.count(JobApplicationModel.applicationId).label("numApplicants")
                 )
                 .outerjoin(JobApplicationModel, JobListingModel.jobId == JobApplicationModel.jobId)
-                .options(selectinload(JobListingModel.company))
+                .options(selectinload(JobListingModel.company),selectinload(JobListingModel.fieldOfWork))
                 .group_by(JobListingModel.jobId)
             )
             if company_id is not None:

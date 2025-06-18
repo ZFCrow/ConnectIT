@@ -1,6 +1,7 @@
 # job_listing_routes.py
 
 from flask import Blueprint, request, jsonify
+from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Control.JobApplicationControl import JobApplicationControl
 from Control.JobListingControl import JobListingControl  # Import your control class
 
@@ -56,14 +57,21 @@ def apply_job():
         return jsonify({"error": "User ID is required"}), 400
     
     success = JobApplicationControl.applyJob(jobId, userId)
-    return jsonify({"message": "Application submitted successfully!"}) if success else jsonify({"error": "Failed to apply for job"}), 200
+    if success:
+        return jsonify({"message": "Application submitted successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to apply for job"}), 500
+    
 @job_listing_bp.route("/approveApplication/<int:applicationId>", methods=["POST"])
 def approve_application(applicationId):
     """
     Approves a job application by applicationId.
     """
     success = JobApplicationControl.approveApplication(applicationId)
-    return jsonify({"message": "Application approved successfully!"}) if success else jsonify({"error": "Failed to approve application"}), 200
+    if success:
+        return jsonify({"message": "Application submitted successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to apply for job"}), 500
 
 @job_listing_bp.route("/rejectApplication/<int:applicationId>", methods=["DELETE"])
 def reject_application(applicationId):
@@ -73,10 +81,17 @@ def reject_application(applicationId):
     success = JobApplicationControl.rejectApplication(applicationId)
     return jsonify({"message": "Application rejected successfully!"}) if success else jsonify({"error": "Failed to reject application"}), 200
 
-@job_listing_bp.route("/getApplicantsByCompanyId/<int:companyId>", methods=["POST"])
+@job_listing_bp.route("/getApplicantsByCompanyId/<int:companyId>", methods=["GET"])
 def getApplicantsByCompanyId(companyId):
     """
-    Approves a job application by applicationId.
+    Retrieves all job applications submitted to jobs by this company.
     """
     applicants=JobApplicationControl.getApplicationsByCompanyId(companyId)
-    return jsonify([applicant.to_dict() for applicant in applicants]) if applicants else jsonify({"error": "No applicants found"}), 200
+    return jsonify([applicant.to_dict() for applicant in applicants]) if applicants else jsonify([]), 200
+
+@job_listing_bp.route("/getFieldOfWork", methods=["GET"])
+def get_field_of_work():
+    """
+    Retrieves all field of work options.
+    """
+    return FieldOfWorkTDG.getAllFieldOfWork()

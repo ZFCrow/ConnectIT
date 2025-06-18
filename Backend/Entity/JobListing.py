@@ -8,33 +8,6 @@ class WorkArrangement(Enum):
     Remote = "Remote"
     Hybrid = "Hybrid"
 
-class Field(Enum):
-    UIUX = "UI/UX"
-    SoftwareEngineering = "Software Engineering"
-    DataScience = "Data Science"
-    CyberSecurity = "Cyber Security"
-    CloudEngineering = "Cloud Engineering"
-    ProductManagement = "Product Management"
-    BusinessAnalysis = "Business Analysis"
-    ProjectManagement = "Project Management"
-    MobileDevelopment = "Mobile Development"
-    WebDevelopment = "Web Development"
-    NetworkEngineering = "Network Engineering"
-    GameDevelopment = "Game Development"
-    QualityAssurance = "Quality Assurance"
-    DevOps = "DevOps"
-    ArtificialIntelligence = "Artificial Intelligence"
-    MachineLearning = "Machine Learning"
-    ITSupport = "IT Support"
-    DatabaseAdministration = "Database Administration"
-    EmbeddedSystems = "Embedded Systems"
-    Blockchain = "Blockchain"
-    Robotics = "Robotics"
-    DigitalMarketing = "Digital Marketing"
-    GraphicDesign = "Graphic Design"
-    FinanceTechnology = "FinTech"
-    SalesEngineering = "Sales Engineering"
-    Other = "Other"
 
 class JobType(Enum):
     PartTime = "Part Time"
@@ -54,7 +27,7 @@ class JobListing:
         jobType: JobType, 
         createdAt: datetime,
         workArrangement: WorkArrangement,
-        fieldOfWork: Field,
+        fieldOfWork: str,
         responsibilities: List[str],
         experiencePreferred: int = 0,
         numApplicants: int = 0,
@@ -140,11 +113,11 @@ class JobListing:
     def setArrangement(self, arrangement: WorkArrangement) -> None:
         self.workArrangement = arrangement
 
-    def getFieldOfWork(self) -> Field:
-        return self.fieldOfWork
+    # def getFieldOfWork(self) -> Field:
+    #     return self.fieldOfWork
 
-    def setFieldOfWork(self, field: Field) -> None:
-        self.fieldOfWork = field
+    # def setFieldOfWork(self, field: Field) -> None:
+    #     self.fieldOfWork = field
 
     def getScope(self) -> str:
         return self.jobScope
@@ -176,8 +149,6 @@ class JobListing:
         work_arrangement_value = data.get('workArrangement') or data.get('work_arrangement') or 'Onsite'
         work_arrangement = WorkArrangement(work_arrangement_value)
 
-        field_of_work_value = data.get('fieldOfWork') or data.get('field_of_work') or 'Other'
-        field_of_work = Field(field_of_work_value)
 
         # Parse datetimes (expecting ISO strings)
         deadline = data.get('applicationDeadline') or data.get('application_deadline')
@@ -195,7 +166,7 @@ class JobListing:
             jobType=JobType(job_type),
             createdAt=created_at,
             workArrangement=WorkArrangement(work_arrangement),
-            fieldOfWork=Field(field_of_work),
+            fieldOfWork=data.get('fieldOfWork') or data.get('field_of_work') or 'Other',
             responsibilities=data.get('responsibilities', []),
             isDeleted=data.get('isDeleted') or data.get('is_deleted', False),
             company=data.get('company'),
@@ -214,7 +185,7 @@ class JobListing:
             "jobType":          self.jobType.value,          # Enum → str
             "createdAt":        self.createdAt.isoformat(),
             "workArrangement":  self.workArrangement.value,
-            "fieldOfWork":      self.fieldOfWork.value,
+            "fieldOfWork":      self.fieldOfWork,
             "responsibilities": list(self.responsibilities),
             "isDeleted":        self.isDeleted,
             "company": (
@@ -238,7 +209,7 @@ class JobListing:
             jobType             = orm_obj.jobType,          # already an Enum
             createdAt           = orm_obj.createdAt,
             workArrangement     = orm_obj.workArrangement,  # Enum
-            fieldOfWork         = orm_obj.fieldOfWork,      # Enum
+            fieldOfWork         = orm_obj.fieldOfWork.description,  # Assuming fieldOfWork is a relationship to FieldOfWorkModel
             responsibilities    = [r.responsibility for r in orm_obj.responsibilities if r.responsibility is not None],
             isDeleted           = orm_obj.isDeleted,
             company             = Company.from_model(orm_obj.company),

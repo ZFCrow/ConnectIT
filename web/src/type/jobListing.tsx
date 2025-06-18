@@ -49,7 +49,7 @@ export const JobListingSchema = z.object({
   jobType: JobTypeEnum,
   createdAt: z.string(), // ISO format date string
   workArrangement: WorkArrangementEnum,
-  fieldOfWork: FieldEnum,
+  fieldOfWork: z.string(),
   responsibilities: z.array(z.string()),
   experiencePreferred: z.number().optional(),
   isDeleted: z.boolean().optional(),

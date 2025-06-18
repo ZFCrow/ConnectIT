@@ -2,23 +2,11 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
 import { sampleJobs } from "../FakeData/sampleJobs";
+import axios from "axios";
 
 // Static lists
 const jobTypes = ["Full Time", "Part Time", "Contract", "Internship"];
 const arrangements = ["Remote", "Hybrid", "Onsite"];
-const fieldOptions = [
-  "UI/UX",
-  "Software Development",
-  "Design",
-  "Marketing",
-  "Sales",
-  "Human Resources",
-  "Finance",
-  "Operations",
-  "Customer Support",
-  "Product Management",
-  "Data Science",
-];
 
 // Default empty job
 const defaultJob = (): JobListing => ({
@@ -26,7 +14,7 @@ const defaultJob = (): JobListing => ({
   jobId: Date.now(),
   companyId: 123,
   title: "",
-  field: fieldOptions[0],
+  field: "",
   description: "",
   type: jobTypes[0],
   workArrangement: arrangements[2],
@@ -46,7 +34,20 @@ interface JobFormProps {
 
 export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
   const [form, setForm] = useState<JobListing>(initialJob ?? defaultJob());
+  const [fieldOptions, setFieldOptions] = useState<string[]>([]);
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const res = await axios.get("/api/getFieldOfWork");
+        console.log("fieldOptions API result:", res.data);
 
+        setFieldOptions(res.data);
+      } catch (e) {
+        setFieldOptions([]);
+      }
+    };
+    fetchFields();
+  }, []);
   useEffect(() => {
     if (initialJob) setForm(initialJob);
   }, [initialJob]);

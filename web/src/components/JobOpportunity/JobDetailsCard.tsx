@@ -220,7 +220,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </time>
         </div>
       </div>
-      {userType === Role.Company && (
+      {userType === Role.Company && job.numApplicants != 0 && (
         <section className="mt-8">
           <hr className="mb-4" />
           <div className="flex items-center justify-between mb-4">

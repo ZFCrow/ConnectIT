@@ -28,8 +28,10 @@ const CompanyJobsPage: React.FC = () => {
         // Fetch both in parallel
         const [jobsRes, appsRes] = await Promise.all([
           axios.get(`/api/companyJobListings/${CURRENT_COMPANY_ID}`),
-          axios.post(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
+          axios.get(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
         ]);
+        console.log("appsRes.data →", appsRes.data);
+        console.log("jobsRes.data →", jobsRes.data);
 
         // Parse and validate
         const jobs = Array.isArray(jobsRes.data)
