@@ -9,10 +9,12 @@ export const useLabelManager = () => {
     const [popularLabels, setPopularLabels] = useState<Label[]>([]); // Popular labels for quick access 
     
     // ? i dont think its used anywhere 
-    const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
+    // const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
 
+    const [loading, setLoading] = useState<boolean>(false); // Loading state for fetching labels
 
     const fetchLabels = async () => {
+        setLoading(true); // Set loading to true when fetching starts 
         try {
             const response = await api.get('/labels');
             console.log("Fetched labels:", response.data);
@@ -22,6 +24,7 @@ export const useLabelManager = () => {
             const topLabels = sortedLabels.slice(0, 5); // Get the top 5 labels 
             setPopularLabels(topLabels); // set the popular labels state with the top 5 labels
             console.log("Popular labels:", topLabels);
+            setLoading(false); // Set loading to false when fetching ends 
         } catch (error) {
             console.error("Error fetching labels:", error);
         }
@@ -34,8 +37,8 @@ export const useLabelManager = () => {
         setAllLabels,
         popularLabels,
         setPopularLabels,
-        selectedLabels,
-        setSelectedLabels,
+        loading,
+        setLoading, 
         fetchLabels, // expose the fetch function
     }
   

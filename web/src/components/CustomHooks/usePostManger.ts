@@ -3,7 +3,7 @@ import type { Post } from '@/type/Post';
 import type { Label } from '@/type/Label';
 import type { Comment } from '@/type/Comment'; 
 import { PostsArraySchema, ValidatedPost } from '@/type/Post'; 
-import {  z } from 'zod'; 
+import {  set, z } from 'zod'; 
 
 import { api } from '@/api/api'; // import the api instance 
 import { useAuth } from '@/contexts/AuthContext'; // import the auth context
@@ -17,6 +17,7 @@ export const usePostManager = () => {
   const [activeSortby, setActiveSortBy] = useState<string | null>(null); 
   
   const [postToDelete, setPostToDelete] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(false); // loading state for fetching posts 
 
   const { accountId } = useAuth(); // get the accountId from the auth context 
 
@@ -34,7 +35,7 @@ export const usePostManager = () => {
   
   const fetchPosts = async () => { 
     try{
-      
+      setLoading(true); // set loading to true while fetching posts
       const response = await api.get('/posts'); 
       console.log("Fetched post:", response.data); 
       // validate an array of posts 
@@ -68,6 +69,7 @@ export const usePostManager = () => {
 
       setAllPosts(convertedPosts); // set the posts state with validated posts
       setFilteredPosts(convertedPosts); // also set the filtered posts state
+      setLoading(false); // set loading to false after fetching posts 
     } catch (error) {
       if (error instanceof z.ZodError) {
         console.error("Validation error:", error.errors);
@@ -238,6 +240,8 @@ export const usePostManager = () => {
     setSelectedViolations,
     handleDeleteComment,
     handleHide,
-    allViolations
+    allViolations,
+    loading,
+    setLoading,
   };
 };

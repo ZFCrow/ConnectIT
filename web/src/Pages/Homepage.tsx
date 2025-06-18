@@ -10,6 +10,8 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostContext } from "@/contexts/PostContext";
 import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
 import { create } from "domain";
+import PostCardSkeleton from "@/components/PostCardSkeleton";
+import ListingCardSkeleton from "@/components/ListingCardSkeleton";
 
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
@@ -33,6 +35,7 @@ const Homepage = () => {
     setSelectedViolations,
     handleDeleteComment,
     handleHide,
+    loading 
   } = usePostContext(); // custom hook to manage posts
   
 
@@ -41,6 +44,7 @@ const Homepage = () => {
     setAllLabels,
     popularLabels,
     fetchLabels,
+    loading: labelLoading
   } = useLabelManager(); // custom hook to manage labels
   
 
@@ -53,6 +57,12 @@ const Homepage = () => {
     <>
       <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
+        {labelLoading ? (
+          <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
+            <ListingCardSkeleton title = "Popular Tags" />
+            <ListingCardSkeleton  title = "Sort by"/>
+          </aside>
+        ): (        
         <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           <ListingCard
             title="Popular Tags"
@@ -66,7 +76,8 @@ const Homepage = () => {
             onClick={setActiveSortBy}
          
           />
-        </aside>
+        </aside>)}
+
 
         {/* Middle content - grows to fill available space */}
         {/* Scrollabel content*/}
@@ -75,15 +86,36 @@ const Homepage = () => {
           {/* Only show CreatePostbar for non-admin users */}
           {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} createPostFunction={createPost}/>}
           
-          {filteredPosts.map((p) => {
-            return (
-              <Postcard
-                key={p.id}
-                post={p}
-                detailMode = {false}
-              ></Postcard>
-            );
-          })}
+          {/* Show loading skeletons if loading */} 
+          { loading ? (
+            <div className="space-y-4">
+              <PostCardSkeleton />
+              <PostCardSkeleton />  
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="empty-state text-center py-12">
+              <h3 className="text-lg font-semibold text-gray-600">No post found</h3>
+              <p className="text-gray-500 mt-2">
+
+                {activeFilter? `No posts found for the filter "${activeFilter}"` : "No posts available."}
+              </p>
+            </div>
+          ) : (
+            // show the filtered posts since lenth is greater than 0 
+            filteredPosts.map((p) => {
+              return (
+                <Postcard
+                  key={p.id}
+                  post={p}
+                  detailMode={false}
+                />
+              );
+            })
+          )
+          }
         </section>
 
         {/* Right sidebar - fixed width */}
