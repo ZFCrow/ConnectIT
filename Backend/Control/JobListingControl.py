@@ -1,3 +1,4 @@
+from Boundary.TableDataGateway.ViolationGateway import ViolationGateway
 from Boundary.Mapper.JobListingMapper import JobListingMapper
 from Entity.JobListing import JobListing
 from SQLModels.base import db_context  
@@ -106,3 +107,23 @@ class JobListingControl:
         """
         print(f"Setting company {company_id} verified status to {verified}")
         return JobListingMapper.setCompanyVerified(company_id, verified)
+    
+    @staticmethod
+    def getAllViolations():
+        """
+        Retrieves all violations.
+        :return: List of all violations.
+        """
+        print("Retrieving all violations")
+        return ViolationGateway.getAllViolationOptions()  # Assuming JobListingMapper has a getAllViolations method
+    
+    @staticmethod
+    def setViolation(jobId: int, violationId: int) -> bool:
+        """
+        Sets a violation for a job listing.
+        :param jobId: ID of the job to set the violation for.
+        :param violationId: ID of the violation to set.
+        :return: True if the violation was set successfully, False otherwise.
+        """
+        print(f"Setting violation {violationId} for jobId {jobId}")
+        return JobListingMapper.setViolation(jobId, violationId)

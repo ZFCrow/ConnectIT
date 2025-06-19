@@ -26,14 +26,21 @@ import { useDeleteJob } from "@/utility/handleDeleteJob";
 import { useApplyJob } from "@/utility/handleApplyJob";
 import { useAuth } from "@/contexts/AuthContext";
 import { handleBookmarkToggle } from "@/utility/handleBookmark";
+import { ViolationOption } from "@/utility/fetchViolationOptions";
 
 type Props = {
   job: JobListing;
   userType: string;
   setJobListings: React.Dispatch<React.SetStateAction<JobListing[]>>;
+  violationOptions: ViolationOption[]; // pass in list of {violationId, description}
 };
 
-const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
+const JobCard: React.FC<Props> = ({
+  job,
+  userType,
+  setJobListings,
+  violationOptions,
+}) => {
   const navigate = useNavigate();
   const posted = new Date(job.createdAt).toLocaleDateString(
     dateLocale,
@@ -59,8 +66,8 @@ const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
   });
 
   const handleDeleteClick = () => setDeleteOpen(true);
-  const handleDeleteConfirm = () => {
-    deleteJob(job.jobId);
+  const handleDeleteConfirm = (violationId?: number) => {
+    deleteJob(job.jobId, violationId);
   };
 
   return (
@@ -74,7 +81,7 @@ const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
       <div className="space-y-1">
         <div className="flex items-baseline gap-3">
           <h2 className="text-2xl font-bold text-white leading-tight">
-            {userType === Role.Company ? (
+            {userType === Role.Company || userType === Role.Admin ? (
               <span className="text-gray-400">#{job.jobId}</span>
             ) : (
               <></>
@@ -259,6 +266,8 @@ const JobCard: React.FC<Props> = ({ job, userType, setJobListings }) => {
           onConfirm={handleDeleteConfirm}
           loading={loading}
           jobTitle={job.title}
+          role={userType as Role}
+          violationOptions={violationOptions}
         />
       </div>
     </div>

@@ -1,3 +1,4 @@
+from SQLModels.JobViolationModel import JobViolationModel
 from Entity.Company import Company
 from SQLModels.CompanyModel import CompanyModel
 from SQLModels.SavedJobModel import SavedJobModel
@@ -175,6 +176,19 @@ class JobListingMapper:
                 return False  # Not bookmarked
             
             session.delete(bookmark)
+            return True
+        
+    @staticmethod
+    def setViolation(jobId: int, violationId: int) -> bool:
+        """
+        Sets a violation for a job listing.
+        :param jobId: ID of the job to set the violation for.
+        :param violationId: ID of the violation to set.
+        :return: True if the violation was set successfully, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            link = JobViolationModel(jobId=jobId, violationId=violationId)
+            session.add(link)
             return True
         
 ###################################################################################################

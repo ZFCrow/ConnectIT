@@ -10,6 +10,10 @@ import { JobListing } from "@/type/jobListing";
 import { JobListingSchema } from "@/type/jobListing";
 import axios from "axios";
 import { Role, useAuth } from "@/contexts/AuthContext";
+import {
+  fetchViolationOptions,
+  ViolationOption,
+} from "@/utility/fetchViolationOptions";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -17,56 +21,63 @@ const JobListingPage: React.FC = () => {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
   const { role, userId } = useAuth();
+  const [violationOptions, setViolationOptions] = useState<ViolationOption[]>(
+    []
+  );
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchAll = async () => {
       setLoading(true);
       try {
-        // Default arrays
-        let bookmarkedIds: number[] = [];
-        let appliedIds: number[] = [];
+        // Fetch violation options and jobs in parallel
+        const [violations, jobsData] = await Promise.all([
+          fetchViolationOptions().catch(() => []),
+          (async () => {
+            let bookmarkedIds: number[] = [];
+            let appliedIds: number[] = [];
+            if (role === Role.User && userId) {
+              const bookmarkRes = await axios.get(
+                `/api/getBookmarkedJob/${userId}`
+              );
+              bookmarkedIds = bookmarkRes.data ?? [];
+              const appliedRes = await axios.get(
+                `/api/getAppliedJobId/${userId}`
+              );
+              appliedIds = appliedRes.data ?? [];
+            }
+            const res = await axios.get("/api/joblistings");
+            const jobs = Array.isArray(res.data)
+              ? res.data
+                  .map((item) => {
+                    try {
+                      const job = JobListingSchema.parse(item);
+                      return {
+                        ...job,
+                        isBookmarked: bookmarkedIds.includes(job.jobId),
+                        isApplied: appliedIds.includes(job.jobId),
+                      };
+                    } catch (err) {
+                      console.error("Invalid job listing:", err, item);
+                      return null;
+                    }
+                  })
+                  .filter(Boolean)
+              : [];
+            return jobs;
+          })(),
+        ]);
 
-        // Fetch bookmarks and applied jobs if user
-        if (role === Role.User && userId) {
-          // Fetch bookmarks
-          const bookmarkRes = await axios.get(
-            `/api/getBookmarkedJob/${userId}`
-          );
-          bookmarkedIds = bookmarkRes.data ?? [];
-
-          // Fetch applied job IDs
-          const appliedRes = await axios.get(`/api/getAppliedJobId/${userId}`);
-          appliedIds = appliedRes.data ?? [];
-        }
-        // Fetch all jobs
-        const res = await axios.get("/api/joblistings");
-
-        // Validate and add isBookmarked/isApplied
-        const jobs = Array.isArray(res.data)
-          ? res.data
-              .map((item) => {
-                try {
-                  const job = JobListingSchema.parse(item);
-                  return {
-                    ...job,
-                    isBookmarked: bookmarkedIds.includes(job.jobId),
-                    isApplied: appliedIds.includes(job.jobId),
-                  };
-                } catch (err) {
-                  console.error("Invalid job listing:", err, item);
-                  return null;
-                }
-              })
-              .filter(Boolean)
-          : [];
-        setJobListings(jobs as JobListing[]);
+        setViolationOptions(violations);
+        setJobListings(jobsData as JobListing[]);
       } catch (err) {
-        console.error("Error loading job listings:", err);
+        // Handle error as needed
+        setViolationOptions([]);
+        setJobListings([]);
       } finally {
-        setLoading(false);
+        setLoading(false); // Only set to false after BOTH are done
       }
     };
-    fetchJobs();
+    fetchAll();
   }, [role, userId]);
 
   const [filterType, setFilterType] = useState<string>("All");
@@ -215,6 +226,7 @@ const JobListingPage: React.FC = () => {
                 job={job}
                 userType={role}
                 setJobListings={setJobListings}
+                violationOptions={violationOptions}
               />
             ))
           ) : (

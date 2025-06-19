@@ -28,12 +28,19 @@ import { useDeleteJob } from "@/utility/handleDeleteJob";
 import DeleteJobModal from "./DeleteJobModal";
 import { useApplicantActions } from "@/utility/handleApplication";
 import { handleBookmarkToggle } from "@/utility/handleBookmark";
+import { ViolationOption } from "@/utility/fetchViolationOptions";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
   setJob: React.Dispatch<React.SetStateAction<JobListing | null>>; // For updating job state after deletion
+  violationOptions: ViolationOption[]; // pass in list of {violationId, description}
 }
-const JobDetailsCard: React.FC<Props> = ({ job, userType, setJob }) => {
+const JobDetailsCard: React.FC<Props> = ({
+  job,
+  userType,
+  setJob,
+  violationOptions,
+}) => {
   //for application modal
   const [open, setOpen] = useState(false);
   //for delete modal
@@ -42,13 +49,14 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType, setJob }) => {
 
   const { deleteJob, loading } = useDeleteJob(() => {
     setDeleteOpen(false);
-    navigate("/company/recruitmentDashboard");
+    if (userType === Role.Company) navigate("/company/recruitmentDashboard");
+    else navigate("/jobListing");
 
     window.location.reload();
   });
   const handleDeleteClick = () => setDeleteOpen(true);
-  const handleDeleteConfirm = () => {
-    deleteJob(job.jobId);
+  const handleDeleteConfirm = (violationId?: number) => {
+    deleteJob(job.jobId, violationId);
   };
   const { role, userId, companyId } = useAuth();
 
@@ -140,6 +148,8 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType, setJob }) => {
                   onConfirm={handleDeleteConfirm}
                   loading={loading}
                   jobTitle={job.title}
+                  role={userType as Role}
+                  violationOptions={violationOptions}
                 />
               </>
             ) : null}

@@ -94,7 +94,7 @@ def get_field_of_work():
     """
     Retrieves all field of work options.
     """
-    return FieldOfWorkTDG.getAllFieldOfWork()
+    return JobApplicationControl.getAllFieldOfWork()
 
 @job_listing_bp.route("/getBookmarkedJob/<int:userId>", methods=["GET"])
 def get_bookmarked_jobs(userId):
@@ -160,3 +160,23 @@ def set_company_verified(company_id, verified):
     """
     success = JobListingControl.setCompanyVerified(company_id, bool(verified))
     return jsonify({"message": "Company verification status updated successfully!"}) if success else jsonify({"error": "Failed to update company verification status"}), 200
+
+@job_listing_bp.route("/getAllViolations", methods=["GET"])
+def get_all_violations():
+    """
+    Retrieves all violations.
+    :return: List of all violations.
+    """
+    return JobListingControl.getAllViolations()
+
+@job_listing_bp.route("/setViolation/<int:jobId>/<int:violationId>", methods=["POST"])
+def set_violation(jobId, violationId):
+    """
+    Sets a violation for a job listing.
+    :param jobId: ID of the job to set the violation for.
+    :param violationId: ID of the violation to set.
+    :return: Success message or error.
+    """
+    success = JobListingControl.setViolation(jobId, violationId)
+    return jsonify({"message": "Violation set successfully!"}) if success else jsonify({"error": "Failed to set violation"}), 200
+    

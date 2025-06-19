@@ -1,12 +1,15 @@
-// src/components/JobOpportunity/DeleteJobModal.tsx
-import React from "react";
+import { Role } from "@/contexts/AuthContext";
+import React, { useEffect, useState } from "react";
 
+import { ViolationOption } from "@/utility/fetchViolationOptions";
 interface DeleteJobModalProps {
   open: boolean;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: (selectedViolationId?: number) => void;
   loading: boolean;
   jobTitle?: string;
+  role: Role;
+  violationOptions: ViolationOption[]; // pass in list of {violationId, description}
 }
 
 const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
@@ -15,8 +18,17 @@ const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
   onConfirm,
   loading,
   jobTitle,
+  role,
+  violationOptions = [],
 }) => {
+  const [selectedViolationId, setSelectedViolationId] = useState<string>("");
+
+  useEffect(() => {
+    if (!open) setSelectedViolationId(undefined);
+  }, [open]);
+
   if (!open) return null;
+  console.log("Violation options:", violationOptions);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -28,6 +40,35 @@ const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
           Are you sure you want to delete{" "}
           <span className="font-semibold">{jobTitle ?? "this job"}</span>?
         </p>
+
+        {role === Role.Admin && (
+          <div className="mb-4">
+            <label className="block text-gray-400 mb-1 font-semibold">
+              Reason for Deletion (Violation):
+            </label>
+
+            <select
+              value={selectedViolationId}
+              onChange={(e) => {
+                console.log("Selected violation ID:", e.target.value);
+                setSelectedViolationId(e.target.value);
+                console.log(
+                  "Selected violation ID state:",
+                  selectedViolationId
+                );
+              }}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-zinc-700 rounded-lg bg-zinc-800 text-gray-200"
+            >
+              <option value="">Select violation reason</option>
+              {violationOptions.map((v) => (
+                <option key={v.violationId} value={String(v.violationId)}>
+                  {v.description}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         {loading ? (
           <div className="flex items-center justify-center py-4">
             <svg
@@ -63,8 +104,14 @@ const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
             </button>
             <button
               className="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-500 transition"
-              onClick={onConfirm}
-              disabled={loading}
+              onClick={() =>
+                onConfirm(
+                  selectedViolationId ? Number(selectedViolationId) : undefined
+                )
+              }
+              disabled={
+                loading || (role === Role.Admin && !selectedViolationId)
+              }
               type="button"
             >
               Delete

@@ -1,3 +1,4 @@
+from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
 from Entity.JobListing import JobListing
 from SQLModels.base import db_context  
@@ -55,3 +56,12 @@ class JobApplicationControl:
         """
         print(f"Retrieving applications for user with userId: {userId}")
         return JobApplicationMapper.getAppliedJobIds(userId)
+    
+    @staticmethod
+    def getAllFieldOfWork():
+        """
+        Retrieves all field of work options.
+        :return: List of field of work options.
+        """
+        print("Retrieving all field of work options")
+        return FieldOfWorkTDG.getAllFieldOfWork()

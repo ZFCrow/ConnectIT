@@ -8,27 +8,45 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import { JobListing, JobListingSchema } from "@/type/jobListing";
 import { useEffect, useState } from "react";
+import {
+  fetchViolationOptions,
+  ViolationOption,
+} from "@/utility/fetchViolationOptions";
+
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
   const [job, setJob] = useState<JobListing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [violationOptions, setViolationOptions] = useState<ViolationOption[]>(
+    []
+  );
+
   useEffect(() => {
-    const fetchJob = async () => {
+    if (!jobId) return;
+
+    const loadAll = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`/api/jobDetails/${jobId}`);
+        const [jobRes, violationOpts] = await Promise.all([
+          axios.get(`/api/jobDetails/${jobId}`),
+          fetchViolationOptions(),
+        ]);
 
-        // Use zod or your own type validation here if needed
-        setJob(JobListingSchema.parse(res.data));
+        // parse + set
+        setJob(JobListingSchema.parse(jobRes.data));
+        setViolationOptions(violationOpts);
       } catch (err) {
+        console.error("Failed to load job details or violations", err);
         setJob(null);
-        console.error("Failed to fetch job details", err);
+        setViolationOptions([]);
       } finally {
         setLoading(false);
       }
     };
-    if (jobId) fetchJob();
+
+    loadAll();
   }, [jobId]);
+
   // const job = sampleJobs.find((j) => j.jobId === Number(jobId));
   const { role, userId, companyId } = useAuth();
   if (!job) {
@@ -92,7 +110,12 @@ export default function JobDetailPage() {
         <span>Back to Listing</span>
       </Link>
       {/* Job details in a card */}
-      <JobDetailsCard job={job} userType={!role ? "" : role} setJob={setJob} />
+      <JobDetailsCard
+        job={job}
+        userType={!role ? "" : role}
+        setJob={setJob}
+        violationOptions={violationOptions}
+      />
       <ApplicationToaster />{" "}
     </div>
   );
