@@ -8,7 +8,7 @@ class Company(Account):
     companyId: int
     description: str
     location: str
-    verified: bool
+    verified: int ## TODO: KEEP INT WHEN MERGED
 
     @classmethod
     def from_dict(cls, data):

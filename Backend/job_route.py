@@ -136,3 +136,27 @@ def remove_bookmark(userId, jobId):
     
     success = JobListingControl.removeBookmark(userId, jobId)
     return jsonify({"message": "Job removed from bookmarks successfully!"}) if success else jsonify({"error": "Failed to remove job from bookmarks"}), 200
+
+
+########################################################################
+#######TODO: TO BE MOVED TO ACCOUNT ROUTE AFTER INTEGRATION##########
+#########################################################################
+@job_listing_bp.route("/getAllCompanies", methods=["GET"])
+def get_all_companies():
+    """
+    Retrieves all companies.
+    :return: List of all companies.
+    """
+    companies = JobListingControl.getAllCompanies()
+    return jsonify([company.to_dict() for company in companies]), 200
+
+@job_listing_bp.route("/setCompanyVerified/<int:company_id>/<int:verified>", methods=["POST"])
+def set_company_verified(company_id, verified):
+    """
+    Sets the verification status of a company.
+    :param company_id: ID of the company to verify.
+    :param verified: Verification status (1 for True, 0 for False).
+    :return: Success message or error.
+    """
+    success = JobListingControl.setCompanyVerified(company_id, bool(verified))
+    return jsonify({"message": "Company verification status updated successfully!"}) if success else jsonify({"error": "Failed to update company verification status"}), 200

@@ -77,7 +77,9 @@ const JobListingPage: React.FC = () => {
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  const allFields = Array.from(new Set(jobListings.map((j) => j.field))).sort();
+  const allFields = Array.from(
+    new Set(jobListings.map((j) => j.fieldOfWork))
+  ).sort();
   allFields.unshift("All");
 
   // 1) Filter

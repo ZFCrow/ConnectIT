@@ -1,3 +1,5 @@
+from Entity.Company import Company
+from SQLModels.CompanyModel import CompanyModel
 from SQLModels.SavedJobModel import SavedJobModel
 from SQLModels.FieldOfWorkModel import FieldOfWorkModel
 from SQLModels.JobApplicationModel import JobApplicationModel
@@ -173,4 +175,34 @@ class JobListingMapper:
                 return False  # Not bookmarked
             
             session.delete(bookmark)
+            return True
+        
+###################################################################################################
+###################################################################################################
+#################### TODO: TO BE MOVED TO ACCOUNT MODEL AFTER INTEGRATION #########################
+###################################################################################################
+###################################################################################################
+    @staticmethod
+    def getAllCompanies() -> list["CompanyModel"]:
+        """
+        Retrieves all companies.
+        :return: List of all companies.
+        """
+        with db_context.session_scope() as session:
+            companies = session.query(CompanyModel).all()
+            return [Company.from_model(company) for company in companies]
+
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified: bool) -> bool:
+        """
+        Set the 'verified' status for a company.
+        :param company_id: ID of the company to update.
+        :param verified: True (1) to verify, False (0) to unverify.
+        :return: True if update was successful, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            company = session.query(CompanyModel).filter_by(companyId=company_id).first()
+            if not company:
+                return False
+            company.verified = 1 if verified else 0
             return True
