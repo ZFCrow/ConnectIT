@@ -4,7 +4,7 @@
 name: Deploy to Production 
 
 on: 
-  workflow_dispatch: # Allows manual triggering of the workflow
+  workflow_dispatch: {} # Allows manual triggering of the workflow
   workflow_run:
     workflows: ["OWASP Dependency Check"]
     types:
