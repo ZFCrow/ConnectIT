@@ -96,6 +96,7 @@ class JobListingMapper:
                 .outerjoin(JobApplicationModel, JobListingModel.jobId == JobApplicationModel.jobId)
                 .options(selectinload(JobListingModel.company),selectinload(JobListingModel.fieldOfWork))
                 .group_by(JobListingModel.jobId)
+                .filter(JobListingModel.isDeleted == 0) 
             )
             if company_id is not None:
                 base_query = base_query.filter(JobListingModel.companyId == company_id)
@@ -110,15 +111,17 @@ class JobListingMapper:
     @staticmethod
     def deleteJob(jobId: int) -> bool:
         """
-        Deletes a job listing by its jobId.
+        Soft-deletes a job listing by setting isDeleted=1.
         """
         with db_context.session_scope() as session:
             job_listing = session.query(JobListingModel).filter_by(jobId=jobId).first()
             if not job_listing:
                 return False
             
-            session.delete(job_listing)
+            job_listing.isDeleted = 1  # Mark as deleted
+            # No need for session.delete, just update and commit on exit
             return True
+
         
     @staticmethod
     def getBookmarkedJobIds(userId: int) -> list[int]:

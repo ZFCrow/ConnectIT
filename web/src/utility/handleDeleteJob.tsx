@@ -8,7 +8,7 @@ export function useDeleteJob(onSuccess?: (jobId: number) => void) {
   const deleteJob = async (jobId: number) => {
     setLoading(true);
     try {
-      await axios.delete(`/api/deleteJob/${jobId}`);
+      await axios.post(`/api/deleteJob/${jobId}`);
       if (onSuccess) onSuccess(jobId);
       // Optionally, you can also show a toast here
     } catch (err) {

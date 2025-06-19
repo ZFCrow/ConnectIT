@@ -36,7 +36,7 @@ def create_job_listing():
     else:
         return jsonify({"error": "Failed to create job listing"}), 500
 
-@job_listing_bp.route("/deleteJob/<int:jobId>", methods=["DELETE"])
+@job_listing_bp.route("/deleteJob/<int:jobId>", methods=["POST"])
 def delete_job_listing(jobId):
     """
     Deletes a job listing by its jobId.
