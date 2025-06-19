@@ -39,4 +39,9 @@ jobs:
             -e "ssh -o StrictHostKeyChecking=no" \
             . \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT/
+      
+
+
+      - name: SSH into EC2 and run deployment script 
+        
     

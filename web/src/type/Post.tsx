@@ -26,8 +26,8 @@ export const PostSchema = z.object({
     username: z.string(),
     date: z.string(), // ISO date string
     labels: z.array(LabelSchema), // Array of Label objects
-    title: z.string().min(1, "Title is required"),
-    content: z.string().min(1, "Content is required"),
+    title: z.string(), // Title of the post
+    content: z.string(), // Content of the post 
     comments: z.array(CommentSchema), // Array of Comment objects
     likes: z.number().int().nonnegative(), // Non-negative integer for likes
     liked: z.boolean().optional().default(false), // Optional boolean with default value false
