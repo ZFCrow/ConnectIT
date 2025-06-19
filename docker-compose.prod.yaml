@@ -7,7 +7,7 @@ services:
     image: mysql:8.0
     container_name: sql-dev
     env_file:
-      - .env      
+      - .env.dev      
     ports:
       - "3307:3306"
     volumes:
@@ -26,12 +26,14 @@ services:
 
   web:
     build:
+      context: ./web
       dockerfile: webProd.Dockerfile
     container_name: web-prod
-    ports:
+    expose:
       - "3300"
     volumes: []
     command: []
+    restart: unless-stopped  # Add this line
 
 
   reverse-proxy:
@@ -41,23 +43,24 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx-reverse-proxy.conf:/etc/nginx/conf.d/default.conf
-      - ./ssl:/etc/nginx/ssl
+      - ./nginx-startup.sh:/nginx-startup.sh
+      #- ./nginx-reverse-proxy.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl  # Mount entire ssl directory
       - ./certbot-www:/var/www/certbot # this is for the cert bot to do the challenge 
     depends_on:
       - web
     restart: unless-stopped
+    command : ["/bin/sh", "/nginx-startup.sh"]
+
 
 
   certbot:
     image: certbot/certbot
-    container_name: certbot 
+    container_name: certbot
     profiles: ["ssl"]
     volumes:
       - ./ssl:/etc/letsencrypt
       - ./certbot-www:/var/www/certbot
-    depends_on:
-      - reverse-proxy 
     entrypoint:
       - sh
       - -c
@@ -68,5 +71,40 @@ services:
           --agree-tos --no-eff-email \
           --rsa-key-size 4096 \
           --expand \
-          --renew \
-          -d connectitweb.site -d www.connectitweb.site
+          --force-renewal \
+          -d connectitweb.site -d www.connectitweb.site 
+
+
+
+
+
+
+  # # ───────────── Dynamic Nginx reverse-proxy ─────────────
+  # nginx-proxy:
+  #   image: jwilder/nginx-proxy:latest
+  #   container_name: nginx-proxy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #     - ./ssl:/etc/nginx/certs       # certs live here
+  #     - ./certbot-www:/usr/share/nginx/html  # for ACME http-01
+  #     - ./vhost.d:/etc/nginx/vhost.d:ro     # ← add this
+  #   restart: unless-stopped  # Add this line
+
+  # # ──────────── Let’s Encrypt companion ────────────
+  # letsencrypt:
+  #   image: jrcs/letsencrypt-nginx-proxy-companion:latest
+  #   container_name: letsencrypt
+  #   depends_on:
+  #     - nginx-proxy
+  #   environment: 
+  #     - NGINX_PROXY_CONTAINER=nginx-proxy     # ← tell it which container to inspect
+  #     - NGINX_DOCKER_GEN_CONTAINER=nginx-proxy  # Add this
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./ssl:/etc/nginx/certs
+  #     - ./certbot-www:/usr/share/nginx/html
+  #     - ./vhost.d:/etc/nginx/vhost.d:rw     # ← add this
+  #   restart: unless-stopped  # Add this line
