@@ -13,4 +13,4 @@ class ViolationModel(Base):
 
 
     # relationships 
-    # postViolations = relationship("PostViolationModel", back_populates="violation") 
+    postViolations = relationship("PostViolationModel", back_populates="violation") 

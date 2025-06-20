@@ -27,8 +27,6 @@ class ViolationGateway:
             if violationModels: 
                 ViolationGateway.violationsCache = {vm.violationId : Violation.fromViolationModel(vm) for vm in violationModels}  
                 return list(ViolationGateway.violationsCache.values())
-                
-                    
             
     @staticmethod
     def getViolationById(violationId : int ) -> Optional[Violation]:
@@ -78,6 +76,5 @@ class ViolationGateway:
                 {"violationId": vm.violationId, "description": vm.description}
                 for vm in violationModels
             ]
-    
 
             

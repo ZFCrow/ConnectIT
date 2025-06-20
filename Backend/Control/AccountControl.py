@@ -1,0 +1,98 @@
+from Boundary.Mapper.AccountMapper import AccountMapper
+from SQLModels.AccountModel import Role
+from Entity.Account import Account
+from Entity.User import User
+from Entity.Company import Company
+from Security import AuthUtils
+
+
+class AccountControl:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def createAccount(accountData: dict) -> bool:
+        if "password" in accountData and accountData["password"]:
+            accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
+            del accountData["password"]  # Remove plain password
+
+        account = Account.from_dict(accountData)
+
+        return AccountMapper.createAccount(account)
+    
+    @staticmethod
+    def authenticateAccount(accountData: dict) -> Account:
+        email = accountData.get('email', '')
+        account = AccountMapper.getAccountByEmail(email)
+        
+        password = accountData.get('password', '')
+
+        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+
+        if not auth:
+            return None
+
+        return account
+    
+    @staticmethod
+    def getAccountById(accountId: int) -> Account:
+        return AccountMapper.getAccountById(accountId)
+    
+    @staticmethod
+    def updateAccount(accountData: dict) -> bool:
+        password = accountData.get('password', '')
+        newPass = accountData.get('newPassword', '')
+        confirmPass = accountData.get('confirmNew', '')
+
+        # Get the existing account to access the stored hash/salt
+        target_acc = AccountMapper.getAccountById(accountData['accountId'])
+
+        # Only if ALL password-related field are filled, validate and attempt update
+        # This abit weird, might need change
+        if password and newPass and confirmPass:
+            # Verify old password
+            if not AuthUtils.verify_hash_password(password, target_acc.passwordHash):
+                print("Old password is incorrect.")
+                return False
+
+            # Check new passwords match
+            if newPass != '' and confirmPass != '' and newPass != confirmPass:
+                print("New passwords do not match.")
+                return False
+
+            # Generate new hash and salt for the new password
+            new_hash = AuthUtils.hash_password(newPass)
+            accountData['passwordHash'] = new_hash
+
+        # Remove password fields that aren't used in database
+        accountData.pop('password', None)
+        accountData.pop('newPassword', None)
+        accountData.pop('confirmNew', None)
+
+        account = Account.from_dict(accountData)
+
+        # Now construct entity after password check
+        role = accountData.get("role", "")
+        if role == Role.User.value:
+            account = User.from_dict(accountData)
+        elif role == Role.Company.value:
+            account = Company.from_dict(accountData)
+        else:
+            print("Invalid or missing role")
+            return False
+
+        return AccountMapper.updateAccount(account)
+    
+    @staticmethod
+    def disableAccount(accountId: int, authData: dict) -> bool:
+        account = AccountMapper.getAccountById(accountId)
+
+        password = authData.get('password', '')
+
+        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+
+        if not auth:
+            return False
+
+        return AccountMapper.disableAccount(accountId)
+    

@@ -10,6 +10,7 @@ export interface Company {
   //   phone: string;
   uploadedDocumentUrl: string; // URL or path to the verification document
   verified: 0 | 1 | 2;
+  accountId: number;
 }
 export function getCompanyStatus(
   verified: 0 | 1 | 2

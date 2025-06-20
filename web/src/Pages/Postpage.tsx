@@ -1,80 +1,73 @@
-import { mockPosts } from "@/components/FakeData/mockPosts";
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { usePostContext } from "@/contexts/PostContext";
+import { use, useEffect, useState } from "react";
 import Postcard from "@/components/Postcard";
-import FullHeightVerticalBar from "@/components/FullHeightVerticalBar"; 
-import { usePostManager } from "@/components/CustomHooks/usePostManger";
+import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
-import { useEffect, useState } from "react";
 
-const Postpage = () => { 
-    const navigate = useNavigate(); 
-    const { postID } = useParams<{ postID: string }>();
-    
-    const idNum = postID ? Number(postID) : NaN;
-    if (isNaN(idNum)) {
-        return <Navigate to="/" replace />;
+const Postpage = () => {
+  const { postId } = useParams<{ postId: string }>();
+  const navigate = useNavigate();
+  const [isDeleted, setIsDeleted] = useState(false); 
+  const { 
+    allPosts, 
+    postToDelete, 
+    deletePostLoading } = usePostContext();
+
+  const idNum = postId ? Number(postId) : NaN;
+  console.log("Post ID:", idNum);
+  if (isNaN(idNum)) return <Navigate to="/" replace />;
+
+  // Priority: first try to grab post passed via navigation state, otherwise look it up
+  //const statePost = (location.state as { post?: Post })?.post;
+  const post = allPosts.find((p) => p.id === idNum);
+
+  useEffect(() => {
+    // If the post is not found, redirect to home
+    if (!post) {
+      setIsDeleted(true); // Set isDeleted to true to trigger deletion state
     }
+  }, [post]);
 
-    // Find the post first
-    const foundPost = mockPosts.find((p) => p.id === idNum);
-    
-    // Handle not found case
-    if (!foundPost) {
-        return (
-            <div className="flex justify-center items-center h-[calc(100vh-5rem)]">
-                <p className="text-center text-gray-500">Post not found.</p>
-            </div>
-        );
+  useEffect(() => {
+    // If the post is deleted, redirect to home
+    if (isDeleted && !deletePostLoading) {
+      navigate("/", { replace: true });
     }
+  }), [isDeleted, navigate];
 
-    // Use the hook with the found post
-    const {
-        posts,
-        postToDelete,
-        selectedViolations,
-        handleDeletePost,
-        confirmDelete,
-        cancelDelete,
-        setSelectedViolations,
-        handleDeleteComment,
-        handleHide,
-    } = usePostManager([foundPost]);
 
-    // Redirect when post is deleted
-    useEffect(() => {
-        if (posts.length === 0) {
-            navigate("/", { replace: true });
-        }
-    }, [posts, navigate]);
 
-    const currentPost = posts[0] || foundPost;
 
-    return (
-        <div className='flex w-full gap-20 h-[calc(100vh-5rem)]'>
-            <div className="ml-3 flex-1">
-                <Postcard 
-                    {...currentPost} 
-                    detailMode={true}
-                    onDelete={handleDeletePost}
-                    onDeleteComment={handleDeleteComment}
-                    onHide={handleHide} 
-                />
-            </div>
-            
-            {/* Fixed width class */}
-            <div className='w-72 flex-shrink-0 sticky top-20 overflow-y-auto scrollbar-hide'>
-                <FullHeightVerticalBar/> 
-            </div>
+  return (
+    <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
+      <div className="ml-3 flex-1 overflow-y-auto scrollbar-hide">
 
-            <PostDeleteDialog
-                isOpen={postToDelete !== null}
-                onConfirm={confirmDelete}
-                onCancel={cancelDelete}
-                selectedViolations={selectedViolations}
-                onViolationChange={setSelectedViolations}
+        {!deletePostLoading &&
+          post ? (
+            <Postcard
+              postId={idNum}
+              detailMode
             />
-        </div>
-    );
-}
+          ) : (
+            <div className="text-center text-gray-500 mt-10">
+              {isDeleted ? "Post has been deleted." : "Loading post..."}
+            </div>
+          )  
+
+        }
+      </div>
+
+      <aside className="w-72 flex-shrink-0 sticky top-20 overflow-y-auto scrollbar-hide">
+        <FullHeightVerticalBar />
+      </aside>
+
+      <PostDeleteDialog
+        isOpen={postToDelete !== null} 
+        onDeleteSuccess={() => setIsDeleted(true)} // Set isDeleted to true on successful deletion 
+      />
+    </div>
+  );
+};
 
 export default Postpage;

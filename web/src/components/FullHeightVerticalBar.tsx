@@ -22,13 +22,18 @@ import type { JobListing } from "@/type/jobListing";
 import { sampleJobs } from "@/components/FakeData/sampleJobs";
 
 import { Role, useAuth } from "@/contexts/AuthContext";
+import { usePostContext } from "@/contexts/PostContext";
+
+
 
 const FullHeightVerticalBar = () => {
   const { accountId, role, userId, companyId } = useAuth();
 
   // users
   const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
-  const [recentPosts, setRecentPosts] = useState<RecentPostLike[]>([]);
+  //const [recentPosts, setRecentPosts] = useState<RecentPostLike[]>([]); 
+  const {recentlyInteractedPost} = usePostContext();
+
 
   // companies
   const [myJobs, setMyJobs] = useState<JobListing[]>([]);
@@ -40,6 +45,11 @@ const FullHeightVerticalBar = () => {
 
   const navigate = useNavigate();
 
+
+
+  
+
+
   useEffect(() => {
     if (role === Role.User) {
       // Fetch applied jobs for the user
@@ -49,10 +59,10 @@ const FullHeightVerticalBar = () => {
       setAppliedJobs(userAppliedJobs);
 
       // Fetch recent posts liked by the user
-      const userRecentPosts = mockRecentPostsLikes.filter(
-        (post) => post.accountId === accountId
-      );
-      setRecentPosts(userRecentPosts);
+      // const userRecentPosts = mockRecentPostsLikes.filter(
+      //   (post) => post.accountId === accountId
+      // );
+      // setRecentPosts(userRecentPosts);
     } else if (role === Role.Company) {
       // Fetch jobs posted by the company
       const companyJobs = sampleJobs.filter(
@@ -61,10 +71,10 @@ const FullHeightVerticalBar = () => {
       setMyJobs(companyJobs);
 
       // Fetch recent posts liked by the user (this needs to be accountID)
-      const companyRecentPosts = mockRecentPostsLikes.filter(
-        (post) => post.accountId === companyId
-      );
-      setRecentPosts(companyRecentPosts);
+      // const companyRecentPosts = mockRecentPostsLikes.filter(
+      //   (post) => post.accountId === companyId
+      // );
+      // setRecentPosts(companyRecentPosts);
 
       // Fetch incoming applications for the company
       // const companyApps = mockAppliedJobs.filter((app) => app.companyId === userIdNum);
@@ -149,17 +159,24 @@ const FullHeightVerticalBar = () => {
           <AccordionTrigger>👍 Recent Interactions</AccordionTrigger>
           <AccordionContent>
             <ul className="space-y-2 text-sm">
-              {recentPosts.map((post) => (
-                <Card
-                  key={post.postId}
-                  className="hover:bg-muted cursor-pointer"
-                  onClick={() => navigate(`/post/${post.postId}`)}
-                >
-                  <CardContent className="p-3">
-                    <div className="font-medium">{post.title}</div>
-                  </CardContent>
-                </Card>
-              ))}
+
+              {
+                recentlyInteractedPost? (recentlyInteractedPost.map((post) => (
+                  <Card
+                    key={post.id}
+                    className="hover:bg-muted cursor-pointer"
+                    onClick={() => navigate(`/post/${post.id}`)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="font-medium">{post.title}</div>
+                      <div className="text-muted-foreground text-xs mt-1">
+                        Click to view post
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))) : (<div>No recent interactions</div>)
+              }
+
             </ul>
           </AccordionContent>
         </AccordionItem>

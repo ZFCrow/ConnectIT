@@ -22,6 +22,7 @@ class UserModel(Base):
         "JobApplicationModel",
         back_populates="user"
     )
+  
     def to_dict(self):
         return {
             "userId": self.userId,

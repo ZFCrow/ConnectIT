@@ -27,7 +27,7 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Homepage />} />
-            <Route path="/post/:postID" element={<Postpage />} />
+            <Route path="/post/:postId" element={<Postpage />} />
             <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />

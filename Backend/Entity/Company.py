@@ -18,7 +18,7 @@ class Company(Account):
             companyId=data.get('companyId', 0),
             description=data.get('description', ''),
             location=data.get('location', ''),
-            verfied=data.get('verified', False)
+            verfied=data.get('verified', 0)
         )
     
 
@@ -61,3 +61,4 @@ class Company(Account):
             "location":      raw["location"],
             "verified":      raw["verified"],
         }
+        )

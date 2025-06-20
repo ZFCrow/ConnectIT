@@ -2,9 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 
 export const Role = {
-  User: "user",
-  Admin: "admin",
-  Company: "company",
+  User: "User",
+  Admin: "Admin",
+  Company: "Company",
 } as const;
 
 export type Role = (typeof Role)[keyof typeof Role];
@@ -51,9 +51,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setCompanyId(companyId ?? null);
     } else {
       //!!  for now we HARDCODE the values
+      //login(2, Role.Company, { companyId: 1 });
       // login(1, Role.User, { userId: 1 });
-      // login(1, Role.Company, { companyId: 1 });
-      login(1, Role.Admin);
+      //login(1, Role.Company, { companyId: 1 });
+      //login(1, Role.Admin);
     }
   }, []);
 

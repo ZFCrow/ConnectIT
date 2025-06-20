@@ -3,9 +3,8 @@ env
 .env.docker
 .env.dev
 .env.prod
+.env.local
 sql_data_dev
 sql_data_prod
 docker-compose.dev.yaml
 /sql_data
-nginx.conf
-nginx-reverse-proxy.conf
