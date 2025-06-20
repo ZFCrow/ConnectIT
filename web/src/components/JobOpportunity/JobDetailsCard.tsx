@@ -1,7 +1,14 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
-import { Calendar, Bookmark, Trash2, Edit2 } from "lucide-react";
+import {
+  Calendar,
+  Bookmark,
+  Trash2,
+  Edit2,
+  User2,
+  BookmarkCheck,
+} from "lucide-react";
 import {
   dateLocale,
   dateFormatOptions,
@@ -10,48 +17,75 @@ import {
 import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
-import { handleResumeSubmit } from "./ResumeUploadModal"; // Assuming this is where the function is defined
 import ApplicantCard from "./ApplicantCard";
-import type { Applicant } from "../../type/applicant";
+import type {
+  Applicant,
+  JobApplication,
+} from "../../type/JobApplicationSchema";
 import { sampleApplicants } from "../FakeData/sampleApplicants";
 import { Role, useAuth } from "@/contexts/AuthContext";
+import { useDeleteJob } from "@/utility/handleDeleteJob";
+import DeleteJobModal from "./DeleteJobModal";
+import { useApplicantActions } from "@/utility/handleApplication";
+import { handleBookmarkToggle } from "@/utility/handleBookmark";
+import { ViolationOption } from "@/utility/fetchViolationOptions";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
+  setJob: React.Dispatch<React.SetStateAction<JobListing | null>>; // For updating job state after deletion
+  violationOptions: ViolationOption[]; // pass in list of {violationId, description}
 }
-const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
+const JobDetailsCard: React.FC<Props> = ({
+  job,
+  userType,
+  setJob,
+  violationOptions,
+}) => {
+  //for application modal
   const [open, setOpen] = useState(false);
+  //for delete modal
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const { deleteJob, loading } = useDeleteJob(() => {
+    setDeleteOpen(false);
+    if (userType === Role.Company) navigate("/company/recruitmentDashboard");
+    else navigate("/jobListing");
+
+    window.location.reload();
+  });
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleDeleteConfirm = (violationId?: number) => {
+    deleteJob(job.jobId, violationId);
+  };
   const { role, userId, companyId } = useAuth();
-  const filteredApplicants = useMemo(() => {
-    if (userType === Role.Company) {
-      return sampleApplicants.filter((a) => a.jobId === job.jobId);
-    }
-    return [];
-  }, [job.jobId, userType]);
 
-  const decoratedApplicants = useMemo(
-    () =>
-      filteredApplicants.map((a) => ({
-        ...a,
-        jobTitle: job.title,
-        jobId: job.jobId,
-      })),
-    [filteredApplicants, job.title, job.jobId]
-  );
   const [statusFilter, setStatusFilter] = useState<"All" | string>("All");
-  const statusOptions = ["All", "Applied", "Shortlisted", "Rejected"];
+  const statusOptions = ["All", "Applied", "Accepted", "Rejected"];
+  // 1️⃣ Make a local copy of applicants so we can update them
+  const [localApplicants, setLocalApplicants] = useState<JobApplication[]>([]);
+  const { acceptLoadingId, rejectLoadingId, handleAccept, handleReject } =
+    useApplicantActions(setLocalApplicants);
+  useEffect(() => {
+    setLocalApplicants(job.jobApplication ?? []);
+  }, [job.jobApplication]);
+  const applicants = (localApplicants ?? []).map((app) => ({
+    ...app,
+    jobTitle: job.title,
+    jobId: job.jobId,
+  }));
 
-  // 4️⃣ Filter decoratedApplicants by status
-  const filteredApplicantsByStatus = decoratedApplicants.filter(
+  const filteredApplicantsByStatus = applicants.filter(
     (a) => statusFilter === "All" || a.status === statusFilter
   );
+
   return (
     <div className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg space-y-6">
       {/* Resume Upload Modal */}
       <ResumeUploadModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onSubmit={handleResumeSubmit}
+        onSubmit={(file: File) => {}}
         jobTitle={job.title}
         companyName={job.companyName}
       />
@@ -62,19 +96,27 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
             <h1 className="text-3xl font-bold text-white flex items-center gap-2">
               {job.title}
             </h1>
-            {userType !== Role.Company && (
-              <button
-                aria-label="Save job"
-                className="
-              p-1 rounded-full text-gray-400
-              hover:bg-zinc-800 hover:text-white
-              transition
-            "
+            {userType === Role.User ? (
+              <span
+                onClick={() =>
+                  handleBookmarkToggle(
+                    userId,
+                    job.jobId,
+                    job.isBookmarked,
+                    setJob
+                  )
+                }
               >
-                <Bookmark className="w-6 h-6" />
-              </button>
-            )}
-            {userType === Role.Company && (
+                {userType === Role.User ? (
+                  job.isBookmarked ? (
+                    (console.log("Job is bookmarked:", job.isBookmarked),
+                    (<BookmarkCheck className="w-6 h-6 text-green-500" />))
+                  ) : (
+                    <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+                  )
+                ) : null}
+              </span>
+            ) : userType === Role.Company || userType === Role.Admin ? (
               <>
                 {/* <Link
                   to={`/company/jobForm/${job.jobId}`}
@@ -90,7 +132,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                 <button
                   aria-label="Delete job"
                   onClick={() => {
-                    //TODO: Handle delete logic here
+                    handleDeleteClick();
                   }}
                   className="
               p-1 rounded-full text-gray-400
@@ -100,8 +142,23 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
                 >
                   <Trash2 className="w-6 h-6" />
                 </button>
+                <DeleteJobModal
+                  open={deleteOpen}
+                  onCancel={() => setDeleteOpen(false)}
+                  onConfirm={handleDeleteConfirm}
+                  loading={loading}
+                  jobTitle={job.title}
+                  role={userType as Role}
+                  violationOptions={violationOptions}
+                />
               </>
-            )}
+            ) : null}
+            <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
+              <User2 className="w-5 h-5 text-gray-300" />
+              <span className="text-sm font-medium text-gray-300">
+                {job.numApplicants || 0} application(s)
+              </span>
+            </div>
           </div>
           {/* Field badge */}
           <span
@@ -112,7 +169,7 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
             px-2 py-0.5 rounded
           "
           >
-            {job.field}
+            {job.fieldOfWork}
           </span>
         </div>
         <div className="flex items-center gap-1 text-sm text-gray-300">
@@ -124,14 +181,14 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
       </div>{" "}
       <div className="flex flex-wrap gap-4 text-sm text-gray-300">
         <span>
-          <b className="text-gray-400">Company:</b> {job.companyName}
+          <b className="text-gray-400">Company:</b> {job.company.name}
         </span>
         <span>
-          <b className="text-gray-400">Location:</b>
-          {job.companyAddress}
+          <b className="text-gray-400">Location: </b>
+          {job.company.location}
         </span>
         <span>
-          <b className="text-gray-400">Type:</b> {job.type}
+          <b className="text-gray-400">Type:</b> {job.jobType}
         </span>
         <span>
           <b className="text-gray-400">Work Arr.:</b> {job.workArrangement}
@@ -149,6 +206,10 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
               </span>
             </span>
           )}
+        {/* <span>
+          <b className="text-gray-400">Location: </b>
+          {job.company.location}
+        </span> */}
       </div>
       <h2 className="text-xl font-semibold text-gray-200">Job Description</h2>
       <p className="text-gray-200 whitespace-pre-line">{job.description}</p>
@@ -162,8 +223,8 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           </li>
         ))}
       </ul>
-      {userType !== Role.Company && (
-        <div className="mt-6 flex items-center space-x-4">
+      <div className="mt-6 flex items-center space-x-4">
+        {userType === Role.User && (
           <Link
             to=""
             onClick={() => setOpen(true)}
@@ -174,20 +235,20 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           >
             Apply Now
           </Link>
+        )}
 
-          <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
-            <Calendar className="w-4 h-4" />
-            <time dateTime={job.applicationDeadline}>
-              by{" "}
-              {new Date(job.applicationDeadline).toLocaleDateString(
-                dateLocale,
-                dateFormatOptions
-              )}
-            </time>
-          </div>
+        <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
+          <Calendar className="w-4 h-4" />
+          <time dateTime={job.applicationDeadline}>
+            by{" "}
+            {new Date(job.applicationDeadline).toLocaleDateString(
+              dateLocale,
+              dateFormatOptions
+            )}
+          </time>
         </div>
-      )}
-      {userType === Role.Company && job.jobId === companyId && (
+      </div>
+      {userType === Role.Company && job.numApplicants != 0 && (
         <section className="mt-8">
           <hr className="mb-4" />
           <div className="flex items-center justify-between mb-4">
@@ -207,16 +268,12 @@ const JobDetailsCard: React.FC<Props> = ({ job, userType }) => {
           <ul className="space-y-5">
             {filteredApplicantsByStatus.map((app) => (
               <ApplicantCard
-                key={app.applicantId}
+                key={app.applicationId} // ← make sure it's applicationId!
                 applicant={app}
-                onAccept={(id) => {
-                  /* … */
-                  //TODO : Handle accept logic here
-                }}
-                onDelete={(id) => {
-                  /* … */
-                  // TOOD: Handle delete logic here
-                }}
+                acceptLoading={acceptLoadingId === app.applicationId}
+                rejectLoading={rejectLoadingId === app.applicationId}
+                onAccept={() => handleAccept(app.applicationId)}
+                onDelete={() => handleReject(app.applicationId)}
               />
             ))}
           </ul>

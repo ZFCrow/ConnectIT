@@ -62,4 +62,19 @@ class ViolationGateway:
                 if violation:
                     violations.append(violation)
         return violations 
+    
+    @staticmethod
+    def getAllViolationOptions():
+        """
+        Get all violations, return as objects or strings
+        :param returnMethod: "object" for Violation objects, "string" for violation names
+        :return: List of violations
+        """
+        with db_context.session_scope() as session:
+            violationModels: ViolationModel = session.query(ViolationModel).all()
+            return [
+                {"violationId": vm.violationId, "description": vm.description}
+                for vm in violationModels
+            ]
+
             

@@ -5,10 +5,23 @@ export interface Company {
   name: string;
   //   registrationNumber: string;
   email: string;
-  address?: string;
+  location?: string;
   description?: string; // Optional description of the company
   //   phone: string;
   uploadedDocumentUrl: string; // URL or path to the verification document
-  status: "Pending" | "Verified" | "Rejected";
+  verified: 0 | 1 | 2;
   accountId: number;
+}
+export function getCompanyStatus(
+  verified: 0 | 1 | 2
+): "Pending" | "Verified" | "Rejected" {
+  switch (verified) {
+    case 1:
+      return "Verified";
+    case 2:
+      return "Rejected";
+    case 0:
+    default:
+      return "Pending";
+  }
 }

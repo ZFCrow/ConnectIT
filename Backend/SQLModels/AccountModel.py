@@ -2,6 +2,8 @@
 from sqlalchemy import Column, Integer, String, Boolean, Enum
 from sqlalchemy.orm import relationship
 from .base import Base
+from .UserModel import UserModel
+from .CompanyModel import CompanyModel
 from SQLModels.PostLikesModel import PostLikesModel 
 
 import enum
@@ -30,6 +32,7 @@ class AccountModel(Base):
     posts = relationship("PostModel", back_populates="account")
     comments = relationship("CommentModel", back_populates="account")
     postLikes = relationship("PostLikesModel", back_populates="account") 
+
     user = relationship("UserModel", back_populates="account", uselist=False)
     company = relationship("CompanyModel", back_populates="account", uselist=False)
     

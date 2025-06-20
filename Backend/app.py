@@ -20,6 +20,7 @@ import os
 from db import sshFlow, noSshFlow
 from SQLModels.base import DatabaseContext
 from Boundary.Mapper.PostMapper import PostMapper
+
 from Boundary.PostBoundary import PostBoundary 
 from Boundary.LabelBoundary import LabelBoundary 
 from Boundary.ViolationBoundary import ViolationBoundary
@@ -29,12 +30,15 @@ import traceback
 from Boundary.AccountBoundary import AccountBoundary
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
+from job_route import job_listing_bp
 from Security import ValidateCaptcha
 
 app = Flask(__name__) 
 # allow all domains to access the API 
 app.register_blueprint(profile_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(job_listing_bp)   
+
 CORS(app)
 
 

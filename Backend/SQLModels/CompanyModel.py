@@ -12,7 +12,7 @@ class CompanyModel(Base):
     # id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(String(1024), nullable=True)
     location = Column(String(255), nullable=True)
-    verified = Column(Boolean, nullable=False, default=False)
+    verified = Column(Integer, nullable=False, default=0) ##  IMPORTANT TODO: Change to INT when merged
 
     accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False, unique=True)
     
@@ -28,6 +28,21 @@ class CompanyModel(Base):
             "location": self.location,
             "verified": self.verified
         }
+    
+    @classmethod
+    def from_dict(cls, data):
+        """
+        Create a CompanyModel instance from a dictionary.
+        :param data: Dictionary containing company details.
+        :return: CompanyModel instance.
+        """
+        return cls(
+            companyId=data.get("companyId"),
+            accountId=data.get("accountId"),
+            description=data.get("description"),
+            location=data.get("location"),
+            verified=data.get("verified", False)
+        )
     
     def __repr__(self):
         return f"<Company(companyId={self.companyID})>"

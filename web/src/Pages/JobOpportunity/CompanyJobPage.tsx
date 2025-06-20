@@ -1,26 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import JobCard from "../../components/JobOpportunity/JobCard";
-import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import type { JobListing } from "../../type/jobListing";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import ApplicantsTab from "../../components/JobOpportunity/ApplicantTab";
-import type { Applicant } from "../../type/applicant";
+import {
+  JobApplicationSchema,
+  type Applicant,
+  type JobApplication,
+} from "../../type/JobApplicationSchema";
 import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
-const CURRENT_COMPANY_ID = 1; // Replace with auth/context
+import axios from "axios";
+import { JobListingSchema } from "../../type/jobListing";
+
+const CURRENT_COMPANY_ID = 1; //TODO: Replace with auth/context
 
 const CompanyJobsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"jobs" | "applicants">("jobs");
+  const [jobListings, setJobListings] = useState<JobListing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        // Fetch both in parallel
+        const [jobsRes, appsRes] = await Promise.all([
+          axios.get(`/api/companyJobListings/${CURRENT_COMPANY_ID}`),
+          axios.get(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
+        ]);
 
-  // All jobs for this company
-  const jobs: JobListing[] = sampleJobs.filter(
-    (job) => job.companyId === CURRENT_COMPANY_ID
-  );
+        // Parse and validate
+        const jobs = Array.isArray(jobsRes.data)
+          ? jobsRes.data
+              .map((item) => {
+                try {
+                  return JobListingSchema.parse(item);
+                } catch (err) {
+                  console.error("Invalid job listing:", err, item);
+                  return null;
+                }
+              })
+              .filter(Boolean)
+          : [];
+        setJobListings(jobs as JobListing[]);
+        console.log("Applications:", appsRes);
+
+        const applications = JobApplicationSchema.array().parse(appsRes.data);
+        console.log("Applications:", applications);
+        setJobApplications(applications);
+      } catch (err) {
+        console.error(
+          "Error loading jobs or applications:",
+          err.response || err
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
   // applicants in this company
-  const applicants: Applicant[] = sampleApplicants.filter((applicant) =>
-    jobs.some((job) => job.jobId === applicant.jobId)
-  );
+  // const applicants: Applicant[] = sampleApplicants.filter((applicant) =>
+  //   jobListings.some((job) => job.jobId === applicant.jobId)
+  // );
+
   return (
     <div className="w-4/5 mx-auto pt-4 pb-2">
       {/* Header */}
@@ -57,9 +102,15 @@ const CompanyJobsPage: React.FC = () => {
 
       {/* Content */}
       <div className="mt-6 space-y-6">
-        {activeTab === "jobs" ? (
-          jobs.length ? (
-            jobs.map((job) => (
+        {loading ? (
+          <div className="flex items-center justify-center h-60">
+            <span className="text-lg text-gray-400 animate-pulse">
+              Loading...
+            </span>
+          </div>
+        ) : activeTab === "jobs" ? (
+          jobListings.length ? (
+            jobListings.map((job) => (
               <JobCard key={job.jobId} job={job} userType="company" />
             ))
           ) : (
@@ -67,8 +118,7 @@ const CompanyJobsPage: React.FC = () => {
           )
         ) : (
           <div>
-            {/* Filters */}
-            <ApplicantsTab applicants={applicants} jobs={jobs} />
+            <ApplicantsTab applicants={jobApplications} jobs={jobListings} />
           </div>
         )}
       </div>

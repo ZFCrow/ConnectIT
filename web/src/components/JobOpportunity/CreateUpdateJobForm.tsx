@@ -2,22 +2,11 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
 import { sampleJobs } from "../FakeData/sampleJobs";
+import axios from "axios";
 
 // Static lists
-const jobTypes = ["Full-Time", "Part-Time", "Contract", "Internship"];
-const arrangements = ["Remote", "Hybrid", "Office"];
-const fieldOptions = [
-  "Software Development",
-  "Design",
-  "Marketing",
-  "Sales",
-  "Human Resources",
-  "Finance",
-  "Operations",
-  "Customer Support",
-  "Product Management",
-  "Data Science",
-];
+const jobTypes = ["Full Time", "Part Time", "Contract", "Internship"];
+const arrangements = ["Remote", "Hybrid", "Onsite"];
 
 // Default empty job
 const defaultJob = (): JobListing => ({
@@ -25,15 +14,16 @@ const defaultJob = (): JobListing => ({
   jobId: Date.now(),
   companyId: 123,
   title: "",
-  field: fieldOptions[0],
+  fieldOfWork: "",
   description: "",
-  type: jobTypes[0],
+  jobType: jobTypes[0],
   workArrangement: arrangements[2],
   minSalary: 0,
   maxSalary: 0,
   createdAt: new Date().toISOString(),
   applicationDeadline: new Date().toISOString(),
   responsibilities: [""],
+  experiencePreferred: 0,
 });
 
 interface JobFormProps {
@@ -44,7 +34,21 @@ interface JobFormProps {
 
 export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
   const [form, setForm] = useState<JobListing>(initialJob ?? defaultJob());
+  const [loading, setLoading] = useState(false);
+  const [fieldOptions, setFieldOptions] = useState<string[]>([]);
+  useEffect(() => {
+    const fetchFields = async () => {
+      try {
+        const res = await axios.get("/api/getFieldOfWork");
+        console.log("fieldOptions API result:", res.data);
 
+        setFieldOptions(res.data);
+      } catch (e) {
+        setFieldOptions([]);
+      }
+    };
+    fetchFields();
+  }, []);
   useEffect(() => {
     if (initialJob) setForm(initialJob);
   }, [initialJob]);
@@ -57,9 +61,11 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
     change("applicationDeadline", new Date(e.target.value).toISOString());
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    setLoading(true);
+    await onSubmit(form);
+    setLoading(false);
   };
 
   return (
@@ -87,15 +93,15 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
           </div>
           <div>
             <label
-              htmlFor="field"
+              htmlFor="fieldOfWork"
               className="block text-sm font-medium text-gray-300 mb-1"
             >
               Field
             </label>
             <select
-              id="field"
+              id="fieldOfWork"
               value={form.field}
-              onChange={(e) => change("field", e.target.value)}
+              onChange={(e) => change("fieldOfWork", e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
               {fieldOptions.map((f) => (
@@ -129,15 +135,15 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label
-              htmlFor="type"
+              htmlFor="jobType"
               className="block text-sm font-medium text-gray-300 mb-1"
             >
               Job Type
             </label>
             <select
-              id="type"
+              id="jobType"
               value={form.type}
-              onChange={(e) => change("type", e.target.value)}
+              onChange={(e) => change("jobType", e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
               {jobTypes.map((t) => (
@@ -177,8 +183,14 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
             <input
               id="minSalary"
               type="number"
-              value={form.minSalary}
-              onChange={(e) => change("minSalary", +e.target.value)}
+              step={100}
+              value={form.minSalary === 0 ? "" : form.minSalary}
+              onChange={(e) =>
+                change(
+                  "minSalary",
+                  e.target.value === "" ? "" : +e.target.value
+                )
+              }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -192,11 +204,35 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
             <input
               id="maxSalary"
               type="number"
-              value={form.maxSalary}
-              onChange={(e) => change("maxSalary", +e.target.value)}
+              step={100}
+              value={form.maxSalary === 0 ? "" : form.maxSalary}
+              onChange={(e) =>
+                change(
+                  "maxSalary",
+                  e.target.value === "" ? "" : +e.target.value
+                )
+              }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
           </div>
+        </div>
+        <div>
+          <label
+            htmlFor="experiencePreferred"
+            className="block text-sm font-medium text-gray-300 mb-1"
+          >
+            Experience Preferred (years)
+          </label>
+          <input
+            id="experiencePreferred"
+            type="number"
+            min={0}
+            value={
+              form.experiencePreferred === 0 ? "" : form.experiencePreferred
+            }
+            onChange={(e) => change("experiencePreferred", +e.target.value)}
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
+          />
         </div>
       </fieldset>
 
@@ -269,15 +305,41 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-zinc-600 rounded-lg text-gray-300 hover:bg-zinc-800"
+          disabled={loading}
+          className={`
+            px-4 py-2 rounded-lg
+            border-2
+            border-zinc-500
+            text-gray-300
+            hover:bg-zinc-800
+            hover:border-blue-500
+            hover:text-white
+            transition
+            disabled:text-zinc-500
+            disabled:border-zinc-700
+            disabled:bg-transparent
+            disabled:cursor-not-allowed
+          `}
         >
           Cancel
         </button>
+
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-500"
+          className={`
+            px-4 py-2 rounded-lg text-white
+            bg-blue-600 hover:bg-blue-500
+            disabled:bg-blue-400 disabled:text-zinc-200
+            disabled:cursor-not-allowed
+            transition
+          `}
+          disabled={loading}
         >
-          {initialJob ? "Save Changes" : "Create Listing"}
+          {loading
+            ? "Submitting..."
+            : initialJob
+            ? "Save Changes"
+            : "Create Listing"}
         </button>
       </div>
     </form>

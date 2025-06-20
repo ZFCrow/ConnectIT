@@ -181,12 +181,19 @@ class DatabaseContext:
         """Register all models with Base - equivalent to EF's DbSet properties"""
         try:
             from .AccountModel import AccountModel
+            from .CompanyModel import CompanyModel
             from .UserModel import UserModel
             from .CompanyModel import CompanyModel
 
             from .LabelModel import LabelModel 
             from .PostLabelModel import PostLabelModel 
             from .PostModel import PostModel
+            
+            from .JobListingModel import JobListingModel
+            from .JobApplicationModel import JobApplicationModel
+            from .ResponsibilityModel import ResponsibilityModel
+            from .FieldOfWorkModel import FieldOfWorkModel
+            from .SavedJobModel import SavedJobModel  # Renamed from BookmarkModel
 
             from .CommentModel import CommentModel 
             from .PostLikesModel import PostLikesModel 

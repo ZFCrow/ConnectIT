@@ -1,5 +1,5 @@
 // src/components/FakeData/sampleApplicants.ts
-import type { Applicant } from "../../type/applicant";
+import type { Applicant } from "../../type/JobApplicationSchema";
 
 export const sampleApplicants: Applicant[] = [
   {
