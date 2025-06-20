@@ -31,7 +31,7 @@ import traceback
 from Boundary.AccountBoundary import AccountBoundary
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
-from job_route import job_listing_bp
+from Backend.Routes.job import job_listing_bp
 from Security import ValidateCaptcha
 import firebase_admin
 from firebase_admin import credentials, initialize_app, storage
