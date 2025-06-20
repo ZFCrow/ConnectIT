@@ -6,6 +6,6 @@ env
 .env.local
 sql_data_dev
 sql_data_prod
-#docker-compose.dev.yaml
+docker-compose.dev.yaml
 /sql_data
 connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json
