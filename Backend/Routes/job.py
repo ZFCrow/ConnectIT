@@ -49,14 +49,26 @@ def apply_job():
     """
     Applies for a job listing.
     """
-    userId = request.json.get("userId")
-    jobId = request.json.get("jobId")
+    # ── 1️⃣  Figure out which content type we got ───────────────────────
+    if request.content_type.startswith("multipart/form-data"):
+        # sent from <input type="file">  →  request.form & request.files
+        userId = request.form.get("userId", type=int)
+        jobId  = request.form.get("jobId",  type=int)
+        resumeFile = request.files.get("resume")          # None if not provided
+    else:
+        # application/json
+        payload = request.get_json(silent=True) or {}
+        userId = payload.get("userId")
+        jobId  = payload.get("jobId")
+        resumeFile = None
+
+
     if not jobId:
         return jsonify({"error": "Job ID is required"}), 400
     if not userId:
         return jsonify({"error": "User ID is required"}), 400
     
-    success = JobApplicationControl.applyJob(jobId, userId)
+    success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
     if success:
         return jsonify({"message": "Application submitted successfully!"}), 201
     else:

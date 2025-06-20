@@ -31,7 +31,7 @@ import traceback
 from Boundary.AccountBoundary import AccountBoundary
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
-from Backend.Routes.job import job_listing_bp
+from Routes.job import job_listing_bp
 from Security import ValidateCaptcha
 import firebase_admin
 from firebase_admin import credentials, initialize_app, storage
@@ -43,36 +43,8 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(job_listing_bp)   
 
 
-# ----------------------------------------------------------------------
-# 1.  Initialise Firebase once per process
-# ----------------------------------------------------------------------
-SERVICE_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "firebase_key.json")
-BUCKET_NAME = "connectit-63f60.firebasestorage.app"
 
-if not firebase_admin._apps:
-    cred = credentials.Certificate(SERVICE_KEY)
-    firebase_admin.initialize_app(cred, {"storageBucket": BUCKET_NAME})
 
-bucket = storage.bucket()
-###TODO: REMOVE THIS FOR PROD, ONLY FOR TESTING PURPOSES
-# ----------------------------------------------------------------------
-def list_company_documents() -> list[str]:
-    """
-    Returns a list of object names (paths) under companyDocument/
-    """
-    blobs = bucket.list_blobs(prefix="companyDocument/")
-    # Exclude the folder placeholder itself (empty path)
-    return [blob.name for blob in blobs if blob.name != "companyDocument/"]
-files = list_company_documents()
-print("Found:", len(files), "files")
-for f in files:
-    print(" •", f)
-########Should see output like this:
-# ----------------------------------------------------------------------
-# Found: 1 files
-#   • companyDocument/2412.17481v2.pdf
-# ----------------------------------------------------------------------
-####################################
 CORS(app)
 
 
