@@ -132,7 +132,6 @@ const ProfileJobCard: React.FC<Props> = ({ job }) => {
         <span className="text-xs text-gray-400">{posted}</span>
       </div>
       <div className="text-sm text-gray-300 space-y-1">
-        <div>{job.company}</div>
         <div className="flex flex-wrap gap-4">
           <span className="flex items-center gap-1">
             <Briefcase className="w-4 h-4 text-gray-400" />

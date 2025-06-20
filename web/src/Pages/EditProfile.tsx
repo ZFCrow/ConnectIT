@@ -18,16 +18,14 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
-
-const api = axios.create({
-  baseURL: "/api",
-});
+import LoadingSpinner from "@/components/ui/loading-circle";
 
 type AccountData = ValidatedUser | ValidatedCompany;
 
 const EditProfilePage = () => {
   const { accountId } = useAuth();
   const [user, setUser] = useState<AccountData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("")
   const [password, setPassword] = useState("")
@@ -43,6 +41,7 @@ const EditProfilePage = () => {
 
   useEffect(() => {
       const fetchAccount = async () => {
+        setLoading(true);
         try {
           const response = await axios.get(`/api/profile/${accountId}`);
           const data = response.data;
@@ -73,9 +72,10 @@ const EditProfilePage = () => {
             setDesc(c.description || "");
           }
 
-          console.log("Validated account:", parsed);
         } catch (error) {
           console.error("Failed to load account:", error);
+        } finally {
+          setLoading(false);
         }
       };
   
@@ -110,7 +110,6 @@ const EditProfilePage = () => {
       const response = await axios.post("/api/profile/save", 
         formData
       )
-      console.log("Saved", response.data)
       navigate(`/profile/${accountId}`);
 
     } catch (err: any){
@@ -120,7 +119,7 @@ const EditProfilePage = () => {
   };
   
 
-  if (!user) {
+  if (!user && !loading) {
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
         <div className="mt-6 text-center text-gray-400">User not found.</div>
@@ -130,69 +129,75 @@ const EditProfilePage = () => {
 
   return (
     <div className="w-full flex justify-center items-start px-4 py-10 overflow-auto">
-      <EditProfileCard>
-        <EditProfile onSubmit={handleSubmit} encType="multipart/form-data">
-        <EditableAvatar
-          imageUrl={user.profilePicUrl}
-          fallbackText={user.name}
-          onFileSelect={(file) => setProfilePic(file)}
-        />
-        <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
+      {loading ? (
+        <LoadingSpinner message="Loading profile..." />
+      ) : (
+        <>
+          <EditProfileCard>
+            <EditProfile onSubmit={handleSubmit} encType="multipart/form-data">
+            <EditableAvatar
+              imageUrl={user.profilePicUrl}
+              fallbackText={user.name}
+              onFileSelect={(file) => setProfilePic(file)}
+            />
+            <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
-          <EditProfileGroup>
-              <EditProfileField label="Full Name">
-                  <EditProfileInput name="name" placeholder="John Doe" value={name}
-                  onChange={(e) => setName(e.target.value)} required />
-              </EditProfileField>
-
-              <EditProfileField label="Old Password">
-                  <EditProfileInput type="password" name="oldPassword" value={password}
-                  onChange={(e) => setPassword(e.target.value)} />
-              </EditProfileField>
-              <EditProfileField label="New Password">
-                  <EditProfileInput type="password" name="newPassword" value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)} />
-              </EditProfileField>
-              <EditProfileField label="Confirm New Password">
-                  <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
-                  onChange={(e) => setConfirm(e.target.value)} />
-              </EditProfileField>
-
-              {user.role === Role.User && (
-                  <>
-                  <EditProfileField label="Bio">
-                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
-                      onChange={(e) => setBio(e.target.value)} />
+              <EditProfileGroup>
+                  <EditProfileField label="Full Name">
+                      <EditProfileInput name="name" placeholder="John Doe" value={name}
+                      onChange={(e) => setName(e.target.value)} required />
                   </EditProfileField>
 
-                  <PdfUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
-                  onChange={(file) => setPortfolioFile(file)} />
-                  </>
-              )}
-
-              {user.role === Role.Company && (
-                  <>
-                  <EditProfileField label="Address">
-                      <EditProfileInput name="address" placeholder="Company address" value={location}
-                      onChange={(e) => setLocation(e.target.value)} />
+                  <EditProfileField label="Old Password">
+                      <EditProfileInput type="password" name="oldPassword" value={password}
+                      onChange={(e) => setPassword(e.target.value)} />
+                  </EditProfileField>
+                  <EditProfileField label="New Password">
+                      <EditProfileInput type="password" name="newPassword" value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)} />
+                  </EditProfileField>
+                  <EditProfileField label="Confirm New Password">
+                      <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
+                      onChange={(e) => setConfirm(e.target.value)} />
                   </EditProfileField>
 
-                  <EditProfileField label="Description">
-                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
-                      onChange={(e) => setDesc(e.target.value)} />
-                  </EditProfileField>
-                  </>
-              )}
-              </EditProfileGroup>
+                  {user.role === Role.User && (
+                      <>
+                      <EditProfileField label="Bio">
+                          <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
+                          onChange={(e) => setBio(e.target.value)} />
+                      </EditProfileField>
 
-          <EditProfileActions>
-              <Link to={`/profile/${user.accountId}`}>
-                  <Button variant="outline" type="button">Cancel</Button>
-              </Link>
-            <Button type="submit">Save Changes</Button>
-          </EditProfileActions>
-        </EditProfile>
-      </EditProfileCard>
+                      <PdfUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
+                      onChange={(file) => setPortfolioFile(file)} />
+                      </>
+                  )}
+
+                  {user.role === Role.Company && (
+                      <>
+                      <EditProfileField label="Address">
+                          <EditProfileInput name="address" placeholder="Company address" value={location}
+                          onChange={(e) => setLocation(e.target.value)} />
+                      </EditProfileField>
+
+                      <EditProfileField label="Description">
+                          <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
+                          onChange={(e) => setDesc(e.target.value)} />
+                      </EditProfileField>
+                      </>
+                  )}
+                  </EditProfileGroup>
+
+              <EditProfileActions>
+                  <Link to={`/profile/${user.accountId}`}>
+                      <Button variant="outline" type="button">Cancel</Button>
+                  </Link>
+                <Button type="submit">Save Changes</Button>
+              </EditProfileActions>
+            </EditProfile>
+          </EditProfileCard>
+        </>
+      )}
       <ApplicationToaster /> {" "}
     </div>
   );

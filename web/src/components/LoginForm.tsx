@@ -9,6 +9,7 @@ import { UserSchema, CompanySchema, AccountSchema } from "@/type/account"
 import axios from "axios"
 import { ApplicationToaster } from "./CustomToaster"
 import toast from "react-hot-toast"
+import { parse } from "path"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -42,12 +43,12 @@ export function LoginForm() {
           throw new Error("Unsupported account role");
       }
 
-      login(parsed.accountId, parsed.role, {
+      login(parsed.accountId, parsed.role, parsed.name, {
         userId: 'userId' in parsed ? parsed.userId : undefined,
         companyId: 'companyId' in parsed ? parsed.companyId : undefined,
+        profilePicUrl: 'profilePicUrl' in parsed ? parsed.profilePicUrl : undefined,
       })
 
-      console.log("Authenticated", response.data)
       navigate("/")
 
     } catch (err: any){

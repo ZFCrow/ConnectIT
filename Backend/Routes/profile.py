@@ -19,7 +19,9 @@ def get_user(account_id):
             "profilePicUrl": account.profilePicUrl
         }
 
-        optional_keys = ["bio", "portfolioUrl", "description", "location", "verified"]
+        optional_keys = ["bio", "portfolioUrl", "description", 
+                         "location", "companyDocUrl", "verified",
+                         "companyId", "userId"]
         optional_data = {key: getattr(account, key) for key in optional_keys if hasattr(account, key)}
 
         return jsonify({**base_data, **optional_data})
