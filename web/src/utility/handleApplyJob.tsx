@@ -13,23 +13,20 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
 
   const applyJob = async (jobId: number, userId: number, file?: File) => {
     setLoading(true);
+    let data: FormData | string;
+    let headers: Record<string, string>;
     try {
       // Prepare form data if sending a file
       const formData = new FormData();
-      const jsonData = JSON.stringify({
-        jobId,
-        userId,
-      });
-      formData.append("userId", String(userId));
       formData.append("jobId", String(jobId));
+      formData.append("userId", String(userId));
+      formData.append("resume", file); // 👈 backend should expect "resume"
+      data = formData;
+      headers = {};
 
       //   if (file) formData.append("resume", file);
 
-      await axios.post(`/api/applyJob`, jsonData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      await axios.post("/api/applyJob", data, { headers });
 
       toast.success(
         "Your application is in!\nThe company may contact you soon! Best of luck 🍀"

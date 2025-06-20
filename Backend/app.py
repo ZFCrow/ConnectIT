@@ -14,6 +14,7 @@
 
 
 
+from typing import BinaryIO, Literal
 from flask import Flask, jsonify, request
 from flask_cors import CORS  
 import os
@@ -30,14 +31,19 @@ import traceback
 from Boundary.AccountBoundary import AccountBoundary
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
-from job_route import job_listing_bp
+from Routes.job import job_listing_bp
 from Security import ValidateCaptcha
+import firebase_admin
+from firebase_admin import credentials, initialize_app, storage
 
 app = Flask(__name__) 
 # allow all domains to access the API 
 app.register_blueprint(profile_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(job_listing_bp)   
+
+
+
 
 CORS(app)
 
