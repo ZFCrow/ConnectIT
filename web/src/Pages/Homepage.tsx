@@ -5,28 +5,28 @@ import CreatePostbar from "@/components/CreatePostbar";
 import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
-import { mockPosts } from "@/components/FakeData/mockPosts";
 import { PopularTags } from "@/components/FakeData/PopularTags";
 import { Role, useAuth } from "@/contexts/AuthContext";
-import { usePostManager } from "@/components/CustomHooks/usePostManger";
-import { PostSchema, PostsArraySchema, ValidatedPost } from "@/type/Post";
-import {z } from 'zod'; 
-
-
-// form the base url first
-const api = axios.create({
-  baseURL: "/api",
-});
+import { usePostContext } from "@/contexts/PostContext";
+import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
+import { create } from "domain";
+import PostCardSkeleton from "@/components/PostCardSkeleton";
+import ListingCardSkeleton from "@/components/ListingCardSkeleton";
 
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
 
-  // const [posts, setPosts] = useState(mockPosts); // use the mock data for now
-  const [tags, setTags] = useState(PopularTags); // use the mock data for now
-
   const {
-    posts,
-    setPosts,
+    allPosts,
+    setAllPosts,
+    fetchPosts,
+    filteredPosts,
+    setFilteredPosts,
+    activeFilter,
+    setActiveFilter,
+    activeSortby,
+    setActiveSortBy, 
+    createPost,
     postToDelete,
     selectedViolations,
     handleDeletePost,
@@ -35,100 +35,87 @@ const Homepage = () => {
     setSelectedViolations,
     handleDeleteComment,
     handleHide,
-  } = usePostManager(mockPosts);
+    loading 
+  } = usePostContext(); // custom hook to manage posts
+  
 
-  //test the api call to call post/1 
+  const {
+    allLabels,
+    setAllLabels,
+    popularLabels,
+    fetchLabels,
+    loading: labelLoading
+  } = useLabelManager(); // custom hook to manage labels
+  
+
   useEffect(() => {
-    const fetchPosts = async () => { 
-      try{
-        const response = await api.get('/post/1'); 
-        console.log("Fetched post:", response.data); 
-        
-        //* validate 
-        const validatedPost : ValidatedPost = PostSchema.parse(response.data); 
-        console.log("Validated post:", validatedPost); 
-
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          console.error("Validation error:", error.errors);
-        } else {
-          console.error("Error fetching posts:", error);
-        }
-        
-      }
-    }
-    fetchPosts()
+    fetchPosts(); // fetch the posts on mount
+    fetchLabels(); // fetch the labels on mount s
   }, []);
-
-  const handleSortClick = (criterion: string) => {
-    const sorted = [...posts];
-
-    if (criterion === "Most Recent") {
-      sorted.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-    } else if (criterion === "Most Liked") {
-      sorted.sort((a, b) => b.likes - a.likes); // if likes exists
-    } else if (criterion === "Most Commented") {
-      sorted.sort((a, b) => b.comments.length - a.comments.length);
-    }
-
-    setPosts(sorted);
-  };
-
-  const handleFilterClick = (tag: string) => {
-    const filteredPosts = mockPosts.filter((post) =>
-      post.labels.some((label) => label.name === tag)
-    );
-    setPosts(filteredPosts);
-  };
-
-  const handleReset = (type: string) => {
-    if (type === "filter") {
-      setPosts(mockPosts); // Reset to original posts
-    } else if (type === "sort") {
-      setPosts(mockPosts); // Reset to original posts
-    }
-  };
 
   return (
     <>
       <div className="flex h-[calc(100vh-5rem)]">
         {/* Left sidebar - fixed width */}
+        {labelLoading ? (
+          <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
+            <ListingCardSkeleton title = "Popular Tags" />
+            <ListingCardSkeleton  title = "Sort by"/>
+          </aside>
+        ): (        
         <aside className="w-64 flex-shrink-0 p-4 space-y-2 overflow-y-auto scrollbar-hide">
           <ListingCard
             title="Popular Tags"
-            listofitems={tags}
-            onClick={handleFilterClick}
-            onClickReset={handleReset}
-            type="filter"
+            listofitems={popularLabels.map ((label) => label.name)}
+            onClick= {setActiveFilter}
+          
           />
           <ListingCard
             title="Sort by"
             listofitems={["Most Recent", "Most Liked", "Most Commented"]}
-            onClick={handleSortClick}
-            onClickReset={handleReset}
-            type="sort"
+            onClick={setActiveSortBy}
+         
           />
-        </aside>
+        </aside>)}
+
 
         {/* Middle content - grows to fill available space */}
         {/* Scrollabel content*/}
 
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
           {/* Only show CreatePostbar for non-admin users */}
-          {role !== Role.Admin && <CreatePostbar />}
-          {posts.map((p) => {
-            return (
-              <Postcard
-                key={p.id}
-                {...p}
-                onHide={handleHide}
-                onDelete={handleDeletePost}
-                onDeleteComment={handleDeleteComment}
-              ></Postcard>
-            );
-          })}
+          {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} createPostFunction={createPost}/>}
+          
+          {/* Show loading skeletons if loading */} 
+          { loading ? (
+            <div className="space-y-4">
+              <PostCardSkeleton />
+              <PostCardSkeleton />  
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="empty-state text-center py-12">
+              <h3 className="text-lg font-semibold text-gray-600">No post found</h3>
+              <p className="text-gray-500 mt-2">
+
+                {activeFilter? `No posts found for the filter "${activeFilter}"` : "No posts available."}
+              </p>
+            </div>
+          ) : (
+            // show the filtered posts since lenth is greater than 0 
+            filteredPosts.map((p) => {
+              return (
+                <Postcard
+                  key={p.id}
+                  postId={p.id}
+                  detailMode={false}
+                />
+              );
+            })
+          )
+          }
         </section>
 
         {/* Right sidebar - fixed width */}
@@ -139,10 +126,6 @@ const Homepage = () => {
         {/* Confirmation Dialog */}
         <PostDeleteDialog
           isOpen={postToDelete !== null}
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
-          selectedViolations={selectedViolations}
-          onViolationChange={setSelectedViolations}
         />
       </div>
     </>

@@ -5,16 +5,18 @@ import App from './App.tsx'
 import { BrowserRouter } from 'react-router-dom' 
 import { ThemeProvider } from './components/theme-provider.tsx'
 import { AuthProvider } from '@/contexts/AuthContext.tsx' 
-
+import { PostProvider } from './contexts/PostContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
   <AuthProvider>
+    <PostProvider>
     <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
     <BrowserRouter>
     <App/>
     </BrowserRouter>  
     </ThemeProvider> 
+    </PostProvider>
   </AuthProvider>
   </StrictMode>,
 )

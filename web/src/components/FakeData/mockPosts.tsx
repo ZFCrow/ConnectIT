@@ -7,8 +7,8 @@ export const mockPosts: Post[] = [
     user: "CareerCounselor",
     date: "2025-05-20",
     labels: [
-      { name: "career", color: "blue" },
-      { name: "advice", color: "purple" }
+      { labelId: 1, name: "career", color: "blue" },
+      { labelId: 2, name: "advice", color: "purple" }
     ],
     title: "Tech vs Finance: Which path suits me?",
     content:
@@ -16,7 +16,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 1,
-        accountId: 1,   // FinancePro’s account ID
+        accountId: 1,
         username: "FinancePro",
         displayPicUrl: "",
         content:
@@ -24,7 +24,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 2,
-        accountId: 12,   // EngToBanker’s account ID
+        accountId: 12,
         username: "EngToBanker",
         displayPicUrl: "",
         content:
@@ -40,9 +40,9 @@ export const mockPosts: Post[] = [
     user: "StudentExplorer",
     date: "2025-05-18",
     labels: [
-      { name: "internship", color: "gray" },
-      { name: "student", color: "gray" },
-      { name: "advice", color: "purple" }
+      { labelId: 3, name: "internship", color: "gray" },
+      { labelId: 4, name: "student", color: "gray" },
+      { labelId: 2, name: "advice", color: "purple" }
     ],
     title: "Landing my first dev internship—tips?",
     content:
@@ -50,7 +50,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 3,
-        accountId: 13,   // ResumeGuru’s account ID
+        accountId: 13,
         username: "ResumeGuru",
         displayPicUrl: "",
         content:
@@ -58,7 +58,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 4,
-        accountId: 14,   // InternAlum’s account ID
+        accountId: 14,
         username: "InternAlum",
         displayPicUrl: "",
         content:
@@ -74,9 +74,9 @@ export const mockPosts: Post[] = [
     user: "JoblessJoe",
     date: "2025-05-17",
     labels: [
-      { name: "job-search", color: "red" },
-      { name: "mental-health", color: "pink" },
-      { name: "career", color: "blue" }
+      { labelId: 5, name: "job-search", color: "red" },
+      { labelId: 6, name: "mental-health", color: "pink" },
+      { labelId: 1, name: "career", color: "blue" }
     ],
     title: "Can’t find work after graduation 😞",
     content:
@@ -84,7 +84,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 5,
-        accountId: 15,   // SupportivePeer’s account ID
+        accountId: 15,
         username: "SupportivePeer",
         displayPicUrl: "",
         content:
@@ -92,7 +92,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 6,
-        accountId: 16,   // CareerCoach’s account ID
+        accountId: 16,
         username: "CareerCoach",
         displayPicUrl: "",
         content:
@@ -108,8 +108,8 @@ export const mockPosts: Post[] = [
     user: "HopefulGrad",
     date: "2025-05-15",
     labels: [
-      { name: "career", color: "blue" },
-      { name: "resume", color: "gray" }
+      { labelId: 1, name: "career", color: "blue" },
+      { labelId: 7, name: "resume", color: "gray" }
     ],
     title: "Resume review request",
     content:
@@ -117,21 +117,21 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 7,
-        accountId: 17,  // TechGuru’s account ID
+        accountId: 17,
         username: "TechGuru",
         displayPicUrl: "",
         content: "DM me"
       },
       {
         commentId: 8,
-        accountId: 18,  // ResumeNinja’s account ID
+        accountId: 18,
         username: "ResumeNinja",
         displayPicUrl: "",
         content: "I can help!"
       },
       {
         commentId: 9,
-        accountId: 19,  // FrontendFan’s account ID
+        accountId: 19,
         username: "FrontendFan",
         displayPicUrl: "",
         content:
@@ -147,8 +147,8 @@ export const mockPosts: Post[] = [
     user: "BurntOutDev",
     date: "2025-05-14",
     labels: [
-      { name: "career", color: "blue" },
-      { name: "mental-health", color: "pink" }
+      { labelId: 1, name: "career", color: "blue" },
+      { labelId: 6, name: "mental-health", color: "pink" }
     ],
     title: "Thinking of quitting coding altogether",
     content:
@@ -156,7 +156,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 10,
-        accountId: 20,  // ExDevNowPM’s account ID
+        accountId: 20,
         username: "ExDevNowPM",
         displayPicUrl: "",
         content:
@@ -164,7 +164,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 11,
-        accountId: 21,  // CounselorKate’s account ID
+        accountId: 21,
         username: "CounselorKate",
         displayPicUrl: "",
         content:
@@ -180,8 +180,8 @@ export const mockPosts: Post[] = [
     user: "DreamJobSeeker",
     date: "2025-05-12",
     labels: [
-      { name: "job-search", color: "red" },
-      { name: "remote", color: "gray" }
+      { labelId: 5, name: "job-search", color: "red" },
+      { labelId: 8, name: "remote", color: "gray" }
     ],
     title: "Where to find remote developer gigs?",
     content:
@@ -189,7 +189,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 12,
-        accountId: 22,  // RemoteExpert’s account ID
+        accountId: 22,
         username: "RemoteExpert",
         displayPicUrl: "",
         content:
@@ -197,7 +197,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 13,
-        accountId: 23,  // DevNomad’s account ID
+        accountId: 23,
         username: "DevNomad",
         displayPicUrl: "",
         content:
@@ -213,8 +213,8 @@ export const mockPosts: Post[] = [
     user: "MidlifeCoder",
     date: "2025-05-10",
     labels: [
-      { name: "career", color: "blue" },
-      { name: "advice", color: "purple" }
+      { labelId: 1, name: "career", color: "blue" },
+      { labelId: 2, name: "advice", color: "purple" }
     ],
     title: "Re-entering the workforce after a 10-year gap",
     content:
@@ -222,7 +222,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 14,
-        accountId: 24,  // CareerPivot’s account ID
+        accountId: 24,
         username: "CareerPivot",
         displayPicUrl: "",
         content:
@@ -230,7 +230,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 15,
-        accountId: 25,  // HiringManager’s account ID
+        accountId: 25,
         username: "HiringManager",
         displayPicUrl: "",
         content:
@@ -246,8 +246,8 @@ export const mockPosts: Post[] = [
     user: "DepressedAmy",
     date: "2025-05-08",
     labels: [
-      { name: "job-search", color: "red" },
-      { name: "depression", color: "gray" }
+      { labelId: 5, name: "job-search", color: "red" },
+      { labelId: 9, name: "depression", color: "gray" }
     ],
     title: "No interviews after 50 applications",
     content:
@@ -255,7 +255,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 16,
-        accountId: 26,  // MotivationCoach’s account ID
+        accountId: 26,
         username: "MotivationCoach",
         displayPicUrl: "",
         content:
@@ -263,7 +263,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 17,
-        accountId: 27,  // RecruiterJane’s account ID
+        accountId: 27,
         username: "RecruiterJane",
         displayPicUrl: "",
         content:
@@ -279,8 +279,8 @@ export const mockPosts: Post[] = [
     user: "MotivationDad",
     date: "2025-05-05",
     labels: [
-      { name: "career", color: "blue" },
-      { name: "work-life", color: "gray" }
+      { labelId: 1, name: "career", color: "blue" },
+      { labelId: 10, name: "work-life", color: "gray" }
     ],
     title: "Balancing parenting with job hunt",
     content:
@@ -288,7 +288,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 18,
-        accountId: 28,  // BusyMomDev’s account ID
+        accountId: 28,
         username: "BusyMomDev",
         displayPicUrl: "",
         content:
@@ -296,7 +296,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 19,
-        accountId: 29,  // TimeMgmtCoach’s account ID
+        accountId: 29,
         username: "TimeMgmtCoach",
         displayPicUrl: "",
         content:
@@ -312,8 +312,8 @@ export const mockPosts: Post[] = [
     user: "TechNewbie",
     date: "2025-05-02",
     labels: [
-      { name: "learning", color: "lime" },
-      { name: "advice", color: "purple" }
+      { labelId: 11, name: "learning", color: "lime" },
+      { labelId: 2, name: "advice", color: "purple" }
     ],
     title: "Best free resources to learn coding?",
     content:
@@ -321,7 +321,7 @@ export const mockPosts: Post[] = [
     comments: [
       {
         commentId: 20,
-        accountId: 30,  // FreeCodeFan’s account ID
+        accountId: 30,
         username: "FreeCodeFan",
         displayPicUrl: "",
         content:
@@ -329,7 +329,7 @@ export const mockPosts: Post[] = [
       },
       {
         commentId: 21,
-        accountId: 31,  // YouTubeTeacher’s account ID
+        accountId: 31,
         username: "YouTubeTeacher",
         displayPicUrl: "",
         content:

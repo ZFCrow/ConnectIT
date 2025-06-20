@@ -42,31 +42,43 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 
 import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
+import { usePostContext } from "@/contexts/PostContext";
 
-type PostcardProps = Post & {
+type PostcardProps = {
+  //post: Post; // The post object containing all necessary data
+  postId: number; 
   detailMode?: boolean; // ✅ optional, with default = false
-  onReport?: () => void; // Optional callback for report action
-  onHide?: (postId: number) => void; // Optional callback for hide action
-  onDelete?: (postId: number) => void; // Add delete callback
-  onDeleteComment?: (commentId: number) => void; // Optional callback for deleting a comment
 };
 
-const Postcard: FC<PostcardProps> = ({
-  accountId: postAccountId,
-  id,
-  user,
-  date,
-  labels,
-  title,
-  content,
-  comments,
-  likes,
-  liked,
-  detailMode,
-  onHide,
-  onDelete,
-  onDeleteComment,
-}) => {
+const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
+
+  const { 
+    handleDeletePost, 
+    handleHide, 
+    handleDeleteComment,
+    allPosts,
+    toggleLikePost,
+    createComment,
+  } = usePostContext(); // Get the delete and hide functions from context 
+
+  // using postID to find the specific post in the context 
+  const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID 
+  
+  // destructure the post object to get the necessary data 
+  const {
+    id,
+    username,
+    date,
+    labels,
+    title,
+    content,
+    comments,
+    likes,
+    liked,
+    accountId: postAccountId, // account ID of the post owner
+  } = postData;
+
+
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
     blue: "border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white",
@@ -89,11 +101,21 @@ const Postcard: FC<PostcardProps> = ({
   const interactiveClasses = detailMode
     ? "flex-grow"
     : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted";
+
   const [hasLiked, setHasLiked] = useState(liked || false); // Initialize liked state, default to false if not provided
+  const [commentContent, setCommentContent] = useState(""); // State for comment input 
+
+  const handlePostClick = () => {
+    navigate(`/post/${id}`, {
+      //state : {id},
+    });
+  } 
+
+
   return (
     <>
       <Card
-        {...(detailMode ? {} : { onClick: () => navigate(`/post/${id}`) })}
+        {...(detailMode ? {} : { onClick: () => handlePostClick() })} // Only add onClick if not in detail mode
         className={`${interactiveClasses}`}
       >
         <CardHeader>
@@ -103,19 +125,29 @@ const Postcard: FC<PostcardProps> = ({
               <div className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${user}`}
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
                   />
-                  <AvatarFallback>{user[0]}</AvatarFallback>
+                  <AvatarFallback>{username}</AvatarFallback>
                 </Avatar>
 
                 <div>
                   <CardTitle>{title}</CardTitle>
                   <CardDescription className="mt-1 text-sm text-muted-foreground flex flex-col items-start gap-2">
                     <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                      @{user}
+                      @{username}
                     </span>
                     {/* Date on its own line */}
-                    <span className="text-xs">{date}</span>
+                    <span className="text-xs">
+                      {/* undefined so it uses the browser's locale settings  */}
+                      {new Date(date).toLocaleDateString(undefined,{ 
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}</span>
+                  
                   </CardDescription>
                 </div>
               </div>
@@ -134,25 +166,22 @@ const Postcard: FC<PostcardProps> = ({
                     align="end"
                     className="w-40"
                   >
-                    {/* <DropdownMenuItem onSelect={() => console.log("report")}>
-                                    <Flag/>Report
-                                    </DropdownMenuItem>  */}
 
-                    {onDelete &&
+                    {handleDeletePost &&
                       (role === Role.Admin || accountId === postAccountId) && (
                         <DropdownMenuItem
                           onSelect={() => {
-                            onDelete(id);
+                            handleDeletePost(id);
                           }}
                         >
                           <Trash2 className="text-red-500" />
                           Delete
                         </DropdownMenuItem>
                       )}
-                    {onHide && (
+                    {!detailMode && ( // Only show hide option if not in detail mode 
                       <DropdownMenuItem
                         onSelect={() => {
-                          onHide(id);
+                          handleHide(id);
                         }}
                       >
                         <EyeOff />
@@ -215,8 +244,9 @@ const Postcard: FC<PostcardProps> = ({
                                         `}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      console.log("Liked!");
+                      //console.log("Liked!");
                       setHasLiked(!hasLiked); // Toggle liked state
+                      toggleLikePost(id); // Call the like function
                     }}
                   >
                     <ThumbsUp className="mr-1 h-4 w-4" />
@@ -252,16 +282,23 @@ const Postcard: FC<PostcardProps> = ({
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
                     />
                     <AvatarFallback className="text-xs">
-                      {c.username[0]}
+                      {c.username}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="flex-1">
                     <div className="flex items-center justify-between ">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm">{c.user}</span>
+                        <span className="font-medium text-sm">{c.username}</span>
                         <span className="text-xs text-muted-foreground">
-                          2h ago
+                          {new Date(c.createdAt).toLocaleDateString('en-SG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })}
                         </span>
                       </div>
                     </div>
@@ -271,7 +308,7 @@ const Postcard: FC<PostcardProps> = ({
                   </div>
 
                   {/* Show delete button for admins or comment owner */}
-                  {onDeleteComment &&
+                  {handleDeleteComment &&
                     (role === Role.Admin || c.accountId === accountId) && (
                       <Button
                         variant="ghost"
@@ -284,7 +321,7 @@ const Postcard: FC<PostcardProps> = ({
                                                 border-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onDeleteComment(c.commentId); // Call the delete comment callback
+                          handleDeleteComment(c.commentId); // Call the delete comment callback
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -300,8 +337,29 @@ const Postcard: FC<PostcardProps> = ({
                   <input
                     className="flex-1 rounded border px-2 py-1"
                     placeholder="Add a comment…"
+                    value={commentContent} 
+                    onChange={(e) => {
+                      e.stopPropagation(); // Prevent triggering the card click
+                      setCommentContent(e.target.value)} 
+                    }
+                    onClick={(e => e.stopPropagation())} // Prevent triggering the card click}
+
+              
                   />
-                  <Button size="sm">Post</Button>
+                  <Button 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the card click
+                      if (commentContent.trim() !== "") {
+                        createComment(id, {
+                          content: commentContent,
+                          postId: id, 
+                        })
+                        setCommentContent(""); // Clear the input after posting
+                        console.log("Comment posted:", commentContent)}
+                      
+                    }}
+                    >Post</Button>
                 </div>
               )}
             </CollapsibleContent>

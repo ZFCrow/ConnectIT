@@ -1,0 +1,100 @@
+// LabelPicker.tsx
+import {  Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Check, X , ChevronsUpDown} from "lucide-react";
+import { useOptionLogic } from "./CustomHooks/useOptionLogic";
+import type { Label } from "@/type/Label";
+
+interface LabelPickerProps {
+  allLabels: Label[];
+  selected: Label[];
+  onChange: (labels: Label[]) => void;
+}
+
+export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps) {
+  const { open, setOpen, search, setSearch, filtered, toggle, removeItem } = useOptionLogic<Label, "name">(
+    allLabels,
+    selected,
+    "name"
+  );
+
+  return (
+    
+     <div className="flex flex-col gap-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+          >
+            {selected.length > 0
+              ? `${selected.length} tag${selected.length > 1 ? "s" : ""} selected`
+              : "Select tags..."}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-full p-0 " align="start">
+          <div className="border-b p-2">
+            <input
+                className="w-full bg-transparent focus:outline-none placeholder:text-muted-foreground"
+                placeholder="Search tags..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div 
+          className="max-h-72 overflow-y-auto p-1 overscroll-contain"
+          onWheel={(e) => {
+            // Prevent scroll propagation to the parent
+            e.stopPropagation();
+          }}>
+            {filtered.length === 0 ? (
+              <p className="p-2 text-sm text-muted-foreground">No tags found</p>
+            ) : (
+              filtered.map((tag) => (
+                <div
+                  key={tag.name}
+                  className="flex items-center justify-between px-2 py-1.5 text-sm rounded-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                  onClick={ 
+                    () => {
+                      const next = toggle(tag);
+                      onChange(next);
+                    }
+
+                  }
+                >
+                  <span>{tag.name}</span>
+                  {selected.includes(tag) && (
+                    <Check className="h-4 w-4" />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
+
+        {/* Selected tags */}
+        {selected.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+            {selected.map((tag) => (
+                <Badge key={tag.name} variant="secondary" className="hover:bg-zinc-600 gap-1" onClick={() => {
+                  const next = removeItem(tag);
+                  onChange(next);
+                }}>
+                {tag.name}
+                <X
+                    className="h-3 w-3" 
+                />
+                </Badge>
+            ))}
+            </div>
+        )}
+    </div> 
+  );
+}
