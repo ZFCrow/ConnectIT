@@ -213,16 +213,20 @@ const JobDetailsCard: React.FC<Props> = ({
       </div>
       <h2 className="text-xl font-semibold text-gray-200">Job Description</h2>
       <p className="text-gray-200 whitespace-pre-line">{job.description}</p>
-      <h2 className="text-xl font-semibold text-gray-200">
-        Roles and Responsibility
-      </h2>
-      <ul className="list-disc pl-6 text-gray-200">
-        {job.responsibilities?.map((role, index) => (
-          <li key={index} className="mb-2">
-            {role}
-          </li>
-        ))}
-      </ul>
+      {job.responsibilities?.length > 0 && (
+        <>
+          <h2 className="text-xl font-semibold text-gray-200">
+            Roles and Responsibility
+          </h2>
+          <ul className="list-disc pl-6 text-gray-200">
+            {job.responsibilities?.map((role, index) => (
+              <li key={index} className="mb-2">
+                {role}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <div className="mt-6 flex items-center space-x-4">
         {userType === Role.User && (
           <Link

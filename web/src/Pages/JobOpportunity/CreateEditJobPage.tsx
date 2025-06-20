@@ -26,7 +26,9 @@ const CreateEditJobPage: React.FC = () => {
       jobType: job.jobType, // Ensure matches backend expected enum value
       fieldOfWork: job.fieldOfWork, // Ditto here
       workArrangement: job.workArrangement,
-      responsibilities: job.responsibilities,
+      responsibilities: job.responsibilities?.filter(
+        (r) => r !== null && r !== undefined && r.trim() !== ""
+      ),
       experiencePreferred: job.experiencePreferred ?? 0,
       isDeleted: false,
     };

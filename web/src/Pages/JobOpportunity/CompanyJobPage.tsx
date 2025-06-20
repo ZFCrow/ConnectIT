@@ -12,6 +12,7 @@ import {
 import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
 import axios from "axios";
 import { JobListingSchema } from "../../type/jobListing";
+import { Role } from "@/contexts/AuthContext";
 
 const CURRENT_COMPANY_ID = 1; //TODO: Replace with auth/context
 
@@ -21,6 +22,7 @@ const CompanyJobsPage: React.FC = () => {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -111,7 +113,13 @@ const CompanyJobsPage: React.FC = () => {
         ) : activeTab === "jobs" ? (
           jobListings.length ? (
             jobListings.map((job) => (
-              <JobCard key={job.jobId} job={job} userType="company" />
+              <JobCard
+                key={job.jobId}
+                job={job}
+                userType={Role.Company}
+                setJobListings={setJobListings}
+                violationOptions={[]}
+              />
             ))
           ) : (
             <p className="text-gray-400">No jobs posted yet.</p>
