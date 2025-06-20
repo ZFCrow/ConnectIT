@@ -1,4 +1,3 @@
-
 # from pathlib import Path
 # from dotenv import load_dotenv , find_dotenv 
 # # Read host, port, and debug from env, with sensible defaults
@@ -15,7 +14,7 @@
 
 
 
-from flask import Flask, jsonify , request
+from flask import Flask, jsonify, request
 from flask_cors import CORS  
 import os
 from db import sshFlow, noSshFlow
@@ -27,9 +26,15 @@ from Boundary.ViolationBoundary import ViolationBoundary
 from Boundary.CommentBoundary import CommentBoundary 
 import traceback
 
+from Boundary.AccountBoundary import AccountBoundary
+from Routes.profile import profile_bp
+from Routes.auth import auth_bp
+from Security import ValidateCaptcha
 
 app = Flask(__name__) 
 # allow all domains to access the API 
+app.register_blueprint(profile_bp)
+app.register_blueprint(auth_bp)
 CORS(app)
 
 
@@ -228,6 +233,28 @@ def deleteComment(comment_id):
         print(f"Error deleting comment: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500 
+    if success:
+        return jsonify({"message": "Post created successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to create post"}), 500
+    
+# Route for HCaptcha token verification
+@app.route("/verify-captcha", methods=["POST"])
+def verify_captcha_endpoint():
+    print("Received request at /verify-captcha endpoint.")
+    data = request.get_json()
+    token = data.get("token")
+
+    if not token:
+        return jsonify({
+            "success": False,
+            "message": "Missing CAPTCHA token"
+        }), 400
+
+    result = ValidateCaptcha.verify_hcaptcha(token)
+    print(f"Token received: {token}")
+
+    return jsonify(result), 200 if result["success"] else 400
      
 
 if __name__  == "__main__":

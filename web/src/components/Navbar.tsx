@@ -96,13 +96,15 @@ const Navbar = () => {
             </NavigationMenuItem>
           )}
 
+          {accountId ? (
+          // If logged in, show dropdown
           <NavigationMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:!bg-amber-100 rounded-full border ml-2 h-12 w-12 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200 "
+                  className="hover:!bg-amber-100 rounded-full border ml-2 h-12 w-12 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 !bg-amber-200"
                 >
                   <UserCircle style={{ width: "1.5rem", height: "1.5rem" }} />
                 </Button>
@@ -113,32 +115,57 @@ const Navbar = () => {
                     icon={<UserCircle className="h-4 w-4" />}
                     text="Profile"
                     onClick={() => navigate(`/profile/${accountId}`)}
-                  ></DropDownButton>
+                  />
                 </DropdownMenuItem>
-
                 <DropdownMenuItem asChild>
                   <DropDownButton
-                    icon={
-                      isDark ? (
-                        <Sun className="h-4 w-4" />
-                      ) : (
-                        <Moon className="h-4 w-4" />
-                      )
-                    }
+                    icon={isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                     text={isDark ? "Light Mode" : "Dark Mode"}
                     onClick={() => setTheme(isDark ? "light" : "dark")}
-                  ></DropDownButton>
+                  />
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <DropDownButton
                     icon={<LogOut className="h-4 w-4 text-red-500" />}
                     text="Logout"
-                    onClick={() => console.log("Logout clicked")}
-                  ></DropDownButton>
+                    onClick={() => {
+                      logout();
+                      navigate("/");
+                    }}
+                  />
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </NavigationMenuItem>
+        ) : (
+          // If logged out, show login and register buttons
+          <>
+            <NavigationMenuItem>
+              <Link
+                to="/register"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 flex gap-2"
+                )}
+              >
+                <UserCircle className="h-4 w-4" />
+                Register
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link
+                to="/login"
+                className={clsx(
+                  navigationMenuTriggerStyle(),
+                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 flex gap-2"
+                )}
+              >
+                <LogOut className="h-4 w-4" />
+                Login
+              </Link>
+            </NavigationMenuItem>
+          </>
+        )}
         </NavigationMenuList>
       </NavigationMenu>
     </nav>

@@ -182,6 +182,7 @@ class DatabaseContext:
         try:
             from .AccountModel import AccountModel
             from .UserModel import UserModel
+            from .CompanyModel import CompanyModel
 
             from .LabelModel import LabelModel 
             from .PostLabelModel import PostLabelModel 
