@@ -111,8 +111,9 @@ class AccountMapper:
 
                 # Update base Account fields
                 accountModel.name = account.name
-                if hasattr(account, "profilePicUrl") and account.profilePicUrl != '':
-                    accountModel.profilePicUrl = getattr(account, "profilePicUrl")
+                print(account)
+                if account.profilePicUrl:
+                    accountModel.profilePicUrl = getattr(account, "profilePicUrl", accountModel.profilePicUrl)
                 if hasattr(account, 'passwordHash') and account.passwordHash != '':
                     accountModel.passwordHash = getattr(account, 'passwordHash')
 
@@ -121,7 +122,8 @@ class AccountMapper:
                     userModel = session.query(UserModel).filter_by(accountId=account.accountId).first()
                     if userModel:
                         userModel.bio = getattr(account, "bio", userModel.bio)
-                        userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
+                        if account.portfolioUrl:
+                            userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
 
                 elif accountModel.role == Role.Company:
                     companyModel = session.query(CompanyModel).filter_by(accountId=account.accountId).first()

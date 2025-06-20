@@ -3,6 +3,7 @@ from SQLModels.AccountModel import Role
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
+from Control.UploadDocUtil import upload_to_path
 from Security import AuthUtils
 
 
@@ -43,9 +44,10 @@ class AccountControl:
         password = accountData.get('password', '')
         newPass = accountData.get('newPassword', '')
         confirmPass = accountData.get('confirmNew', '')
+        account_id = accountData['accountId']
 
         # Get the existing account to access the stored hash/salt
-        target_acc = AccountMapper.getAccountById(accountData['accountId'])
+        target_acc = AccountMapper.getAccountById(account_id)
 
         # Only if ALL password-related field are filled, validate and attempt update
         # This abit weird, might need change
@@ -68,6 +70,24 @@ class AccountControl:
         accountData.pop('password', None)
         accountData.pop('newPassword', None)
         accountData.pop('confirmNew', None)
+
+        profilePic = accountData.get('profilePic')
+        profilePic_url = None
+
+        if profilePic:
+            dest_name = f'profilePic/acc_{account_id}.png'
+            profilePic_url = upload_to_path(profilePic, target_path=dest_name, public=True)
+
+        accountData['profilePicUrl'] = profilePic_url
+
+        portfolioFile = accountData.get('portfolioFile')
+        resume_url = None
+
+        if portfolioFile:
+            dest_name = f'portfolio/user_{account_id}.pdf'
+            resume_url = upload_to_path(portfolioFile, target_path=dest_name, public=True)
+
+        accountData['portfolioUrl'] = resume_url
 
         account = Account.from_dict(accountData)
 

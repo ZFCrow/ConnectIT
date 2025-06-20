@@ -32,8 +32,8 @@ const EditProfilePage = () => {
   const [newPassword, setNewPassword] = useState("")
   const [confirmNew, setConfirm] = useState("")
   const [bio, setBio] = useState("")
-  const [portfolioUrl, setPortfolioUrl] = useState("")
-  const [profilePicUrl, setProfilePic] = useState("")
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
+  const [profilePic, setProfilePic] = useState<File | null>(null)
   const [location, setLocation] = useState("")
   const [description, setDesc] = useState("")
 
@@ -65,7 +65,6 @@ const EditProfilePage = () => {
           if (parsed.role === Role.User) {
             const u = parsed as User;
             setBio(u.bio || "");
-            setPortfolioUrl(u.portfolioUrl || "");
           } else if (parsed.role === Role.Company) {
             const c = parsed as Company;
             setLocation(c.location || "");
@@ -84,28 +83,32 @@ const EditProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const formData = new FormData();
+
     // TO ADD OLD PW AND NEW PW IN (Check if any of the fields are not empty)
     // If not, send all
-    const updatedData: any = {
-      accountId,
-      name, 
-      bio: bio.trim() || null,
-      portfolioUrl: portfolioUrl.trim() || null,
-      location: location.trim() || null,
-      description: description.trim() || null,
-      profilePicUrl: profilePicUrl.trim() || null,
-      role: user.role,
+    formData.append("accountId", accountId.toString());
+    formData.append("name", name);
+    formData.append("role", user.role);
+
+    if (bio.trim()) formData.append("bio", bio);
+    if (location.trim()) formData.append("location", location);
+    if (description.trim()) formData.append("description", description);
+
+    if (password && newPassword && confirmNew) {
+      formData.append("password", password);
+      formData.append("newPassword", newPassword);
+      formData.append("confirmNew", confirmNew);
     }
 
-    // Only if all are filled
-    if (password && newPassword && confirmNew) {
-      updatedData.password = password;
-      updatedData.newPassword = newPassword;
-      updatedData.confirmNew = confirmNew;
-    }
+    formData.append("portfolioFile", portfolioFile)
+    formData.append("profilePic", profilePic)
+    console.log(profilePic)
 
     try{
-      const response = await axios.post("/api/profile/save", updatedData)
+      const response = await axios.post("/api/profile/save", 
+        formData
+      )
       console.log("Saved", response.data)
       navigate(`/profile/${accountId}`);
 
@@ -126,13 +129,14 @@ const EditProfilePage = () => {
   return (
     <div className="w-full flex justify-center items-start px-4 py-10 overflow-auto">
       <EditProfileCard>
+        <EditProfile onSubmit={handleSubmit} encType="multipart/form-data">
         <EditableAvatar
-          imageUrl={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
+          imageUrl={user.profilePicUrl}
           fallbackText={user.name}
+          onFileSelect={(file) => setProfilePic(file)}
         />
         <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
-        <EditProfile onSubmit={handleSubmit}>
           <EditProfileGroup>
               <EditProfileField label="Full Name">
                   <EditProfileInput name="name" placeholder="John Doe" value={name}
@@ -159,7 +163,8 @@ const EditProfilePage = () => {
                       onChange={(e) => setBio(e.target.value)} />
                   </EditProfileField>
 
-                  <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf" />
+                  <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
+                  onChange={(file) => setPortfolioFile(file)} />
                   </>
               )}
 

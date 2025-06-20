@@ -15,6 +15,7 @@ const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   pdfUrl,
   title = "Viewing Portfolio",
 }) => {
+  const cacheBustedUrl = `${pdfUrl}?t=${Date.now()}`
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
@@ -34,7 +35,7 @@ const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
           {/* PDF Viewer */}
           <div className="flex-1 overflow-hidden">
             <iframe
-              src={pdfUrl}
+              src={cacheBustedUrl}
               title="PDF Preview"
               className="w-full h-full"
               frameBorder="0"

@@ -25,10 +25,6 @@ import { User, UserSchema, ValidatedUser,
   Company, CompanySchema, ValidatedCompany,
 AccountSchema, ValidatedAccount } from "@/type/account";
 
-const api = axios.create({
-  baseURL: "/api"
-})
-
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
 const ProfilePage = () => {
@@ -116,7 +112,7 @@ const ProfilePage = () => {
     <div className="w-4/5 mx-auto px-4 py-8">
       <Profile>
         <ProfileCardLeft>
-          <ProfileAvatar src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} fallbackText={user.name} />
+          <ProfileAvatar src={user.profilePicUrl} fallbackText={user.name} />
           <ProfileTitle>{user.name}</ProfileTitle>
           <ProfileField label="Name: " value={user.name || user.name.toLowerCase().replace(" ", "_")} />
           <ProfileField label="Email: " value={user.email} />

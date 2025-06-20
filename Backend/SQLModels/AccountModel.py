@@ -23,7 +23,7 @@ class AccountModel(Base):
     name = Column(String(45), nullable=False)
     email = Column(String(45), nullable=False)
     passwordHash = Column(String(128), nullable=False)
-    profilePicUrl = Column(String(255), nullable=True)
+    profilePicUrl = Column(String(512), nullable=True)
 
     role = Column(Enum(Role), nullable=False)
     isDisabled = Column(Boolean, nullable=False, default=False)

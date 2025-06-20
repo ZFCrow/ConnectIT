@@ -28,7 +28,13 @@ def get_user(account_id):
 
 @profile_bp.route('/save', methods=['POST'])
 def save_profile():
-    updated_data = request.get_json()
+    updated_data = request.form.to_dict()
+    portfolioFile = request.files.get('portfolioFile', None)
+    profilePic = request.files.get('profilePic', None)
+
+    updated_data['portfolioFile'] = portfolioFile
+    updated_data['profilePic'] =  profilePic
+
     success = AccountBoundary.saveProfile(updated_data)
 
     if success:
