@@ -18,7 +18,11 @@ class UserModel(Base):
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
     account = relationship("AccountModel", back_populates="user")
-
+    jobApplications = relationship(
+        "JobApplicationModel",
+        back_populates="user"
+    )
+  
     def to_dict(self):
         return {
             "userId": self.userId,

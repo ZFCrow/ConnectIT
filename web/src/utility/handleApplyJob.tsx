@@ -1,0 +1,45 @@
+// src/utility/useApplyJob.ts
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
+type ApplyJobOptions = {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+};
+
+export function useApplyJob(opts: ApplyJobOptions = {}) {
+  const [applicationLoading, setLoading] = useState(false);
+
+  const applyJob = async (jobId: number, userId: number, file?: File) => {
+    setLoading(true);
+    let data: FormData | string;
+    let headers: Record<string, string>;
+    try {
+      // Prepare form data if sending a file
+      const formData = new FormData();
+      formData.append("jobId", String(jobId));
+      formData.append("userId", String(userId));
+      formData.append("resume", file); // 👈 backend should expect "resume"
+      data = formData;
+      headers = {};
+
+      //   if (file) formData.append("resume", file);
+
+      await axios.post("/api/applyJob", data, { headers });
+
+      toast.success(
+        "Your application is in!\nThe company may contact you soon! Best of luck 🍀"
+      );
+      opts.onSuccess?.();
+    } catch (err) {
+      toast.error("Failed to apply for job. Try again!");
+      console.error("Error applying for job:", err.response.data);
+      opts.onError?.(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { applyJob, applicationLoading };
+}

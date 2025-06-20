@@ -1,7 +1,7 @@
 // src/components/CompanyCard.tsx
 import React from "react";
 import { FileText, Mail, MapPin } from "lucide-react";
-import type { Company } from "../type/company";
+import { getCompanyStatus, type Company } from "../type/company";
 
 interface CompanyCardProps {
   company: Company;
@@ -28,7 +28,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           <div className="flex items-center space-x-6 text-gray-300">
             <div className="flex items-center space-x-1">
               <MapPin className="w-4 h-4 text-indigo-400" />
-              <span className="text-sm">{company.address}</span>
+              <span className="text-sm">{company.location}</span>
             </div>
             <div className="flex items-center space-x-1">
               <Mail className="w-4 h-4 text-indigo-400" />
@@ -60,18 +60,18 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           className={`
             px-2 py-1 rounded text-xs font-medium
             ${
-              company.status === "Pending"
+              getCompanyStatus(company.verified) === "Pending"
                 ? "bg-yellow-500 text-black"
-                : company.status === "Verified"
+                : getCompanyStatus(company.verified) === "Verified"
                 ? "bg-green-600 text-white"
                 : "bg-red-600 text-white"
             }
           `}
         >
-          {company.status}
+          {getCompanyStatus(company.verified)}
         </span>
 
-        {company.status === "Pending" && (
+        {getCompanyStatus(company.verified) === "Pending" && (
           <div className="space-x-2">
             <button
               onClick={() => onVerify(company.companyId)}

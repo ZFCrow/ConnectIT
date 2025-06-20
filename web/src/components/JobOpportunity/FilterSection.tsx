@@ -19,8 +19,8 @@ interface FilterSectionProps {
   onSortOptionChange: (value: SortOption) => void;
 }
 
-const jobTypes = ["All", "Full-Time", "Part-Time", "Contract", "Internship"];
-const arrangements = ["All", "Remote", "Hybrid", "Office"];
+const jobTypes = ["All", "Full Time", "Part Time", "Contract", "Internship"];
+const arrangements = ["All", "Remote", "Hybrid", "Onsite"];
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   filterType,

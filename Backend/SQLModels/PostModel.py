@@ -23,7 +23,7 @@ class PostModel(Base):
 
 
     # Relationship
-    account = relationship("AccountModel", back_populates="post")
+    account = relationship("AccountModel", back_populates="posts")
     postLabels = relationship("PostLabelModel", back_populates="post") 
 
     comments = relationship("CommentModel",primaryjoin=and_(

@@ -18,7 +18,12 @@ import MyJobsPage from "./Pages/JobOpportunity/SavedJob";
 import CompanyJobsPage from "./Pages/JobOpportunity/CompanyJobPage";
 import CreateEditJobPage from "./Pages/JobOpportunity/CreateEditJobPage";
 import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
+
+
+import ProtectedRoutes from "./ProtectedRoutes";
+
 function App() {
+
   return (
     <>
       <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors ">
@@ -26,11 +31,16 @@ function App() {
 
         <main className="flex-1">
           <Routes>
-            <Route path="/" element={<Homepage />} />
-            <Route path="/post/:postId" element={<Postpage />} />
-            <Route path="/otherpage" element={<Otherpage />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+
+            {/* Protected Routes */ }
+            <Route path="/*" element={<ProtectedRoutes />} /> 
+
+            {/* <Route path="/" element={<Homepage />} />
+            <Route path="/post/:postId" element={<Postpage />} />
+            <Route path="/otherpage" element={<Otherpage />} />
+
             <Route path="/profile/:viewId" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<EditProfilePage />} />
             <Route path="/jobListing" element={<JobListingPage />} />
@@ -47,7 +57,7 @@ function App() {
             <Route
               path="/companyVerification"
               element={<CompanyVerificationPage />}
-            />
+            /> */}
             {/* Add more routes as needed */}
           </Routes>
         </main>

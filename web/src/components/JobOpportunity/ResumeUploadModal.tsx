@@ -1,59 +1,14 @@
 import React, { useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { Upload, X } from "lucide-react";
-import { toast } from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
-import { CheckCircle } from "lucide-react";
-export const ApplicationToaster = () => (
-  <Toaster
-    position="bottom-center"
-    reverseOrder={false}
-    gutter={12}
-    toastOptions={{
-      icon: <CheckCircle className="w-8 h-8 text-green-500" />,
 
-      duration: 4000,
-      style: {
-        background: "#18181b", // zinc-900
-        color: "#f4f4f5", // zinc-100
-        border: "1px solid #3f3f46", // zinc-700
-        padding: "12px 16px",
-        borderRadius: "8px",
-        fontSize: "1 rem",
-        transition: "all 0.3s ease",
-        maxWidth: "500px",
-        minWidth: "300px",
-      },
-      success: {
-        iconTheme: {
-          primary: "#22c55e",
-          secondary: "#ecfdf5",
-        },
-      },
-      error: {
-        iconTheme: {
-          primary: "#ef4444",
-          secondary: "#fee2e2",
-        },
-      },
-    }}
-  />
-);
-
-export const handleResumeSubmit = (file: File) => {
-  console.log("Uploaded:", file.name);
-  toast.success(
-    "Your application is in!\nThe company may contact you soon! Best of luck 🍀"
-  );
-
-  // You can POST to API or upload to Firebase here
-};
 interface ResumeUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (file: File) => void;
   title?: string;
   label?: string;
+  loading?: boolean;
   jobTitle?: string;
   companyName?: string;
 }
@@ -64,6 +19,7 @@ const ResumeUploadModal: React.FC<ResumeUploadModalProps> = ({
   onSubmit,
   title = "Submit Your Resume",
   label = "Select your resume (PDF)",
+  loading = false,
   jobTitle,
   companyName,
 }) => {
@@ -145,8 +101,35 @@ const ResumeUploadModal: React.FC<ResumeUploadModalProps> = ({
                 text-white font-medium py-2 rounded-lg transition
               "
             >
-              <Upload className="w-5 h-5" />
-              Submit Resume
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Submitting…
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5" />
+                  Submit Resume
+                </>
+              )}
             </button>
           </form>
         </Dialog.Panel>

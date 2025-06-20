@@ -2,6 +2,8 @@
 from sqlalchemy import Column, Integer, String, Boolean, Enum
 from sqlalchemy.orm import relationship
 from .base import Base
+from .UserModel import UserModel
+from .CompanyModel import CompanyModel
 from SQLModels.PostLikesModel import PostLikesModel 
 
 import enum

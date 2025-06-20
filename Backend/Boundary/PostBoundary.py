@@ -16,6 +16,8 @@ class PostBoundary:
         results = PostControl.createPost(postData) 
         print (f"Post boundary: Post creation result: {results}") 
         return results 
+    
+
     @staticmethod 
     def handleRetrieveAllPosts() -> list[Post]: 
         """
@@ -24,6 +26,18 @@ class PostBoundary:
         return PostControl.retrieveAllPosts() 
     
 
+    @staticmethod
+    def handleRetrievePaginatedPosts(
+        page: int, 
+        pageSize: int, 
+        sortBy: str = 'createdAt', 
+        filterLabel: str = None
+    ) -> dict[str, any]:
+        """
+        Handle the retrieval of paginated posts.
+        """
+        print(f"Post boundary: Retrieving paginated posts - Page: {page}, Page Size: {pageSize}, Sort By: {sortBy}, Filter Label: {filterLabel}")
+        return PostControl.retrievePaginatedPosts(page, pageSize, sortBy, filterLabel) 
 
     @staticmethod 
     def handleDeletePost(postId: int, violations : list[int]) -> bool:
