@@ -5,9 +5,9 @@ name: OWASP Dependency Check
 
 on: 
   push: 
-    branches: [ ForumBackend]
+    branches: [ main]
   pull_request: 
-    branches: [ ForumBackend] 
+    branches: [ main] 
 
 
 jobs:
