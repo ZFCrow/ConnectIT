@@ -61,4 +61,4 @@ class Company(Account):
             "location":      raw["location"],
             "verified":      raw["verified"],
         }
-        )
+        
