@@ -13,6 +13,7 @@ import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
 import axios from "axios";
 import { JobListingSchema } from "../../type/jobListing";
 import { Role } from "@/contexts/AuthContext";
+import { ApplicationToaster } from "@/components/CustomToaster";
 
 const CURRENT_COMPANY_ID = 1; //TODO: Replace with auth/context
 
@@ -77,7 +78,6 @@ const CompanyJobsPage: React.FC = () => {
           + New Listing
         </Button>
       </div>
-
       {/* Tabs */}
       <div className="mt-6 flex border-b border-zinc-700">
         <button
@@ -101,7 +101,6 @@ const CompanyJobsPage: React.FC = () => {
           Applicants
         </button>
       </div>
-
       {/* Content */}
       <div className="mt-6 space-y-6">
         {loading ? (
@@ -130,6 +129,7 @@ const CompanyJobsPage: React.FC = () => {
           </div>
         )}
       </div>
+      <ApplicationToaster />{" "}
     </div>
   );
 };

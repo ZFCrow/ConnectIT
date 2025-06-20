@@ -36,7 +36,7 @@ const ResumeUploadModal: React.FC<ResumeUploadModalProps> = ({
     if (file) {
       onSubmit(file);
       setFile(null);
-      onClose();
+      // onClose();
     }
   };
 

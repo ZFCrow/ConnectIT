@@ -49,8 +49,18 @@ const JobCard: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const { applyJob, applicationLoading } = useApplyJob({
     onSuccess: () => {
+      setJobListings((prev) =>
+        prev.map((j) =>
+          j.jobId === job.jobId
+            ? {
+                ...j,
+                isApplied: true,
+                numApplicants: (j.numApplicants || 0) + 1,
+              }
+            : j
+        )
+      );
       setOpen(false);
-      window.location.reload();
     },
   });
   const handleResumeSubmit = (file: File) => {
@@ -62,7 +72,7 @@ const JobCard: React.FC<Props> = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteJob, loading } = useDeleteJob(() => {
     setDeleteOpen(false);
-    window.location.reload();
+    setJobListings((prev) => prev.filter((j) => j.jobId !== job.jobId));
   });
 
   const handleDeleteClick = () => setDeleteOpen(true);

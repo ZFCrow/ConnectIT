@@ -29,6 +29,7 @@ import DeleteJobModal from "./DeleteJobModal";
 import { useApplicantActions } from "@/utility/handleApplication";
 import { handleBookmarkToggle } from "@/utility/handleBookmark";
 import { ViolationOption } from "@/utility/fetchViolationOptions";
+import { useApplyJob } from "@/utility/handleApplyJob";
 interface Props {
   job: JobListing;
   userType?: string; // Optional, if needed for user-specific logic
@@ -59,7 +60,27 @@ const JobDetailsCard: React.FC<Props> = ({
     deleteJob(job.jobId, violationId);
   };
   const { role, userId, companyId } = useAuth();
-
+  const { applyJob, applicationLoading } = useApplyJob({
+    onSuccess: () => {
+      setJob((prev) =>
+        prev.map((j) =>
+          j.jobId === job.jobId
+            ? {
+                ...j,
+                isApplied: true,
+                numApplicants: (j.numApplicants || 0) + 1,
+              }
+            : j
+        )
+      );
+      setOpen(false);
+    },
+  });
+  const handleResumeSubmit = (file: File) => {
+    // Pass jobId and userId to applyJob
+    applyJob(job.jobId, userId, file);
+    // Optionally close the modal here or on success
+  };
   const [statusFilter, setStatusFilter] = useState<"All" | string>("All");
   const statusOptions = ["All", "Applied", "Accepted", "Rejected"];
   // 1️⃣ Make a local copy of applicants so we can update them
@@ -85,9 +106,10 @@ const JobDetailsCard: React.FC<Props> = ({
       <ResumeUploadModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onSubmit={(file: File) => {}}
+        onSubmit={handleResumeSubmit}
         jobTitle={job.title}
         companyName={job.companyName}
+        loading={applicationLoading}
       />
       {/* Header: Title + Field badge + Bookmark + Posted On */}
       <div className="flex justify-between items-start">

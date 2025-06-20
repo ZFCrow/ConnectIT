@@ -2,6 +2,7 @@
 import React from "react";
 import { FileText, Mail, MapPin } from "lucide-react";
 import { getCompanyStatus, type Company } from "../type/company";
+import PdfViewerModal from "./PortfolioModal";
 
 interface CompanyCardProps {
   company: Company;
@@ -14,6 +15,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
   onVerify,
   onReject,
 }) => {
+  const [pdfOpen, setPdfOpen] = React.useState(false);
   return (
     <li className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg">
       <div className="flex justify-between items-start">
@@ -43,15 +45,14 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         </div>
 
         {/* “View Document” link */}
-        <a
-          href={company.uploadedDocumentUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => setPdfOpen(true)}
           className="flex items-center space-x-1 text-indigo-400 hover:underline"
         >
           <FileText className="w-5 h-5" />
           <span className="text-sm">View Document</span>
-        </a>
+        </button>
       </div>
 
       {/* Status badge + actions */}
@@ -96,6 +97,14 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
           </div>
         )}
       </div>
+      <PdfViewerModal
+        isOpen={pdfOpen}
+        onClose={function (): void {
+          setPdfOpen(false);
+        }}
+        pdfUrl={company.uploadedDocumentUrl} // Pass the resume URL to the modal
+        title="Viewing Company Document" // Optional title for the modal
+      />
     </li>
   );
 };

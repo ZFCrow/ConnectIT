@@ -1,4 +1,4 @@
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast";
 
@@ -8,8 +8,6 @@ export const ApplicationToaster = () => (
     reverseOrder={false}
     gutter={12}
     toastOptions={{
-      icon: <CheckCircle className="w-8 h-8 text-green-500" />,
-
       duration: 4000,
       style: {
         background: "#18181b", // zinc-900
@@ -23,12 +21,16 @@ export const ApplicationToaster = () => (
         minWidth: "300px",
       },
       success: {
+        icon: <CheckCircle className="w-6 h-6 text-green-500" />,
+
         iconTheme: {
           primary: "#22c55e",
           secondary: "#ecfdf5",
         },
       },
       error: {
+        icon: <XCircle className="w-6 h-6 text-red-500" />,
+
         iconTheme: {
           primary: "#ef4444",
           secondary: "#fee2e2",

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export function useDeleteJob(onSuccess?: (jobId: number) => void) {
   const [loading, setLoading] = useState(false);
@@ -13,9 +14,11 @@ export function useDeleteJob(onSuccess?: (jobId: number) => void) {
       }
       // Proceed to delete job
       await axios.post(`/api/deleteJob/${jobId}`);
+      toast.success("Job deleted successfully!");
       if (onSuccess) onSuccess(jobId);
       // Optionally, show a toast here
     } catch (err) {
+      toast.error("Failed to delete job. Please try again.");
       alert("Failed to delete job. Please try again.\n" + err);
     } finally {
       setLoading(false);
