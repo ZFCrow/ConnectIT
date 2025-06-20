@@ -16,7 +16,7 @@ const CompanyVerificationPage: React.FC = () => {
     const fetchCompanies = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/getAllCompanies");
+        const res = await axios.get("/api/profile/getAllCompanies");
         setCompanies(res.data); // Assuming the API returns an array of companies
       } catch (err) {
         console.error("Failed to fetch companies", err);
@@ -43,7 +43,7 @@ const CompanyVerificationPage: React.FC = () => {
       setCompanies((prev) =>
         prev.map((c) => (c.companyId === companyId ? { ...c, verified: 1 } : c))
       );
-      await axios.post(`/api/setCompanyVerified/${companyId}/1`);
+      await axios.post(`/api/profile/setCompanyVerified/${companyId}/1`);
       // Optionally: refresh company list or update state here
     } catch (err) {
       console.error("Failed to verify company:", err);
@@ -61,8 +61,7 @@ const CompanyVerificationPage: React.FC = () => {
       setCompanies((prev) =>
         prev.map((c) => (c.companyId === companyId ? { ...c, verified: 2 } : c))
       );
-      // 0 = Rejected (or use 2, depending on your enum)
-      await axios.post(`/api/setCompanyVerified/${companyId}/2`);
+      await axios.post(`/api/profile/setCompanyVerified/${companyId}/2`);
       console.log("Company rejected:", companyId);
 
       // Optionally: refresh company list or update state here

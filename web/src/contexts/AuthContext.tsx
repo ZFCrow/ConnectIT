@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       // login(2, Role.Company, { companyId: 1 });
       // login(1, Role.User, { userId: 1 });
       // login(1, Role.Company, { companyId: 1 });
-      // login(1, Role.Admin, { userId: 1 }); // HARDCODED FOR TESTING
+      login(1, Role.Admin, { userId: 1 }); // HARDCODED FOR TESTING
     }
   }, []);
 

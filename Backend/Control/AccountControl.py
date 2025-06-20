@@ -126,3 +126,23 @@ class AccountControl:
 
         return AccountMapper.disableAccount(accountId)
     
+    @staticmethod
+    def getAllCompanies():
+        """
+        Retrieves all companies.
+        :return: List of all companies.
+        """
+        print("Retrieving all companies")
+        return AccountMapper.getAllCompanies()
+    
+
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified:int ):
+        """
+        Sets the verification status of a company.
+        :param company_id: ID of the company to verify.
+        :param verified: True if the company is verified, False otherwise.
+        :return: True if the operation was successful, False otherwise.
+        """
+        print(f"Setting company {company_id} verified status to {verified}")
+        return AccountMapper.setCompanyVerified(company_id, verified)

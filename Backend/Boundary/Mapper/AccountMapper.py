@@ -161,4 +161,28 @@ class AccountMapper:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
-        
+    
+    @staticmethod
+    def getAllCompanies() -> list["CompanyModel"]:
+        """
+        Retrieves all companies.
+        :return: List of all companies.
+        """
+        with db_context.session_scope() as session:
+            companies = session.query(CompanyModel).all()
+            return [Company.from_model(company) for company in companies]
+
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified:int) :
+        """
+        Set the 'verified' status for a company.
+        :param company_id: ID of the company to update.
+        :param verified: True (1) to verify, False (0) to unverify.
+        :return: True if update was successful, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            company = session.query(CompanyModel).filter_by(companyId=company_id).first()
+            if not company:
+                return False
+            company.verified = verified
+            return True
