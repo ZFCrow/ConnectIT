@@ -1,9 +1,6 @@
 // src/contexts/PostContext.tsx
 import { createContext, useContext } from "react";
-import { usePostManager } from "@/components/CustomHooks/usePostManger";
-
-
-
+import usePostManager from "@/components/CustomHooks/usePostManager";
 
 const PostContext = createContext<ReturnType<typeof usePostManager> | null>(null);
 

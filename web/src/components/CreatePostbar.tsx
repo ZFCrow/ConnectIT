@@ -29,64 +29,48 @@ import { create } from "domain";
 type CreatePostbarProps = { 
     // You can add props here if needed
     retrievedTags: Label[]; // optional prop to pass all tags 
-    createPostFunction?: (postData : { title: string; content: string; labels: number[] }) => Promise<any>; // optional function to create a post
-    onPostCreated?: (post: Post) => void;
+    // createPostFunction?: (postData : { title: string; content: string; labels: number[] }) => Promise<any>; // optional function to create a post
+    // onPostCreated?: (post: Post) => void;
 } 
 
 
 const CreatePostbar  : FC<CreatePostbarProps> = ({ 
     retrievedTags, 
-    createPostFunction ,
-    onPostCreated = () => {}, // default to empty function if not provided 
+    // createPostFunction ,
+    // onPostCreated = () => {}, // default to empty function if not provided 
  }) => { 
 
-    const { createPostLoading } = usePostContext(); // get the post context 
+    const { createPost, createPostPending} = usePostContext(); // get the createPost function and status from the context 
+    const [open, setOpen] = useState(false); // dialog open state
+
 
 
     const [title, setTitle] = useState("What's on your mind?");
-    //const [allTags , setAllTags] = useState<Label[]>([]); // all the tags fetched from the server
-    const [selectedTags, setSelectedTags] = useState<Label[]>([]); // selected tags by the user 
     const [content , setContent] = useState(""); 
-    const [open, setOpen] = useState(false); // dialog open state
+    const [selectedTags, setSelectedTags] = useState<Label[]>([]); // selected tags by the user 
+    
+
 
     const handlePostSubmit = async () => {
         try {
-            // Prepare the post data
-            const postData = { 
-                title: title, 
-                content: content, 
-                labels: selectedTags.map(tag => tag.labelId), // map selected tags to their IDs 
-            }; 
-            // If a custom createPostFunction is provided, use it 
-            if (createPostFunction) { 
-                const response = await createPostFunction(postData); 
-                
-                if (response.success) {
-                    // If the post was created successfully, call the onPostSubmit callback
-                    // onPostSubmit(title, content, selectedTags);
-                    setTitle("What's on your mind?"); // reset the title 
-                    setContent(""); // reset the content 
-                    setSelectedTags([]); // reset the selected tags 
-                    
-                    // 
-                    if (onPostCreated) {
-                        onPostCreated(response.post); // call the onPostCreated callback with the new post 
-                    }
-
-                    setOpen(false); // close the dialog
-                } 
-            } else {
-                console.log ("No createPostFunction provided."); 
-                
-            } 
-
-
-                
-        } catch (error) {
-            console.error("Error creating post:", error);
-            // Handle error appropriately, e.g., show a notification or alert 
+        await createPost({
+            title,
+            content,
+            labels: selectedTags.map((l) => l.labelId),
+        });
+        // reset form
+        setTitle("");
+        setContent("");
+        setSelectedTags([]);
+        setOpen(false);
+        } catch (err) {
+        console.error("Failed to create post:", err);
         }
-    }
+    };
+
+
+                
+   
 
     return (
     <Card className="flex flex-row items-center gap-4 p-4 h-20">
@@ -108,7 +92,7 @@ const CreatePostbar  : FC<CreatePostbarProps> = ({
             
             <DialogContent>
                 {
-                    createPostLoading ? (
+                    createPostPending ? (
                 <DialogHeader> 
                     <DialogTitle>please wait...</DialogTitle> 
                     <DialogDescription>

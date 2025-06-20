@@ -13,16 +13,7 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostContext } from "@/contexts/PostContext";
 import { ViolationPicker } from "../ViolationPicker";
 
-// const violationReasons = [
-//   "Spam or repetitive content",
-//   "Harassment or bullying",
-//   "Hate speech or discrimination",
-//   "Misinformation or false claims",
-//   "Inappropriate or explicit content",
-//   "Copyright infringement",
-//   "Off-topic or irrelevant content",
-//   "Other policy violation",
-// ];
+
 
 
 interface PostDeleteDialogProps {
@@ -40,8 +31,8 @@ const PostDeleteDialog = ({
 
   const { 
     allViolations,
-    confirmDelete, 
-    cancelDelete,
+    confirmDeletePost: confirmDelete , 
+    cancelDeletePost: cancelDelete,
     selectedViolations, 
     setSelectedViolations } = usePostContext(); 
 

@@ -3,9 +3,11 @@ from SQLModels.PostModel import PostModel
 
 from typing import Optional, Dict, Any 
 from sqlalchemy.orm import joinedload 
+from sqlalchemy import select, func
 from SQLModels.AccountModel import AccountModel 
 from SQLModels.CommentModel import CommentModel
 from SQLModels.PostLabelModel import PostLabelModel 
+from SQLModels.LabelModel import LabelModel 
 from SQLModels.PostViolationModel import PostViolationModel
 from SQLModels.PostLikesModel import PostLikesModel 
 from Entity.Post import Post  
@@ -86,16 +88,23 @@ class PostMapper:
             if filterLabel: 
                 query = query.filter(
                     PostModel.postLabels.any(
-                        PostLabelModel.label.has(Label.description == filterLabel)
+                        PostLabelModel.label.has(LabelModel.description == filterLabel)
                     )
                 )
-            
+            commentCount = (
+
+                select(func.count(CommentModel.commentId)) 
+                .where(
+                    CommentModel.postId == PostModel.postId, 
+                    CommentModel.isDeleted == 0
+                    ).scalar_subquery()
+            )
             # check if theres sortBy 
             if sortBy: 
                 if sortBy == "Most liked": 
                     query = query.order_by(PostModel.postLikes.count().desc()) 
                 elif sortBy == "Most Commented": 
-                    query = query.order_by(PostModel.comments.count().desc()) 
+                    query = query.order_by(commentCount.desc()) 
                 elif sortBy == "Most Recent": 
                     query = query.order_by(PostModel.date.desc())   
             
@@ -103,12 +112,12 @@ class PostMapper:
             totalPages = ceil(totalCount / pageSize)  # Calculate total pages 
             postModels = (
                 query
-                # .options( 
-                #     joinedload(PostModel.account),  # Load the associated account 
-                #     joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels 
-                #     joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
-                #     joinedload(PostModel.postLikes)  # Load associated likes 
-                # )
+                .options( 
+                    joinedload(PostModel.account),  # Load the associated account 
+                    joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels 
+                    joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
+                    joinedload(PostModel.postLikes)  # Load associated likes 
+                )
                 .offset((page - 1) * pageSize)  # Apply pagination offset 
                 .limit(pageSize)  # Limit the number of posts per page 
             ).all()  # Fetch the posts for the current page 
@@ -126,7 +135,8 @@ class PostMapper:
                 postEntity = Post.from_PostModel(pm, labels) 
                 # add the comments to the post entity 
                 postEntity.populateComments(commentModels) 
-                posts.append(postEntity) 
+
+                posts.append(postEntity.toDict()) 
             return { 
                 "posts": posts,  # List of Post entities 
                 "totalCount": totalCount,  # Total number of posts 
@@ -256,4 +266,23 @@ class PostMapper:
                 "message": f"Error toggling like for post ID {postId} by account ID {accountId}: {e}"
             } 
 
+    @staticmethod 
+    def getRecentlyInteractedPosts(accountId: int, limit: int = 5) -> list[Post]:
+        """
+        Fetch the most recent posts interacted by the account.
+        """
+        with db_context.session_scope() as session:
+            posts = session.query(PostModel).options(
+                joinedload(PostModel.account),  # Load the associated account 
+                joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels 
+                joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
+                joinedload(PostModel.postLikes)  # Load associated likes 
+            ).filter(
+                (PostModel.postLikes.any(PostLikesModel.accountId == accountId)) | 
+                (PostModel.comments.any(CommentModel.accountId == accountId))
+            ).order_by(PostModel.date.desc()).limit(limit).all() 
 
+            labelModels = [pl.label for post in posts for pl in post.postLabels]
+            labels = [Label.fromLabelModel(lm) for lm in labelModels] 
+
+            return [Post.from_PostModel(post,labels=labels) for post in posts] if posts else [] 

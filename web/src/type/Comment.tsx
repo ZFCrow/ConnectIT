@@ -9,6 +9,10 @@ export type Comment = {
     displayPicUrl?: string; 
 }
 
+export type CreateCommentDTO = { 
+    content: string; // Content of the comment
+    postId: number; // ID of the post to which the comment belongs
+} 
 
 export const CommentSchema = z.object({
     accountId: z.number(),

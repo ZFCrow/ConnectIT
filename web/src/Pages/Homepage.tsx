@@ -12,21 +12,39 @@ import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
 import { create } from "domain";
 import PostCardSkeleton from "@/components/PostCardSkeleton";
 import ListingCardSkeleton from "@/components/ListingCardSkeleton";
+import PostsSection from "./Home/Sections/PostsSection";
+
+
 
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
 
-  const {
-    fetchPosts,
-    filteredPosts,
-    activeFilter,
-    setActiveFilter,
-    setActiveSortBy, 
-    createPost,
-    postToDelete,
-    loading 
-  } = usePostContext(); // custom hook to manage posts
+  // const {
+  //   fetchPosts,
+  //   filteredPosts,
+  //   activeFilter,
+  //   setActiveFilter,
+  //   setActiveSortBy, 
+  //   createPost,
+  //   postToDelete,
+  //   loading 
+  // } = usePostContext(); // custom hook to manage posts
   
+
+    // New pagination context
+  const {
+
+    // filter & sort controls
+    setActiveFilter,
+    setActiveSortBy,
+
+    // create/delete dialog state
+    // createPost,
+    postToDelete,
+  } = usePostContext();
+
+
+
   const {
     allLabels,
     popularLabels,
@@ -36,7 +54,6 @@ const Homepage = () => {
   
 
   useEffect(() => {
-    fetchPosts(); // fetch the posts on mount
     fetchLabels(); // fetch the labels on mounts
   }, []);
 
@@ -71,38 +88,9 @@ const Homepage = () => {
 
         <section className="flex-1 min-w-0 overflow-y-auto px-4 py-3 space-y-4 scrollbar-hide">
           {/* Only show CreatePostbar for non-admin users */}
-          {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} createPostFunction={createPost}/>}
-          
-          {/* Show loading skeletons if loading */} 
-          { loading ? (
-            <div className="space-y-4">
-              <PostCardSkeleton />
-              <PostCardSkeleton />  
-              <PostCardSkeleton />
-              <PostCardSkeleton />
-              <PostCardSkeleton />
-            </div>
-          ) : filteredPosts.length === 0 ? (
-            <div className="empty-state text-center py-12">
-              <h3 className="text-lg font-semibold text-gray-600">No post found</h3>
-              <p className="text-gray-500 mt-2">
-
-                {activeFilter? `No posts found for the filter "${activeFilter}"` : "No posts available."}
-              </p>
-            </div>
-          ) : (
-            // show the filtered posts since lenth is greater than 0 
-            filteredPosts.map((p) => {
-              return (
-                <Postcard
-                  key={p.id}
-                  postId={p.id}
-                  detailMode={false}
-                />
-              );
-            })
-          )
-          }
+          {/* {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels} createPostFunction={createPost}/>} */}
+           {role !== Role.Admin && <CreatePostbar retrievedTags={allLabels}/>}
+          <PostsSection/>
         </section>
 
         {/* Right sidebar - fixed width */}
@@ -113,6 +101,7 @@ const Homepage = () => {
         {/* Confirmation Dialog */}
         <PostDeleteDialog
           isOpen={postToDelete !== null}
+          //isOpen={false} 
         />
       </div>
     </>

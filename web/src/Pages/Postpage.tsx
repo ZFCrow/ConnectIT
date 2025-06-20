@@ -12,7 +12,8 @@ const Postpage = () => {
   const { 
     allPosts, 
     postToDelete, 
-    deletePostLoading } = usePostContext();
+    deletePostPending: deletePostLoading 
+  } = usePostContext();
 
   const idNum = postId ? Number(postId) : NaN;
   console.log("Post ID:", idNum);

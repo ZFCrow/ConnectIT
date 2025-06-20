@@ -32,8 +32,9 @@ const FullHeightVerticalBar = () => {
   // users
   const [appliedJobs, setAppliedJobs] = useState<AppliedJob[]>([]);
   //const [recentPosts, setRecentPosts] = useState<RecentPostLike[]>([]); 
-  const {recentlyInteractedPost} = usePostContext();
+  // const {recentlyInteractedPost} = usePostContext();
 
+  const {recentInteractions: recentlyInteractedPost} = usePostContext();
 
   // companies
   const [myJobs, setMyJobs] = useState<JobListing[]>([]);
@@ -65,10 +66,10 @@ const FullHeightVerticalBar = () => {
       // setRecentPosts(userRecentPosts);
     } else if (role === Role.Company) {
       // Fetch jobs posted by the company
-      const companyJobs = sampleJobs.filter(
-        (job) => job.companyId === companyId
-      );
-      setMyJobs(companyJobs);
+      // const companyJobs = sampleJobs.filter(
+      //   (job) => job.companyId === companyId
+      // );
+      setMyJobs([]);
 
       // Fetch recent posts liked by the user (this needs to be accountID)
       // const companyRecentPosts = mockRecentPostsLikes.filter(
@@ -196,7 +197,7 @@ const FullHeightVerticalBar = () => {
                   <CardContent className="p-3">
                     <div className="font-medium">{job.title}</div>
                     <div className="text-muted-foreground text-xs mt-1">
-                      {job.companyName}
+                      Example Company 
                     </div>
                   </CardContent>
                 </Card>

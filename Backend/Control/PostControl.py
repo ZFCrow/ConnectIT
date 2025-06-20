@@ -40,6 +40,14 @@ class PostControl:
         )
         return results 
     
+    @staticmethod 
+    def retrieveRecentlyInteractedPosts(accountId: int) -> list[Post] :
+        """
+        Retrieve posts that the user has recently interacted with.
+        This could be based on likes, comments, or other interactions.
+        """
+        # Placeholder for actual implementation
+        return PostMapper.getRecentlyInteractedPosts(accountId=accountId)  # Retrieve posts based on recent interactions of the user 
 
     @staticmethod 
     def createPost(postData : dict) -> tuple[Post, bool]:

@@ -39,6 +39,15 @@ class PostBoundary:
         print(f"Post boundary: Retrieving paginated posts - Page: {page}, Page Size: {pageSize}, Sort By: {sortBy}, Filter Label: {filterLabel}")
         return PostControl.retrievePaginatedPosts(page, pageSize, sortBy, filterLabel) 
 
+    @staticmethod
+    def handleRetrieveRecentlyInteractedPosts(accountId: int) -> list[Post]:
+        """
+        Handle the retrieval of posts that the user has recently interacted with.
+        """
+        print(f"Post boundary: Retrieving recently interacted posts for account ID: {accountId}")
+        return PostControl.retrieveRecentlyInteractedPosts(accountId)  # Call the control layer to retrieve posts based on recent interactions of the user
+    
+
     @staticmethod 
     def handleDeletePost(postId: int, violations : list[int]) -> bool:
         """

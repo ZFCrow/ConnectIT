@@ -280,13 +280,30 @@ def get_paginated_posts():
         pageSize = request.args.get("pageSize", default=10, type=int)
         print (f"Page: {page}, Page Size: {pageSize}")  # Debugging output to check pagination parameters 
         filterLabel  = request.args.get("filterLabel", default=None, type=str)
-        sortBy     = request.args.get("sortBy",      default=None, type=str)
+        sortBy     = request.args.get("sortBy", default=None, type=str)
         results = PostBoundary.handleRetrievePaginatedPosts(page, pageSize, sortBy, filterLabel)  # Use the boundary to handle paginated retrieval of posts 
         return jsonify(results), 200  # Return the paginated results as JSON
     except Exception as e:
         print(f"Error retrieving paginated posts: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500 
+
+@app.route ('/RecentlyInteractedPosts/<int:account_id>', methods=['GET'])
+def get_recently_interacted_posts(account_id):
+    """
+    Retrieve posts that the user has recently interacted with.
+    """
+    try:
+        posts = PostBoundary.handleRetrieveRecentlyInteractedPosts(account_id)  # Use the boundary to handle retrieval of recently interacted posts 
+        
+        return jsonify([post.toDict() for post in posts]), 200  # Convert each post to a dictionary
+
+    except Exception as e:
+        print(f"Error retrieving recently interacted posts: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
+    
+
 
 if __name__  == "__main__":
 
