@@ -7,6 +7,8 @@ import { useState } from "react"
 import { useAuth, Role } from "@/contexts/AuthContext"
 import { UserSchema, CompanySchema, AccountSchema } from "@/type/account"
 import axios from "axios"
+import { ApplicationToaster } from "./CustomToaster"
+import toast from "react-hot-toast"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -47,7 +49,9 @@ export function LoginForm() {
 
       console.log("Authenticated", response.data)
       navigate("/")
+
     } catch (err: any){
+      toast.error("Error logging in, please try again.")
       console.log("Login failed", err)
     }
   }
@@ -85,6 +89,7 @@ export function LoginForm() {
           </CardFooter>
         </form>
       </Card>
+      <ApplicationToaster /> {" "}
     </div>
   )
 }

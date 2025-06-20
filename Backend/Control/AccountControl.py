@@ -17,7 +17,17 @@ class AccountControl:
             accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
             del accountData["password"]  # Remove plain password
 
+        companyDoc = accountData.get('companyDoc')
+        doc_url = None
+        if companyDoc:
+            dest_name = f'companyDocument/company_temp.pdf'
+            doc_url = upload_to_path(companyDoc, target_path=dest_name, public=True)
+            accountData['companyDocUrl'] = doc_url
+
+
         account = Account.from_dict(accountData)
+        if accountData['role'] == Role.Company.value:
+            account = Company.from_dict(accountData)
 
         return AccountMapper.createAccount(account)
     

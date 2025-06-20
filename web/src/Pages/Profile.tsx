@@ -24,6 +24,8 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, 
   Company, CompanySchema, ValidatedCompany,
 AccountSchema, ValidatedAccount } from "@/type/account";
+import { ApplicationToaster } from "@/components/CustomToaster";
+import toast from "react-hot-toast";
 
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
@@ -88,6 +90,7 @@ const ProfilePage = () => {
       navigate('/');
 
     } catch (err) {
+      toast.error("Failed to disable account. Please try again")
       console.error("Failed to disable account:", err);
     }
   };
@@ -192,7 +195,7 @@ const ProfilePage = () => {
                 <TabPanel isActive={true}>
                   {sampleJobs && sampleJobs.length > 0 ? (
                     <div className="space-y-4">
-                      {sampleJobs.filter((job) => job.companyId == viewIdNumber)
+                      {sampleJobs.filter((job) => job.company == viewIdNumber)
                       .map((job) => (
                         <ProfileJobCard key={job.jobId} job={job} />
                       ))}
@@ -223,6 +226,7 @@ const ProfilePage = () => {
                 </TabPanel>
               )}
             </div>
+            <ApplicationToaster />{" "}
           </div>
         </ProfileCardRight>
         {pdfUrl && (

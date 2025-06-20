@@ -1,15 +1,24 @@
 from flask import Blueprint, request, jsonify
 from Boundary.AccountBoundary import AccountBoundary
+from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    payload = request.get_json() or {}
+    payload = request.form.to_dict()
     errors = validate_register(payload)
+
     if errors:
         return jsonify({"errors": errors}), 400
+    
+    if payload['role'] == Role.Company.value:
+        companyDoc = request.files.get('companyDoc', None)
+        if not companyDoc:
+            return jsonify({"error": "Verification document required"}), 500
+        
+        payload['companyDoc'] = companyDoc
 
     success = AccountBoundary.registerAccount(payload)
 

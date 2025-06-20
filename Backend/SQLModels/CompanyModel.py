@@ -12,6 +12,7 @@ class CompanyModel(Base):
     # id = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(String(1024), nullable=True)
     location = Column(String(255), nullable=True)
+    companyDocUrl = Column(String(512), nullable=False)
     verified = Column(Integer, nullable=False, default=0) ##  IMPORTANT TODO: Change to INT when merged
 
     accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False, unique=True)
@@ -26,6 +27,7 @@ class CompanyModel(Base):
             "accountId": self.accountId,
             "description": self.description,
             "location": self.location,
+            "companyDocUrl": self.companyDocUrl,
             "verified": self.verified
         }
     
@@ -41,6 +43,7 @@ class CompanyModel(Base):
             accountId=data.get("accountId"),
             description=data.get("description"),
             location=data.get("location"),
+            companyDocUrl=data.get("companyDocUrl"),
             verified=data.get("verified", False)
         )
     

@@ -45,14 +45,30 @@ export type Company = Account & {
   companyId: number;
   description?: string;
   location?: string;
-  verified: boolean;
+  verified: 0 | 1 | 2;
+  companyDocUrl: string;
 };
 
 export const CompanySchema = AccountSchema.extend({
   companyId: z.number().optional(),
   description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  verified: z.boolean()
+  verified: z.boolean(),
+  companyDocUrl: z.string().url()
 });
 
 export type ValidatedCompany = z.infer<typeof CompanySchema>;
+
+export function getCompanyStatus(
+  verified: 0 | 1 | 2
+): "Pending" | "Verified" | "Rejected" {
+  switch (verified) {
+    case 1:
+      return "Verified";
+    case 2:
+      return "Rejected";
+    case 0:
+    default:
+      return "Pending";
+  }
+}

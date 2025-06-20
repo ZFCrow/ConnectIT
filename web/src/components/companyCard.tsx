@@ -1,7 +1,7 @@
 // src/components/CompanyCard.tsx
 import React from "react";
 import { FileText, Mail, MapPin } from "lucide-react";
-import { getCompanyStatus, type Company } from "../type/company";
+import { Company, getCompanyStatus } from "@/type/account";
 import PdfViewerModal from "./PortfolioModal";
 
 interface CompanyCardProps {
@@ -102,7 +102,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         onClose={function (): void {
           setPdfOpen(false);
         }}
-        pdfUrl={company.uploadedDocumentUrl} // Pass the resume URL to the modal
+        pdfUrl={company.companyDocUrl} // Pass the resume URL to the modal
         title="Viewing Company Document" // Optional title for the modal
       />
     </li>

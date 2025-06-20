@@ -88,7 +88,10 @@ class AccountMapper:
                     session.add(userModel)
 
                 elif account.role == Role.Company.value:
-                    companyModel = CompanyModel(accountId=accountModel.accountId)
+                    companyModel = CompanyModel(
+                        accountId=accountModel.accountId,
+                        companyDocUrl=account.companyDocUrl
+                        )
                     session.add(companyModel)
 
                 session.commit()
@@ -111,7 +114,6 @@ class AccountMapper:
 
                 # Update base Account fields
                 accountModel.name = account.name
-                print(account)
                 if account.profilePicUrl:
                     accountModel.profilePicUrl = getattr(account, "profilePicUrl", accountModel.profilePicUrl)
                 if hasattr(account, 'passwordHash') and account.passwordHash != '':

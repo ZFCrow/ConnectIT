@@ -6,16 +6,18 @@ import {
   EditProfileCard,
   EditableAvatar,
   EditProfile,
-  PortfolioUpload,
   EditProfileGroup,
   EditProfileField,
   EditProfileInput,
   EditProfileTextarea,
   EditProfileActions,
 } from "@/components/EditProfileCard";
+import PdfUpload from "@/components/ui/file-input";
 import { Button } from "@/components/ui/button";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
+import { ApplicationToaster } from "@/components/CustomToaster";
+import toast from "react-hot-toast";
 
 const api = axios.create({
   baseURL: "/api",
@@ -103,7 +105,6 @@ const EditProfilePage = () => {
 
     formData.append("portfolioFile", portfolioFile)
     formData.append("profilePic", profilePic)
-    console.log(profilePic)
 
     try{
       const response = await axios.post("/api/profile/save", 
@@ -113,6 +114,7 @@ const EditProfilePage = () => {
       navigate(`/profile/${accountId}`);
 
     } catch (err: any){
+      toast.error("Failed to save profile, please try again.")
       console.log("Failed to save profile", err)
     }
   };
@@ -163,7 +165,7 @@ const EditProfilePage = () => {
                       onChange={(e) => setBio(e.target.value)} />
                   </EditProfileField>
 
-                  <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
+                  <PdfUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
                   onChange={(file) => setPortfolioFile(file)} />
                   </>
               )}
@@ -191,6 +193,7 @@ const EditProfilePage = () => {
           </EditProfileActions>
         </EditProfile>
       </EditProfileCard>
+      <ApplicationToaster /> {" "}
     </div>
   );
 };

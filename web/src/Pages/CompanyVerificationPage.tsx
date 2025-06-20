@@ -1,8 +1,7 @@
 // src/pages/company/CompanyVerificationPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
 import CompanyCard from "../components/companyCard";
-import { fakeCompanies } from "../components/FakeData/sampleCompanies"; // Adjust the import path as needed
-import { Company, getCompanyStatus } from "@/type/company";
+import { Company, getCompanyStatus } from "@/type/account";
 import axios from "axios";
 // src/pages/company/CompanyVerificationPage.tsx (or wherever you need it)
 
