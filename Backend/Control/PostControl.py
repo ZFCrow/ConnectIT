@@ -22,6 +22,24 @@ class PostControl:
 
         return posts 
     
+    @staticmethod 
+    def retrievePaginatedPosts(
+        page: int, 
+        pageSize: int, 
+        sortBy: str = 'createdAt', 
+        filterLabel: str = None 
+    ) -> dict[str, any]: 
+        """
+        Retrieve paginated posts from the database.
+        """
+        results = PostMapper.getPosts(
+            page=page, 
+            pageSize=pageSize, 
+            filterLabel= filterLabel, 
+            sortBy=sortBy
+        )
+        return results 
+    
 
     @staticmethod 
     def createPost(postData : dict) -> tuple[Post, bool]:

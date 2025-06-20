@@ -17,31 +17,18 @@ const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
 
   const {
-    allPosts,
-    setAllPosts,
     fetchPosts,
     filteredPosts,
-    setFilteredPosts,
     activeFilter,
     setActiveFilter,
-    activeSortby,
     setActiveSortBy, 
     createPost,
     postToDelete,
-    selectedViolations,
-    handleDeletePost,
-    confirmDelete,
-    cancelDelete,
-    setSelectedViolations,
-    handleDeleteComment,
-    handleHide,
     loading 
   } = usePostContext(); // custom hook to manage posts
   
-
   const {
     allLabels,
-    setAllLabels,
     popularLabels,
     fetchLabels,
     loading: labelLoading
@@ -50,7 +37,7 @@ const Homepage = () => {
 
   useEffect(() => {
     fetchPosts(); // fetch the posts on mount
-    fetchLabels(); // fetch the labels on mount s
+    fetchLabels(); // fetch the labels on mounts
   }, []);
 
   return (
