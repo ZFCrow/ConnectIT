@@ -265,7 +265,29 @@ def verify_captcha_endpoint():
     print(f"Token received: {token}")
 
     return jsonify(result), 200 if result["success"] else 400
-     
+
+
+
+
+# testing pagination retrieval of posts 
+
+@app.route('/posts/paginated', methods=['GET']) 
+def get_paginated_posts():
+    """
+    Retrieve paginated posts from the database.
+    """
+    try:
+        page = request.args.get("page",       default=1,  type=int)
+        pageSize = request.args.get("pageSize", default=10, type=int)
+        print (f"Page: {page}, Page Size: {pageSize}")  # Debugging output to check pagination parameters 
+        filterLabel  = request.args.get("filterLabel", default=None, type=str)
+        sortBy     = request.args.get("sortBy",      default=None, type=str)
+        results = PostBoundary.handleRetrievePaginatedPosts(page, pageSize, sortBy, filterLabel)  # Use the boundary to handle paginated retrieval of posts 
+        return jsonify(results), 200  # Return the paginated results as JSON
+    except Exception as e:
+        print(f"Error retrieving paginated posts: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
 
 if __name__  == "__main__":
 
