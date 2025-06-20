@@ -128,13 +128,11 @@ const JobCard: React.FC<Props> = ({
           {job.fieldOfWork}
         </span>
       </div>
-
       {/* Posted Date */}
       <div className="flex items-center justify-end space-x-3 self-start text-sm text-gray-300">
         <Calendar className="w-4 h-4" />
         <span>Posted: {posted}</span>
       </div>
-
       {/* Details Column */}
       <div className="space-y-2">
         {(job.company.name || job.company.location) && (
@@ -205,8 +203,8 @@ const JobCard: React.FC<Props> = ({
           </span>
         </div>
       </div>
-
       {/* Buttons Column */}
+      {console.log("JobCard userType:", userType)}
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
         {userType === Role.Company && (
           <>
