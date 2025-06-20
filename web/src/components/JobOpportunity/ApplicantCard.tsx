@@ -1,6 +1,7 @@
 import React from "react";
 import { Mail, FileText, Calendar as CalIcon } from "lucide-react";
 import type { JobApplication } from "../../type/JobApplicationSchema"; // Use your JobApplication Zod type
+import PdfViewerModal from "../PortfolioModal";
 
 export type ApplicantCardProps = {
   applicant: JobApplication & { jobTitle: string }; // Use JobApplication, not Applicant, and add jobTitle.
@@ -33,7 +34,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
     month: "short",
     day: "numeric",
   });
-
+  const [pdfOpen, setPdfOpen] = React.useState(false);
   return (
     <li className="relative bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg">
       <div className="flex flex-col md:flex-row justify-between gap-6">
@@ -67,17 +68,13 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
               </a>
             </div>
             {resumeURL && (
-              <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setPdfOpen(true)}
+                className="flex items-center space-x-1 underline text-gray-200"
+              >
                 <FileText className="w-5 h-5" />
-                <a
-                  href={resumeURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline text-gray-200"
-                >
-                  View Resume
-                </a>
-              </div>
+                <span>View résumé</span>
+              </button>
             )}
           </div>
           {/* Bio Row */}
@@ -100,66 +97,76 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
 
       {/* Buttons - centered vertically on the right side */}
       {status === "Applied" && (
-        <div className="absolute top-1/2 right-6 flex -translate-y-1/2 space-x-2 mt-4">
-          {/* Accept Button */}
-          <button
-            onClick={() => onAccept?.(applicationId)}
-            disabled={acceptLoading || rejectLoading}
-            className="border border-green-500 text-green-500 bg-transparent px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600 hover:text-white transition disabled:opacity-50"
-          >
-            {acceptLoading && (
-              <svg
-                className="animate-spin h-5 w-5 inline mr-1"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-            )}
-            Accept
-          </button>
-          {/* Reject Button */}
-          <button
-            onClick={() => onDelete?.(applicationId)}
-            disabled={acceptLoading || rejectLoading}
-            className="border border-red-500 text-red-500 bg-transparent px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 hover:text-white transition disabled:opacity-50"
-          >
-            {rejectLoading && (
-              <svg
-                className="animate-spin h-5 w-5 inline mr-1"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-            )}
-            Reject
-          </button>
-        </div>
+        <>
+          <div className="absolute top-1/2 right-6 flex -translate-y-1/2 space-x-2 mt-4">
+            {/* Accept Button */}
+            <button
+              onClick={() => onAccept?.(applicationId)}
+              disabled={acceptLoading || rejectLoading}
+              className="border border-green-500 text-green-500 bg-transparent px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-600 hover:text-white transition disabled:opacity-50"
+            >
+              {acceptLoading && (
+                <svg
+                  className="animate-spin h-5 w-5 inline mr-1"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              )}
+              Accept
+            </button>
+            {/* Reject Button */}
+            <button
+              onClick={() => onDelete?.(applicationId)}
+              disabled={acceptLoading || rejectLoading}
+              className="border border-red-500 text-red-500 bg-transparent px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 hover:text-white transition disabled:opacity-50"
+            >
+              {rejectLoading && (
+                <svg
+                  className="animate-spin h-5 w-5 inline mr-1"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+              )}
+              Reject
+            </button>
+          </div>
+          <PdfViewerModal
+            isOpen={pdfOpen}
+            onClose={function (): void {
+              setPdfOpen(false);
+            }}
+            pdfUrl={resumeURL} // Pass the resume URL to the modal
+            title="Viewing Resume" // Optional title for the modal
+          />
+        </>
       )}
     </li>
   );
