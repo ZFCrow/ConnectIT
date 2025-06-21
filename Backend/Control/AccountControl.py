@@ -3,7 +3,7 @@ from SQLModels.AccountModel import Role
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
-from Control.UploadDocUtil import upload_to_path
+from Utils.UploadDocUtil import upload_to_path
 from Security import AuthUtils
 
 
@@ -17,7 +17,7 @@ class AccountControl:
             accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
             del accountData["password"]  # Remove plain password
 
-        companyDoc = accountData.get('companyDoc')
+        companyDoc = accountData.get('companyDoc', None)
         doc_url = None
         if companyDoc:
             dest_name = f'companyDocument/company_temp.pdf'

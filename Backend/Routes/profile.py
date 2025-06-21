@@ -55,6 +55,7 @@ def disable(account_id):
         return jsonify({"message": "Account disabled successfully!"}), 201
     else:
         return jsonify({"error": "Failed to disable account"}), 500
+    
 @profile_bp.route("/getAllCompanies", methods=["GET"])
 def get_all_companies():
     """

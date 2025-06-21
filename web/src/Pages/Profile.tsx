@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, 
   Company, CompanySchema, ValidatedCompany,
-AccountSchema, ValidatedAccount } from "@/type/account";
+AccountSchema, ValidatedAccount, getCompanyStatus } from "@/type/account";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 import LoadingSpinner from "@/components/ui/loading-circle";
@@ -150,7 +150,7 @@ const ProfilePage = () => {
                 {user.role === Role.Company && (
                   <>
                     <ProfileField label="Address: " value={(user as Company).location || "-"} />
-                    <ProfileField label="Verified: " value={(user as Company).verified ? "Yes" : "No"} />
+                    <ProfileField label="Verified: " value={getCompanyStatus((user as Company).verified)} />
                   </>
                 )}
                 {isOwner && user.role !== Role.Admin && (
@@ -253,7 +253,6 @@ const ProfilePage = () => {
                 onConfirm={(password) => {
                   handleConfirmDisable(password);
                   setShowDeleteModal(false);
-                  console.log("Account deleted"); // Replace with actual deletion logic
                 }}
                 title="Delete your account?"
                 description="This action cannot be undone and will permanently remove your account."

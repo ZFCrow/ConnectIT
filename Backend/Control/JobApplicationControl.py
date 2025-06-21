@@ -1,4 +1,4 @@
-from Control.UploadDocUtil import upload_to_path
+from Utils.UploadDocUtil import upload_to_path
 from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
 from Entity.JobListing import JobListing

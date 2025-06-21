@@ -5,6 +5,7 @@ from SQLModels.CompanyModel import CompanyModel
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
+from Utils.UploadDocUtil import rename_file
 from typing import Optional
 from sqlalchemy.orm import joinedload
 import traceback
@@ -88,9 +89,11 @@ class AccountMapper:
                     session.add(userModel)
 
                 elif account.role == Role.Company.value:
+                    new_url = rename_file('companyDocument/company_temp.pdf',
+                                          f'companyDocument/company_{account.accountId}.pdf')
                     companyModel = CompanyModel(
                         accountId=accountModel.accountId,
-                        companyDocUrl=account.companyDocUrl
+                        companyDocUrl=new_url
                         )
                     session.add(companyModel)
 

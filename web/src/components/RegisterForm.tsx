@@ -52,7 +52,9 @@ export function RegisterForm() {
       formData.append("password", password)
       formData.append("role", accountType)
 
-      formData.append("companyDoc", companyDoc)
+      if (accountType == Role.Company && companyDoc){
+        formData.append("companyDoc", companyDoc)
+      }
 
       const response = await axios.post("/api/register", formData)
 
