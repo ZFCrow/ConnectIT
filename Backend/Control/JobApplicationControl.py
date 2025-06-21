@@ -3,6 +3,7 @@ from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
 from Entity.JobListing import JobListing
 from SQLModels.base import db_context  
+from Entity.JobApplication import JobApplication 
 
 class JobApplicationControl:
     def __init__(self):
@@ -76,3 +77,14 @@ class JobApplicationControl:
         """
         print("Retrieving all field of work options")
         return FieldOfWorkTDG.getAllFieldOfWork()
+    
+
+    @staticmethod 
+    def getLatestAppliedJobs(userId: int) -> list[JobApplication]:
+        """
+        Retrieves the latest job listing that the user has applied for.
+        :param userId: ID of the user to retrieve the latest applied job for.
+        :return: JobListing instance representing the latest applied job.
+        """
+        print(f"Retrieving latest applied job for user with userId: {userId}")
+        return JobApplicationMapper.getLatestAppliedJobs(userId) 

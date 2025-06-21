@@ -81,6 +81,17 @@ class JobListingControl:
         """
         print(f"Removing jobId {jobId} from bookmarks for userId {userId}")
         return JobListingMapper.removeBookmark(userId, jobId)
+    
+
+    @staticmethod 
+    def getLatestJobListings(companyID, limit: int = 5):
+        """
+        Retrieves the latest job listings.
+        :param limit: Number of latest job listings to retrieve.
+        :return: List of latest job listings.
+        """
+        print(f"Retrieving latest {limit} job listings")
+        return JobListingMapper.getLatestJobListingsByCompany(companyID, limit) 
 
 
     

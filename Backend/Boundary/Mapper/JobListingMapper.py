@@ -190,4 +190,19 @@ class JobListingMapper:
             link = JobViolationModel(jobId=jobId, violationId=violationId)
             session.add(link)
             return True
-        
+
+    @staticmethod
+    def getLatestJobListingsByCompany(company_id: int, limit: int = 5) -> list["JobListing"]:
+        """
+        Retrieves the latest job listings for a specific company.
+        :param company_id: ID of the
+        """
+        with db_context.session_scope() as session:
+            job_listings = (
+                session.query(JobListingModel)
+                .filter(JobListingModel.companyId == company_id, JobListingModel.isDeleted == 0)
+                .order_by(JobListingModel.createdAt.desc())
+                .limit(limit)
+                .all()
+            )
+            return [JobListing.from_JobListingModel(job) for job in job_listings]

@@ -65,6 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       //   { userId: 1, profilePicUrl: "https://storage.googleapis.com/connectit-63f60.firebasestorage.app/profilePic/acc_35.png" });
       // login(40, Role.Company, { companyId: 2 });
       // login(1, Role.Admin, { userId: 1 }); // HARDCODED FOR TESTING
+      //login (35,Role.User, { userId: 8 }); // HARDCODED FOR TESTING
     }
   }, []);
 

@@ -25,10 +25,10 @@ const ProtectedRoutes = () => {
     console.log("ProtectedRoutes rendered, role:", role); 
 
 
-    if (role === null) {
-        console.log("Role is undefined, redirecting to login...");
-        return <Navigate to="/login" replace />;
-    } 
+    // if (role === null) {
+    //     console.log("Role is undefined, redirecting to login...");
+    //     return <Navigate to="/login" replace />;
+    // } 
 
     return (
         <Routes>

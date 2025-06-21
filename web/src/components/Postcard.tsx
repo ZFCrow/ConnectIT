@@ -43,6 +43,7 @@ import { Role, useAuth } from "@/contexts/AuthContext";
 import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
 import { usePostContext } from "@/contexts/PostContext";
+import { number } from "zod";
 
 type PostcardProps = {
   //post: Post; // The post object containing all necessary data
@@ -53,11 +54,11 @@ type PostcardProps = {
 const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
 
   const { 
-    handleDeletePost, 
-    handleHide, 
-    handleDeleteComment,
+    setPostToDelete, 
+    hidePost: handleHide, 
+    deleteComment: handleDeleteComment,
     allPosts,
-    toggleLikePost,
+    toggleLike: toggleLikePost,
     createComment,
   } = usePostContext(); // Get the delete and hide functions from context 
 
@@ -73,8 +74,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     title,
     content,
     comments,
-    likes,
-    liked,
+    likedBy,
     accountId: postAccountId, // account ID of the post owner
   } = postData;
 
@@ -102,9 +102,17 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     ? "flex-grow"
     : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted";
 
-  const [hasLiked, setHasLiked] = useState(liked || false); // Initialize liked state, default to false if not provided
+  //const [hasLiked, setHasLiked] = useState( likedBy?.includes(accountId) || false); // State to track if the user has liked the post
+  const hasLiked = likedBy.includes(accountId); // Check if the user has liked the post 
+  const likes = likedBy.length - Number(hasLiked); // Number of likes on the post 
+
+  
   const [commentContent, setCommentContent] = useState(""); // State for comment input 
 
+
+  const canDelete = Boolean(setPostToDelete && (role === Role.Admin || accountId === postAccountId));
+  const canHide   = !detailMode; // only hide if not in detail mode 
+  
   const handlePostClick = () => {
     navigate(`/post/${id}`, {
       //state : {id},
@@ -152,45 +160,51 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                 </div>
               </div>
 
-              <div onClick={(e) => e.stopPropagation()}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical />
-                    </Button>
-                  </DropdownMenuTrigger>
 
-                  {/* The pop-up menu */}
-                  <DropdownMenuContent
-                    side="bottom"
-                    align="end"
-                    className="w-40"
-                  >
 
-                    {handleDeletePost &&
-                      (role === Role.Admin || accountId === postAccountId) && (
+              {(canDelete || canHide) && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical />
+                      </Button>
+                    </DropdownMenuTrigger>
+
+                    {/* The pop-up menu */}
+                    <DropdownMenuContent
+                      side="bottom"
+                      align="end"
+                      className="w-40"
+                    >
+
+                      {setPostToDelete &&
+                        (role === Role.Admin || accountId === postAccountId) && (
+                          <DropdownMenuItem
+                            onSelect={() => {
+                              setPostToDelete(id);
+                            }}
+                          >
+                            <Trash2 className="text-red-500" />
+                            Delete
+                          </DropdownMenuItem>
+                        )}
+                      {!detailMode && ( // Only show hide option if not in detail mode 
                         <DropdownMenuItem
                           onSelect={() => {
-                            handleDeletePost(id);
+                            handleHide(id);
                           }}
                         >
-                          <Trash2 className="text-red-500" />
-                          Delete
+                          <EyeOff />
+                          Hide
                         </DropdownMenuItem>
                       )}
-                    {!detailMode && ( // Only show hide option if not in detail mode 
-                      <DropdownMenuItem
-                        onSelect={() => {
-                          handleHide(id);
-                        }}
-                      >
-                        <EyeOff />
-                        Hide
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              
+
             </div>
 
             {/* badges section right under the postTitle and avatar  */}
@@ -237,7 +251,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     size="sm"
                     className={`flex items-center transition-all duration-150  hover:scale-105
                                             ${
-                                              hasLiked
+                                              hasLiked 
                                                 ? "text-red-500 hover:bg-red-100/20 hover:text-red-500"
                                                 : "hover:bg-accent"
                                             } 
@@ -245,8 +259,8 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
                       //console.log("Liked!");
-                      setHasLiked(!hasLiked); // Toggle liked state
-                      toggleLikePost(id); // Call the like function
+                      //setHasLiked(!hasLiked); // Toggle liked state
+                      toggleLikePost({postId: id}); // Call the like function
                     }}
                   >
                     <ThumbsUp className="mr-1 h-4 w-4" />
@@ -321,7 +335,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                                                 border-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteComment(c.commentId); // Call the delete comment callback
+                          handleDeleteComment({commentId: c.commentId}); // Call the delete comment callback
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -351,9 +365,9 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
                       if (commentContent.trim() !== "") {
-                        createComment(id, {
+                        createComment({
+                          postId: id,
                           content: commentContent,
-                          postId: id, 
                         })
                         setCommentContent(""); // Clear the input after posting
                         console.log("Comment posted:", commentContent)}

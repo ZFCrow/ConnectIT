@@ -32,7 +32,6 @@ class AccountModel(Base):
     posts = relationship("PostModel", back_populates="account")
     comments = relationship("CommentModel", back_populates="account")
     postLikes = relationship("PostLikesModel", back_populates="account") 
-
     user = relationship("UserModel", back_populates="account", uselist=False)
     company = relationship("CompanyModel", back_populates="account", uselist=False)
     

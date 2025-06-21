@@ -30,8 +30,11 @@ class Post:
     accountUsername: Optional[str] = None 
     accountDisplayPicture: Optional[str] = None 
 
-    likes : int = 0  # Placeholder for likes count 
-    liked : bool = False  # Placeholder for liked status 
+
+    #likes : int = 0  # Placeholder for likes count 
+    likedBy : List[int] = field(default_factory=list)  # Placeholder for list of account IDs who liked the post 
+
+    # liked : bool = False  # Placeholder for liked status i cant put it here because i cant link it to own account ID
 
     @staticmethod
     def getSingaporeTimezone() -> pytz.timezone:
@@ -41,7 +44,7 @@ class Post:
     @classmethod
     def from_PostModel(cls, post_model: PostModel, labels:List[Label] ) -> 'Post':
         """Create Post entity from PostModel instance"""
-        liked = any (like.accountId == post_model.accountId for like in post_model.postLikes) if post_model.postLikes else False
+        #liked = any (like.account.accountId == userAccountId for like in post_model.postLikes) if post_model.postLikes else False
         return cls(
             post_id=post_model.postId,
             title=post_model.title,
@@ -50,10 +53,12 @@ class Post:
             accountId=post_model.accountId,
             isDeleted=post_model.isDeleted,
             associated_labels=labels, 
+            
             accountUsername=post_model.account.name if post_model.account else None,
             accountDisplayPicture=post_model.account.profilePicUrl if post_model.account else None,
-            likes = len(post_model.postLikes) if post_model.postLikes else 0,  # Count of likes from postLikes relationship 
-            liked = liked
+            #likes = len(post_model.postLikes) if post_model.postLikes else 0,  # Count of likes from postLikes relationship 
+            likedBy = [like.accountId for like in post_model.postLikes] if post_model.postLikes else [],  # List of account IDs who liked the post 
+            # liked = liked
         ) 
     
     @classmethod 
@@ -80,10 +85,11 @@ class Post:
             "title": self.title, 
             "content": self.content, 
             "comments": [ comment.toDict() for comment in self.associated_comments],  # Convert comments to dicts
-            "likes": self.likes,  # Count of likes 
-            "liked": self.liked,  # Placeholder for liked status 
+            #"likes": self.likes,  # Count of likes 
+            #"liked": self.liked,  # Placeholder for liked status 
             "accountId": self.accountId, 
-            "displayPicUrl": self.accountDisplayPicture
+            "displayPicUrl": self.accountDisplayPicture,
+            "likedBy": self.likedBy,  # List of account IDs who liked the post
         }
     
     # ✅ Helper methods with type hints

@@ -93,3 +93,23 @@ class JobApplicationMapper:
             )
             # job_ids will be a list of one-tuples: [(id1,), (id2,), ...]
             return [jid[0] for jid in job_ids]
+        
+    
+    @staticmethod 
+    def getLatestAppliedJobs(userId: int, limit: int = 5) -> list[JobApplication]:
+        """
+        Retrieves the latest job applications made by the user.
+        :param userId: ID of the user.
+        :param limit: Maximum number of applications to retrieve.
+        :return: List of JobApplication entities.
+        """
+        with db_context.session_scope() as session:
+            applications = (
+                session.query(JobApplicationModel)
+                .filter(JobApplicationModel.userId == userId)
+                .order_by(JobApplicationModel.appliedAt.desc())
+                .limit(limit)
+                .all()
+            )
+            return [JobApplication.from_model(app) for app in applications] if applications else [] 
+        
