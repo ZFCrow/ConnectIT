@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { Role } from '@/contexts/AuthContext';
+import { z } from "zod";
+import { Role } from "@/contexts/AuthContext";
 
 /* 🔹 Common Account Type */
 export type Account = {
@@ -10,7 +10,7 @@ export type Account = {
   role: Role;
   isDisabled: boolean;
   profilePicUrl?: string;
-}
+};
 
 /* 🔹 Common Account Schema */
 export const AccountSchema = z.object({
@@ -20,7 +20,7 @@ export const AccountSchema = z.object({
   passwordHash: z.string(),
   role: z.nativeEnum(Role),
   isDisabled: z.boolean(),
-  profilePicUrl: z.string().url().nullable().optional()
+  profilePicUrl: z.string().url().nullable().optional(),
 });
 
 export type ValidatedAccount = z.infer<typeof AccountSchema>;
@@ -35,7 +35,7 @@ export type User = Account & {
 export const UserSchema = AccountSchema.extend({
   userId: z.number().optional(),
   bio: z.string().nullable().optional(),
-  portfolioUrl: z.string().url().nullable().optional()
+  portfolioUrl: z.string().url().nullable().optional(),
 });
 
 export type ValidatedUser = z.infer<typeof UserSchema>;
@@ -45,14 +45,30 @@ export type Company = Account & {
   companyId: number;
   description?: string;
   location?: string;
-  verified: boolean;
+  verified: 0 | 1 | 2;
+  companyDocUrl: string;
 };
 
 export const CompanySchema = AccountSchema.extend({
   companyId: z.number().optional(),
   description: z.string().nullable().optional(),
   location: z.string().nullable().optional(),
-  verified: z.boolean()
+  verified: z.number(),
+  companyDocUrl: z.string().url(),
 });
 
 export type ValidatedCompany = z.infer<typeof CompanySchema>;
+
+export function getCompanyStatus(
+  verified: 0 | 1 | 2
+): "Pending" | "Verified" | "Rejected" {
+  switch (verified) {
+    case 1:
+      return "Verified";
+    case 2:
+      return "Rejected";
+    case 0:
+    default:
+      return "Pending";
+  }
+}

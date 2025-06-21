@@ -1,4 +1,4 @@
-from Control.UploadDocUtil import upload_to_path
+from Utils.UploadDocUtil import upload_to_path
 from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
 from Entity.JobListing import JobListing
@@ -48,7 +48,7 @@ class JobApplicationControl:
             )
             print("Resume uploaded to:", resume_url)
         print(f"Applying for job with jobId: {jobId} by userId: {userId}")
-        return JobApplicationMapper.applyJob(jobId, userId)
+        return JobApplicationMapper.applyJob(jobId, userId,resumeURL=resume_url)
 
     @staticmethod
     def getApplicationsByCompanyId(companyId: int):

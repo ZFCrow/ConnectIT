@@ -23,7 +23,16 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
       formData.append("resume", file); // 👈 backend should expect "resume"
       data = formData;
       headers = {};
+      if (file) {
+        const isPdf =
+          file.type === "application/pdf" ||
+          file.name.toLowerCase().endsWith(".pdf");
 
+        if (!isPdf) {
+          toast.error("Resume must be a PDF file.");
+          throw new Error("Invalid file type");
+        }
+      }
       //   if (file) formData.append("resume", file);
 
       await axios.post("/api/applyJob", data, { headers });

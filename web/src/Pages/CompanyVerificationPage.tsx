@@ -1,9 +1,9 @@
 // src/pages/company/CompanyVerificationPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
 import CompanyCard from "../components/companyCard";
-import { fakeCompanies } from "../components/FakeData/sampleCompanies"; // Adjust the import path as needed
-import { Company, getCompanyStatus } from "@/type/company";
+import { Company, getCompanyStatus } from "@/type/account";
 import axios from "axios";
+import LoadingSpinner from "@/components/ui/loading-circle";
 // src/pages/company/CompanyVerificationPage.tsx (or wherever you need it)
 
 type Tab = "Pending" | "Verified" | "Rejected";
@@ -17,7 +17,7 @@ const CompanyVerificationPage: React.FC = () => {
     const fetchCompanies = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("/api/getAllCompanies");
+        const res = await axios.get("/api/profile/getAllCompanies");
         setCompanies(res.data); // Assuming the API returns an array of companies
       } catch (err) {
         console.error("Failed to fetch companies", err);
@@ -44,7 +44,7 @@ const CompanyVerificationPage: React.FC = () => {
       setCompanies((prev) =>
         prev.map((c) => (c.companyId === companyId ? { ...c, verified: 1 } : c))
       );
-      await axios.post(`/api/setCompanyVerified/${companyId}/1`);
+      await axios.post(`/api/profile/setCompanyVerified/${companyId}/1`);
       // Optionally: refresh company list or update state here
     } catch (err) {
       console.error("Failed to verify company:", err);
@@ -62,8 +62,7 @@ const CompanyVerificationPage: React.FC = () => {
       setCompanies((prev) =>
         prev.map((c) => (c.companyId === companyId ? { ...c, verified: 2 } : c))
       );
-      // 0 = Rejected (or use 2, depending on your enum)
-      await axios.post(`/api/setCompanyVerified/${companyId}/2`);
+      await axios.post(`/api/profile/setCompanyVerified/${companyId}/2`);
       console.log("Company rejected:", companyId);
 
       // Optionally: refresh company list or update state here
@@ -108,29 +107,7 @@ const CompanyVerificationPage: React.FC = () => {
 
       {/* Company Cards List */}
       {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <svg
-            className="animate-spin h-8 w-8 text-indigo-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-            ></path>
-          </svg>
-          <span className="ml-4 text-indigo-300">Loading companies…</span>
-        </div>
+        <LoadingSpinner message="Loading companies..." className="flex items-center justify-center py-16" />
       ) : filteredCompanies.length > 0 ? (
         <ul className="space-y-5">
           {filteredCompanies.map((company) => (

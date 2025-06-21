@@ -18,14 +18,16 @@ const EditProfileCard = ({ className, ...props }: React.ComponentProps<"div">) =
   );
 };
 
-interface EditableAvatarProps {
+type EditableAvatarProps = {
   imageUrl?: string;
   fallbackText?: string;
-}
+  onFileSelect?: (file: File) => void;
+};
 
-const EditableAvatar = ({ imageUrl, fallbackText = "?" }: EditableAvatarProps) => {
+const EditableAvatar = ({ imageUrl, fallbackText = "?", onFileSelect }: EditableAvatarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(imageUrl);
+  const cacheBustedUrl = `${previewUrl}?t=${Date.now()}`
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -39,6 +41,7 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?" }: EditableAvatarProps) =
         setPreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
+      if (onFileSelect) onFileSelect(file);  // <-- pass file to parent
     }
   };
 
@@ -49,7 +52,7 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?" }: EditableAvatarProps) =
         className="cursor-pointer w-28 h-28 rounded-full border-4 border-background bg-muted shadow-md overflow-hidden relative"
       >
         <Avatar className="w-full h-full">
-          <AvatarImage src={previewUrl || "/placeholder-user.png"} alt="Profile" />
+          <AvatarImage src={cacheBustedUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`} alt="Profile" />
           <AvatarFallback>{fallbackText}</AvatarFallback>
         </Avatar>
         <input
@@ -60,49 +63,6 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?" }: EditableAvatarProps) =
           onChange={handleFileChange}
         />
       </div>
-    </div>
-  );
-};
-
-interface FileUploadProps {
-  name: string;
-  label?: string;
-  accept?: string;
-}
-
-const PortfolioUpload = ({ name, label = "Upload File", accept = ".pdf" }: FileUploadProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-
-  const handleClick = () => inputRef.current?.click();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-      // You can send this file to backend or attach it to FormData here
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <label className="font-medium text-sm">{label}</label>
-      <div className="flex items-center gap-4">
-        <Button type="button" variant="secondary" onClick={handleClick}>
-          Upload a file
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          {fileName || "No file selected"}
-        </span>
-      </div>
-      <input
-        type="file"
-        name={name}
-        accept={accept}
-        className="hidden"
-        ref={inputRef}
-        onChange={handleChange}
-      />
     </div>
   );
 };
@@ -147,7 +107,6 @@ const EditProfileActions = ({ children }: { children: React.ReactNode }) => (
 export {
   EditProfileCard,
   EditableAvatar,
-  PortfolioUpload,
   EditProfile,
   EditProfileGroup,
   EditProfileField,

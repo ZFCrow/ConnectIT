@@ -34,11 +34,12 @@ const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
 );
 
 const ProfileAvatar = ({ src, fallbackText }: ProfileAvatarProps) => {
+  const cacheBustedUrl = `${src}?t=${Date.now()}`
   return (
     <div className="w-full flex justify-center relative -mt-14 mb-2">
       <div className="w-24 h-24 rounded-full border-4 border-background bg-muted shadow-md overflow-hidden">
         <Avatar className="w-full h-full">
-          <AvatarImage src={src} alt="User profile" />
+          <AvatarImage src={cacheBustedUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`} alt="Profile" />
           <AvatarFallback>{fallbackText}</AvatarFallback>
         </Avatar>
       </div>
@@ -131,11 +132,10 @@ const ProfileJobCard: React.FC<Props> = ({ job }) => {
         <span className="text-xs text-gray-400">{posted}</span>
       </div>
       <div className="text-sm text-gray-300 space-y-1">
-        <div>{job.companyName}</div>
         <div className="flex flex-wrap gap-4">
           <span className="flex items-center gap-1">
             <Briefcase className="w-4 h-4 text-gray-400" />
-            {job.type}
+            {job.jobType}
           </span>
           <span className="flex items-center gap-1">
             <DollarSign className="w-4 h-4 text-gray-400" />
@@ -159,14 +159,14 @@ const ProfileJobCard: React.FC<Props> = ({ job }) => {
   );
 };
 
-const ProfilePostCard: FC<Post> = ({ id, user, date, title, content }) => {
+const ProfilePostCard: FC<Post> = ({ id, username, date, title, content }) => {
   return (
     <Card className="hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted">
       <CardHeader>
         <div className="flex items-center space-x-3">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt={user} />
-            <AvatarFallback>{user[0]}</AvatarFallback>
+            <AvatarImage src="https://github.com/shadcn.png" alt={username} />
+            <AvatarFallback>{username}</AvatarFallback>
           </Avatar>
 
           <div>

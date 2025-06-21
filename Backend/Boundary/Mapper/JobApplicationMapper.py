@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 
 class JobApplicationMapper:
     @staticmethod
-    def applyJob(jobId: int, userId: int):
+    def applyJob(jobId: int, userId: int, resumeURL: str = None):
         """
         Applies for a job by jobId.
         :param jobId: ID of the job to apply for.
@@ -18,11 +18,11 @@ class JobApplicationMapper:
         """
         with db_context.session_scope() as session:
             # Assuming JobApplicationModel is defined and has the necessary fields
-            application = JobApplicationModel(jobId=jobId, userId=userId, resumeURL="https://www.example.com/", status=Status.APPLIED, appliedAt=datetime.now() )
+            application = JobApplicationModel(jobId=jobId, userId=userId, resumeURL=resumeURL, status=Status.APPLIED, appliedAt=datetime.now() )
             session.add(application)
             session.commit()
             return True
-        return False
+        return False   
     
     @staticmethod
     def approveApplication(applicationId: int):

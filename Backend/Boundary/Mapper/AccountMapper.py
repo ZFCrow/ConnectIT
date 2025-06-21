@@ -5,6 +5,7 @@ from SQLModels.CompanyModel import CompanyModel
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
+from Utils.UploadDocUtil import rename_file
 from typing import Optional
 from sqlalchemy.orm import joinedload
 import traceback
@@ -88,7 +89,12 @@ class AccountMapper:
                     session.add(userModel)
 
                 elif account.role == Role.Company.value:
-                    companyModel = CompanyModel(accountId=accountModel.accountId)
+                    new_url = rename_file('companyDocument/company_temp.pdf',
+                                          f'companyDocument/company_{account.accountId}.pdf')
+                    companyModel = CompanyModel(
+                        accountId=accountModel.accountId,
+                        companyDocUrl=new_url
+                        )
                     session.add(companyModel)
 
                 session.commit()
@@ -111,8 +117,8 @@ class AccountMapper:
 
                 # Update base Account fields
                 accountModel.name = account.name
-                if hasattr(account, "profilePicUrl") and account.profilePicUrl != '':
-                    accountModel.profilePicUrl = getattr(account, "profilePicUrl")
+                if account.profilePicUrl:
+                    accountModel.profilePicUrl = getattr(account, "profilePicUrl", accountModel.profilePicUrl)
                 if hasattr(account, 'passwordHash') and account.passwordHash != '':
                     accountModel.passwordHash = getattr(account, 'passwordHash')
 
@@ -121,7 +127,8 @@ class AccountMapper:
                     userModel = session.query(UserModel).filter_by(accountId=account.accountId).first()
                     if userModel:
                         userModel.bio = getattr(account, "bio", userModel.bio)
-                        userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
+                        if account.portfolioUrl:
+                            userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
 
                 elif accountModel.role == Role.Company:
                     companyModel = session.query(CompanyModel).filter_by(accountId=account.accountId).first()
@@ -157,4 +164,28 @@ class AccountMapper:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
-        
+    
+    @staticmethod
+    def getAllCompanies() -> list["CompanyModel"]:
+        """
+        Retrieves all companies.
+        :return: List of all companies.
+        """
+        with db_context.session_scope() as session:
+            companies = session.query(CompanyModel).all()
+            return [Company.from_model(company) for company in companies]
+
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified:int) :
+        """
+        Set the 'verified' status for a company.
+        :param company_id: ID of the company to update.
+        :param verified: True (1) to verify, False (0) to unverify.
+        :return: True if update was successful, False otherwise.
+        """
+        with db_context.session_scope() as session:
+            company = session.query(CompanyModel).filter_by(companyId=company_id).first()
+            if not company:
+                return False
+            company.verified = verified
+            return True

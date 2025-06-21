@@ -11,6 +11,9 @@ import { Role } from "@/contexts/AuthContext"
 // captcha
 import { HCaptchaForm } from "@/components/HcaptchaForm" // Import HCaptchaForm
 import { useCaptchaVerification } from "@/components/CaptchaVerification";
+import PdfUpload from "@/components/ui/file-input"
+import { ApplicationToaster } from "./CustomToaster"
+import toast from "react-hot-toast"
 
 export function RegisterForm() {
   const [accountType, setAccountType] = useState<Role>(Role.User)
@@ -18,6 +21,9 @@ export function RegisterForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirm] = useState("")
+
+  const [companyDoc, setCompanyDoc] = useState<File | null>(null)
+
   const [error, setError] = useState("")
   const navigate = useNavigate()
 
@@ -27,6 +33,7 @@ export function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const formData = new FormData();
 
     if (password != confirmPassword){
       setError("Passwords do not match.")
@@ -39,18 +46,21 @@ export function RegisterForm() {
       return;
     }
 
-
     try {
-      const response = await axios.post("/api/register", {
-        name,
-        email,
-        password,
-        role: accountType 
-      })
+      formData.append("name", name)
+      formData.append("email", email)
+      formData.append("password", password)
+      formData.append("role", accountType)
 
-      console.log("Registered", response.data)
+      if (accountType == Role.Company && companyDoc){
+        formData.append("companyDoc", companyDoc)
+      }
+
+      const response = await axios.post("/api/register", formData)
+
       navigate("/login")
     } catch (err: any){
+      toast.error("Error during registration, please try again.")
       console.log("Registration failed", err)
     }
   }
@@ -61,7 +71,7 @@ export function RegisterForm() {
         <CardHeader>
           <CardTitle className="text-2xl">Register</CardTitle>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <CardContent className="space-y-4">
             <div className="space-y-1">
               <Label htmlFor="name">Name</Label>
@@ -104,6 +114,17 @@ export function RegisterForm() {
               </div>
             </div>
 
+            {accountType === Role.Company && (
+              <div className="space-y-2">
+                <PdfUpload
+                  name="companyDoc"
+                  label="Upload verification document"
+                  accept=".pdf"
+                  onChange={(file) => setCompanyDoc(file)}
+                />
+              </div>
+            )}
+
             {/*Captcha*/}
             <div className="mt-4">
               <HCaptchaForm
@@ -123,6 +144,7 @@ export function RegisterForm() {
           </CardFooter>
         </form>
       </Card>
+      <ApplicationToaster /> {" "}
     </div>
   )
 }

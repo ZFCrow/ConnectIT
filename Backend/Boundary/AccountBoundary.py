@@ -25,3 +25,9 @@ class AccountBoundary:
     def disableAccount(accountId: int, authData: dict):
         return AccountControl.disableAccount(accountId, authData)
     
+    @staticmethod
+    def getAllCompanies():
+        return AccountControl.getAllCompanies()
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified: int) :
+        return AccountControl.setCompanyVerified(company_id=company_id, verified=verified)

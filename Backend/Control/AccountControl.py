@@ -3,6 +3,7 @@ from SQLModels.AccountModel import Role
 from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
+from Utils.UploadDocUtil import upload_to_path
 from Security import AuthUtils
 
 
@@ -16,7 +17,17 @@ class AccountControl:
             accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
             del accountData["password"]  # Remove plain password
 
+        companyDoc = accountData.get('companyDoc', None)
+        doc_url = None
+        if companyDoc:
+            dest_name = f'companyDocument/company_temp.pdf'
+            doc_url = upload_to_path(companyDoc, target_path=dest_name, public=True)
+            accountData['companyDocUrl'] = doc_url
+
+
         account = Account.from_dict(accountData)
+        if accountData['role'] == Role.Company.value:
+            account = Company.from_dict(accountData)
 
         return AccountMapper.createAccount(account)
     
@@ -43,9 +54,10 @@ class AccountControl:
         password = accountData.get('password', '')
         newPass = accountData.get('newPassword', '')
         confirmPass = accountData.get('confirmNew', '')
+        account_id = accountData['accountId']
 
         # Get the existing account to access the stored hash/salt
-        target_acc = AccountMapper.getAccountById(accountData['accountId'])
+        target_acc = AccountMapper.getAccountById(account_id)
 
         # Only if ALL password-related field are filled, validate and attempt update
         # This abit weird, might need change
@@ -68,6 +80,24 @@ class AccountControl:
         accountData.pop('password', None)
         accountData.pop('newPassword', None)
         accountData.pop('confirmNew', None)
+
+        profilePic = accountData.get('profilePic')
+        profilePic_url = None
+
+        if profilePic:
+            dest_name = f'profilePic/acc_{account_id}.png'
+            profilePic_url = upload_to_path(profilePic, target_path=dest_name, public=True)
+
+        accountData['profilePicUrl'] = profilePic_url
+
+        portfolioFile = accountData.get('portfolioFile')
+        resume_url = None
+
+        if portfolioFile:
+            dest_name = f'portfolio/user_{account_id}.pdf'
+            resume_url = upload_to_path(portfolioFile, target_path=dest_name, public=True)
+
+        accountData['portfolioUrl'] = resume_url
 
         account = Account.from_dict(accountData)
 
@@ -96,3 +126,23 @@ class AccountControl:
 
         return AccountMapper.disableAccount(accountId)
     
+    @staticmethod
+    def getAllCompanies():
+        """
+        Retrieves all companies.
+        :return: List of all companies.
+        """
+        print("Retrieving all companies")
+        return AccountMapper.getAllCompanies()
+    
+
+    @staticmethod
+    def setCompanyVerified(company_id: int, verified:int ):
+        """
+        Sets the verification status of a company.
+        :param company_id: ID of the company to verify.
+        :param verified: True if the company is verified, False otherwise.
+        :return: True if the operation was successful, False otherwise.
+        """
+        print(f"Setting company {company_id} verified status to {verified}")
+        return AccountMapper.setCompanyVerified(company_id, verified)

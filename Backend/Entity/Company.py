@@ -8,6 +8,7 @@ class Company(Account):
     companyId: int
     description: str
     location: str
+    companyDocUrl: str
     verified: int ## TODO: KEEP INT WHEN MERGED
 
     @classmethod
@@ -18,7 +19,8 @@ class Company(Account):
             companyId=data.get('companyId', 0),
             description=data.get('description', ''),
             location=data.get('location', ''),
-            verfied=data.get('verified', 0)
+            companyDocUrl=data.get('companyDocUrl', ''),
+            verified=data.get('verified', 0)
         )
     
 
@@ -35,8 +37,10 @@ class Company(Account):
             isDisabled=model.account.isDisabled,
             description=model.description,
             location=model.location,
+            companyDocUrl=model.companyDocUrl,
             verified=model.verified
         )
+    
     def to_dict(self) -> dict:
         """
         Plain-Python, JSON-ready representation of Company (incl. Account fields).
@@ -59,6 +63,7 @@ class Company(Account):
             "isDisabled":    raw["isDisabled"],
             "description":   raw["description"],
             "location":      raw["location"],
+            "companyDocUrl": raw['companyDocUrl'],
             "verified":      raw["verified"],
         }
         

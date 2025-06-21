@@ -6,34 +6,34 @@ import {
   EditProfileCard,
   EditableAvatar,
   EditProfile,
-  PortfolioUpload,
   EditProfileGroup,
   EditProfileField,
   EditProfileInput,
   EditProfileTextarea,
   EditProfileActions,
 } from "@/components/EditProfileCard";
+import PdfUpload from "@/components/ui/file-input";
 import { Button } from "@/components/ui/button";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
-
-const api = axios.create({
-  baseURL: "/api",
-});
+import { ApplicationToaster } from "@/components/CustomToaster";
+import toast from "react-hot-toast";
+import LoadingSpinner from "@/components/ui/loading-circle";
 
 type AccountData = ValidatedUser | ValidatedCompany;
 
 const EditProfilePage = () => {
   const { accountId } = useAuth();
   const [user, setUser] = useState<AccountData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("")
   const [password, setPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmNew, setConfirm] = useState("")
   const [bio, setBio] = useState("")
-  const [portfolioUrl, setPortfolioUrl] = useState("")
-  const [profilePicUrl, setProfilePic] = useState("")
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
+  const [profilePic, setProfilePic] = useState<File | null>(null)
   const [location, setLocation] = useState("")
   const [description, setDesc] = useState("")
 
@@ -41,6 +41,7 @@ const EditProfilePage = () => {
 
   useEffect(() => {
       const fetchAccount = async () => {
+        setLoading(true);
         try {
           const response = await axios.get(`/api/profile/${accountId}`);
           const data = response.data;
@@ -65,16 +66,16 @@ const EditProfilePage = () => {
           if (parsed.role === Role.User) {
             const u = parsed as User;
             setBio(u.bio || "");
-            setPortfolioUrl(u.portfolioUrl || "");
           } else if (parsed.role === Role.Company) {
             const c = parsed as Company;
             setLocation(c.location || "");
             setDesc(c.description || "");
           }
 
-          console.log("Validated account:", parsed);
         } catch (error) {
           console.error("Failed to load account:", error);
+        } finally {
+          setLoading(false);
         }
       };
   
@@ -84,38 +85,41 @@ const EditProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const formData = new FormData();
+
     // TO ADD OLD PW AND NEW PW IN (Check if any of the fields are not empty)
     // If not, send all
-    const updatedData: any = {
-      accountId,
-      name, 
-      bio: bio.trim() || null,
-      portfolioUrl: portfolioUrl.trim() || null,
-      location: location.trim() || null,
-      description: description.trim() || null,
-      profilePicUrl: profilePicUrl.trim() || null,
-      role: user.role,
+    formData.append("accountId", accountId.toString());
+    formData.append("name", name);
+    formData.append("role", user.role);
+
+    if (bio.trim()) formData.append("bio", bio);
+    if (location.trim()) formData.append("location", location);
+    if (description.trim()) formData.append("description", description);
+
+    if (password && newPassword && confirmNew) {
+      formData.append("password", password);
+      formData.append("newPassword", newPassword);
+      formData.append("confirmNew", confirmNew);
     }
 
-    // Only if all are filled
-    if (password && newPassword && confirmNew) {
-      updatedData.password = password;
-      updatedData.newPassword = newPassword;
-      updatedData.confirmNew = confirmNew;
-    }
+    formData.append("portfolioFile", portfolioFile)
+    formData.append("profilePic", profilePic)
 
     try{
-      const response = await axios.post("/api/profile/save", updatedData)
-      console.log("Saved", response.data)
+      const response = await axios.post("/api/profile/save", 
+        formData
+      )
       navigate(`/profile/${accountId}`);
 
     } catch (err: any){
+      toast.error("Failed to save profile, please try again.")
       console.log("Failed to save profile", err)
     }
   };
   
 
-  if (!user) {
+  if (!user && !loading) {
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
         <div className="mt-6 text-center text-gray-400">User not found.</div>
@@ -125,67 +129,76 @@ const EditProfilePage = () => {
 
   return (
     <div className="w-full flex justify-center items-start px-4 py-10 overflow-auto">
-      <EditProfileCard>
-        <EditableAvatar
-          imageUrl={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
-          fallbackText={user.name}
-        />
-        <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
+      {loading ? (
+        <LoadingSpinner message="Loading profile..." />
+      ) : (
+        <>
+          <EditProfileCard>
+            <EditProfile onSubmit={handleSubmit} encType="multipart/form-data">
+            <EditableAvatar
+              imageUrl={user.profilePicUrl}
+              fallbackText={user.name}
+              onFileSelect={(file) => setProfilePic(file)}
+            />
+            <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
-        <EditProfile onSubmit={handleSubmit}>
-          <EditProfileGroup>
-              <EditProfileField label="Full Name">
-                  <EditProfileInput name="name" placeholder="John Doe" value={name}
-                  onChange={(e) => setName(e.target.value)} required />
-              </EditProfileField>
-
-              <EditProfileField label="Old Password">
-                  <EditProfileInput type="password" name="oldPassword" value={password}
-                  onChange={(e) => setPassword(e.target.value)} />
-              </EditProfileField>
-              <EditProfileField label="New Password">
-                  <EditProfileInput type="password" name="newPassword" value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)} />
-              </EditProfileField>
-              <EditProfileField label="Confirm New Password">
-                  <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
-                  onChange={(e) => setConfirm(e.target.value)} />
-              </EditProfileField>
-
-              {user.role === Role.User && (
-                  <>
-                  <EditProfileField label="Bio">
-                      <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
-                      onChange={(e) => setBio(e.target.value)} />
+              <EditProfileGroup>
+                  <EditProfileField label="Full Name">
+                      <EditProfileInput name="name" placeholder="John Doe" value={name}
+                      onChange={(e) => setName(e.target.value)} required />
                   </EditProfileField>
 
-                  <PortfolioUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf" />
-                  </>
-              )}
-
-              {user.role === Role.Company && (
-                  <>
-                  <EditProfileField label="Address">
-                      <EditProfileInput name="address" placeholder="Company address" value={location}
-                      onChange={(e) => setLocation(e.target.value)} />
+                  <EditProfileField label="Old Password">
+                      <EditProfileInput type="password" name="oldPassword" value={password}
+                      onChange={(e) => setPassword(e.target.value)} />
+                  </EditProfileField>
+                  <EditProfileField label="New Password">
+                      <EditProfileInput type="password" name="newPassword" value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)} />
+                  </EditProfileField>
+                  <EditProfileField label="Confirm New Password">
+                      <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
+                      onChange={(e) => setConfirm(e.target.value)} />
                   </EditProfileField>
 
-                  <EditProfileField label="Description">
-                      <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
-                      onChange={(e) => setDesc(e.target.value)} />
-                  </EditProfileField>
-                  </>
-              )}
-              </EditProfileGroup>
+                  {user.role === Role.User && (
+                      <>
+                      <EditProfileField label="Bio">
+                          <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
+                          onChange={(e) => setBio(e.target.value)} />
+                      </EditProfileField>
 
-          <EditProfileActions>
-              <Link to={`/profile/${user.accountId}`}>
-                  <Button variant="outline" type="button">Cancel</Button>
-              </Link>
-            <Button type="submit">Save Changes</Button>
-          </EditProfileActions>
-        </EditProfile>
-      </EditProfileCard>
+                      <PdfUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
+                      onChange={(file) => setPortfolioFile(file)} />
+                      </>
+                  )}
+
+                  {user.role === Role.Company && (
+                      <>
+                      <EditProfileField label="Address">
+                          <EditProfileInput name="address" placeholder="Company address" value={location}
+                          onChange={(e) => setLocation(e.target.value)} />
+                      </EditProfileField>
+
+                      <EditProfileField label="Description">
+                          <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
+                          onChange={(e) => setDesc(e.target.value)} />
+                      </EditProfileField>
+                      </>
+                  )}
+                  </EditProfileGroup>
+
+              <EditProfileActions>
+                  <Link to={`/profile/${user.accountId}`}>
+                      <Button variant="outline" type="button">Cancel</Button>
+                  </Link>
+                <Button type="submit">Save Changes</Button>
+              </EditProfileActions>
+            </EditProfile>
+          </EditProfileCard>
+        </>
+      )}
+      <ApplicationToaster /> {" "}
     </div>
   );
 };

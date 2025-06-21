@@ -93,31 +93,7 @@ class JobListingControl:
         print(f"Retrieving latest {limit} job listings")
         return JobListingMapper.getLatestJobListingsByCompany(companyID, limit) 
 
-###################################################################################################
-###################################################################################################
-#################### TODO: TO BE MOVED TO ACCOUNT MODEL AFTER INTEGRATION #########################
-###################################################################################################
-###################################################################################################
-    @staticmethod
-    def getAllCompanies():
-        """
-        Retrieves all companies.
-        :return: List of all companies.
-        """
-        print("Retrieving all companies")
-        return JobListingMapper.getAllCompanies()
-    
 
-    @staticmethod
-    def setCompanyVerified(company_id: int, verified: bool) -> bool:
-        """
-        Sets the verification status of a company.
-        :param company_id: ID of the company to verify.
-        :param verified: True if the company is verified, False otherwise.
-        :return: True if the operation was successful, False otherwise.
-        """
-        print(f"Setting company {company_id} verified status to {verified}")
-        return JobListingMapper.setCompanyVerified(company_id, verified)
     
     @staticmethod
     def getAllViolations():
