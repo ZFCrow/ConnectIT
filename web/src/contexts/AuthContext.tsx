@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   // Optionally: load from localStorage / cookie on mount
   useEffect(() => {
-    //logout(); //!! clear any existing auth state CAN REMOVE IF LOGOUT IS IMPLEMENTED IN THE FUTURE
+    logout(); //!! clear any existing auth state CAN REMOVE IF LOGOUT IS IMPLEMENTED IN THE FUTURE
     const stored = localStorage.getItem("auth");
     if (stored) {
       const { accountId, role, userId, companyId } = JSON.parse(stored);
@@ -55,6 +55,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       //login(1, Role.User, { userId: 1 });
       // login(1, Role.Company, { companyId: 1 });
       // login(1, Role.Admin, { userId: 1 }); // HARDCODED FOR TESTING
+      //login (35,Role.User, { userId: 8 }); // HARDCODED FOR TESTING
+      login (40,Role.Company, { companyId: 2 }); // HARDCODED FOR TESTING
     }
   }, []);
 

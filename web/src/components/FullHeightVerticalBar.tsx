@@ -34,7 +34,11 @@ const FullHeightVerticalBar = () => {
   //const [recentPosts, setRecentPosts] = useState<RecentPostLike[]>([]); 
   // const {recentlyInteractedPost} = usePostContext();
 
-  const {recentInteractions: recentlyInteractedPost} = usePostContext();
+  const {
+    recentInteractions: recentlyInteractedPost,
+    recentAppliedJobs,
+    recentPostedJobs
+  } = usePostContext();
 
   // companies
   const [myJobs, setMyJobs] = useState<JobListing[]>([]);
@@ -47,52 +51,48 @@ const FullHeightVerticalBar = () => {
   const navigate = useNavigate();
 
 
+  // useEffect(() => {
+  //   if (role === Role.User) {
+  //     // Fetch applied jobs for the user
+  //     const userAppliedJobs = mockAppliedJobs.filter(
+  //       (job) => job.userId === userId
+  //     );
+  //     setAppliedJobs(userAppliedJobs);
 
-  
+  //     // Fetch recent posts liked by the user
+  //     // const userRecentPosts = mockRecentPostsLikes.filter(
+  //     //   (post) => post.accountId === accountId
+  //     // );
+  //     // setRecentPosts(userRecentPosts);
+  //   } else if (role === Role.Company) {
+  //     // Fetch jobs posted by the company
+  //     // const companyJobs = sampleJobs.filter(
+  //     //   (job) => job.companyId === companyId
+  //     // );
+  //     setMyJobs([]);
 
+  //     // Fetch recent posts liked by the user (this needs to be accountID)
+  //     // const companyRecentPosts = mockRecentPostsLikes.filter(
+  //     //   (post) => post.accountId === companyId
+  //     // );
+  //     // setRecentPosts(companyRecentPosts);
 
-  useEffect(() => {
-    if (role === Role.User) {
-      // Fetch applied jobs for the user
-      const userAppliedJobs = mockAppliedJobs.filter(
-        (job) => job.userId === userId
-      );
-      setAppliedJobs(userAppliedJobs);
+  //     // Fetch incoming applications for the company
+  //     // const companyApps = mockAppliedJobs.filter((app) => app.companyId === userIdNum);
+  //     // setIncomingApps(companyApps);
+  //   }
+  //   // else if (role === "admin") {
+  //   //     // Fetch all users
+  //   //     setAllUsers(mockRecentPostsLikes.map(post => ({ id: post.userId, name: post.user })));
 
-      // Fetch recent posts liked by the user
-      // const userRecentPosts = mockRecentPostsLikes.filter(
-      //   (post) => post.accountId === accountId
-      // );
-      // setRecentPosts(userRecentPosts);
-    } else if (role === Role.Company) {
-      // Fetch jobs posted by the company
-      // const companyJobs = sampleJobs.filter(
-      //   (job) => job.companyId === companyId
-      // );
-      setMyJobs([]);
-
-      // Fetch recent posts liked by the user (this needs to be accountID)
-      // const companyRecentPosts = mockRecentPostsLikes.filter(
-      //   (post) => post.accountId === companyId
-      // );
-      // setRecentPosts(companyRecentPosts);
-
-      // Fetch incoming applications for the company
-      // const companyApps = mockAppliedJobs.filter((app) => app.companyId === userIdNum);
-      // setIncomingApps(companyApps);
-    }
-    // else if (role === "admin") {
-    //     // Fetch all users
-    //     setAllUsers(mockRecentPostsLikes.map(post => ({ id: post.userId, name: post.user })));
-
-    //     // Fetch site statistics
-    //     setSiteStats([
-    //         { name: "Total Users", value: 1000 },
-    //         { name: "Total Posts", value: 500 },
-    //         { name: "Total Jobs", value: 200 },
-    //     ]);
-    // }
-  }, [role, userId, accountId, companyId]);
+  //   //     // Fetch site statistics
+  //   //     setSiteStats([
+  //   //         { name: "Total Users", value: 1000 },
+  //   //         { name: "Total Posts", value: 500 },
+  //   //         { name: "Total Jobs", value: 200 },
+  //   //     ]);
+  //   // }
+  // }, [role, userId, accountId, companyId]);
 
   const [openSections, setOpenSections] = useState<string[]>([]);
 
@@ -108,22 +108,22 @@ const FullHeightVerticalBar = () => {
       value={openSections}
       onValueChange={handleAccordionChange}
     >
-      {role === Role.User && (
+      {role === Role.User && recentAppliedJobs && (
         <>
           <AccordionItem value="applied">
             <AccordionTrigger>📄 Recently Applied Job</AccordionTrigger>
             <AccordionContent>
               <ul className="space-y-2 text-sm">
-                {appliedJobs.map((job) => (
+                {recentAppliedJobs.map((job) => (
                   <Card
                     key={job.jobId}
                     className="hover:bg-muted transition cursor-pointer"
                     onClick={() => navigate(`/jobDetails/${job.jobId}`)}
                   >
                     <CardContent className="p-3">
-                      <div className="font-medium">{job.title}</div>
+                      <div className="font-medium">{job.name}</div>
                       <div className="text-muted-foreground text-xs mt-1">
-                        {job.companyName}
+                        {job.status}
                       </div>
                     </CardContent>
                   </Card>
@@ -188,7 +188,7 @@ const FullHeightVerticalBar = () => {
           <AccordionTrigger>📋 My Posted Jobs</AccordionTrigger>
           <AccordionContent>
             <ul className="space-y-2 text-sm">
-              {myJobs.map((job) => (
+              {recentPostedJobs && recentPostedJobs.map((job) => (
                 <Card
                   key={job.jobId}
                   className="hover:bg-muted transition cursor-pointer"
@@ -197,7 +197,7 @@ const FullHeightVerticalBar = () => {
                   <CardContent className="p-3">
                     <div className="font-medium">{job.title}</div>
                     <div className="text-muted-foreground text-xs mt-1">
-                      Example Company 
+                      {job.description}
                     </div>
                   </CardContent>
                 </Card>

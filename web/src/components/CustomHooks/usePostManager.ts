@@ -12,7 +12,8 @@ import type { CreatePostDTO, DeletePostDTO } from "@/type/Post";
 import type { CreateCommentDTO, Comment } from "@/type/Comment"; 
 import { Axios, AxiosResponse } from "axios";
 import { useViolationManager } from "./useViolationManager";
-
+import type { JobApplication } from "@/type/JobApplicationSchema"; // Import JobApplication type 
+import type { JobListing } from "@/type/jobListing"; // Import JobListing type 
 interface PaginatedPosts {
     posts: Post[];
     currentPage: number;
@@ -23,7 +24,7 @@ import { InfiniteData } from '@tanstack/react-query';
 
 
 const usePostManager = () => { 
-    const {accountId} = useAuth(); 
+    const {accountId, userId, companyId} = useAuth(); 
     const qc = useQueryClient(); 
 
     // — VIOLATIONS STATE —
@@ -369,6 +370,73 @@ const usePostManager = () => {
 });
 
 
+    // recently applied jobs 
+    const {
+        data: recentAppliedJobs,
+        isLoading: isLoadingRecentJobs,
+        error: recentJobsError,
+        refetch: refetchRecentJobs,
+    } = useQuery<JobApplication[], Error>({
+        queryKey: ['JobApplication', 'recently-applied-jobs', userId],
+        queryFn: () =>
+            api
+                .get<JobApplication[]>(`/getLatestAppliedJob/${userId}`)
+                .then((res) => res.data),
+        enabled: !!userId,
+        staleTime: 1 * 60 * 1000, // 1 minute
+        gcTime: 5 * 60 * 1000,    // 5 minutes in cache 
+    })
+
+    // recently posted jobs 
+    const {
+        data: recentPostedJobs,
+        isLoading: isLoadingRecentPostedJobs,
+        error: recentPostedJobsError,
+        refetch: refetchRecentPostedJobs,
+    } = useQuery<JobListing[], Error>({
+        queryKey: ['JobListing', 'recently-posted-jobs', companyId],
+        queryFn: () =>
+            api
+                .get<JobListing[]>(`/getLatestJobListings/${companyId}`)
+                .then((res) => res.data),
+        enabled: !!companyId,
+        staleTime: 1 * 60 * 1000, // 1 minute
+        gcTime: 5 * 60 * 1000,    // 5 minutes in cache 
+    })
+
+    
+
+    // ✅ Console log when data changes
+    useEffect(() => {
+        if (recentAppliedJobs) {
+            console.log('📋 Recent Applied Jobs:', recentAppliedJobs);
+            console.log('📊 Number of applications:', recentAppliedJobs.length);
+            
+            // Log individual jobs
+            recentAppliedJobs.forEach((job, index) => {
+                console.log(`Job ${index + 1}:`, job);
+            });
+        }
+        if (recentPostedJobs) {
+            console.log('📋 Recent Posted Jobs:', recentPostedJobs);
+            console.log('📊 Number of posted jobs:', recentPostedJobs.length);
+        
+        }
+        if (userId){ 
+            console.log(`User ${userId} has ${recentAppliedJobs?.length ?? 0} recent applied jobs.`);
+        }
+
+        if (accountId) {
+            console.log(`Account ${accountId} has ${recentInteractions?.length ?? 0} recent interactions.`);
+        }
+
+        if (companyId) {
+            console.log(`Company ${companyId} has ${recentPostedJobs?.length ?? 0} recent posted jobs.`);
+        }
+    }, [accountId, userId, recentInteractions, recentAppliedJobs]);
+
+
+
     // ✅ Return everything the component needs
     return {
         // Posts data
@@ -432,7 +500,17 @@ const usePostManager = () => {
         // Get recently interacted posts 
         recentInteractions, 
         isLoadingRecent,
-        refetchRecent
+        refetchRecent,
+
+        // Get recently applied jobs 
+        recentAppliedJobs,
+        isLoadingRecentJobs, 
+        refetchRecentJobs, 
+
+        //Get recently posted jobs
+        recentPostedJobs, 
+        isLoadingRecentPostedJobs, 
+        refetchRecentPostedJobs, 
 
     };
 }; 

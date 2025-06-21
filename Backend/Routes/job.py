@@ -4,6 +4,8 @@ from flask import Blueprint, request, jsonify
 from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Control.JobApplicationControl import JobApplicationControl
 from Control.JobListingControl import JobListingControl  # Import your control class
+from Entity.JobListing import JobListing  # Import your entity class 
+
 
 job_listing_bp = Blueprint("job_listing", __name__)
 
@@ -148,6 +150,26 @@ def remove_bookmark(userId, jobId):
     
     success = JobListingControl.removeBookmark(userId, jobId)
     return jsonify({"message": "Job removed from bookmarks successfully!"}) if success else jsonify({"error": "Failed to remove job from bookmarks"}), 200
+
+@job_listing_bp.route("/getLatestAppliedJob/<int:userId>", methods=["GET"]) 
+def get_latest_applied_job(userId): 
+    """
+    Retrieves the latest job listing that the user has applied for.
+    :param userId: ID of the user.
+    :return: Latest job listing applied by the user.
+    """
+    latest_job = JobApplicationControl.getLatestAppliedJobs(userId)
+    return jsonify([job.to_dict() for job in latest_job]), 200
+
+@job_listing_bp.route("/getLatestJobListings/<int:companyID>", methods=["GET"]) 
+def get_latest_job_listings(companyID): 
+    """
+    Retrieves the latest job listings for a company.
+    :param companyID: ID of the company.
+    :return: List of latest job listings.
+    """
+    latestListing = JobListingControl.getLatestJobListings(companyID) 
+    return jsonify([job.to_dict() for job in latestListing]), 200 
 
 
 ########################################################################
