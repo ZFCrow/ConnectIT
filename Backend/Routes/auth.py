@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
+from Security.JWTUtils import JWTUtils
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -55,7 +56,26 @@ def login():
                           "verified", "companyId", "userId", "companyDocUrl"]
         optional_data = {key: getattr(account, key) for key in optional_keys if hasattr(account, key)}
 
-        return jsonify({**base_data, **optional_data}), 200
+        token = JWTUtils.generate_jwt_token(account.accountId,
+        account.role,
+        account.name,
+        getattr(account, "profilePicUrl", None),
+        getattr(account, "userId", None),
+        getattr(account, "companyId", None),)
+        print(token)
+        if not token:
+            return jsonify({"message": "Token generation failed"}), 500
+        
+        
+        # **Merge** the two dicts correctly (not as a set!) :contentReference[oaicite:0]{index=0}
+        merged = {**base_data, **optional_data}
+
+        # make the Flask response and set the HttpOnly cookie :contentReference[oaicite:1]{index=1}
+        resp = make_response(jsonify(merged), 200)
+        resp = JWTUtils.set_auth_cookie(resp, token)
+
+        return resp
+            
     else:
         return jsonify({"message": "Incorrect credentials"}), 500
     
