@@ -46,7 +46,9 @@ def login():
             "passwordHash": account.passwordHash,
             "role": account.role,
             "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl
+            "profilePicUrl": account.profilePicUrl,
+            "twoFaEnabled": account.twoFaEnabled,
+            "twoFaSecret": account.twoFaSecret
         }
 
         optional_keys = ["bio", "portfolioUrl", "description", "location",
@@ -56,4 +58,17 @@ def login():
         return jsonify({**base_data, **optional_data}), 200
     else:
         return jsonify({"message": "Incorrect credentials"}), 500
+    
+@auth_bp.route('/save2fa', methods=['POST'])
+def save2fa():
+    payload = request.get_json()
+    if payload['accountId'] is None:
+        return jsonify({"error": "No account Id"}), 401
+
+    success = AccountBoundary.saveTwoFa(payload['accountId'], payload)
+
+    if success:
+        return jsonify({"message": "2fa updated successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to update 2fa"}), 500
 

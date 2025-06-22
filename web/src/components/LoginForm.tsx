@@ -41,6 +41,12 @@ export function LoginForm() {
         default:
           throw new Error("Unsupported account role");
       }
+      // const res = await axios.post("/api/save2fa", {
+      //   accountId: parsed.accountId,
+      //   enabled: true,
+      //   secret: "1234"
+      // });
+
       login(parsed.accountId, parsed.role, parsed.name, {
         userId: 'userId' in parsed ? parsed.userId : undefined,
         companyId: 'companyId' in parsed ? parsed.companyId : undefined,

@@ -22,6 +22,10 @@ class AccountBoundary:
         return AccountControl.updateAccount(accountData)
     
     @staticmethod
+    def saveTwoFa(accountId: int, data: dict):
+        return AccountControl.setTwoFa(accountId, data)
+    
+    @staticmethod
     def disableAccount(accountId: int, authData: dict):
         return AccountControl.disableAccount(accountId, authData)
     

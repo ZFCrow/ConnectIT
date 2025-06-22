@@ -20,6 +20,8 @@ export const AccountSchema = z.object({
   passwordHash: z.string(),
   role: z.nativeEnum(Role),
   isDisabled: z.boolean(),
+  twoFaEnabled: z.boolean(),
+  twoFaSecret: z.string().nullable().optional(),
   profilePicUrl: z.string().url().nullable().optional(),
 });
 

@@ -164,6 +164,25 @@ class AccountMapper:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
+        
+    @staticmethod
+    def setTwoFa(acc_id: int, secret: str, enabled: bool):
+        try:
+            with db_context.session_scope() as session:
+                account = session.query(AccountModel).filter_by(accountId=acc_id).first()
+                if not account:
+                    return False
+                
+                account.twoFaEnabled = enabled
+                account.twoFaSecret = secret
+
+                session.commit()
+                return True
+            
+        except Exception as e:
+            print(f"Error updating account: {e}")
+            traceback.print_exc()
+            return False
     
     @staticmethod
     def getAllCompanies() -> list["CompanyModel"]:
