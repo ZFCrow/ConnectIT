@@ -47,7 +47,8 @@ export function LoginForm() {
         profilePicUrl: 'profilePicUrl' in parsed ? parsed.profilePicUrl : undefined,
       })
 
-      navigate("/")
+      // navigate("/")
+      navigate(`/2fa?email=${encodeURIComponent(email)}`);
 
     } catch (err: any){
       toast.error("Error logging in, please try again.")
