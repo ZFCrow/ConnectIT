@@ -137,7 +137,7 @@ def generate_2fa():
         200,
     )
 
-# # Route for 2FA code verification
+# Route for 2FA code verification
 @app.route("/2fa-verify", methods=["POST"])
 def verify_2fa():
     code = request.json.get("code")

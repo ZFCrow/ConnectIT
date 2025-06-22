@@ -55,11 +55,9 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
             secret: secret,
           });
 
-          console.log("2FA secret saved successfully:", res.data);
           onSuccess();
         } catch (error) {
           console.error("Failed to save 2FA:", error);
-          toast.error("Failed to save 2FA settings");
         }
       } else {
         setStatus("Invalid code");

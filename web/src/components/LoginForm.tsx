@@ -105,6 +105,7 @@ export function LoginForm() {
                   placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  maxLength={64}
                   required
                 />
               </div>
