@@ -48,13 +48,19 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
       if (res.data.verified) {
         toast.success("2FA Verified");
 
-        const res = await axios.post("/api/save2fa", {
-          accountId: accountId,
-          enabled: true,
-          secret: secret,
-        });
+        try {
+          const res = await axios.post("/api/save2fa", {
+            accountId: accountId,
+            enabled: true,
+            secret: secret,
+          });
 
-        onSuccess();
+          console.log("2FA secret saved successfully:", res.data);
+          onSuccess();
+        } catch (error) {
+          console.error("Failed to save 2FA:", error);
+          toast.error("Failed to save 2FA settings");
+        }
       } else {
         setStatus("Invalid code");
       }

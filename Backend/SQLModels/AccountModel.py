@@ -28,7 +28,7 @@ class AccountModel(Base):
     role = Column(Enum(Role), nullable=False)
     isDisabled = Column(Boolean, nullable=False, default=False)
     twoFaEnabled = Column(Boolean, nullable=True, default=False)
-    twoFaSecret = Column(String(45), nullable=True)
+    twoFaSecret = Column(String(256), nullable=True)
     
     # Relationship back to posts (optional)
     posts = relationship("PostModel", back_populates="account")

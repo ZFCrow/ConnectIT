@@ -3,6 +3,10 @@ import qrcode
 import io
 import base64
 import re
+from cryptography.fernet import Fernet
+import os
+
+fernet = Fernet(os.getenv("FERNET_KEY").encode())
 
 def create_qrcode(email: str):
     # Generate a base32 secret
@@ -18,16 +22,23 @@ def create_qrcode(email: str):
     img.save(buf)
     img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    return {"qr_code": img_b64, "secret": secret}
+    encrypted_secret = fernet.encrypt(secret.encode()).decode()
+
+    return {"qr_code": img_b64, "secret": encrypted_secret}
 
 
-def validate2FA(code: str, secret: str):
-    if not secret:
+def validate2FA(code: str, encrypted_secret: str):
+    if not encrypted_secret:
         return {"verified": False, "error": "No secret provided"}, 400
 
     if not re.fullmatch(r"\d{6}", code):
         return {"verified": False, "error": "Invalid code format"}, 400
 
+    try:
+        secret = fernet.decrypt(encrypted_secret.encode()).decode()
+    except Exception:
+        return {"verified": False, "error": "Decryption failed"}, 400
+        
     totp = pyotp.TOTP(secret)
     if totp.verify(code):
         return {"verified": True}, 200
