@@ -3,7 +3,6 @@ import { Routes, Route, Link } from "react-router-dom";
 import Otherpage from "@/Pages/Otherpage";
 import Register from "@/Pages/auth/Register";
 import Login from "@/Pages/auth/Login";
-import Twofa from "@/Pages/auth/Twofa";
 import ProfilePage from "@/Pages/Profile";
 import EditProfilePage from "./Pages/EditProfile";
 import Navbar from "./components/Navbar";
@@ -33,7 +32,6 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/register" element={<Register />} />
-            <Route path="/2fa" element={<Twofa />} />
             <Route path="/login" element={<Login />} />
 
             {/* Protected Routes */ }

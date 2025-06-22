@@ -374,36 +374,23 @@ def get_recently_interacted_posts(account_id):
 
 
 # Route for 2FA Qr-code generation
-@app.route("/generate-2fa", methods=["POST"])
+@app.route("/2fa-generate", methods=["POST"])
 def generate_2fa():
     data = request.get_json()
     email = data.get("email")
     if not email:
         return jsonify({"error": "Missing email"}), 400
 
-    # user = User.query.filter_by(email=email).first()
-    # if not user:
-    #     return jsonify({"error": "User not found"}), 404
-
-    # if user.is_2fa_enabled:
-    #     return jsonify({"is2FAEnabled": True}), 200
-
     result = TwoFactorAuth.create_qrcode(email)
     return (
-        jsonify(
-            {
-                "qr_code": result["qr_code"],
-                "secret": result["secret"],
-                "is2FAEnabled": False,
-            }
-        ),
+        jsonify(result),
         200,
     )
 
 
 # from flask import session
 # # Route for 2FA code verification
-@app.route("/verify-2fa", methods=["POST"])
+@app.route("/2fa-verify", methods=["POST"])
 def verify_2fa():
     code = request.json.get("code")
     secret = request.json.get("secret")

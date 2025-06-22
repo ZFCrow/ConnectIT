@@ -19,7 +19,7 @@ def create_qrcode(email: str):
     img.save(buf)
     img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    return {"qr_code": img_b64, "secret": secret, "is2FAEnabled": False}
+    return {"qr_code": img_b64, "secret": secret}
 
 
 def validate2FA(code: str, secret: str):

@@ -29,7 +29,7 @@ export function TwoFAForm() {
     if (!email) return;
 
     axios
-      .post("/api/generate-2fa", { email })
+      .post("/api/2fa-generate", { email })
       .then((res) => {
         const { qr_code, secret, is2FAEnabled } = res.data;
         setSecret(secret);
@@ -51,7 +51,7 @@ export function TwoFAForm() {
     }
 
     try {
-      const res = await axios.post("/api/verify-2fa", { code, secret });
+      const res = await axios.post("/api/2fa-verify", { code, secret });
       if (res.data.verified) {
         toast.success("2FA Verified");
         navigate("/");
