@@ -61,7 +61,7 @@ export function Verify2FAForm({ secret, onSuccess }: Props) {
             className="dark:bg-gray-800 dark:border-gray-600"
             value={code}
             onChange={(e) =>
-              setCode(e.target.value.replace(/\\D/g, "").slice(0, 6))
+              setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
             }
             required
           />
@@ -70,7 +70,11 @@ export function Verify2FAForm({ secret, onSuccess }: Props) {
       </CardContent>
 
       <CardFooter>
-        <Button className="w-1/2" onClick={handleVerify}>
+        <Button
+          className="w-1/2"
+          onClick={handleVerify}
+          disabled={code.length !== 6}
+        >
           Verify 2FA
         </Button>
       </CardFooter>

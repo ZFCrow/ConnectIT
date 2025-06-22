@@ -127,8 +127,7 @@ def verify_captcha_endpoint():
 # Route for 2FA Qr-code generation
 @app.route("/2fa-generate", methods=["POST"])
 def generate_2fa():
-    data = request.get_json()
-    email = data.get("email")
+    email = request.json.get("email")
     if not email:
         return jsonify({"error": "Missing email"}), 400
 

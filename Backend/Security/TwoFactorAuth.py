@@ -2,6 +2,7 @@ import pyotp
 import qrcode
 import io
 import base64
+import re
 
 def create_qrcode(email: str):
     # Generate a base32 secret
@@ -23,6 +24,9 @@ def create_qrcode(email: str):
 def validate2FA(code: str, secret: str):
     if not secret:
         return {"verified": False, "error": "No secret provided"}, 400
+
+    if not re.fullmatch(r"\d{6}", code):
+        return {"verified": False, "error": "Invalid code format"}, 400
 
     totp = pyotp.TOTP(secret)
     if totp.verify(code):
