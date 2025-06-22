@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
+from Security.JWTUtils import JWTUtils
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -46,14 +47,48 @@ def login():
             "passwordHash": account.passwordHash,
             "role": account.role,
             "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl
+            "profilePicUrl": account.profilePicUrl,
+            "twoFaEnabled": account.twoFaEnabled,
+            "twoFaSecret": account.twoFaSecret
         }
 
         optional_keys = ["bio", "portfolioUrl", "description", "location",
                           "verified", "companyId", "userId", "companyDocUrl"]
         optional_data = {key: getattr(account, key) for key in optional_keys if hasattr(account, key)}
 
-        return jsonify({**base_data, **optional_data}), 200
+        token = JWTUtils.generate_jwt_token(account.accountId,
+        account.role,
+        account.name,
+        getattr(account, "profilePicUrl", None),
+        getattr(account, "userId", None),
+        getattr(account, "companyId", None),)
+        print(token)
+        if not token:
+            return jsonify({"message": "Token generation failed"}), 500
+        
+        
+        # **Merge** the two dicts correctly (not as a set!) :contentReference[oaicite:0]{index=0}
+        merged = {**base_data, **optional_data}
+
+        # make the Flask response and set the HttpOnly cookie :contentReference[oaicite:1]{index=1}
+        resp = make_response(jsonify(merged), 200)
+        resp = JWTUtils.set_auth_cookie(resp, token)
+
+        return resp
+            
     else:
         return jsonify({"message": "Incorrect credentials"}), 500
+    
+@auth_bp.route('/save2fa', methods=['POST'])
+def save2fa():
+    payload = request.get_json()
+    if payload['accountId'] is None:
+        return jsonify({"error": "No account Id"}), 401
+
+    success = AccountBoundary.saveTwoFa(payload['accountId'], payload)
+
+    if success:
+        return jsonify({"message": "2fa updated successfully!"}), 201
+    else:
+        return jsonify({"error": "Failed to update 2fa"}), 500
 

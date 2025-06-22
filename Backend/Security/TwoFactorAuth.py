@@ -8,8 +8,6 @@ def create_qrcode(email: str):
     secret = pyotp.random_base32()
     totp = pyotp.TOTP(secret)
 
-    # Need to change to store in DB
-
     # Create OTPAuth URL
     otp_url = totp.provisioning_uri(name=email, issuer_name="ConnectIT")
 

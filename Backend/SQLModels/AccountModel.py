@@ -27,6 +27,8 @@ class AccountModel(Base):
 
     role = Column(Enum(Role), nullable=False)
     isDisabled = Column(Boolean, nullable=False, default=False)
+    twoFaEnabled = Column(Boolean, nullable=True, default=False)
+    twoFaSecret = Column(String(45), nullable=True)
     
     # Relationship back to posts (optional)
     posts = relationship("PostModel", back_populates="account")
@@ -43,7 +45,9 @@ class AccountModel(Base):
             'passwordHash': self.passwordHash,
             'profilePicUrl': self.profilePicUrl,
             'role': self.role.value if hasattr(self.role, 'value') else str(self.role),
-            'isDisabled': self.isDisabled
+            'isDisabled': self.isDisabled,
+            'twoFaEnabled': self.twoFaEnabled,
+            'twoFaSecret': self.twoFaSecret
         }
     def __repr__(self):
         return f"<Account(accountID={self.accountID})>"

@@ -1,0 +1,55 @@
+
+from flask import Blueprint, request, jsonify
+from Boundary.CommentBoundary import CommentBoundary
+import traceback
+
+
+
+comment_bp = Blueprint("comment", __name__)
+
+
+@comment_bp.route('/comment/<post_id>', methods=['POST']) 
+def addComment(post_id):
+    """
+    Add a comment to a post.
+    """
+    try:
+        data = request.get_json()  # Get the JSON data from the request 
+        if not data or 'accountId' not in data or 'comment' not in data: 
+            return jsonify({"error": "Missing required fields"}), 400 
+        
+        accountId = data['accountId'] 
+        comment = data['comment']  # Get the comment text from the request 
+        comment['accountId'] = accountId  # Add the accountId to the comment data
+        comment['postId'] = post_id  # Add the postId to the comment data
+        commentEntity = CommentBoundary.handleCreateComment(comment)  # Use the boundary to handle adding the comment 
+        if commentEntity: 
+            return jsonify(commentEntity.toDict()), 201 
+        else: 
+            return jsonify({"error": "Failed to add comment"}), 500 
+    except Exception as e: 
+        print(f"Error adding comment: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
+    
+
+@comment_bp.route('/deleteComment/<comment_id>', methods=['POST'])
+def deleteComment(comment_id):
+    """
+    Delete a comment by its ID.
+    """
+    try:
+        data = request.get_json()  # Get the JSON data from the request 
+        if not data or 'accountId' not in data: 
+            return jsonify({"error": "Missing required fields"}), 400 
+        
+        accountId = data['accountId'] 
+        success = CommentBoundary.handleDeleteComment(comment_id)  # Use the boundary to handle deleting the comment 
+        if success: 
+            return jsonify({"message": f"Comment with ID {comment_id} deleted successfully!"}), 200 
+        else:
+            return jsonify({"error": f"Failed to delete comment with ID {comment_id}"}), 500 
+    except Exception as e:
+        print(f"Error deleting comment: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 

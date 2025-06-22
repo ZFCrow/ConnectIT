@@ -48,11 +48,12 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
       if (res.data.verified) {
         toast.success("2FA Verified");
 
-        const response = await axios.post("/api/save-2fa", {
-          accountId,
-          secret,
+        const res = await axios.post("/api/save2fa", {
+          accountId: accountId,
+          enabled: true,
+          secret: secret,
         });
-    
+        
         onSuccess();
       } else {
         setStatus("Invalid code");

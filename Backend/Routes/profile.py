@@ -16,7 +16,9 @@ def get_user(account_id):
             "passwordHash": account.passwordHash,
             "role": account.role,
             "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl
+            "profilePicUrl": account.profilePicUrl,
+            "twoFaEnabled": account.twoFaEnabled,
+            "twoFaSecret": account.twoFaSecret
         }
 
         optional_keys = ["bio", "portfolioUrl", "description", 

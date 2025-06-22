@@ -10,6 +10,8 @@ class Account:
     
     role: str
     isDisabled: bool
+    twoFaEnabled: bool
+    twoFaSecret: str
 
     @classmethod
     def from_dict(cls, data: dict) -> 'Account':
@@ -20,5 +22,7 @@ class Account:
             passwordHash=data.get('passwordHash', ''),
             profilePicUrl=data.get('profilePicUrl', ''),
             role = data.get('role', ''),
-            isDisabled=data.get('isDisabled', False)
+            isDisabled=data.get('isDisabled', False),
+            twoFaEnabled=data.get('twoFaEnabled', False),
+            twoFaSecret=data.get('twoFaSecret', '')
         )

@@ -127,6 +127,16 @@ class AccountControl:
         return AccountMapper.disableAccount(accountId)
     
     @staticmethod
+    def setTwoFa(accountId: int, data: dict) -> bool:
+        secret = data.get('secret', None)
+        enabled = data.get('enabled', None)
+
+        if not secret or not enabled:
+            return False
+
+        return AccountMapper.setTwoFa(accountId, secret, enabled)
+    
+    @staticmethod
     def getAllCompanies():
         """
         Retrieves all companies.

@@ -24,7 +24,7 @@ import { InfiniteData } from '@tanstack/react-query';
 
 
 const usePostManager = () => { 
-    const {accountId, userId, companyId} = useAuth(); 
+    const {accountId, userId, companyId, name} = useAuth(); 
     const qc = useQueryClient(); 
 
     // — VIOLATIONS STATE —
@@ -275,7 +275,7 @@ const usePostManager = () => {
                             commentId: Math.random(),           // temp ID
                             createdAt: new Date().toISOString(),
                             accountId,
-                            username: "name",         // from your auth context
+                            username: name,         // from your auth context
                             content,
                             };
                             return {

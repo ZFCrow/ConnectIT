@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth, Role } from "@/contexts/AuthContext";
-import { UserSchema, CompanySchema, AccountSchema } from "@/type/account";
+import { User, UserSchema, ValidatedUser, 
+  Company, CompanySchema, ValidatedCompany,
+AccountSchema, ValidatedAccount } from "@/type/account";
 import axios from "axios";
 import { ApplicationToaster } from "./CustomToaster";
 import toast from "react-hot-toast";
@@ -19,11 +21,13 @@ import toast from "react-hot-toast";
 import { Generate2FAForm } from "./Generate2FAForm";
 import { Verify2FAForm } from "./Verify2FAForm";
 
+type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [step, setStep] = useState<"login" | "generate" | "verify">("login");
-  const [userData, setUserData] = useState<any>(null);
+  const [user, setUser] = useState<AccountData | null>(null);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -53,18 +57,10 @@ export function LoginForm() {
           throw new Error("Unsupported account role");
       }
 
-      setUserData(parsed);
-      setStep(parsed.is2FAEnabled ? "verify" : "generate");
+      setUser(parsed)
+      console.log(parsed.twoFaEnabled);
+      setStep(parsed.twoFaEnabled ? "verify" : "generate");
 
-      // login(parsed.accountId, parsed.role, parsed.name, {
-      //   userId: "userId" in parsed ? parsed.userId : undefined,
-      //   companyId: "companyId" in parsed ? parsed.companyId : undefined,
-      //   profilePicUrl:
-      //     "profilePicUrl" in parsed ? parsed.profilePicUrl : undefined,
-      // });
-
-      // navigate("/")
-      // navigate(`/2fa?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       toast.error("Error logging in, please try again.");
       console.log("Login failed", err);
@@ -72,10 +68,10 @@ export function LoginForm() {
   };
 
   const handle2FASuccess = () => {
-    login(userData.accountId, userData.role, userData.name, {
-      userId: userData.userId,
-      companyId: userData.companyId,
-      profilePicUrl: userData.profilePicUrl,
+    login(user.accountId, user.role, user.name, {
+      userId: (user as User).userId,
+      companyId: (user as Company).companyId,
+      profilePicUrl: user.profilePicUrl,
     });
     navigate("/");
   };
@@ -133,12 +129,15 @@ export function LoginForm() {
       {step === "generate" && (
         <Generate2FAForm
           email={email}
-          accountId={userData.accountId}
+          accountId={user.accountId}
           onSuccess={handle2FASuccess}
         />
       )}
       {step === "verify" && (
-        <Verify2FAForm secret={userData.secret} onSuccess={handle2FASuccess} />
+        <Verify2FAForm
+          secret={user.twoFaSecret}
+          onSuccess={handle2FASuccess}
+        />
       )}
       <ApplicationToaster />{" "}
     </div>
