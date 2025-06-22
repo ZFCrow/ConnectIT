@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from Boundary.CommentBoundary import CommentBoundary
 import traceback
+from Security.ValidateInputs import validate_comment
 
 
 
@@ -22,12 +23,18 @@ def addComment(post_id):
         comment = data['comment']  # Get the comment text from the request 
         comment['accountId'] = accountId  # Add the accountId to the comment data
         comment['postId'] = post_id  # Add the postId to the comment data
-        commentEntity = CommentBoundary.handleCreateComment(comment)  # Use the boundary to handle adding the comment 
-        if commentEntity: 
-            return jsonify(commentEntity.toDict()), 201 
-        else: 
-            return jsonify({"error": "Failed to add comment"}), 500 
-    except Exception as e: 
+
+
+        errors = validate_comment(comment)
+        if errors:
+            return jsonify({"error": errors}), 400
+
+        commentEntity = CommentBoundary.handleCreateComment(comment)  # Use the boundary to handle adding the comment
+        if commentEntity:
+            return jsonify(commentEntity.toDict()), 201
+        else:
+            return jsonify({"error": "Failed to add comment"}), 500
+    except Exception as e:
         print(f"Error adding comment: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500 

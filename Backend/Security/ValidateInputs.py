@@ -53,3 +53,40 @@ def validate_register(data: dict) -> dict:
 
     return errors
 
+def validate_post(data: dict) -> dict:
+    errors = {}
+    missing = required_fields(data, ["title", "content"])
+    if missing:
+        errors["missing"] = f"Missing fields: {', '.join(missing)}"
+        return errors
+    
+    sanitize_fields(data, ["title", "content"])
+    title = data.get("title", "").strip()
+    content = data.get("content", "").strip()
+
+    if len(title) < 1:
+        errors["title"] = "Title cannot be empty"
+    elif len(title) > 100:
+        errors["title"] = "Title must not exceed 100 characters"
+
+    if len(content) < 1:
+        errors["content"] = "Content cannot be empty"
+
+    return errors
+
+def validate_comment(data: dict) -> dict:
+    errors = {}
+    missing = required_fields(data, ["content"])
+    if missing:
+        errors["missing"] = f"Missing fields: {', '.join(missing)}"
+        return errors
+    
+    sanitize_fields(data, ["content"])
+    content = data.get("content", "").strip()
+
+    if len(content) < 1:
+        errors["content"] = "Content cannot be empty"
+    elif len(content) > 500:
+        errors["content"] = "Content must not exceed 500 characters"
+
+    return errors

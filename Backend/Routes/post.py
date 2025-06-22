@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from Boundary.PostBoundary import PostBoundary 
 import traceback
+from Security.ValidateInputs import validate_post
 
 
 post_bp = Blueprint("post", __name__) 
@@ -35,10 +36,15 @@ def createPost():
         accountId = data['accountId'] 
         postData = data['postData'] 
         print (f"in app.py: accountId: {accountId}, postData: {postData}")
-        
-        
-        post, success = PostBoundary.createPost(accountId, postData)  # Use the boundary to create the post 
-        
+
+        postData['accountId'] = accountId 
+
+        errors = validate_post(postData)
+        if errors:
+            return jsonify({"error": errors}), 400
+
+        post, success = PostBoundary.createPost(accountId, postData)  # Use the boundary to create the post
+
         if success:
             # return jsonify({"message": "Post created successfully!"}), 201
             return jsonify(post.toDict()), 201 
