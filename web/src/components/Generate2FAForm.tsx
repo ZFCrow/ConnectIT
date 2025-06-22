@@ -14,10 +14,11 @@ import toast from "react-hot-toast";
 
 type Props = {
   email: string;
+  accountId: number;
   onSuccess: () => void;
 };
 
-export function Generate2FAForm({ email, onSuccess }: Props) {
+export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [secret, setSecret] = useState<string | null>(null);
@@ -47,7 +48,11 @@ export function Generate2FAForm({ email, onSuccess }: Props) {
       if (res.data.verified) {
         toast.success("2FA Verified");
 
-        //Add 
+        const response = await axios.post("/api/save-2fa", {
+          accountId,
+          secret,
+        });
+    
         onSuccess();
       } else {
         setStatus("Invalid code");

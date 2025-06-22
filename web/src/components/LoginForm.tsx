@@ -52,17 +52,16 @@ export function LoginForm() {
         default:
           throw new Error("Unsupported account role");
       }
+
       setUserData(parsed);
+      setStep(parsed.is2FAEnabled ? "verify" : "generate");
 
-      const statusRes = await axios.post("/api/2fa-status", { email });
-      setStep(statusRes.data.is2FAEnabled ? "verify" : "generate");
-
-      login(parsed.accountId, parsed.role, parsed.name, {
-        userId: "userId" in parsed ? parsed.userId : undefined,
-        companyId: "companyId" in parsed ? parsed.companyId : undefined,
-        profilePicUrl:
-          "profilePicUrl" in parsed ? parsed.profilePicUrl : undefined,
-      });
+      // login(parsed.accountId, parsed.role, parsed.name, {
+      //   userId: "userId" in parsed ? parsed.userId : undefined,
+      //   companyId: "companyId" in parsed ? parsed.companyId : undefined,
+      //   profilePicUrl:
+      //     "profilePicUrl" in parsed ? parsed.profilePicUrl : undefined,
+      // });
 
       // navigate("/")
       // navigate(`/2fa?email=${encodeURIComponent(email)}`);
@@ -73,11 +72,10 @@ export function LoginForm() {
   };
 
   const handle2FASuccess = () => {
-    const user = userData;
-    login(user.accountId, user.role, user.name, {
-      userId: user.userId,
-      companyId: user.companyId,
-      profilePicUrl: user.profilePicUrl,
+    login(userData.accountId, userData.role, userData.name, {
+      userId: userData.userId,
+      companyId: userData.companyId,
+      profilePicUrl: userData.profilePicUrl,
     });
     navigate("/");
   };
@@ -133,7 +131,11 @@ export function LoginForm() {
         </Card>
       )}
       {step === "generate" && (
-        <Generate2FAForm email={email} onSuccess={handle2FASuccess} />
+        <Generate2FAForm
+          email={email}
+          accountId={userData.accountId}
+          onSuccess={handle2FASuccess}
+        />
       )}
       {step === "verify" && (
         <Verify2FAForm secret={userData.secret} onSuccess={handle2FASuccess} />
