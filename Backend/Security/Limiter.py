@@ -49,3 +49,7 @@ def reset_login_attempts(email: str):
     """Clear failure and lockout state on successful login."""
     r.delete(f"failcount:{email}")
     r.delete(f"lockout:{email}")
+
+# get AccountID
+def get_user_key():
+    return request.form.get("accountId")

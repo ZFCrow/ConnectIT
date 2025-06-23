@@ -71,7 +71,7 @@ export function Verify2FAForm({ secret, onSuccess }: Props) {
 
       <CardFooter>
         <Button
-          className="w-1/2"
+          className="w-full"
           onClick={handleVerify}
           disabled={code.length !== 6}
         >

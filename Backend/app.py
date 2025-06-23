@@ -16,10 +16,11 @@
 from typing import BinaryIO, Literal
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
-from flask_limiter.errors import RateLimitExceeded
-import os
 from db import sshFlow, noSshFlow
 from SQLModels.base import DatabaseContext
+from flask_limiter.errors import RateLimitExceeded
+import os
+from datetime import datetime, timezone
 
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
@@ -36,11 +37,22 @@ from firebase_admin import credentials, initialize_app, storage
 app = Flask(__name__)
 Limiter.limiter.init_app(app)
 
+
 @app.errorhandler(RateLimitExceeded)
 def handle_rate_limit_exceeded(e):
-    message = f"RATE_LIMIT | ip={request.remote_addr} | route={request.path} | method={request.method} | limit={e.description}"
+    if request.path == "/register":
+        account_id = ""
+    else:
+        account_id = request.form.get("accountId") or request.args.get("accountId")
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    message = (
+        f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+        f"route={request.path} | method={request.method} | "
+        f"limit={e.description} | accountId={account_id}"
+    )
     Limiter.ratelimit_logger.warning(message)
-    print(message)
 
     return (
         jsonify(

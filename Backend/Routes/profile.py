@@ -1,6 +1,10 @@
 from flask import Blueprint, request, jsonify
 from Control.AccountControl import AccountControl
 from Boundary.AccountBoundary import AccountBoundary
+from Security.Limiter import (
+    limiter,
+    get_user_key
+)
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
 
@@ -32,6 +36,7 @@ def get_user(account_id):
         return jsonify({"error": "Account not found"}), 404
 
 @profile_bp.route('/save', methods=['POST'])
+@limiter.limit("1 per hour", key_func=get_user_key)
 def save_profile():
     updated_data = request.form.to_dict()
     portfolioFile = request.files.get('portfolioFile', None)

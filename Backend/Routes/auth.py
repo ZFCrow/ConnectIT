@@ -11,6 +11,7 @@ from Security.Limiter import (
     reset_login_attempts,
     ratelimit_logger,
 )
+from datetime import datetime, timezone
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -45,8 +46,11 @@ def login():
     email = payload.get("email")
 
     if is_locked(email):
+        timestamp = datetime.now(timezone.utc).isoformat()
         ratelimit_logger.warning(
-            f"RATE_LIMIT | ip={request.remote_addr} | route=/login | method=POST | limit=lockout after 5 failed logins | email={email}"
+            f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+            f"route={request.path} | method={request.method} | "
+            f"limit=lockout after 5 failed logins | email={email}"
         )
         return jsonify({"error": "Account locked due to too many failed attempts"}), 403
 
@@ -58,8 +62,11 @@ def login():
     if not account:
         count = increment_failed_attempts(email)
         if count >= 5:
+            timestamp = datetime.now(timezone.utc).isoformat()
             ratelimit_logger.warning(
-                f"RATE_LIMIT | ip={request.remote_addr} | route=/login | method=POST | limit=lockout after 5 failed logins | email={email}"
+                f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+                f"route={request.path} | method={request.method} | "
+                f"limit=lockout after 5 failed logins | email={email}"
             )
             return (
                 jsonify({"error": "Account locked due to too many failed attempts"}),
