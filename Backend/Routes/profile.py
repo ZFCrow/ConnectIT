@@ -1,14 +1,12 @@
 from flask import Blueprint, request, jsonify
 from Control.AccountControl import AccountControl
 from Boundary.AccountBoundary import AccountBoundary
-from Security.Limiter import (
-    limiter,
-    get_user_key
-)
+from Security.Limiter import limiter, get_user_key
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
 
-@profile_bp.route('/<int:account_id>', methods=['GET'])
+
+@profile_bp.route("/<int:account_id>", methods=["GET"])
 def get_user(account_id):
     account = AccountBoundary.viewAccount(account_id)
 
@@ -22,28 +20,38 @@ def get_user(account_id):
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
-            "twoFaSecret": account.twoFaSecret
+            "twoFaSecret": account.twoFaSecret,
         }
 
-        optional_keys = ["bio", "portfolioUrl", "description", 
-                         "location", "companyDocUrl", "verified",
-                         "companyId", "userId"]
-        optional_data = {key: getattr(account, key) for key in optional_keys if hasattr(account, key)}
+        optional_keys = [
+            "bio",
+            "portfolioUrl",
+            "description",
+            "location",
+            "companyDocUrl",
+            "verified",
+            "companyId",
+            "userId",
+        ]
+        optional_data = {
+            key: getattr(account, key) for key in optional_keys if hasattr(account, key)
+        }
 
         return jsonify({**base_data, **optional_data})
-    
+
     else:
         return jsonify({"error": "Account not found"}), 404
 
-@profile_bp.route('/save', methods=['POST'])
+
+@profile_bp.route("/save", methods=["POST"])
 @limiter.limit("1 per hour", key_func=get_user_key)
 def save_profile():
     updated_data = request.form.to_dict()
-    portfolioFile = request.files.get('portfolioFile', None)
-    profilePic = request.files.get('profilePic', None)
+    portfolioFile = request.files.get("portfolioFile", None)
+    profilePic = request.files.get("profilePic", None)
 
-    updated_data['portfolioFile'] = portfolioFile
-    updated_data['profilePic'] =  profilePic
+    updated_data["portfolioFile"] = portfolioFile
+    updated_data["profilePic"] = profilePic
 
     success = AccountBoundary.saveProfile(updated_data)
 
@@ -51,8 +59,9 @@ def save_profile():
         return jsonify({"message": "Profile saved successfully!"}), 201
     else:
         return jsonify({"error": "Failed to save profile"}), 500
-    
-@profile_bp.route('/disable/<int:account_id>', methods=['POST'])
+
+
+@profile_bp.route("/disable/<int:account_id>", methods=["POST"])
 def disable(account_id):
     auth_data = request.get_json()
 
@@ -62,7 +71,8 @@ def disable(account_id):
         return jsonify({"message": "Account disabled successfully!"}), 201
     else:
         return jsonify({"error": "Failed to disable account"}), 500
-    
+
+
 @profile_bp.route("/getAllCompanies", methods=["GET"])
 def get_all_companies():
     """
@@ -72,7 +82,10 @@ def get_all_companies():
     companies = AccountBoundary.getAllCompanies()
     return jsonify([company.to_dict() for company in companies]), 200
 
-@profile_bp.route("/setCompanyVerified/<int:company_id>/<int:verified>", methods=["POST"])
+
+@profile_bp.route(
+    "/setCompanyVerified/<int:company_id>/<int:verified>", methods=["POST"]
+)
 def set_company_verified(company_id, verified):
     """
     Sets the verification status of a company.
@@ -81,4 +94,8 @@ def set_company_verified(company_id, verified):
     :return: Success message or error.
     """
     success = AccountBoundary.setCompanyVerified(company_id, verified)
-    return jsonify({"message": "Company verification status updated successfully!"}) if success else jsonify({"error": "Failed to update company verification status"}), 200
+    return (
+        jsonify({"message": "Company verification status updated successfully!"})
+        if success
+        else jsonify({"error": "Failed to update company verification status"})
+    ), 200

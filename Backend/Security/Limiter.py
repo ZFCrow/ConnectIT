@@ -8,7 +8,7 @@ import os
 # Flask-Limiter Setup
 limiter = Limiter(
     key_func=get_remote_address,
-    storage_uri=os.getenv("REDIS_URL", "redis://redis:6379")
+    storage_uri=os.getenv("REDIS_URL", "redis://redis:6379"),
 )
 
 # Rate-limit Logger
@@ -17,22 +17,22 @@ ratelimit_logger.setLevel(logging.WARNING)
 handler = logging.FileHandler("/var/log/ratelimit.log")
 ratelimit_logger.addHandler(handler)
 
+
 # /register
 def get_register_key():
     email = request.form.get("email")
     print("got email")
     return email or get_remote_address()
 
+
 # /login
-r = redis.Redis(
-    host=os.getenv("REDIS_HOST", "redis"),
-    port=6379,
-    decode_responses=True
-)
+r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, decode_responses=True)
+
 
 def is_locked(email: str) -> bool:
     """Check if the user is locked due to failed login attempts."""
     return r.exists(f"lockout:{email}")
+
 
 def increment_failed_attempts(email: str) -> int:
     """Increase failed attempt count and lock account if needed."""
@@ -45,11 +45,18 @@ def increment_failed_attempts(email: str) -> int:
         r.expire(f"lockout:{email}", 3600)  # lock account for 1 hour
     return count
 
+
 def reset_login_attempts(email: str):
     """Clear failure and lockout state on successful login."""
     r.delete(f"failcount:{email}")
     r.delete(f"lockout:{email}")
 
-# get AccountID
+
+# get user ID
 def get_user_key():
-    return request.form.get("accountId")
+    return (request.get_json()).get("accountId") or request.form.get("accountId")
+
+
+# get company ID
+def get_company_key():
+    return (request.get_json()).get("company_id")

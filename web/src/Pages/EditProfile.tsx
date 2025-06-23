@@ -15,7 +15,14 @@ import {
 import PdfUpload from "@/components/ui/file-input";
 import { Button } from "@/components/ui/button";
 import { Role, useAuth } from "@/contexts/AuthContext";
-import { User, UserSchema, ValidatedUser, Company, CompanySchema, ValidatedCompany } from "@/type/account";
+import {
+  User,
+  UserSchema,
+  ValidatedUser,
+  Company,
+  CompanySchema,
+  ValidatedCompany,
+} from "@/type/account";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 import LoadingSpinner from "@/components/ui/loading-circle";
@@ -27,60 +34,59 @@ const EditProfilePage = () => {
   const [user, setUser] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [name, setName] = useState("")
-  const [password, setPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmNew, setConfirm] = useState("")
-  const [bio, setBio] = useState("")
-  const [portfolioFile, setPortfolioFile] = useState<File | null>(null)
-  const [profilePic, setProfilePic] = useState<File | null>(null)
-  const [location, setLocation] = useState("")
-  const [description, setDesc] = useState("")
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNew, setConfirm] = useState("");
+  const [bio, setBio] = useState("");
+  const [portfolioFile, setPortfolioFile] = useState<File | null>(null);
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [location, setLocation] = useState("");
+  const [description, setDesc] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-      const fetchAccount = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(`/api/profile/${accountId}`);
-          const data = response.data;
-  
-          let parsed;
-          switch (data.role) {
-            case Role.User:
-              parsed = UserSchema.parse(data);
-              break;
-            case Role.Company:
-              parsed = CompanySchema.parse(data);
-              break;
-            default:
-              throw new Error("Unsupported account role");
-          }
-  
-          setUser(parsed);
+    const fetchAccount = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`/api/profile/${accountId}`);
+        const data = response.data;
 
-          setName(parsed.name || "");
-          setProfilePic(parsed.profilePicUrl || "");
-
-          if (parsed.role === Role.User) {
-            const u = parsed as User;
-            setBio(u.bio || "");
-          } else if (parsed.role === Role.Company) {
-            const c = parsed as Company;
-            setLocation(c.location || "");
-            setDesc(c.description || "");
-          }
-
-        } catch (error) {
-          console.error("Failed to load account:", error);
-        } finally {
-          setLoading(false);
+        let parsed;
+        switch (data.role) {
+          case Role.User:
+            parsed = UserSchema.parse(data);
+            break;
+          case Role.Company:
+            parsed = CompanySchema.parse(data);
+            break;
+          default:
+            throw new Error("Unsupported account role");
         }
-      };
-  
-      fetchAccount();
-    }, [accountId]);
+
+        setUser(parsed);
+
+        setName(parsed.name || "");
+        setProfilePic(parsed.profilePicUrl || "");
+
+        if (parsed.role === Role.User) {
+          const u = parsed as User;
+          setBio(u.bio || "");
+        } else if (parsed.role === Role.Company) {
+          const c = parsed as Company;
+          setLocation(c.location || "");
+          setDesc(c.description || "");
+        }
+      } catch (error) {
+        console.error("Failed to load account:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccount();
+  }, [accountId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,21 +109,21 @@ const EditProfilePage = () => {
       formData.append("confirmNew", confirmNew);
     }
 
-    formData.append("portfolioFile", portfolioFile)
-    formData.append("profilePic", profilePic)
+    formData.append("portfolioFile", portfolioFile);
+    formData.append("profilePic", profilePic);
 
-    try{
-      const response = await axios.post("/api/profile/save", 
-        formData
-      )
+    try {
+      const response = await axios.post("/api/profile/save", formData);
       navigate(`/profile/${accountId}`);
+    } catch (err: any) {
+      const message =
+        err.response?.data?.error ||
+        "Failed to save profile, please try again.";
 
-    } catch (err: any){
-      toast.error("Failed to save profile, please try again.")
-      console.log("Failed to save profile", err)
+      toast.error(message);
+      console.log("Failed to save profile", err);
     }
   };
-  
 
   if (!user && !loading) {
     return (
@@ -135,70 +141,105 @@ const EditProfilePage = () => {
         <>
           <EditProfileCard>
             <EditProfile onSubmit={handleSubmit} encType="multipart/form-data">
-            <EditableAvatar
-              imageUrl={user.profilePicUrl}
-              fallbackText={user.name}
-              onFileSelect={(file) => setProfilePic(file)}
-            />
-            <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
+              <EditableAvatar
+                imageUrl={user.profilePicUrl}
+                fallbackText={user.name}
+                onFileSelect={(file) => setProfilePic(file)}
+              />
+              <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
 
               <EditProfileGroup>
-                  <EditProfileField label="Full Name">
-                      <EditProfileInput name="name" placeholder="John Doe" value={name}
-                      onChange={(e) => setName(e.target.value)} required />
-                  </EditProfileField>
+                <EditProfileField label="Full Name">
+                  <EditProfileInput
+                    name="name"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </EditProfileField>
 
-                  <EditProfileField label="Old Password">
-                      <EditProfileInput type="password" name="oldPassword" value={password}
-                      onChange={(e) => setPassword(e.target.value)} />
-                  </EditProfileField>
-                  <EditProfileField label="New Password">
-                      <EditProfileInput type="password" name="newPassword" value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)} />
-                  </EditProfileField>
-                  <EditProfileField label="Confirm New Password">
-                      <EditProfileInput type="password" name="confirmPassword" value={confirmNew}
-                      onChange={(e) => setConfirm(e.target.value)} />
-                  </EditProfileField>
+                <EditProfileField label="Old Password">
+                  <EditProfileInput
+                    type="password"
+                    name="oldPassword"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </EditProfileField>
+                <EditProfileField label="New Password">
+                  <EditProfileInput
+                    type="password"
+                    name="newPassword"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </EditProfileField>
+                <EditProfileField label="Confirm New Password">
+                  <EditProfileInput
+                    type="password"
+                    name="confirmPassword"
+                    value={confirmNew}
+                    onChange={(e) => setConfirm(e.target.value)}
+                  />
+                </EditProfileField>
 
-                  {user.role === Role.User && (
-                      <>
-                      <EditProfileField label="Bio">
-                          <EditProfileTextarea name="bio" placeholder="About yourself..." value={bio}
-                          onChange={(e) => setBio(e.target.value)} />
-                      </EditProfileField>
+                {user.role === Role.User && (
+                  <>
+                    <EditProfileField label="Bio">
+                      <EditProfileTextarea
+                        name="bio"
+                        placeholder="About yourself..."
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                      />
+                    </EditProfileField>
 
-                      <PdfUpload name="portfolioPdf" label="Upload your portfolio" accept=".pdf"
-                      onChange={(file) => setPortfolioFile(file)} />
-                      </>
-                  )}
+                    <PdfUpload
+                      name="portfolioPdf"
+                      label="Upload your portfolio"
+                      accept=".pdf"
+                      onChange={(file) => setPortfolioFile(file)}
+                    />
+                  </>
+                )}
 
-                  {user.role === Role.Company && (
-                      <>
-                      <EditProfileField label="Address">
-                          <EditProfileInput name="address" placeholder="Company address" value={location}
-                          onChange={(e) => setLocation(e.target.value)} />
-                      </EditProfileField>
+                {user.role === Role.Company && (
+                  <>
+                    <EditProfileField label="Address">
+                      <EditProfileInput
+                        name="address"
+                        placeholder="Company address"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                      />
+                    </EditProfileField>
 
-                      <EditProfileField label="Description">
-                          <EditProfileTextarea name="description" placeholder="What does your company do?" value={description}
-                          onChange={(e) => setDesc(e.target.value)} />
-                      </EditProfileField>
-                      </>
-                  )}
-                  </EditProfileGroup>
+                    <EditProfileField label="Description">
+                      <EditProfileTextarea
+                        name="description"
+                        placeholder="What does your company do?"
+                        value={description}
+                        onChange={(e) => setDesc(e.target.value)}
+                      />
+                    </EditProfileField>
+                  </>
+                )}
+              </EditProfileGroup>
 
               <EditProfileActions>
-                  <Link to={`/profile/${user.accountId}`}>
-                      <Button variant="outline" type="button">Cancel</Button>
-                  </Link>
+                <Link to={`/profile/${user.accountId}`}>
+                  <Button variant="outline" type="button">
+                    Cancel
+                  </Button>
+                </Link>
                 <Button type="submit">Save Changes</Button>
               </EditProfileActions>
             </EditProfile>
           </EditProfileCard>
         </>
       )}
-      <ApplicationToaster /> {" "}
+      <ApplicationToaster />{" "}
     </div>
   );
 };
