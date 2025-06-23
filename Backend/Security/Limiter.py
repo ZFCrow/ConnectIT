@@ -1,3 +1,4 @@
+import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import request
@@ -9,6 +10,12 @@ limiter = Limiter(
     key_func=get_remote_address,
     storage_uri=os.getenv("REDIS_URL", "redis://redis:6379")
 )
+
+# Rate-limit Logger
+ratelimit_logger = logging.getLogger("ratelimit_logger")
+ratelimit_logger.setLevel(logging.WARNING)
+handler = logging.FileHandler("/var/log/ratelimit.log")
+ratelimit_logger.addHandler(handler)
 
 # /register
 def get_register_key():

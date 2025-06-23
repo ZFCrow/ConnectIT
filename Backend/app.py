@@ -24,35 +24,44 @@ from SQLModels.base import DatabaseContext
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
 from Routes.job import job_listing_bp
-from Routes.label import label_bp 
-from Routes.violation import violation_bp 
-from Routes.comment import comment_bp 
-from Routes.post import post_bp 
+from Routes.label import label_bp
+from Routes.violation import violation_bp
+from Routes.comment import comment_bp
+from Routes.post import post_bp
 
 
 from Security import ValidateCaptcha, TwoFactorAuth, Limiter
 from firebase_admin import credentials, initialize_app, storage
 
-app = Flask(__name__) 
+app = Flask(__name__)
 Limiter.limiter.init_app(app)
 
 @app.errorhandler(RateLimitExceeded)
 def handle_rate_limit_exceeded(e):
-    return jsonify({
-        "error": "Rate limit exceeded",
-        "message": str(e.description),
-        "status": 429
-    }), 429
+    message = f"RATE_LIMIT | ip={request.remote_addr} | route={request.path} | method={request.method} | limit={e.description}"
+    Limiter.ratelimit_logger.warning(message)
+    print(message)
 
-# allow all domains to access the API 
+    return (
+        jsonify(
+            {
+                "error": "Rate limit exceeded",
+                "message": str(e.description),
+                "status": 429,
+            }
+        ),
+        429,
+    )
+
+
+# allow all domains to access the API
 app.register_blueprint(profile_bp)
 app.register_blueprint(auth_bp)
-app.register_blueprint(job_listing_bp) 
+app.register_blueprint(job_listing_bp)
 app.register_blueprint(label_bp)
 app.register_blueprint(violation_bp)
 app.register_blueprint(comment_bp)
 app.register_blueprint(post_bp)
-  
 
 
 CORS(app)
@@ -108,15 +117,14 @@ def init_db():
     if success:
         tables = db.get_tables()  # Get the list of tables in the database
 
-        print (f"Tables in the database: {tables}") 
-        return jsonify({
-                        "message": "Database initialized successfully!",
-                        "tables": tables})  
-    else: 
-        return jsonify({"message": "Database initialization failed!"}), 500 
-    
+        print(f"Tables in the database: {tables}")
+        return jsonify(
+            {"message": "Database initialized successfully!", "tables": tables}
+        )
+    else:
+        return jsonify({"message": "Database initialization failed!"}), 500
 
-    
+
 # Route for HCaptcha token verification
 @app.route("/verify-captcha", methods=["POST"])
 def verify_captcha_endpoint():
@@ -145,6 +153,7 @@ def generate_2fa():
         jsonify(result),
         200,
     )
+
 
 # Route for 2FA code verification
 @app.route("/2fa-verify", methods=["POST"])
