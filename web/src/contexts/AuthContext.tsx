@@ -6,7 +6,6 @@ export const Role = {
   Admin: "Admin",
   Company: "Company",
 } as const;
-
 export type Role = (typeof Role)[keyof typeof Role];
 
 interface AuthContextType {
@@ -16,6 +15,7 @@ interface AuthContextType {
   profilePicUrl: string | "";
   userId: number | null;
   companyId: number | null;
+  isLoading: boolean;
   login: (
     accountId: number,
     role: Role,
@@ -32,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   profilePicUrl: null,
   userId: null,
   companyId: null,
+  isLoading:     true,
   login: () => {},
   logout: () => {},
 });
@@ -45,71 +46,115 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [profilePicUrl, setProfilePic] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [companyId, setCompanyId] = useState<number | null>(null);
+  const [isLoading,     setIsLoading]     = useState<boolean>(true);
 
-  // Optionally: load from localStorage / cookie on mount
   useEffect(() => {
-    logout(); //!! clear any existing auth state CAN REMOVE IF LOGOUT IS IMPLEMENTED IN THE FUTURE
-    const stored = localStorage.getItem("auth");
-    if (stored) {
-      const { accountId, role, name, profilePicUrl, userId, companyId } = JSON.parse(stored);
-      setAccountId(accountId);
-      setRole(role);
-      setName(name);
-      setProfilePic(profilePicUrl ?? null);
-      setUserId(userId ?? null);
-      setCompanyId(companyId ?? null);
-    } else {
-      //!!  for now we HARDCODE the values
-      // login(2, Role.Company, { companyId: 1 });
-      // login(1, Role.User, "JOHNNY", 
-      //   { userId: 1, profilePicUrl: "https://storage.googleapis.com/connectit-63f60.firebasestorage.app/profilePic/acc_35.png" });
-      // login(40, Role.Company, { companyId: 2 });
-      // login(1, Role.Admin, { userId: 1 }); // HARDCODED FOR TESTING
-      //login (35,Role.User, { userId: 8 }); // HARDCODED FOR TESTING
+    let isMounted = true;
+
+    async function bootstrapAuth() {
+      try {
+        const res = await fetch("/api/me", {
+          method:      "GET",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log(data)
+          if (!isMounted) return;
+          setAccountId(     data.accountId     ?? null);
+          setRole(          data.role          ?? null);
+          setName(          data.name          ?? null);
+          setProfilePic( data.profilePicUrl ?? null);
+          setUserId(        data.userId        ?? null);
+          setCompanyId(     data.companyId     ?? null);
+        } else {
+          // 401 or empty payload → user not logged in
+          console.log("json returns nothing");
+        }
+      } catch (err) {
+        console.error("[AuthProvider] Auth check failed:", err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+        console.log("[AuthProvider] Auth check completed");
+      }
     }
+
+    bootstrapAuth();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = (
     acctId: number,
-    r: Role,
-    name: string, 
-    opts: { userId?: number; companyId?: number; profilePicUrl?: string } = {}
+    r:      Role,
+    nm:     string,
+    opts:   { userId?: number; companyId?: number; profilePicUrl?: string } = {}
   ) => {
     setAccountId(acctId);
     setRole(r);
-    setName(name);
-
-    // only one of these should be non-null:
-    setUserId(opts.userId ?? null);
-    setCompanyId(opts.companyId ?? null);
+    setName(nm);
+    setUserId(opts.userId          ?? null);
+    setCompanyId(opts.companyId    ?? null);
     setProfilePic(opts.profilePicUrl ?? null);
+  };
 
-    localStorage.setItem(
-      "auth",
-      JSON.stringify({
-        accountId: acctId,
-        role: r,
-        name: name,
-        userId: opts.userId ?? null,
-        companyId: opts.companyId ?? null,
-        profilePicUrl: opts.profilePicUrl ?? null,
+  const logout = async () => {
+    try {
+      await fetch("/api/logout", {
+        method:      "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("[AuthProvider] Logout failed", err);
+    } finally {
+      setAccountId(null);
+      setRole(     null);
+      setName(     null);
+      setUserId(   null);
+      setCompanyId(null);
+      setProfilePic(null);
+    }
+  };
+
+  useEffect(() => {
+  if (!isLoading && accountId) {
+
+    const refreshInterval = setInterval(() => {
+      fetch("/api/refresh", {
+        method:      "POST",
+        credentials: "include",
       })
-    );
-  };
+      .then(res => {
+        if (!res.ok) {
+          console.error("[AuthProvider] Token refresh failed:", res.statusText);
+        }
+      })
+      .catch(err => {
+        console.error("[AuthProvider] Token refresh network error:", err);
+      });
+    }, 15 * 60 * 1000); // 15 minutes
 
-  const logout = () => {
-    setAccountId(null);
-    setRole(null);
-    setName(null);
-    setUserId(null);
-    setCompanyId(null);
-    setProfilePic(null);
-    localStorage.removeItem("auth");
-  };
+    return () => {
+      clearInterval(refreshInterval);
+      };
+    }
+  }, [isLoading, accountId]);
 
   return (
     <AuthContext.Provider
-      value={{ accountId, role, name, profilePicUrl, userId, companyId, login, logout }}
+      value={{
+        accountId,
+        role,
+        name,
+        profilePicUrl,
+        userId,
+        companyId,
+        isLoading,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -117,5 +162,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+  console.log("[useAuth] context returned", {
+    accountId: ctx.accountId,
+    role:      ctx.role,
+    name:      ctx.name,
+  });
+  return ctx;
 };
