@@ -11,9 +11,16 @@ import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth, Role } from "@/contexts/AuthContext";
-import { User, UserSchema, ValidatedUser, 
-  Company, CompanySchema, ValidatedCompany,
-AccountSchema, ValidatedAccount } from "@/type/account";
+import {
+  User,
+  UserSchema,
+  ValidatedUser,
+  Company,
+  CompanySchema,
+  ValidatedCompany,
+  AccountSchema,
+  ValidatedAccount,
+} from "@/type/account";
 import axios from "axios";
 import { ApplicationToaster } from "./CustomToaster";
 import toast from "react-hot-toast";
@@ -57,13 +64,26 @@ export function LoginForm() {
           throw new Error("Unsupported account role");
       }
 
-      setUser(parsed)
+      setUser(parsed);
       console.log(parsed.twoFaEnabled);
       setStep(parsed.twoFaEnabled ? "verify" : "generate");
-
     } catch (err: any) {
-      toast.error("Error logging in, please try again.");
       console.log("Login failed", err);
+
+      if (err.response) {
+        const { status, data } = err.response;
+        const errorMsg = data?.error || data?.message || "";
+
+        if (status === 403 && errorMsg.includes("locked")) {
+          toast.error("Account is locked. Please try again later.");
+        } else if (status === 401 || status === 400) {
+          toast.error("Incorrect email or password.");
+        } else {
+          toast.error("Unexpected login error.");
+        }
+      } else {
+        toast.error("Server not responding. Please try again later.");
+      }
     }
   };
 
@@ -135,10 +155,7 @@ export function LoginForm() {
         />
       )}
       {step === "verify" && (
-        <Verify2FAForm
-          secret={user.twoFaSecret}
-          onSuccess={handle2FASuccess}
-        />
+        <Verify2FAForm secret={user.twoFaSecret} onSuccess={handle2FASuccess} />
       )}
       <ApplicationToaster />{" "}
     </div>

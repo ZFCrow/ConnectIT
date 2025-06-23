@@ -3,10 +3,12 @@ from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
 from Security.JWTUtils import JWTUtils
+from Security.Limiter import limiter, get_register_key, is_locked, increment_failed_attempts, reset_login_attempts
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit("3 per minute", key_func=get_register_key)
 def register():
     payload = request.form.to_dict()
     errors = validate_register(payload)
@@ -31,15 +33,24 @@ def register():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     payload = request.get_json() or {}
+    email = payload.get("email")
+
+    if is_locked(email):
+        return jsonify({"error": "Account locked due to too many failed attempts"}), 403
+
     errors = validate_login(payload)
     if errors:
-        return jsonify({"errors": errors}), 400
+        return jsonify({"error": errors}), 400
 
     account = AccountBoundary.loginAccount(payload)
     if not account:
+        count = increment_failed_attempts(email)
+        if count >= 5:
+            return jsonify({"error": "Account locked due to too many failed attempts"}), 403
         return jsonify({"message": "Incorrect credentials"}), 401
 
     if account:
+        reset_login_attempts(email)
         base_data = {
             "accountId": account.accountId,
             "name": account.name,
@@ -75,9 +86,6 @@ def login():
         resp = JWTUtils.set_auth_cookie(resp, token)
 
         return resp
-            
-    else:
-        return jsonify({"message": "Incorrect credentials"}), 500
     
 @auth_bp.route('/save2fa', methods=['POST'])
 def save2fa():

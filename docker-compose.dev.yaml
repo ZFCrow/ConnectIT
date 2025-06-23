@@ -26,6 +26,14 @@ services:
     volumes:
       - ~/.ssh/ICT2216-student12.pem:/run/ssh/key.pem:ro
       - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
-    
+    depends_on:
+      - redis
     environment: 
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json 
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
+      - REDIS_URL=redis://redis:6379
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"

@@ -16,6 +16,7 @@
 from typing import BinaryIO, Literal
 from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
+from flask_limiter.errors import RateLimitExceeded
 import os
 from db import sshFlow, noSshFlow
 from SQLModels.base import DatabaseContext
@@ -29,11 +30,19 @@ from Routes.comment import comment_bp
 from Routes.post import post_bp 
 
 
-from Security import ValidateCaptcha, TwoFactorAuth
+from Security import ValidateCaptcha, TwoFactorAuth, Limiter
 from firebase_admin import credentials, initialize_app, storage
 
 app = Flask(__name__) 
+Limiter.limiter.init_app(app)
 
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit_exceeded(e):
+    return jsonify({
+        "error": "Rate limit exceeded",
+        "message": str(e.description),
+        "status": 429
+    }), 429
 
 # allow all domains to access the API 
 app.register_blueprint(profile_bp)
