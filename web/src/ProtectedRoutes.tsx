@@ -16,7 +16,11 @@ import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
 import { useNavigate } from "react-router-dom";
 
 const ProtectedRoutes = () => { 
-    const { role } = useAuth(); 
+    const { role, isLoading } = useAuth();
+
+    if (isLoading) {
+      return <div>Loading session...</div>;
+    }
 
 
 

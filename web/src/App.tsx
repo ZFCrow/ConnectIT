@@ -21,6 +21,9 @@ import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
 
 
 import ProtectedRoutes from "./ProtectedRoutes";
+import PublicRoute from "./PublicRoutes";
+import LoginPage           from "@/Pages/auth/Login";
+import RegisterPage        from "@/Pages/auth/Register";
 
 function App() {
 
@@ -31,8 +34,11 @@ function App() {
 
         <main className="flex-1">
           <Routes>
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
+
+         <Route element={<PublicRoute />}>
+           <Route path="/login"    element={<LoginPage    />} />
+           <Route path="/register" element={<RegisterPage />} />
+         </Route>
 
             {/* Protected Routes */ }
             <Route path="/*" element={<ProtectedRoutes />} /> 

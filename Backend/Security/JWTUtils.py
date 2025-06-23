@@ -1,69 +1,80 @@
-import jwt
-import os
+import jwt, os
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 from flask import request
 
 class JWTUtils:
-    SECRET_KEY = os.getenv("JWT_SECRET")
-    ALGORITHM  = "HS512"
-    EXPIRATION = timedelta(days=1)
+    SECRET_KEY     = os.getenv("JWT_SECRET")
+    ALGORITHM      = "HS512"
+    SLIDING_EXP    = timedelta(minutes=30)
+    MAX_LIFETIME   = timedelta(hours=24)
 
     @staticmethod
     def generate_jwt_token(
         account_id:      int,
         user_role:       str,
         name:            str,
-        profile_pic_url: Optional[str] = None,
-        user_id:         Optional[int] = None,
-        company_id:      Optional[int] = None,
+        profile_pic_url: str | None = None,
+        user_id:         int  | None = None,
+        company_id:      int  | None = None,
+        orig_iat:        datetime | None = None,
     ) -> str:
         now = datetime.now(timezone.utc)
+        if orig_iat is None:
+            orig_iat = now
+
         payload = {
-            "exp":           now + JWTUtils.EXPIRATION,
-            "iat":           now,
-            "sub":           account_id,            # accountId
-            "role":          user_role,             # role
-            "name":          name,                  # name
-            "profilePicUrl": profile_pic_url or None,
-            "userId":        user_id,
-            "companyId":     company_id,
-            "jti":           os.urandom(16).hex()
+            "sub":      str(account_id),
+            "role":     user_role,
+            "name":     name,
+            "profilePicUrl": profile_pic_url,
+            "userId":   str(user_id)    if user_id    is not None else None,
+            "companyId":str(company_id) if company_id is not None else None,
+
+            "iat": now,
+            "exp": now + JWTUtils.SLIDING_EXP,
+
+            "origIat": orig_iat.isoformat()
         }
         return jwt.encode(payload, JWTUtils.SECRET_KEY, algorithm=JWTUtils.ALGORITHM)
 
     @staticmethod
-    def set_auth_cookie(response, token: str, name: str = 'session_token'):
-        expires = datetime.now(timezone.utc) + JWTUtils.EXPIRATION
+    def decode_jwt_token(token: str) -> dict:
+
+        data = jwt.decode(
+            token,
+            JWTUtils.SECRET_KEY,
+            algorithms=[JWTUtils.ALGORITHM],
+        )
+
+        orig = datetime.fromisoformat(data["origIat"])
+        if datetime.now(timezone.utc) - orig > JWTUtils.MAX_LIFETIME:
+            raise jwt.ExpiredSignatureError("Token exceeded maximum lifetime")
+
+        data["sub"]       = int(data["sub"])
+        if data.get("userId")    is not None: data["userId"]    = int(data["userId"])
+        if data.get("companyId") is not None: data["companyId"] = int(data["companyId"])
+
+        return data
+
+    @staticmethod
+    def set_auth_cookie(response, token: str, name: str = "session_token"):
+        expires = datetime.now(timezone.utc) + JWTUtils.SLIDING_EXP
         response.set_cookie(
             name,
             token,
             httponly=True,
             secure=True,
-            samesite='Strict',
-            expires=expires
+            samesite="Strict",
+            path="/",
+            expires=expires,
         )
         return response
 
-    
-    def get_token_from_cookie():
-        return request.cookies.get('session_token')
+    @staticmethod
+    def get_token_from_cookie(name: str = "session_token"):
+        return request.cookies.get(name)
 
-    
-    def decode_jwt_token(token: str) -> dict:
-        return jwt.decode(token, JWTUtils.SECRET_KEY, algorithms=[JWTUtils.ALGORITHM])
-    
-
+    @staticmethod
     def remove_auth_cookie(response, name: str = "session_token"):
-    # Option A: use Flask's built-in delete_cookie
-        response.delete_cookie(name, path='/')
-        # — or, Option B: explicitly overwrite it with an expired cookie:
-        # from datetime import datetime
-        # response.set_cookie(
-        #     name, "",
-        #     httponly=True,
-        #     secure=True,
-        #     samesite="Strict",
-        #     expires=datetime.now(timezone.utc) - timedelta(seconds=1)
-        # )
+        response.delete_cookie(name, path="/")
         return response
