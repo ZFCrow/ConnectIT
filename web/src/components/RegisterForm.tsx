@@ -74,7 +74,17 @@ export function RegisterForm() {
 
       navigate("/login");
     } catch (err: any) {
-      toast.error("Error during registration, please try again.");
+      const message =
+        err.response?.data?.error ||
+        "Error during registration, please try again.";
+
+      if (typeof message === "object") {
+        const combined = Object.values(message).join(" ");
+        toast.error(combined);
+      } else {
+        toast.error(message);
+      }
+      // toast.error("Error during registration, please try again.");
       console.log("Registration failed", err);
     }
   };

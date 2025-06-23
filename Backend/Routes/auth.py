@@ -12,7 +12,7 @@ def register():
     errors = validate_register(payload)
 
     if errors:
-        return jsonify({"errors": errors}), 400
+        return jsonify({"error": errors}), 400
     
     if payload['role'] == Role.Company.value:
         companyDoc = request.files.get('companyDoc', None)

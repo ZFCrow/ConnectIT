@@ -1,5 +1,6 @@
 import re
 import bleach
+import os
 
 EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 BLEACH_KWARGS = dict(tags=[], attributes={}, strip=True)
@@ -31,6 +32,21 @@ def validate_login(data: dict) -> dict:
         errors["email"] = "Invalid email format"
     return errors
 
+def load_bad_passwords() -> set:
+    try:
+        file_path = os.path.join(os.path.dirname(__file__), "10k-most-common.txt")
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            return set(line.strip().lower() for line in f if line.strip())
+    except FileNotFoundError:
+        print("Warning: Blocklist file not found.")
+        return set()
+
+# Load once at app start (global)
+BAD_PASSWORDS = load_bad_passwords()
+
+def is_common_password(password: str) -> bool:
+    return password.strip().lower() in BAD_PASSWORDS
+
 def validate_register(data: dict) -> dict:
     errors = {}
     missing = required_fields(data, ["name", "email", "password"])
@@ -41,15 +57,15 @@ def validate_register(data: dict) -> dict:
     sanitize_fields(data, ["name", "email"])
 
     if not validate_email(data["email"]):
-        errors["email"] = "Invalid email format"
+        errors["email"] = "Invalid email format."
 
     pwd = data.get("password", "")
     if len(pwd) < 8:
-        errors["password"] = "Password must be at least 8 characters long"
+        errors["password"] = "Password must be at least 8 characters long."
     elif len(pwd) > 64:
-        errors["password"] = "Password must not exceed 64 characters"
-    # elif is_common_or_pwned_password(pwd):
-    #     errors["password"] = "Password is too common or has been compromised"
+        errors["password"] = "Password must not exceed 64 characters."
+    elif is_common_password(pwd):
+        errors["password"] = "Password is too common."
 
     return errors
 
