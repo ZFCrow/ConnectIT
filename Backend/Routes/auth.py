@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, abort
 from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
@@ -11,6 +11,8 @@ from Security.Limiter import (
     reset_login_attempts,
     ratelimit_logger,
 )
+import jwt, pyotp
+from datetime import datetime
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -95,27 +97,51 @@ def login():
             key: getattr(account, key) for key in optional_keys if hasattr(account, key)
         }
 
-        token = JWTUtils.generate_jwt_token(
-            account.accountId,
-            account.role,
-            account.name,
-            getattr(account, "profilePicUrl", None),
-            getattr(account, "userId", None),
-            getattr(account, "companyId", None),
-        )
-        print(token)
-        if not token:
-            return jsonify({"message": "Token generation failed"}), 500
-
-        # **Merge** the two dicts correctly (not as a set!) :contentReference[oaicite:0]{index=0}
         merged = {**base_data, **optional_data}
 
-        # make the Flask response and set the HttpOnly cookie :contentReference[oaicite:1]{index=1}
-        resp = make_response(jsonify(merged), 200)
-        resp = JWTUtils.set_auth_cookie(resp, token)
+        if account.twoFaEnabled:
+            otp = payload.get("otp")
+            if not otp:
+                # tell the client “OTP required” (no cookie yet) with a 200 status
+                return jsonify({
+                    "twoFaRequired": True,
+                    **merged
+                }), 200
 
-        return resp
+            totp = pyotp.TOTP(account.twoFaSecret)
+            if not totp.verify(otp):
+                # bad code → still a 401
+                return jsonify({"error": "Invalid two-factor code"}), 401
 
+        return jsonify(merged), 200
+    
+@auth_bp.route("/create_token", methods=["POST"])
+def create_token():
+    data = request.get_json() or {}
+    account_id      = data.get("accountId")
+    user_role       = data.get("role")
+    name            = data.get("name")
+    profile_pic_url = data.get("profilePicUrl")
+    user_id         = data.get("userId")
+    company_id      = data.get("companyId")
+
+    if not account_id or not user_role or not name:
+        return jsonify({"error": "Missing token creation data"}), 400
+
+    token = JWTUtils.generate_jwt_token(
+        account_id,
+        user_role,
+        name,
+        profile_pic_url,
+        user_id,
+        company_id,
+    )
+    if not token:
+        return jsonify({"error": "Token generation failed"}), 500
+
+    resp = make_response(jsonify({"message": "Token created"}), 200)
+    resp = JWTUtils.set_auth_cookie(resp, token)
+    return resp
 
 @auth_bp.route("/save2fa", methods=["POST"])
 def save2fa():
@@ -129,3 +155,64 @@ def save2fa():
         return jsonify({"message": "2fa updated successfully!"}), 201
     else:
         return jsonify({"error": "Failed to update 2fa"}), 500
+    
+@auth_bp.route('/me', methods=['GET'])
+def me():
+
+    token = JWTUtils.get_token_from_cookie()
+    print(f"[Auth][me] Raw cookie token: {token}", flush=True)
+
+    if not token:
+        print("[Auth][me] No JWT cookie found – returning empty payload", flush=True)
+        return jsonify({}), 200
+
+    try:
+        data = JWTUtils.decode_jwt_token(token)
+    except jwt.ExpiredSignatureError as e:
+        print(f"[Auth][me] Token expired: {e}", flush=True)
+        return jsonify({}), 200
+    except jwt.PyJWTError as e:
+        print(f"[Auth][me] JWT decode error: {e}", flush=True)
+        return jsonify({}), 200
+
+    print(f"[Auth][me] Decoded claims: {data}", flush=True)
+
+    return jsonify({
+        "accountId":     data.get("sub"),
+        "role":          data.get("role"),
+        "name":          data.get("name"),
+        "profilePicUrl": data.get("profilePicUrl"),
+        "userId":        data.get("userId"),
+        "companyId":     data.get("companyId"),
+    }), 200
+
+@auth_bp.route('/refresh', methods=['POST'])
+def refresh():
+    token = JWTUtils.get_token_from_cookie()
+    if not token:
+        abort(401)
+
+    try:
+        data = JWTUtils.decode_jwt_token(token)
+    except jwt.PyJWTError:
+        abort(401)
+
+    # Issue a new token with same origIat
+    new_token = JWTUtils.generate_jwt_token(
+        account_id     = data["sub"],
+        user_role      = data["role"],
+        name           = data["name"],
+        profile_pic_url= data.get("profilePicUrl"),
+        user_id        = data.get("userId"),
+        company_id     = data.get("companyId"),
+        orig_iat       = datetime.fromisoformat(data["origIat"])
+    )
+    resp = make_response(jsonify({}), 200)
+    JWTUtils.set_auth_cookie(resp, new_token)
+    return resp
+
+
+@auth_bp.route('/logout', methods=['POST'])
+def logout():
+    resp = make_response(jsonify({"message": "Logged out"}), 200)
+    return JWTUtils.remove_auth_cookie(resp)
