@@ -6,6 +6,7 @@ from Control.JobApplicationControl import JobApplicationControl
 from Control.JobListingControl import JobListingControl  # Import your control class
 from Entity.JobListing import JobListing  # Import your entity class
 from Security.Limiter import limiter, get_company_key, get_user_key
+from Security.ValidateInputs import validate_job_listing
 
 job_listing_bp = Blueprint("job_listing", __name__)
 
@@ -40,6 +41,11 @@ def get_company_job_listings(company_id):
 @limiter.limit("15 per hour", key_func=get_company_key)
 def create_job_listing():
     job_data = request.get_json()
+
+    errors = validate_job_listing(job_data)
+    if errors:
+        return jsonify({"error": errors}), 400
+
     success = JobListingControl.addJobListing(
         job_data=job_data
     )  # implement this in your control
