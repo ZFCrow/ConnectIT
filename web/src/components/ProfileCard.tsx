@@ -34,12 +34,23 @@ const Profile = ({ className, ...props }: React.ComponentProps<"div">) => (
 );
 
 const ProfileAvatar = ({ src, fallbackText }: ProfileAvatarProps) => {
-  const cacheBustedUrl = `${src}?t=${Date.now()}`
+  // Only add cache-busting query param if it's a valid remote URL
+  const displayUrl =
+    src && !src.startsWith("data:")
+      ? `${src}?t=${Date.now()}`
+      : src;
+
   return (
     <div className="w-full flex justify-center relative -mt-14 mb-2">
       <div className="w-24 h-24 rounded-full border-4 border-background bg-muted shadow-md overflow-hidden">
         <Avatar className="w-full h-full">
-          <AvatarImage src={cacheBustedUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`} alt="Profile" />
+          <AvatarImage
+            src={
+              displayUrl ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`
+            }
+            alt="Profile"
+          />
           <AvatarFallback>{fallbackText}</AvatarFallback>
         </Avatar>
       </div>

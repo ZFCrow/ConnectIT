@@ -27,7 +27,6 @@ type EditableAvatarProps = {
 const EditableAvatar = ({ imageUrl, fallbackText = "?", onFileSelect }: EditableAvatarProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(imageUrl);
-  const cacheBustedUrl = `${previewUrl}?t=${Date.now()}`
 
   const handleClick = () => {
     fileInputRef.current?.click();
@@ -38,12 +37,18 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?", onFileSelect }: Editable
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        setPreviewUrl(reader.result as string); // this will be a data URL
       };
       reader.readAsDataURL(file);
-      if (onFileSelect) onFileSelect(file);  // <-- pass file to parent
+      if (onFileSelect) onFileSelect(file);
     }
   };
+
+  // Only apply cache-busting if it's a remote URL
+  const displayUrl =
+    previewUrl?.startsWith("data:") || !previewUrl
+      ? previewUrl
+      : `${previewUrl}?t=${Date.now()}`;
 
   return (
     <div className="flex justify-center relative -mt-10 mb-4">
@@ -52,7 +57,13 @@ const EditableAvatar = ({ imageUrl, fallbackText = "?", onFileSelect }: Editable
         className="cursor-pointer w-28 h-28 rounded-full border-4 border-background bg-muted shadow-md overflow-hidden relative"
       >
         <Avatar className="w-full h-full">
-          <AvatarImage src={cacheBustedUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`} alt="Profile" />
+          <AvatarImage
+            src={
+              displayUrl ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${fallbackText}`
+            }
+            alt="Profile"
+          />
           <AvatarFallback>{fallbackText}</AvatarFallback>
         </Avatar>
         <input

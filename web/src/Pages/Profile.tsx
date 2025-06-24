@@ -1,8 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios"
-import { mockPosts } from "@/components/FakeData/mockPosts";
-import { sampleJobs } from "@/components/FakeData/sampleJobs";
 import {
   Profile,
   ProfileAvatar,
@@ -204,7 +202,7 @@ const ProfilePage = () => {
                   />
 
                   <div className="pt-4">
-                    {activeTab === "Posts" && (
+                    {/* {activeTab === "Posts" && (
                       <TabPanel isActive={true}>
                         {mockPosts ? (
                           <div className="space-y-4">
@@ -216,7 +214,7 @@ const ProfilePage = () => {
                           <div className="text-sm text-muted-foreground">No posts yet.</div>
                         )}
                       </TabPanel>
-                    )}
+                    )} */}
 
                     {activeTab === "Job Listings" && user.role === Role.Company && (
                       <TabPanel isActive={true}>

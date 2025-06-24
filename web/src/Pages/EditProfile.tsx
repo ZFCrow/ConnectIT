@@ -108,7 +108,6 @@ const EditProfilePage = () => {
       formData.append("newPassword", newPassword);
       formData.append("confirmNew", confirmNew);
     }
-
     formData.append("portfolioFile", portfolioFile);
     formData.append("profilePic", profilePic);
 
