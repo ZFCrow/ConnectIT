@@ -6,6 +6,7 @@ import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import axios from "axios";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CreateEditJobPage: React.FC = () => {
   const { jobId } = useParams<{ jobId?: string }>();
@@ -14,11 +15,12 @@ const CreateEditJobPage: React.FC = () => {
   const existingJob = isEdit
     ? sampleJobs.find((j: JobListing) => j.jobId === Number(jobId)) || null
     : null;
+  const { companyId } = useAuth();
 
   const handleSubmitPage = async (job: JobListing) => {
     // Construct backend payload to match backend keys and values
     const payload = {
-      company_id: 1, //TODO: Replace with auth/context
+      company_id: companyId, //TODO: Replace with auth/context
       title: job.title,
       description: job.description,
       applicationDeadline: job.applicationDeadline,

@@ -12,10 +12,8 @@ import {
 import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
 import axios from "axios";
 import { JobListingSchema } from "../../type/jobListing";
-import { Role } from "@/contexts/AuthContext";
+import { Role, useAuth } from "@/contexts/AuthContext";
 import { ApplicationToaster } from "@/components/CustomToaster";
-
-const CURRENT_COMPANY_ID = 1; //TODO: Replace with auth/context
 
 const CompanyJobsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +21,7 @@ const CompanyJobsPage: React.FC = () => {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  const { companyId } = useAuth();
 
   useEffect(() => {
     async function fetchData() {
@@ -30,8 +29,8 @@ const CompanyJobsPage: React.FC = () => {
       try {
         // Fetch both in parallel
         const [jobsRes, appsRes] = await Promise.all([
-          axios.get(`/api/companyJobListings/${CURRENT_COMPANY_ID}`),
-          axios.get(`/api/getApplicantsByCompanyId/${CURRENT_COMPANY_ID}`),
+          axios.get(`/api/companyJobListings/${companyId}`),
+          axios.get(`/api/getApplicantsByCompanyId/${companyId}`),
         ]);
 
         // Parse and validate
