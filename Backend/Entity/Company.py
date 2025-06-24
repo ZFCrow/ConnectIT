@@ -3,26 +3,26 @@ from Entity.Account import Account
 from dataclasses import asdict
 from enum import Enum
 
+
 @dataclass
 class Company(Account):
     companyId: int
     description: str
     location: str
     companyDocUrl: str
-    verified: int ## TODO: KEEP INT WHEN MERGED
+    verified: int  ## TODO: KEEP INT WHEN MERGED
 
     @classmethod
     def from_dict(cls, data):
         base = Account.from_dict(data)
         return cls(
             **vars(base),
-            companyId=data.get('companyId', 0),
-            description=data.get('description', ''),
-            location=data.get('location', ''),
-            companyDocUrl=data.get('companyDocUrl', ''),
-            verified=data.get('verified', 0)
+            companyId=data.get("companyId", 0),
+            description=data.get("description", ""),
+            location=data.get("location", ""),
+            companyDocUrl=data.get("companyDocUrl", ""),
+            verified=data.get("verified", 0)
         )
-    
 
     @classmethod
     def from_model(cls, model):
@@ -35,12 +35,14 @@ class Company(Account):
             profilePicUrl=model.account.profilePicUrl,
             role=model.account.role,
             isDisabled=model.account.isDisabled,
+            twoFaEnabled=model.account.twoFaEnabled,
+            twoFaSecret=model.account.twoFaSecret,
             description=model.description,
             location=model.location,
             companyDocUrl=model.companyDocUrl,
-            verified=model.verified
+            verified=model.verified,
         )
-    
+
     def to_dict(self) -> dict:
         """
         Plain-Python, JSON-ready representation of Company (incl. Account fields).
@@ -53,17 +55,16 @@ class Company(Account):
                 raw[key] = val.value
 
         return {
-            "companyId":     raw["companyId"],
-            "accountId":     raw["accountId"],
-            "name":          raw["name"],
-            "email":         raw["email"],
-            "passwordHash":  raw["passwordHash"],
+            "companyId": raw["companyId"],
+            "accountId": raw["accountId"],
+            "name": raw["name"],
+            "email": raw["email"],
+            "passwordHash": raw["passwordHash"],
             "profilePicUrl": raw["profilePicUrl"],
-            "role":          raw["role"],        # already value-str thanks to loop
-            "isDisabled":    raw["isDisabled"],
-            "description":   raw["description"],
-            "location":      raw["location"],
-            "companyDocUrl": raw['companyDocUrl'],
-            "verified":      raw["verified"],
+            "role": raw["role"],  # already value-str thanks to loop
+            "isDisabled": raw["isDisabled"],
+            "description": raw["description"],
+            "location": raw["location"],
+            "companyDocUrl": raw["companyDocUrl"],
+            "verified": raw["verified"],
         }
-        

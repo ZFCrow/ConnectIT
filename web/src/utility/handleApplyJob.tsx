@@ -42,7 +42,11 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
       );
       opts.onSuccess?.();
     } catch (err) {
-      toast.error("Failed to apply for job. Try again!");
+      const message =
+        err.response?.data?.error ||
+        "Failed to apply for job. Try again!";
+
+      toast.error(message);
       console.error("Error applying for job:", err.response.data);
       opts.onError?.(err);
     } finally {

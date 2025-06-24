@@ -4,6 +4,8 @@ import { JobForm } from "../../components/JobOpportunity/CreateUpdateJobForm";
 import type { JobListing } from "../../type/jobListing";
 import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import axios from "axios";
+import { ApplicationToaster } from "@/components/CustomToaster";
+import toast from "react-hot-toast";
 
 const CreateEditJobPage: React.FC = () => {
   const { jobId } = useParams<{ jobId?: string }>();
@@ -42,21 +44,29 @@ const CreateEditJobPage: React.FC = () => {
       navigate(-1); // or wherever
     } catch (err) {
       // Handle error (show toast, set error state, etc)
+      const message =
+        err.response?.data?.error ||
+        "Failed to create job listing, please try again.";
+
+      toast.error(message);
       console.error("Failed to submit job:", err);
     }
   };
 
   return (
-    <div className="w-4/5 mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">
-        {isEdit ? "Edit Job Listing" : "Create New Job Listing"}
-      </h1>
-      <JobForm
-        initialJob={existingJob}
-        onSubmit={handleSubmitPage}
-        onCancel={() => navigate(-1)}
-      />
-    </div>
+    <>
+      <div className="w-4/5 mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-6">
+          {isEdit ? "Edit Job Listing" : "Create New Job Listing"}
+        </h1>
+        <JobForm
+          initialJob={existingJob}
+          onSubmit={handleSubmitPage}
+          onCancel={() => navigate(-1)}
+        />
+      </div>
+      <ApplicationToaster />{" "}
+    </>
   );
 };
 

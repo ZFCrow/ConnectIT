@@ -44,28 +44,29 @@ import type { Post } from "@/type/Post";
 import type { ValidColor } from "@/type/Label";
 import { usePostContext } from "@/contexts/PostContext";
 import { number } from "zod";
+import { ApplicationToaster } from "@/components/CustomToaster";
+import toast from "react-hot-toast";
 
 type PostcardProps = {
   //post: Post; // The post object containing all necessary data
-  postId: number; 
+  postId: number;
   detailMode?: boolean; // ✅ optional, with default = false
 };
 
-const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
-
-  const { 
-    setPostToDelete, 
-    hidePost: handleHide, 
+const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
+  const {
+    setPostToDelete,
+    hidePost: handleHide,
     deleteComment: handleDeleteComment,
     allPosts,
     toggleLike: toggleLikePost,
     createComment,
-  } = usePostContext(); // Get the delete and hide functions from context 
+  } = usePostContext(); // Get the delete and hide functions from context
 
-  // using postID to find the specific post in the context 
-  const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID 
-  
-  // destructure the post object to get the necessary data 
+  // using postID to find the specific post in the context
+  const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID
+
+  // destructure the post object to get the necessary data
   const {
     id,
     username,
@@ -77,7 +78,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     likedBy,
     accountId: postAccountId, // account ID of the post owner
   } = postData;
-
 
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -103,22 +103,21 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
     : "hover:!shadow-lg cursor-pointer transition-shadow duration-200 ease-in-out hover:bg-muted";
 
   //const [hasLiked, setHasLiked] = useState( likedBy?.includes(accountId) || false); // State to track if the user has liked the post
-  const hasLiked = likedBy.includes(accountId); // Check if the user has liked the post 
-  const likes = likedBy.length - Number(hasLiked); // Number of likes on the post 
+  const hasLiked = likedBy.includes(accountId); // Check if the user has liked the post
+  const likes = likedBy.length - Number(hasLiked); // Number of likes on the post
 
-  
-  const [commentContent, setCommentContent] = useState(""); // State for comment input 
+  const [commentContent, setCommentContent] = useState(""); // State for comment input
 
+  const canDelete = Boolean(
+    setPostToDelete && (role === Role.Admin || accountId === postAccountId)
+  );
+  const canHide = !detailMode; // only hide if not in detail mode
 
-  const canDelete = Boolean(setPostToDelete && (role === Role.Admin || accountId === postAccountId));
-  const canHide   = !detailMode; // only hide if not in detail mode 
-  
   const handlePostClick = () => {
     navigate(`/post/${id}`, {
       //state : {id},
     });
-  } 
-
+  };
 
   return (
     <>
@@ -147,20 +146,18 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     {/* Date on its own line */}
                     <span className="text-xs">
                       {/* undefined so it uses the browser's locale settings  */}
-                      {new Date(date).toLocaleDateString(undefined,{ 
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
+                      {new Date(date).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                         hour12: true,
-                      })}</span>
-                  
+                      })}
+                    </span>
                   </CardDescription>
                 </div>
               </div>
-
-
 
               {(canDelete || canHide) && (
                 <div onClick={(e) => e.stopPropagation()}>
@@ -177,9 +174,9 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                       align="end"
                       className="w-40"
                     >
-
                       {setPostToDelete &&
-                        (role === Role.Admin || accountId === postAccountId) && (
+                        (role === Role.Admin ||
+                          accountId === postAccountId) && (
                           <DropdownMenuItem
                             onSelect={() => {
                               setPostToDelete(id);
@@ -189,7 +186,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                             Delete
                           </DropdownMenuItem>
                         )}
-                      {!detailMode && ( // Only show hide option if not in detail mode 
+                      {!detailMode && ( // Only show hide option if not in detail mode
                         <DropdownMenuItem
                           onSelect={() => {
                             handleHide(id);
@@ -203,8 +200,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                   </DropdownMenu>
                 </div>
               )}
-              
-
             </div>
 
             {/* badges section right under the postTitle and avatar  */}
@@ -227,11 +222,9 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
             </div>
           </div>
         </CardHeader>
-
         <CardContent>
           <p className="text-sm leading-relaxed">{content}</p>
         </CardContent>
-
         <CardFooter className="flex flex-col">
           <Collapsible className="w-full" defaultOpen={detailMode}>
             <div className="flex flex-col items-end gap-1 mt-2">
@@ -251,7 +244,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                     size="sm"
                     className={`flex items-center transition-all duration-150  hover:scale-105
                                             ${
-                                              hasLiked 
+                                              hasLiked
                                                 ? "text-red-500 hover:bg-red-100/20 hover:text-red-500"
                                                 : "hover:bg-accent"
                                             } 
@@ -260,7 +253,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                       e.stopPropagation(); // Prevent triggering the card click
                       //console.log("Liked!");
                       //setHasLiked(!hasLiked); // Toggle liked state
-                      toggleLikePost({postId: id}); // Call the like function
+                      toggleLikePost({ postId: id }); // Call the like function
                     }}
                   >
                     <ThumbsUp className="mr-1 h-4 w-4" />
@@ -303,14 +296,16 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                   <div className="flex-1">
                     <div className="flex items-center justify-between ">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium text-sm">{c.username}</span>
+                        <span className="font-medium text-sm">
+                          {c.username}
+                        </span>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(c.createdAt).toLocaleDateString('en-SG', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
+                          {new Date(c.createdAt).toLocaleDateString("en-SG", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                             hour12: true,
                           })}
                         </span>
@@ -335,7 +330,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                                                 border-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteComment({commentId: c.commentId}); // Call the delete comment callback
+                          handleDeleteComment({ commentId: c.commentId }); // Call the delete comment callback
                         }}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -351,35 +346,44 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode}) => {
                   <input
                     className="flex-1 rounded border px-2 py-1"
                     placeholder="Add a comment…"
-                    value={commentContent} 
+                    value={commentContent}
                     onChange={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      setCommentContent(e.target.value)} 
-                    }
-                    onClick={(e => e.stopPropagation())} // Prevent triggering the card click}
-
-              
+                      setCommentContent(e.target.value);
+                    }}
+                    onClick={(e) => e.stopPropagation()} // Prevent triggering the card click}
                   />
-                  <Button 
+                  <Button
                     size="sm"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation(); // Prevent triggering the card click
                       if (commentContent.trim() !== "") {
-                        createComment({
-                          postId: id,
-                          content: commentContent,
-                        })
-                        setCommentContent(""); // Clear the input after posting
-                        console.log("Comment posted:", commentContent)}
-                      
+                        try {
+                          await createComment({
+                            postId: id,
+                            content: commentContent,
+                          });
+                          setCommentContent(""); // Clear input
+                          console.log("Comment posted:", commentContent);
+                        } catch (err) {
+                          const message =
+                            err.response?.data?.error ||
+                            "Failed to comment, please try again.";
+                          toast.error(message); // ✅ Show rate-limit error toast
+                          console.error("Error posting comment:", err);
+                        }
+                      }
                     }}
-                    >Post</Button>
+                  >
+                    Post
+                  </Button>
                 </div>
               )}
             </CollapsibleContent>
           </Collapsible>
         </CardFooter>
       </Card>
+      <ApplicationToaster />{" "}
     </>
   );
 };

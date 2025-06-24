@@ -3,13 +3,14 @@ from flask import Blueprint, request, jsonify
 from Boundary.CommentBoundary import CommentBoundary
 import traceback
 from Security.ValidateInputs import validate_comment
-
+from Security.Limiter import limiter, get_account_key
 
 
 comment_bp = Blueprint("comment", __name__)
 
 
 @comment_bp.route('/comment/<post_id>', methods=['POST']) 
+@limiter.limit("15 per hour", key_func=get_account_key)
 def addComment(post_id):
     """
     Add a comment to a post.

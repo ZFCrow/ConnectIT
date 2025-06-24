@@ -52,11 +52,20 @@ def reset_login_attempts(email: str):
     r.delete(f"lockout:{email}")
 
 
-# get user ID
-def get_user_key():
+# get account ID
+def get_account_key():
     return (request.get_json()).get("accountId") or request.form.get("accountId")
 
 
 # get company ID
 def get_company_key():
     return (request.get_json()).get("company_id")
+
+
+# get user ID
+def get_user_key():
+    if request.content_type.startswith("multipart/form-data"):
+        return request.form.get("userId", type=int)
+    else:
+        payload = request.get_json(silent=True) or {}
+        return payload.get("userId")

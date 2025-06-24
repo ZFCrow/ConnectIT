@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from Boundary.PostBoundary import PostBoundary
 import traceback
 from Security.ValidateInputs import validate_post
-from Security.Limiter import limiter, get_user_key
+from Security.Limiter import limiter, get_account_key
 
 
 post_bp = Blueprint("post", __name__)
@@ -29,7 +29,7 @@ def get_all_posts():
 
 
 @post_bp.route("/createPost", methods=["POST"])
-@limiter.limit("10 per hour", key_func=get_user_key)
+@limiter.limit("10 per hour", key_func=get_account_key)
 def createPost():
     """
     Create a new post in the database.
