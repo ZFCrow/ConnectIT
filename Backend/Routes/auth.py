@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, make_response, abort
 from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
+from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security.JWTUtils import JWTUtils
 from Security.Limiter import (
     limiter,
@@ -30,6 +31,12 @@ def register():
         companyDoc = request.files.get("companyDoc", None)
         if not companyDoc:
             return jsonify({"error": "Verification document required"}), 500
+        
+        try:
+            enforce_pdf_limits(companyDoc)
+            companyDoc = sanitize_pdf(companyDoc)
+        except ValueError as ve:
+            return jsonify({"error": str(ve)}), 400
 
         payload["companyDoc"] = companyDoc
 
