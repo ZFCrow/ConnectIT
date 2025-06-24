@@ -19,7 +19,6 @@ import { mockRecentPostsLikes } from "@/components/FakeData/MockRecentPostsLikes
 
 // company side
 import type { JobListing } from "@/type/jobListing";
-import { sampleJobs } from "@/components/FakeData/sampleJobs";
 
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostContext } from "@/contexts/PostContext";

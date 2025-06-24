@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { JobListing } from "../../type/jobListing";
-import { sampleJobs } from "../FakeData/sampleJobs";
 import axios from "axios";
 
 // Static lists
@@ -27,13 +26,12 @@ const defaultJob = (): JobListing => ({
 });
 
 interface JobFormProps {
-  initialJob: JobListing | null;
   onSubmit: (job: JobListing) => void;
   onCancel: () => void;
 }
 
-export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
-  const [form, setForm] = useState<JobListing>(initialJob ?? defaultJob());
+export function JobForm({ onSubmit, onCancel }: JobFormProps) {
+  const [form, setForm] = useState<JobListing>(defaultJob());
   const [loading, setLoading] = useState(false);
   const [fieldOptions, setFieldOptions] = useState<string[]>([]);
   useEffect(() => {
@@ -49,9 +47,6 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
     };
     fetchFields();
   }, []);
-  useEffect(() => {
-    if (initialJob) setForm(initialJob);
-  }, [initialJob]);
 
   const change = <K extends keyof JobListing>(key: K, value: JobListing[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -335,11 +330,7 @@ export function JobForm({ initialJob, onSubmit, onCancel }: JobFormProps) {
           `}
           disabled={loading}
         >
-          {loading
-            ? "Submitting..."
-            : initialJob
-            ? "Save Changes"
-            : "Create Listing"}
+          {loading ? "Submitting..." : "Create Listing"}
         </button>
       </div>
     </form>

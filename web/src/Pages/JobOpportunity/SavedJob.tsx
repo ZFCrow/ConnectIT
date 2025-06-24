@@ -1,7 +1,6 @@
 // src/pages/MyJobsPage.tsx
 import React, { useEffect, useState } from "react";
 import JobCard from "../../components/JobOpportunity/JobCard";
-import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import { JobListingSchema, type JobListing } from "../../type/jobListing";
 import axios from "axios";
 import { useAuth, Role } from "@/contexts/AuthContext";

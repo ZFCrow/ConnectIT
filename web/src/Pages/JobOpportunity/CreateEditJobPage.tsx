@@ -2,7 +2,6 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { JobForm } from "../../components/JobOpportunity/CreateUpdateJobForm";
 import type { JobListing } from "../../type/jobListing";
-import { sampleJobs } from "../../components/FakeData/sampleJobs";
 import axios from "axios";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
@@ -12,9 +11,7 @@ const CreateEditJobPage: React.FC = () => {
   const { jobId } = useParams<{ jobId?: string }>();
   const navigate = useNavigate();
   const isEdit = Boolean(jobId);
-  const existingJob = isEdit
-    ? sampleJobs.find((j: JobListing) => j.jobId === Number(jobId)) || null
-    : null;
+
   const { companyId } = useAuth();
 
   const handleSubmitPage = async (job: JobListing) => {
@@ -61,11 +58,7 @@ const CreateEditJobPage: React.FC = () => {
         <h1 className="text-3xl font-bold mb-6">
           {isEdit ? "Edit Job Listing" : "Create New Job Listing"}
         </h1>
-        <JobForm
-          initialJob={existingJob}
-          onSubmit={handleSubmitPage}
-          onCancel={() => navigate(-1)}
-        />
+        <JobForm onSubmit={handleSubmitPage} onCancel={() => navigate(-1)} />
       </div>
       <ApplicationToaster />{" "}
     </>
