@@ -35,13 +35,36 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [step, setStep] = useState<"login" | "generate" | "verify">("login");
   const [user, setUser] = useState<AccountData | null>(null);
-
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const callCreateToken = async (account: AccountData) => {
+    try {
+
+      await axios.post(
+        "/api/create_token",
+        account,
+        { withCredentials: true }
+      );
+
+      login(
+        account.accountId,
+        account.role,
+        account.name,
+        {
+          userId: (account as User).userId,
+          companyId: (account as Company).companyId,
+          profilePicUrl: account.profilePicUrl,
+        }
+      );
+      navigate("/");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Token creation failed.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const response = await axios.post("/api/login", {
         email,
@@ -63,37 +86,26 @@ export function LoginForm() {
         default:
           throw new Error("Unsupported account role");
       }
-
       setUser(parsed);
-      console.log(parsed.twoFaEnabled);
-      setStep(parsed.twoFaEnabled ? "verify" : "generate");
-    } catch (err: any) {
-      console.log("Login failed", err);
 
-      if (err.response) {
-        const { status, data } = err.response;
-        const errorMsg = data?.error || data?.message || "";
+      if (parsed.twoFaEnabled) {
 
-        if (status === 403 && errorMsg.includes("locked")) {
-          toast.error("Account is locked. Please try again later.");
-        } else if (status === 401 || status === 400) {
-          toast.error("Incorrect email or password.");
-        } else {
-          toast.error("Unexpected login error.");
-        }
+        setStep("verify");
       } else {
-        toast.error("Server not responding. Please try again later.");
+
+        await callCreateToken(parsed);
       }
+    } catch (err: any) {
+      console.error("Login failed", err);
+      const msg = err.response?.data?.error || err.response?.data?.message;
+      toast.error(msg || "Login error");
     }
   };
 
-  const handle2FASuccess = () => {
-    login(user.accountId, user.role, user.name, {
-      userId: (user as User).userId,
-      companyId: (user as Company).companyId,
-      profilePicUrl: user.profilePicUrl,
-    });
-    navigate("/");
+  const handle2FASuccess = async () => {
+    if (user) {
+      await callCreateToken(user);
+    }
   };
 
   return (
@@ -116,7 +128,6 @@ export function LoginForm() {
                   required
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -125,11 +136,9 @@ export function LoginForm() {
                   placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  maxLength={64}
                   required
                 />
               </div>
-
               <p className="text-sm text-muted-foreground text-center">
                 Don’t have an account?{" "}
                 <Link
@@ -140,7 +149,6 @@ export function LoginForm() {
                 </Link>
               </p>
             </CardContent>
-
             <CardFooter>
               <Button className="w-full">Log In</Button>
             </CardFooter>
