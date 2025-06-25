@@ -7,6 +7,7 @@ from Control.JobListingControl import JobListingControl  # Import your control c
 from Entity.JobListing import JobListing  # Import your entity class
 from Security.Limiter import limiter, get_company_key, get_user_key
 from Security.ValidateInputs import validate_job_listing
+from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 
 job_listing_bp = Blueprint("job_listing", __name__)
 
@@ -80,6 +81,12 @@ def apply_job():
         userId = request.form.get("userId", type=int)
         jobId = request.form.get("jobId", type=int)
         resumeFile = request.files.get("resume")  # None if not provided
+        if resumeFile:
+            try:
+                enforce_pdf_limits(resumeFile)
+                resumeFile = sanitize_pdf(resumeFile)
+            except ValueError as e:
+                return jsonify({"error": str(e)}), 400
     else:
         # application/json
         payload = request.get_json(silent=True) or {}

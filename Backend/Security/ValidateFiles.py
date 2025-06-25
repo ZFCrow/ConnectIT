@@ -1,10 +1,13 @@
-import io, os, tempfile
+import io, os, tempfile, uuid
 from PyPDF2 import PdfReader, PdfWriter
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 AllowedExtensions = [".pdf"]
-Max_PDF_Size = 5 * 1024 * 1024  # 5 MB
+Max_PDF_Size = 3 * 1024 * 1024  # 3 MB
+AllowedImageFormats = {"JPEG", "PNG"}
+Max_Image_Size = 1 * 1024 * 1024  # 1 MB
 
 def enforce_pdf_limits(file: FileStorage) -> None:
     filename = secure_filename(file.filename or "")
@@ -15,13 +18,11 @@ def enforce_pdf_limits(file: FileStorage) -> None:
     if '.' in name_without_final_ext:
         raise ValueError("File name must not contain multiple dots or extensions.") # 'image.png.pdf', name_without_final_ext is 'image.png'. and rejects it
 
-    if file.content_length is None:
-        file.seek(0, os.SEEK_END)
-        if file.tell() > Max_PDF_Size:
-            raise ValueError(f"File size exceeds {Max_PDF_Size / 1024 / 1024} MB limit.")
-        file.seek(0)
-    elif file.content_length > Max_PDF_Size:
-        raise ValueError(f"File size exceeds {Max_PDF_Size / 1024 / 1024} MB limit.")
+    file.seek(0, os.SEEK_END)
+    size = file.tell()
+    file.seek(0)
+    if size > Max_PDF_Size:
+        raise ValueError(f"PDF is too large (max {Max_PDF_Size//1024//1024} MB)")
 
     header = file.read(4)
     file.seek(0)
@@ -42,4 +43,36 @@ def sanitize_pdf(file: FileStorage) -> FileStorage:
         stream=spooled_temp_file,
         filename=secure_filename(file.filename),
         content_type='application/pdf'
+    )
+
+def enforce_image_limits(file: FileStorage) -> None:
+    file.seek(0, os.SEEK_END)
+    if file.tell() > Max_Image_Size:
+        raise ValueError(f"Image size exceeds {Max_Image_Size / 1024 / 1024} MB limit.")
+    file.seek(0)
+
+    try:
+        img = Image.open(file)
+        img.verify()  # Verify that it is a valid image
+    except Exception:
+        file.seek(0)
+        raise ValueError("Invalid image file")
+
+    if img.format not in AllowedImageFormats:
+        raise ValueError(f"Only JPEG/PNG images allowed (detected {img.format})")
+    
+    file.seek(0)  
+
+def sanitize_image(file: FileStorage) -> FileStorage:
+    img = Image.open(file).convert("RGB")  # Convert to RGB to ensure compatibility
+    spooled_temp_file = tempfile.SpooledTemporaryFile(max_size=Max_Image_Size)
+    img.save(spooled_temp_file, format="JPEG", quality=85)  # Save as JPEG with quality
+    spooled_temp_file.seek(0)
+
+    name = uuid.uuid4().hex + ".jpg"
+    
+    return FileStorage(
+        stream=spooled_temp_file,
+        filename=name,
+        content_type='image/jpeg'
     )
