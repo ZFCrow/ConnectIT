@@ -34,7 +34,7 @@ jobs:
       
       #.env.dev , some keys added a _DEV as it shares the same name as production keys 
       MYSQL_REMOTE_PORT : ${{ secrets.MYSQL_REMOTE_PORT }} # Set your MySQL remote port 
-      FLASK_DEBUG_DEBUG: ${{ secrets.FLASK_DEBUG_DEBUG }} # Set your Flask debug mode 
+      FLASK_DEBUG_DEV: ${{ secrets.FLASK_DEBUG_DEV }} # Set your Flask debug mode 
       USE_SSH_TUNNEL_DEV : ${{ secrets.USE_SSH_TUNNEL_DEV }} # Set whether to use SSH tunnel for development 
       SSH_HOST: ${{ secrets.SSH_HOST }} # Set your SSH host 
       SSH_PORT: ${{ secrets.SSH_PORT }} # Set your SSH port 
@@ -79,6 +79,8 @@ jobs:
       - name: Sync full ConnectIT directory to EC2
         run: |
           rsync -avz --delete \
+            --exclude '.env.dev' \ 
+            --exclude 'docker-compose.dev.*' \
             -e "ssh -o StrictHostKeyChecking=no" \
             . \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT/
@@ -88,7 +90,7 @@ jobs:
       # Generate .env files on EC2 
       - name: Generate .env files on EC2
         run: |
-          ssh -p $SSH_PORT -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
           # ─── .env ─────────────────────────────────────
           cat > /home/$SSH_USER/ConnectIT/.env <<E1
           FLASK_RUN_HOST=$FLASK_RUN_HOST
@@ -102,16 +104,16 @@ jobs:
           SPLUNK_SOURCE=$SPLUNK_SOURCE
           SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
           SPLUNK_PASSWORD=$SPLUNK_PASSWORD
-          E1
-
-          # ─── .env.dev ─────────────────────────────────
-          cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
           MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
           MYSQL_DATABASE=$MYSQL_DATABASE_DEV
           MYSQL_USER=$MYSQL_USER_DEV
           MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
+          E1
+
+          # ─── .env.dev ─────────────────────────────────
+          cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
           MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
-          FLASK_DEBUG=$FLASK_DEBUG_DEBUG
+          FLASK_DEBUG=$FLASK_DEBUG_DEV
           USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
           SSH_HOST=$SSH_HOST
           SSH_PORT=$SSH_PORT
