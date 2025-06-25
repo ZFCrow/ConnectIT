@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from Control.AccountControl import AccountControl
 from Boundary.AccountBoundary import AccountBoundary
 from Security.Limiter import limiter, get_account_key
+from Security.ValidateFiles import enforce_image_limits, enforce_pdf_limits, sanitize_image, sanitize_pdf
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
 
@@ -44,11 +45,25 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-@limiter.limit("1 per hour", key_func=get_account_key)
+@limiter.limit("1 per hour", key_func=get_account_key) # here is the issue that the profile cannot save
 def save_profile():
     updated_data = request.form.to_dict()
     portfolioFile = request.files.get("portfolioFile", None)
     profilePic = request.files.get("profilePic", None)
+
+    if portfolioFile:
+        try:
+            enforce_pdf_limits(portfolioFile)
+            portfolioFile = sanitize_pdf(portfolioFile)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+        
+    if profilePic:
+        try:
+            enforce_image_limits(profilePic)
+            profilePic = sanitize_image(profilePic)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
 
     updated_data["portfolioFile"] = portfolioFile
     updated_data["profilePic"] = profilePic
