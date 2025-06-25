@@ -74,7 +74,7 @@ def delete_post(post_id):
         return jsonify({"error": "Missing required fields"}), 400
 
     accountId = data["accountId"]
-    # violations = data.get('violations', [])  # Get the violations if they exist, else default to an empty list
+
     data = data.get(
         "data", {}
     )  # Get the data field if it exists, else default to an empty dictionary
@@ -120,6 +120,24 @@ def get_paginated_posts():
         print(f"Error retrieving paginated posts: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+@post_bp.route("/post/<int:post_id>", methods=["GET"]) 
+def get_post_by_id(post_id):
+    """
+    Retrieve a post by its ID.
+    """
+    try:
+        post = PostBoundary.handleRetrievePostById(
+            post_id
+        )  # Use the boundary to handle retrieval of a post by its ID
+        if post:
+            return jsonify(post.toDict()), 200  # Convert the post to a dictionary and return it as JSON
+        else:
+            return jsonify({"error": "Post not found"}), 404
+    except Exception as e:
+        print(f"Error retrieving post by ID: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500 
 
 
 @post_bp.route("/toggleLikes/<int:post_id>/<int:account_id>", methods=["POST"])

@@ -5,7 +5,6 @@ import CreatePostbar from "@/components/CreatePostbar";
 import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
-import { PopularTags } from "@/components/FakeData/PopularTags";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostContext } from "@/contexts/PostContext";
 import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
@@ -19,17 +18,6 @@ import PostsSection from "./Home/Sections/PostsSection";
 const Homepage = () => {
   const { accountId, role, userId, companyId } = useAuth();
 
-  // const {
-  //   fetchPosts,
-  //   filteredPosts,
-  //   activeFilter,
-  //   setActiveFilter,
-  //   setActiveSortBy, 
-  //   createPost,
-  //   postToDelete,
-  //   loading 
-  // } = usePostContext(); // custom hook to manage posts
-  
 
     // New pagination context
   const {

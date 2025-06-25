@@ -13,9 +13,6 @@ import { useEffect, useState } from "react";
 // Mock data imports
 //user side
 import type { AppliedJob } from "@/type/AppliedJob";
-import { mockAppliedJobs } from "@/components/FakeData/MockAppliedJobs";
-import type { RecentPostLike } from "@/type/RecentPostLikes";
-import { mockRecentPostsLikes } from "@/components/FakeData/MockRecentPostsLikes";
 
 // company side
 import type { JobListing } from "@/type/jobListing";

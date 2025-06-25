@@ -54,6 +54,7 @@ type PostcardProps = {
 };
 
 const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
+  
   const {
     setPostToDelete,
     hidePost: handleHide,
@@ -61,11 +62,20 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     allPosts,
     toggleLike: toggleLikePost,
     createComment,
+    useIndividualPost
   } = usePostContext(); // Get the delete and hide functions from context
 
   // using postID to find the specific post in the context
-  const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID
+  //const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID
 
+    const {
+    post: postData,
+    isLoading,
+    error,
+    refetch,
+  } = useIndividualPost(postId);
+  
+  
   // destructure the post object to get the necessary data
   const {
     id,

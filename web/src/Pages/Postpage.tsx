@@ -1,62 +1,57 @@
-import { useParams, Navigate, useNavigate, useLocation } from "react-router-dom";
-import { usePostContext } from "@/contexts/PostContext";
-import { use, useEffect, useState } from "react";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Postcard from "@/components/Postcard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
 import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
+import { usePostContext } from "@/contexts/PostContext";
+
 
 const Postpage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  const [isDeleted, setIsDeleted] = useState(false); 
-  const { 
-    allPosts, 
-    postToDelete, 
-    deletePostPending: deletePostLoading 
+  const idNum = postId ? Number(postId) : NaN;
+
+  if (isNaN(idNum)) {
+    return <Navigate to="/" replace />;
+  }
+
+  const {
+    useIndividualPost,
+    postToDelete, // dialog state from context 
   } = usePostContext();
 
-  const idNum = postId ? Number(postId) : NaN;
-  console.log("Post ID:", idNum);
-  if (isNaN(idNum)) return <Navigate to="/" replace />;
+  // Replace your context lookup with the custom hook:
+  const {
+    post,
+    isLoading: isLoadingPost,
+    error: postError,
+    refetch: refetchPost,
+  } = useIndividualPost(idNum);
 
-  // Priority: first try to grab post passed via navigation state, otherwise look it up
-  //const statePost = (location.state as { post?: Post })?.post;
-  const post = allPosts.find((p) => p.id === idNum);
+  const [isDeleted, setIsDeleted] = useState(false);
 
+  // Redirect to “not found” if after loading there’s still no post
   useEffect(() => {
-    // If the post is not found, redirect to home
-    if (!post) {
-      setIsDeleted(true); // Set isDeleted to true to trigger deletion state
-    }
-  }, [post]);
-
-  useEffect(() => {
-    // If the post is deleted, redirect to home
-    if (isDeleted && !deletePostLoading) {
+    if (!isLoadingPost && !post) {
       navigate("/", { replace: true });
     }
-  }), [isDeleted, navigate];
-
-
-
+  }, [isLoadingPost, post, navigate]);
 
   return (
     <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
       <div className="ml-3 flex-1 overflow-y-auto scrollbar-hide">
-
-        {!deletePostLoading &&
-          post ? (
-            <Postcard
-              postId={idNum}
-              detailMode
-            />
-          ) : (
-            <div className="text-center text-gray-500 mt-10">
-              {isDeleted ? "Post has been deleted." : "Loading post..."}
-            </div>
-          )  
-
-        }
+        {isLoadingPost ? (
+          <div className="text-center text-gray-500 mt-10">
+            Loading post...
+          </div>
+        ) : postError ? (
+          <div className="text-center text-red-500 mt-10">
+            Error loading post.{" "}
+            <button onClick={() => refetchPost()}>Retry</button>
+          </div>
+        ) : (
+          <Postcard postId={idNum} detailMode />
+        )}
       </div>
 
       <aside className="w-72 flex-shrink-0 sticky top-20 overflow-y-auto scrollbar-hide">
@@ -64,8 +59,8 @@ const Postpage = () => {
       </aside>
 
       <PostDeleteDialog
-        isOpen={postToDelete !== null} 
-        onDeleteSuccess={() => setIsDeleted(true)} // Set isDeleted to true on successful deletion 
+        isOpen={postToDelete !== null} // dialog opens only if we have a post
+        onDeleteSuccess={() => setIsDeleted(true)}
       />
     </div>
   );

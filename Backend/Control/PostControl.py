@@ -41,6 +41,14 @@ class PostControl:
         return results 
     
     @staticmethod 
+    def retrievePostById(postId: int) -> Post: 
+        """
+        Retrieve a post by its ID.
+        """
+        post = PostMapper.getPostById(postId=postId)
+        return post
+ 
+    @staticmethod 
     def retrieveRecentlyInteractedPosts(accountId: int) -> list[Post] :
         """
         Retrieve posts that the user has recently interacted with.

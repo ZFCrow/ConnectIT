@@ -25,6 +25,15 @@ class PostBoundary:
         """
         return PostControl.retrieveAllPosts() 
     
+    @staticmethod
+    def handleRetrievePostById(postId: int) -> Post:
+        """
+        Handle the retrieval of a post by its ID.
+        """
+        print(f"Post boundary: Retrieving post with ID: {postId}")
+        return PostControl.retrievePostById(postId)  # Call the control layer to retrieve the post by its ID 
+    
+    
 
     @staticmethod
     def handleRetrievePaginatedPosts(

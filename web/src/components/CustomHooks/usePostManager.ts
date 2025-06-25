@@ -21,6 +21,7 @@ interface PaginatedPosts {
     totalCount: number; 
 }
 import { InfiniteData } from '@tanstack/react-query';
+import Postpage from "@/Pages/Postpage";
 
 
 const usePostManager = () => { 
@@ -364,6 +365,82 @@ const usePostManager = () => {
     )
 
 
+    // ✅ Helper to add individual post to cache
+    const addPostToCache = (post: Post) => {
+        qc.setQueryData<InfiniteData<PaginatedPosts>>(
+            ['posts', {filter: activeFilter, sort: activeSortBy}],
+            (old) => {
+                if (!old) {
+                    return {
+                        pages: [{
+                            posts: [post],
+                            currentPage: 1,
+                            totalPages: 1,
+                            totalCount: 1
+                        }],
+                        pageParams: [1]
+                    };
+                }
+                
+                // Check if post already exists
+                const postExists = old.pages.some(page => 
+                    page.posts.some(p => p.id === post.id)
+                );
+                
+                if (postExists) return old;
+                
+                // Add to first page
+                return {
+                    ...old,
+                    pages: old.pages.map((page, index) => 
+                        index === 0 
+                            ? {
+                                ...page,
+                                posts: [post, ...page.posts],
+                                totalCount: page.totalCount + 1
+                            }
+                            : page
+                    )
+                };
+            }
+        );
+    };
+
+    // ✅ Enhanced individual post query
+    const useIndividualPost = (postId: number) => {
+        
+        const cachedPost = allPosts.find(p => p.id === postId);
+        
+        const{
+            data: post,
+            isLoading: isLoadingPost,
+            error: postError,
+            refetch: refetchPost
+        } = useQuery<Post, Error>({
+            queryKey: ['post', postId],
+            queryFn: () => {
+
+                return api.get<Post>(`/post/${postId}`).then(res => {
+                    console.log('Fetched individual post:', res.data);
+                    // Add to cache if not already present 
+                    addPostToCache(res.data); // Add to cache 
+                    return res.data;
+                })
+            },
+            enabled: !!postId && !cachedPost,
+            retry: 1,
+            
+            });
+    
+
+        return {
+            post: cachedPost || post,
+            isLoading: isLoadingPost,
+            error: postError,
+            refetch: refetchPost 
+         }
+    };
+
 
     // ✅ “Recently interacted” query
     const {
@@ -446,6 +523,8 @@ const usePostManager = () => {
         if (companyId) {
             console.log(`Company ${companyId} has ${recentPostedJobs?.length ?? 0} recent posted jobs.`);
         }
+
+    
     }, [accountId, userId, recentInteractions, recentAppliedJobs]);
 
 
@@ -525,6 +604,8 @@ const usePostManager = () => {
         isLoadingRecentPostedJobs, 
         refetchRecentPostedJobs, 
 
+        // Individual post query 
+        useIndividualPost, 
     };
 }; 
 

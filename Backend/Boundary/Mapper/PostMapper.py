@@ -28,11 +28,24 @@ class PostMapper:
         Fetch a post by its ID. 
         """
         with db_context.session_scope() as session:
-            post = session.query(PostModel).filter(PostModel.postId == postId).first()
-            if post:
-                return Post.from_PostModel(post) 
-            else:
-                return None 
+            post = session.query(PostModel).options(
+                joinedload(PostModel.account),  # Load the associated account 
+                joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),  # Load associated labels
+                joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
+                joinedload(PostModel.postLikes)  # Load associated likes 
+            ).filter(PostModel.postId == postId, PostModel.isDeleted == 0).first()  # Only fetch non-deleted posts 
+            if post: 
+                # find the labels , find the correct label entity , 
+                labelsModels = [pl.label for pl in post.postLabels] 
+                labels = [Label.fromLabelModel(lm) for lm in labelsModels]  # convert to label entities 
+                # find the comments, then create the comment entities from post entity
+                commentModels = [cm for cm in post.comments]
+                # create the post entity and pass the labels
+                postEntity = Post.from_PostModel(post, labels)
+                # add the comments to the post entity
+                postEntity.populateComments(commentModels)
+                return postEntity  # Return the Post entity
+            return None  # Return None if no post found with the given ID
             
     @staticmethod 
     def getAllPosts() -> list[Post]:
@@ -278,8 +291,13 @@ class PostMapper:
                 joinedload(PostModel.comments).joinedload(CommentModel.account),  # Load associated comments and their accounts 
                 joinedload(PostModel.postLikes)  # Load associated likes 
             ).filter(
-                (PostModel.postLikes.any(PostLikesModel.accountId == accountId)) | 
-                (PostModel.comments.any(CommentModel.accountId == accountId))
+                (
+                    (PostModel.postLikes.any(PostLikesModel.accountId == accountId)) | 
+                    (PostModel.comments.any(CommentModel.accountId == accountId))
+                ) & 
+                
+                (PostModel.isDeleted == 0)  # Only fetch non-deleted posts
+            
             ).order_by(PostModel.date.desc()).limit(limit).all() 
 
             labelModels = [pl.label for post in posts for pl in post.postLabels]
