@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect  } from "react";
 import { useAuth, Role } from "@/contexts/AuthContext";
 import {
   User,
@@ -30,6 +30,13 @@ import { Verify2FAForm } from "./Verify2FAForm";
 
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(
+    new RegExp("(^|; )" + name + "=([^;]*)")
+  );
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,6 +44,14 @@ export function LoginForm() {
   const [user, setUser] = useState<AccountData | null>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  // useEffect(() => {
+  //     axios.defaults.withCredentials = true;
+  //     const csrf = getCookie("csrf_token");
+  //     if (csrf) {
+  //       axios.defaults.headers.common["X-CSRFToken"] = csrf;
+  //     }
+  //   }, []);
 
   const callCreateToken = async (account: AccountData) => {
     try {
@@ -89,11 +104,9 @@ export function LoginForm() {
       setUser(parsed);
 
       if (parsed.twoFaEnabled) {
-
         setStep("verify");
       } else {
-
-        await callCreateToken(parsed);
+        setStep("generate");
       }
     } catch (err: any) {
       console.error("Login failed", err);
