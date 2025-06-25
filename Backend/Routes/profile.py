@@ -3,7 +3,7 @@ from Control.AccountControl import AccountControl
 from Boundary.AccountBoundary import AccountBoundary
 from Security.Limiter import limiter, get_account_key
 from Security.ValidateFiles import enforce_image_limits, enforce_pdf_limits, sanitize_image, sanitize_pdf
-from Security.ValidateInputs import validate_bio
+from Security.ValidateInputs import validate_profile
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
 
@@ -52,7 +52,7 @@ def save_profile():
     portfolioFile = request.files.get("portfolioFile", None)
     profilePic = request.files.get("profilePic", None)
 
-    errors = validate_bio(updated_data)
+    errors = validate_profile(updated_data)
     if errors:
         return jsonify({"error": errors}), 400
 

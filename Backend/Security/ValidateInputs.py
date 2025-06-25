@@ -166,11 +166,14 @@ def validate_job_listing(data: dict) -> dict:
 
     return errors
 
-def validate_bio(data: dict) -> dict:
-    errors = {}
-    sanitize_fields(data, ["bio", "name"])
+def validate_profile(data: dict) -> dict:
+    errors: dict[str, str] = {}
+    sanitize_fields(data, ["bio", "name", "description", "location"])
+
     bio = data.get("bio", "").strip()
     name = data.get("name", "").strip()
+    location = data.get("location", "").strip()
+    description = data.get("description", "").strip()
 
     if len(bio) > 1000:
         errors["bio"] = "Bio must not exceed 1000 characters"
@@ -179,5 +182,11 @@ def validate_bio(data: dict) -> dict:
         errors["name"] = "Name cannot be empty"
     elif len(name) > 40:
         errors["name"] = "Name must not exceed 40 characters"
+
+    if len(location) > 250:
+        errors["location"] = "Location must not exceed 250 characters"
+
+    if len(description) > 1000:
+        errors["description"] = "Description must not exceed 1000 characters"
 
     return errors
