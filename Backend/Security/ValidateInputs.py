@@ -165,3 +165,19 @@ def validate_job_listing(data: dict) -> dict:
         errors["experience"] = "Invalid years of experience format"
 
     return errors
+
+def validate_bio(data: dict) -> dict:
+    errors = {}
+    sanitize_fields(data, ["bio", "name"])
+    bio = data.get("bio", "").strip()
+    name = data.get("name", "").strip()
+
+    if len(bio) > 1000:
+        errors["bio"] = "Bio must not exceed 1000 characters"
+
+    if len(name) < 1:
+        errors["name"] = "Name cannot be empty"
+    elif len(name) > 40:
+        errors["name"] = "Name must not exceed 40 characters"
+
+    return errors
