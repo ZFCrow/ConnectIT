@@ -1,6 +1,4 @@
 import { useState } from 'react'; 
-import type { Label } from '@/type/Label'; // import the Label type 
-import { useEffect } from 'react'; 
 import {api} from '@/api/api'; // import the api instance 
 import type { Violation } from '@/type/Violation'; // import the Violation type 
 

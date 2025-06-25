@@ -10,6 +10,8 @@ export type Account = {
   role: Role;
   isDisabled: boolean;
   profilePicUrl?: string;
+  twoFaEnabled: boolean; 
+  twoFaSecret?: string | null; 
 };
 
 /* 🔹 Common Account Schema */

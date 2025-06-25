@@ -119,6 +119,27 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     });
   };
 
+
+
+  const handleSubmitComment = async () => {
+    if (commentContent.trim() === '') return;
+    
+    try {
+      await createComment({
+        postId: id,
+        content: commentContent,
+      });
+      setCommentContent(""); // Clear input
+      console.log("Comment posted:", commentContent);
+    } catch (err) {
+      const message =
+        err.response?.data?.error ||
+        "Failed to comment, please try again.";
+      toast.error(message);
+      console.error("Error posting comment:", err);
+    }
+  };
+
   return (
     <>
       <Card
@@ -351,28 +372,21 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                       e.stopPropagation(); // Prevent triggering the card click
                       setCommentContent(e.target.value);
                     }}
+                    onKeyDown={
+                      (e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault(); // Prevent form submission
+                          handleSubmitComment(); // Call the submit function
+                        }
+                      } 
+                    }
                     onClick={(e) => e.stopPropagation()} // Prevent triggering the card click}
                   />
                   <Button
                     size="sm"
                     onClick={async (e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      if (commentContent.trim() !== "") {
-                        try {
-                          await createComment({
-                            postId: id,
-                            content: commentContent,
-                          });
-                          setCommentContent(""); // Clear input
-                          console.log("Comment posted:", commentContent);
-                        } catch (err) {
-                          const message =
-                            err.response?.data?.error ||
-                            "Failed to comment, please try again.";
-                          toast.error(message); // ✅ Show rate-limit error toast
-                          console.error("Error posting comment:", err);
-                        }
-                      }
+                      await handleSubmitComment(); // Call the submit function 
                     }}
                   >
                     Post

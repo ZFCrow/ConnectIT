@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import type { ReactNode } from "react";
 
 export const Role = {
@@ -142,19 +142,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [isLoading, accountId]);
 
+
+  // memoize the context value
+  const authValue = useMemo(() => ({
+    accountId,
+    role,
+    name,
+    profilePicUrl,
+    userId,
+    companyId,
+    isLoading,
+    login,
+    logout,
+  }), [
+    accountId,
+    role,
+    name,
+    profilePicUrl,
+    userId,
+    companyId,
+    isLoading,
+    login,
+    logout,
+  ]);
+
+  
   return (
     <AuthContext.Provider
-      value={{
-        accountId,
-        role,
-        name,
-        profilePicUrl,
-        userId,
-        companyId,
-        isLoading,
-        login,
-        logout,
-      }}
+      value={authValue}
     >
       {children}
     </AuthContext.Provider>
@@ -163,10 +178,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  console.log("[useAuth] context returned", {
-    accountId: ctx.accountId,
-    role:      ctx.role,
-    name:      ctx.name,
-  });
+  // console.log("[useAuth] context returned", {
+  //   accountId: ctx.accountId,
+  //   role:      ctx.role,
+  //   name:      ctx.name,
+  // });
   return ctx;
 };

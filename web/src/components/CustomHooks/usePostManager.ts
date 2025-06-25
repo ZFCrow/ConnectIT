@@ -37,8 +37,12 @@ const usePostManager = () => {
 
     // you can fetch violations on mount if you like:
     useEffect(() => {
-        fetchViolations();
-    }, []);
+        if (accountId){
+            fetchViolations(); // Fetch violations when the hook mounts
+            console.log("Fetching violations for accountId:", accountId); 
+        }
+    
+    }, [accountId]);
 
 
     // ✅ Move state INSIDE the hook
@@ -83,6 +87,7 @@ const usePostManager = () => {
                  
         staleTime: 5 * 60_000,
         gcTime: 1000 * 60 * 10, 
+        enabled: !!accountId, // Only run if accountId is available 
     }); 
 
     // ✅ Flatten all posts from all pages
@@ -235,11 +240,11 @@ const usePostManager = () => {
 
     // Create Comment mutation 
     type CommentContext = {previousData?: InfiniteData<PaginatedPosts>;};
-      const {
+    const {
             mutateAsync: createComment,
             isPending: isCreatingComment,
             isError: createCommentError,
-        } = useMutation<void, Error, CreateCommentDTO>({
+        } = useMutation<void, Error, CreateCommentDTO, CommentContext>({
             mutationFn: ({ postId, content }) => {
                 return api.post(`/comment/${postId}`, {
                     accountId: accountId,
@@ -293,7 +298,15 @@ const usePostManager = () => {
             onSuccess: () => {
                 console.log('Comment created successfully');
                 qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
-            }, 
+            },
+            onError: (_err, _vars, context) => { 
+                if (context?.previousData) {
+                    qc.setQueryData(
+                        ['posts', { filter: activeFilter, sort: activeSortBy }],
+                        context.previousData
+                    );
+                }
+            }  
         })
 
 
