@@ -78,8 +78,8 @@ jobs:
 
       - name: Sync full ConnectIT directory to EC2
         run: |
-          rsync -avz --delete \
-            --delete \ 
+          rsync -avz \
+            --delete \
             --delete-excluded \
             --exclude 'docker-compose.dev.*' \
             -e "ssh -o StrictHostKeyChecking=no" \
