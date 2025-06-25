@@ -164,7 +164,7 @@ def login():
             SplunkLogging.send_log({
             "event": "Login Failed",
             "email": payload.get("email"),
-            "reason": "Invalid credentials",
+            "reason": "Account locked",
             "ip": request.remote_addr,
             "user_agent": str(request.user_agent),
             "duration_ms": round((time.time() - start_time) * 1000, 2)
@@ -222,7 +222,7 @@ def login():
                 # tell the client “OTP required” (no cookie yet) with a 200 status
                 SplunkLogging.send_log({
                 "event": "Login Partial Success",
-                "reason": "Two-factor authentication required",
+                "reason": "Missing 2FA authentication",
                 "email": account.email,
                 "ip": request.remote_addr,
                 "user_agent": str(request.user_agent),
@@ -321,7 +321,7 @@ def create_token():
 def save2fa():
     payload = request.get_json()
     if payload["accountId"] is None:
-
+        
         SplunkLogging.send_log({
             "event": "Save 2FA Failed",
             "reason": "No account ID provided",
@@ -358,7 +358,7 @@ def save2fa():
             "method": request.method,
             "path": request.path
         })
-        
+
         return jsonify({"error": "Failed to update 2fa"}), 500
     
 @auth_bp.route('/me', methods=['GET'])
@@ -419,5 +419,16 @@ def refresh():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
+
+    SplunkLogging.send_log({
+        "event": "Login Successful",
+        "email": account.email,
+        "role": account.role,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+        })
+    
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     return JWTUtils.remove_auth_cookie(resp)

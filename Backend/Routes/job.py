@@ -8,8 +8,10 @@ from Entity.JobListing import JobListing  # Import your entity class
 from Security.Limiter import limiter, get_company_key, get_user_key
 from Security.ValidateInputs import validate_job_listing
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
+from Security import SplunkUtils
 
 job_listing_bp = Blueprint("job_listing", __name__)
+SplunkLogging = SplunkUtils.SplunkLogger()
 
 
 # GET all job listings
@@ -45,14 +47,46 @@ def create_job_listing():
 
     errors = validate_job_listing(job_data)
     if errors:
+
+        SplunkLogging.send_log({
+            "event": "Job Creation Failed",
+            "reason": "Errors",
+            "errors": errors,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": errors}), 400
 
     success = JobListingControl.addJobListing(
         job_data=job_data
     )  # implement this in your control
     if success:
+
+        SplunkLogging.send_log({
+            "event": "Job Listing Created",
+            "jobTitle": job_data.get("title"),
+            "companyId": job_data.get("companyId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "Job listing created successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Job Creation Failed",
+            "reason": "error",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Failed to create job listing"}), 500
 
 
@@ -61,6 +95,15 @@ def delete_job_listing(jobId):
     """
     Deletes a job listing by its jobId.
     """
+    SplunkLogging.send_log({
+        "event": "Job listing deleted",
+        "jobId": jobId,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+    })
+
     success = JobListingControl.deleteJob(jobId)
     return (
         jsonify({"message": "Job listing deleted successfully!"})
@@ -86,6 +129,19 @@ def apply_job():
                 enforce_pdf_limits(resumeFile)
                 resumeFile = sanitize_pdf(resumeFile)
             except ValueError as e:
+                
+                SplunkLogging.send_log({
+                    "event": "Job Application Failed",
+                    "reason": "Invalid PDF upload",
+                    "error": str(e),
+                    "userId": userId,
+                    "jobId": jobId,
+                    "ip": request.remote_addr,
+                    "user_agent": str(request.user_agent),
+                    "method": request.method,
+                    "path": request.path
+                })
+
                 return jsonify({"error": str(e)}), 400
     else:
         # application/json
@@ -95,14 +151,60 @@ def apply_job():
         resumeFile = None
 
     if not jobId:
+
+        SplunkLogging.send_log({
+            "event": "Job Application Failed",
+            "reason": "Job ID missing",
+            "userId": userId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+         
         return jsonify({"error": "Job ID is required"}), 400
+
     if not userId:
+
+        SplunkLogging.send_log({
+            "event": "Job Application Failed",
+            "reason": "User ID missing",
+            "jobId": jobId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+        
         return jsonify({"error": "User ID is required"}), 400
 
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
     if success:
+
+        SplunkLogging.send_log({
+            "event": "Job Applied Success",
+            "userId": userId,
+            "jobId": jobId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "Application submitted successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Job Application Failed",
+            "reason": "Internal error",
+            "userId": userId,
+            "jobId": jobId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+         
         return jsonify({"error": "Failed to apply for job"}), 500
 
 
@@ -113,8 +215,28 @@ def approve_application(applicationId):
     """
     success = JobApplicationControl.approveApplication(applicationId)
     if success:
+
+        SplunkLogging.send_log({
+        "event": "Approve Application Success",
+        "applicationId": applicationId,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+        })
+
         return jsonify({"message": "Application submitted successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+        "event": "Approve Application Failed",
+        "applicationId": applicationId,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+        })
+
         return jsonify({"error": "Failed to apply for job"}), 500
 
 
@@ -127,6 +249,7 @@ def reject_application(applicationId):
     return (
         jsonify({"message": "Application rejected successfully!"})
         if success
+
         else jsonify({"error": "Failed to reject application"})
     ), 200
 

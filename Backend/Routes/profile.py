@@ -4,6 +4,9 @@ from Boundary.AccountBoundary import AccountBoundary
 from Security.Limiter import limiter, get_account_key
 from Security.ValidateFiles import enforce_image_limits, enforce_pdf_limits, sanitize_image, sanitize_pdf
 from Security.ValidateInputs import validate_profile
+from Security import SplunkUtils
+
+SplunkLogging = SplunkUtils.SplunkLogger()
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
 
@@ -42,6 +45,15 @@ def get_user(account_id):
         return jsonify({**base_data, **optional_data})
 
     else:
+        SplunkLogging.send_log({
+            "event": "Profile Access Failed",
+            "reason": "Account not found",
+            "accountId": account_id,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
         return jsonify({"error": "Account not found"}), 404
 
 
@@ -76,8 +88,29 @@ def save_profile():
     success = AccountBoundary.saveProfile(updated_data)
 
     if success:
+
+        SplunkLogging.send_log({
+            "event": "Profile update success",
+            "accountId": updated_data.get("accountId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "Profile saved successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Profile Update failed",
+            "reason": "Failed to save profile",
+            "accountId": updated_data.get("accountId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Failed to save profile"}), 500
 
 
@@ -88,8 +121,29 @@ def disable(account_id):
     success = AccountBoundary.disableAccount(account_id, auth_data)
 
     if success:
+
+        SplunkLogging.send_log({
+            "event": "Account Disabled success",
+            "accountId": account_id,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "Account disabled successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Account Disable failed",
+            "reason": "Failed to disable account",
+            "accountId": account_id,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Failed to disable account"}), 500
 
 
