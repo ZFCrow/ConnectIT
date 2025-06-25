@@ -66,6 +66,17 @@ def save_profile():
 
     errors = validate_profile(updated_data)
     if errors:
+
+        SplunkLogging.send_log({
+            "event": "Profile Update Failed",
+            "reason": "Validation error - input fields",
+            "accountId": updated_data.get("accountId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": errors}), 400
 
     if portfolioFile:
@@ -73,6 +84,17 @@ def save_profile():
             enforce_pdf_limits(portfolioFile)
             portfolioFile = sanitize_pdf(portfolioFile)
         except Exception as e:
+
+            SplunkLogging.send_log({
+            "event": "Profile Update Failed",
+            "reason": "Validation error - PDF",
+            "accountId": updated_data.get("accountId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+            })
+            
             return jsonify({"error": str(e)}), 400
         
     if profilePic:
@@ -80,6 +102,17 @@ def save_profile():
             enforce_image_limits(profilePic)
             profilePic = sanitize_image(profilePic)
         except Exception as e:
+
+            SplunkLogging.send_log({
+            "event": "Profile Update Failed",
+            "reason": "Validation error - Profile picture",
+            "accountId": updated_data.get("accountId"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+            })
+
             return jsonify({"error": str(e)}), 400
 
     updated_data["portfolioFile"] = portfolioFile
