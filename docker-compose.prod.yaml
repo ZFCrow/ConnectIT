@@ -7,7 +7,7 @@ services:
     image: mysql:8.0
     container_name: sql-dev
     env_file:
-      - .env.dev      
+      - .env   
     ports:
       - "3307:3306"
     volumes:

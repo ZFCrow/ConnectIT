@@ -16,6 +16,9 @@ services:
       - redis
     environment:
       - REDIS_URL=redis://redis:6379
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
+    volumes:
+      - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
 
   redis:
     image: redis:latest

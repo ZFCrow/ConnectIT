@@ -14,10 +14,53 @@ on:
     branches: [main] # Trigger on push to main branch
   pull_request:
     branches: [main] # Trigger on pull request to main branch 
+
+
 jobs: 
   deploy: 
     #if: ${{ github.event.workflow_run.conclusion == 'success' }} 
     runs-on: ubuntu-latest 
+
+
+    env: 
+      #.env
+      FLASK_RUN_HOST: ${{ secrets.FLASK_RUN_HOST }} # Set your Flask run host 
+      FLASK_RUN_PORT: ${{ secrets.FLASK_RUN_PORT }} # Set your Flask run port 
+      VITE_HCAPTCHA_SITEKEY: ${{ secrets.VITE_HCAPTCHA_SITEKEY }} # Set your hCaptcha site key 
+      MYSQL_ROOT_PASSWORD_DEV: ${{ secrets.MYSQL_ROOT_PASSWORD_DEV }} # Set your MySQL root password for development 
+      MYSQL_DATABASE_DEV: ${{ secrets.MYSQL_DATABASE_DEV }} # Set your MySQL database name for development 
+      MYSQL_USER_DEV: ${{ secrets.MYSQL_USER_DEV }} # Set your MySQL user for development
+      MYSQL_PASSWORD_DEV: ${{ secrets.MYSQL_PASSWORD_DEV }} # Set your MySQL password for development 
+      
+      #.env.dev , some keys added a _DEV as it shares the same name as production keys 
+      MYSQL_REMOTE_PORT : ${{ secrets.MYSQL_REMOTE_PORT }} # Set your MySQL remote port 
+      FLASK_DEBUG_DEBUG: ${{ secrets.FLASK_DEBUG_DEBUG }} # Set your Flask debug mode 
+      USE_SSH_TUNNEL_DEV : ${{ secrets.USE_SSH_TUNNEL_DEV }} # Set whether to use SSH tunnel for development 
+      SSH_HOST: ${{ secrets.SSH_HOST }} # Set your SSH host 
+      SSH_PORT: ${{ secrets.SSH_PORT }} # Set your SSH port 
+      SSH_USER: ${{ secrets.SSH_USER }} # Set your SSH user 
+      PEM_FILE: ${{ secrets.PEM_FILE }} # Set your PEM file for SSH access 
+      FERNET_KEY: ${{ secrets.FERNET_KEY }} # Set your Fernet key for encryption 
+      JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
+      SPLUNK_HEC_URL: ${{ secrets.SPLUNK_HEC_URL }} # Set your Splunk HEC URL for logging
+      SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+      SPLUNK_SOURCE: ${{ secrets.SPLUNK_SOURCE }} # Set your Splunk source for logging
+      SPLUNK_SOURCETYPE: ${{ secrets.SPLUNK_SOURCETYPE }} # Set your Splunk sourcetype for logging 
+      SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }} # Set your Splunk password for logging
+      HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
+      
+      #.env.prod , some keys added a _PROD as it shares the same name as development keys
+      MYSQL_ROOT_PASSWORD_PROD: ${{ secrets.MYSQL_ROOT_PASSWORD_PROD }} # Set your MySQL root password for production
+      MYSQL_DATABASE_PROD: ${{ secrets.MYSQL_DATABASE_PROD }} # Set your MySQL database name for production
+      MYSQL_USER_PROD: ${{ secrets.MYSQL_USER_PROD }} # Set your MySQL user for production
+      MYSQL_PASSWORD_PROD: ${{ secrets.MYSQL_PASSWORD_PROD }} # Set your MySQL password for production
+      FLASK_DEBUG_PROD: ${{ secrets.FLASK_DEBUG_PROD }} # Set your Flask debug mode for production
+      MYSQL_CONTAINER_NAME: ${{ secrets.MYSQL_CONTAINER_NAME }} # Set your MySQL container name for production
+      MYSQL_CONTAINER_PORT: ${{ secrets.MYSQL_CONTAINER_PORT }} # Set your MySQL container port for production
+      USE_SSH_TUNNEL_PROD: ${{ secrets.USE_SSH_TUNNEL_PROD }} # Set whether to use SSH tunnel for production
+
+
+
 
     steps: 
       - name: Checkout code 
@@ -42,6 +85,49 @@ jobs:
       
 
 
-      # - name: SSH into EC2 and run deployment script 
-        
-    
+      # Generate .env files on EC2 
+      - name: Generate .env files on EC2
+        run: |
+          ssh -p $SSH_PORT -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+          # ─── .env ─────────────────────────────────────
+          cat > /home/$SSH_USER/ConnectIT/.env <<E1
+          FLASK_RUN_HOST=$FLASK_RUN_HOST
+          FLASK_RUN_PORT=$FLASK_RUN_PORT
+          VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
+          HCAPTCHA_SECRET=$HCAPTCHA_SECRET
+          FERNET_KEY=$FERNET_KEY
+          JWT_SECRET=$JWT_SECRET
+          SPLUNK_HEC_URL=$SPLUNK_HEC_URL
+          SPLUNK_HEC_TOKEN=$SPLUNK_HEC_TOKEN
+          SPLUNK_SOURCE=$SPLUNK_SOURCE
+          SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
+          SPLUNK_PASSWORD=$SPLUNK_PASSWORD
+          E1
+
+          # ─── .env.dev ─────────────────────────────────
+          cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
+          MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
+          MYSQL_DATABASE=$MYSQL_DATABASE_DEV
+          MYSQL_USER=$MYSQL_USER_DEV
+          MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
+          MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
+          FLASK_DEBUG=$FLASK_DEBUG_DEBUG
+          USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
+          SSH_HOST=$SSH_HOST
+          SSH_PORT=$SSH_PORT
+          SSH_USER=$SSH_USER
+          PEM_FILE=$PEM_FILE
+          E2
+
+          # ─── .env.prod ────────────────────────────────
+          cat > /home/$SSH_USER/ConnectIT/.env.prod <<E3
+          MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_PROD
+          MYSQL_DATABASE=$MYSQL_DATABASE_PROD
+          MYSQL_USER=$MYSQL_USER_PROD
+          MYSQL_PASSWORD=$MYSQL_PASSWORD_PROD
+          FLASK_DEBUG=$FLASK_DEBUG_PROD
+          MYSQL_CONTAINER_NAME=$MYSQL_CONTAINER_NAME
+          MYSQL_CONTAINER_PORT=$MYSQL_CONTAINER_PORT
+          USE_SSH_TUNNEL=$USE_SSH_TUNNEL_PROD
+          E3
+          EOF
