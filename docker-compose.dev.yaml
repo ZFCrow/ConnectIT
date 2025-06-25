@@ -1,6 +1,8 @@
 # volumes:
 #   node_modules: {}                      # ← declare it at top level
-  
+volumes:
+  splunk_data: {} # Volume for Splunk data persistence
+
 services:
   web:
     build:
@@ -27,14 +29,30 @@ services:
       - ~/.ssh/ICT2216-student12.pem:/run/ssh/key.pem:ro
       - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
       - ./logs:/var/log
-    depends_on:
-      - redis
     environment: 
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
-      - REDIS_URL=redis://redis:6379
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
+  
+  splunk:
+      image: splunk/splunk:latest
+      container_name: splunk
+      ports:
+        - "8000:8000" # Splunk web UI
+        - "8088:8088" # HEC (HTTP Event Collector) endpoint
+      env_file:
+      - .env.dev
+      environment:
+        # Accept Splunk license
+        - SPLUNK_START_ARGS=--accept-license
+        - SPLUNK_ENABLE_LISTEN=8088
+      volumes:
+        - splunk_data:/opt/splunk/var/lib/splunk # Persistent storage for Splunk data
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8000/en-US/account/login || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      ulimits:
+        nofile:
+          soft: 65536
+          hard: 65536

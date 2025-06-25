@@ -4,6 +4,8 @@ from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security.JWTUtils import JWTUtils
+from Security import SplunkUtils
+import time
 from Security.Limiter import (
     limiter,
     get_register_key,
@@ -17,6 +19,9 @@ import jwt, pyotp
 
 auth_bp = Blueprint("auth", __name__)
 
+#splunk
+SplunkLogging = SplunkUtils.SplunkLogger()
+
 
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("3 per minute", key_func=get_register_key)
@@ -25,17 +30,50 @@ def register():
     errors = validate_register(payload)
 
     if errors:
+
+        SplunkLogging.send_log({
+            "event": "Register attempt failed",
+            "reason": "Validation Errors",
+            "errors": errors,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": errors}), 400
 
     if payload["role"] == Role.Company.value:
         companyDoc = request.files.get("companyDoc", None)
         if not companyDoc:
+
+            SplunkLogging.send_log({
+            "event": "Register Attempt Failed",
+            "reason": "Verification Errors",
+            "errors": "Verification document required",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+            })
+
             return jsonify({"error": "Verification document required"}), 500
         
         try:
             enforce_pdf_limits(companyDoc)
             companyDoc = sanitize_pdf(companyDoc)
         except ValueError as ve:
+
+            SplunkLogging.send_log({
+                "event": "Register Attempt Failed",
+                "reason": "Invalid PDF upload",
+                "error": str(ve),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
+            })
+
             return jsonify({"error": str(ve)}), 400
 
         payload["companyDoc"] = companyDoc
@@ -43,13 +81,35 @@ def register():
     success = AccountBoundary.registerAccount(payload)
 
     if success:
+
+        SplunkLogging.send_log({
+            "event": "Registration Successful",
+            "email": payload.get("email"),
+            "role": payload.get("role"),
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "Account created successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Registration Failed",
+            "reason": "Internal server error",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Failed to create account"}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+    start_time = time.time()  # Start timer
     payload = request.get_json() or {}
     email = payload.get("email")
 
@@ -60,13 +120,37 @@ def login():
             f"route={request.path} | method={request.method} | "
             f"limit=lockout after 5 failed logins | email={email}"
         )
+
+        SplunkLogging.send_log({
+            "event": "Login Failed",
+            "reason": "Account locked due to rate limit",
+            "email": email,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Account locked due to too many failed attempts"}), 403
 
     errors = validate_login(payload)
     if errors:
+
+        SplunkLogging.send_log({
+            "event": "Login Attempt Failed",
+            "reason": "Validation Errors",
+            "errors": errors,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": errors}), 400
 
     account = AccountBoundary.loginAccount(payload)
+    duration_ms = round((time.time() - start_time) * 1000, 2)  # Duration in ms
+
     if not account:
         count = increment_failed_attempts(email)
         if count >= 5:
@@ -76,10 +160,30 @@ def login():
                 f"route={request.path} | method={request.method} | "
                 f"limit=lockout after 5 failed logins | email={email}"
             )
+
+            SplunkLogging.send_log({
+            "event": "Login Failed",
+            "email": payload.get("email"),
+            "reason": "Invalid credentials",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "duration_ms": round((time.time() - start_time) * 1000, 2)
+            })
+            
             return (
                 jsonify({"error": "Account locked due to too many failed attempts"}),
                 403,
             )
+        
+        SplunkLogging.send_log({
+            "event": "Login Failed",
+            "reason": "Invalid credentials",
+            "email": email,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "duration_ms": duration_ms
+        })
+
         return jsonify({"message": "Incorrect credentials"}), 401
 
     if account:
@@ -116,15 +220,41 @@ def login():
             otp = payload.get("otp")
             if not otp:
                 # tell the client “OTP required” (no cookie yet) with a 200 status
-                return jsonify({
-                    "twoFaRequired": True,
-                    **merged
-                }), 200
+                SplunkLogging.send_log({
+                "event": "Login Partial Success",
+                "reason": "Two-factor authentication required",
+                "email": account.email,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
+                })
+                return jsonify({"twoFaRequired": True, **merged}), 200
+
 
             totp = pyotp.TOTP(account.twoFaSecret)
             if not totp.verify(otp):
                 # bad code → still a 401
+                SplunkLogging.send_log({
+                "event": "Login Failed",
+                "reason": "Invalid two-factor code",
+                "email": account.email,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
+                })
                 return jsonify({"error": "Invalid two-factor code"}), 401
+
+        SplunkLogging.send_log({
+        "event": "Login Successful",
+        "email": account.email,
+        "role": account.role,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+        })
 
         return jsonify(merged), 200
     
@@ -139,6 +269,16 @@ def create_token():
     company_id      = data.get("companyId")
 
     if not account_id or not user_role or not name:
+
+        SplunkLogging.send_log({
+            "event": "Token Creation Failed",
+            "reason": "Missing token creation data",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Missing token creation data"}), 400
 
     token = JWTUtils.generate_jwt_token(
@@ -150,23 +290,75 @@ def create_token():
         company_id,
     )
     if not token:
+
+        SplunkLogging.send_log({
+            "event": "Token Creation Failed",
+            "reason": "Token generation failed",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "Token generation failed"}), 500
 
     resp = make_response(jsonify({"message": "Token created"}), 200)
     resp = JWTUtils.set_auth_cookie(resp, token)
+
+    SplunkLogging.send_log({
+        "event": "Token Created Successfully",
+        "accountId": account_id,
+        "role": user_role,
+        "ip": request.remote_addr,
+        "user_agent": str(request.user_agent),
+        "method": request.method,
+        "path": request.path
+    })
+
     return resp
 
 @auth_bp.route("/save2fa", methods=["POST"])
 def save2fa():
     payload = request.get_json()
     if payload["accountId"] is None:
+
+        SplunkLogging.send_log({
+            "event": "Save 2FA Failed",
+            "reason": "No account ID provided",
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"error": "No account Id"}), 401
 
     success = AccountBoundary.saveTwoFa(payload["accountId"], payload)
 
     if success:
+
+        SplunkLogging.send_log({
+            "event": "2FA Updated Successfully",
+            "accountId": payload["accountId"],
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+
         return jsonify({"message": "2fa updated successfully!"}), 201
     else:
+
+        SplunkLogging.send_log({
+            "event": "Save 2FA Failed",
+            "reason": "Database update failed",
+            "accountId": payload["accountId"],
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+        
         return jsonify({"error": "Failed to update 2fa"}), 500
     
 @auth_bp.route('/me', methods=['GET'])

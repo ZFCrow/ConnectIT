@@ -32,6 +32,8 @@ from Routes.post import post_bp
 
 
 from Security import ValidateCaptcha, TwoFactorAuth, Limiter
+from Security import ValidateCaptcha, SplunkUtils
+import firebase_admin
 from firebase_admin import credentials, initialize_app, storage
 
 app = Flask(__name__)
@@ -86,6 +88,9 @@ app.register_blueprint(violation_bp)
 app.register_blueprint(comment_bp)
 app.register_blueprint(post_bp)
 
+#splunk
+SplunkLogging = SplunkUtils.SplunkLogger()
+
 
 CORS(app)
 
@@ -93,6 +98,8 @@ CORS(app)
 @app.route("/")
 def index():
     print("request from")
+    print ("request from")
+
     return jsonify({"message": "Welcome to the API!"})
 
 
