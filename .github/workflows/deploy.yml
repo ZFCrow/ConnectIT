@@ -79,8 +79,7 @@ jobs:
       - name: Sync full ConnectIT directory to EC2
         run: |
           rsync -avz --delete \
-            --exclude '.env.dev' \ 
-            --exclude 'docker-compose.dev.*' \
+            --exclude='docker-compose.dev.yaml' \
             -e "ssh -o StrictHostKeyChecking=no" \
             . \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT/
@@ -110,16 +109,16 @@ jobs:
           MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
           E1
 
-          # ─── .env.dev ─────────────────────────────────
-          cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
-          MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
-          FLASK_DEBUG=$FLASK_DEBUG_DEV
-          USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
-          SSH_HOST=$SSH_HOST
-          SSH_PORT=$SSH_PORT
-          SSH_USER=$SSH_USER
-          PEM_FILE=$PEM_FILE
-          E2
+          # # ─── .env.dev ───────────(Commented out)──────────────────────
+          # cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
+          # MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
+          # FLASK_DEBUG=$FLASK_DEBUG_DEV
+          # USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
+          # SSH_HOST=$SSH_HOST
+          # SSH_PORT=$SSH_PORT
+          # SSH_USER=$SSH_USER
+          # PEM_FILE=$PEM_FILE
+          # E2
 
           # ─── .env.prod ────────────────────────────────
           cat > /home/$SSH_USER/ConnectIT/.env.prod <<E3
