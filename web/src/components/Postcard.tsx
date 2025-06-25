@@ -22,7 +22,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import type { FC } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -31,7 +31,6 @@ import {
   MessageSquare,
   ThumbsUp,
   MoreVertical,
-  Flag,
   EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -87,6 +86,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     comments,
     likedBy,
     accountId: postAccountId, // account ID of the post owner
+    displayPicUrl: authorDisplayPicUrl, 
   } = postData;
 
   const colorMap: Record<ValidColor, string> = {
@@ -105,7 +105,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     lime: "border-lime-500 text-lime-500 hover:bg-lime-500 hover:text-white",
   };
 
-  const { accountId, role } = useAuth(); // Get the current user's account ID from context
+  const { accountId, role, profilePicUrl} = useAuth(); // Get the current user's account ID from context
 
   const navigate = useNavigate();
   const interactiveClasses = detailMode
@@ -128,7 +128,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
       //state : {id},
     });
   };
-
 
 
   const handleSubmitComment = async () => {
@@ -163,7 +162,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
               <div className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
+                    src={authorDisplayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
                   />
                   <AvatarFallback>{username}</AvatarFallback>
                 </Avatar>
@@ -317,7 +316,8 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
+                  
+                      src={c.displayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
                     />
                     <AvatarFallback className="text-xs">
                       {c.username}

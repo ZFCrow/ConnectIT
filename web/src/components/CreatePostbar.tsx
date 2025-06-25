@@ -18,26 +18,28 @@ import { usePostContext } from "@/contexts/PostContext";
 
 import type { Label } from "@/type/Label"; // import the Label type
 import { FC } from "react"; // import FC from react
-import type { Post } from "@/type/Post"; // import the Post type
 
 import { LabelPicker } from "./LabelPicker";
-import { create } from "domain";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 // createpostbar props
 type CreatePostbarProps = {
   // You can add props here if needed
   retrievedTags: Label[]; // optional prop to pass all tags
-  // createPostFunction?: (postData : { title: string; content: string; labels: number[] }) => Promise<any>; // optional function to create a post
-  // onPostCreated?: (post: Post) => void;
 };
+
+
 
 const CreatePostbar: FC<CreatePostbarProps> = ({
   retrievedTags,
   // createPostFunction ,
   // onPostCreated = () => {}, // default to empty function if not provided
 }) => {
+
+  const {profilePicUrl, name} = useAuth(); // destructure profilePicUrl from the context
+  console.log("profilePicUrl", profilePicUrl);  
   const { createPost, createPostPending } = usePostContext(); // get the createPost function and status from the context
   const [open, setOpen] = useState(false); // dialog open state
 
@@ -69,9 +71,12 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
   return (
     <>
       <Card className="flex flex-row items-center gap-4 p-4 h-20">
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" />
-        </Avatar>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={profilePicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${name}`}
+                  />
+                  <AvatarFallback>{name}</AvatarFallback>
+                </Avatar>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
