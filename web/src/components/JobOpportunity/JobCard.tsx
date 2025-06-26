@@ -13,7 +13,7 @@ import {
   Trash2,
   User2,
 } from "lucide-react";
-import type { JobListing } from "../../type/jobListing";
+import type { FrontendJobListing, JobListing } from "../../type/jobListing";
 import { Link, useNavigate } from "react-router-dom";
 import { dateLocale, dateFormatOptions } from "./SharedConfig";
 import { useState } from "react";
@@ -27,7 +27,7 @@ import { handleBookmarkToggle } from "@/utility/handleBookmark";
 import { ViolationOption } from "@/utility/fetchViolationOptions";
 
 type Props = {
-  job: JobListing;
+  job: FrontendJobListing;
   userType: string;
   setJobListings: React.Dispatch<React.SetStateAction<JobListing[]>>;
   violationOptions: ViolationOption[]; // pass in list of {violationId, description}
@@ -106,14 +106,15 @@ const JobCard: React.FC<Props> = ({
               )
             }
           >
-            {userType === Role.User && job.isBookmarked ? (
-              <BookmarkCheck className="w-6 h-6 text-green-500" />
-            ) : (
-              <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
-            )}
+            {userType === Role.User &&
+              (job.isBookmarked ? (
+                <BookmarkCheck className="w-6 h-6 text-green-500" />
+              ) : (
+                <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+              ))}
           </span>
 
-          <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
+          <div className="flex items-center gap-1 bg- zinc-800 px-2 py-1 rounded-md">
             <User2 className="w-5 h-5 text-gray-300" />
             <span className="text-sm font-medium text-gray-300">
               {job.numApplicants || 0} application(s)
@@ -259,7 +260,7 @@ const JobCard: React.FC<Props> = ({
           onSubmit={handleResumeSubmit}
           loading={applicationLoading}
           jobTitle={job.title}
-          companyName={job.companyName}
+          companyName={job.company.name}
         />
         {/* Delete Modal */}
         <DeleteJobModal

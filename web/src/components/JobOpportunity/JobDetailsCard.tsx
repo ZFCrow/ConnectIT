@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import type { JobListing } from "../../type/jobListing";
+import type { FrontendJobListing, JobListing } from "../../type/jobListing";
 import {
   Calendar,
   Bookmark,
@@ -26,9 +26,9 @@ import { handleBookmarkToggle } from "@/utility/handleBookmark";
 import { ViolationOption } from "@/utility/fetchViolationOptions";
 import { useApplyJob } from "@/utility/handleApplyJob";
 interface Props {
-  job: JobListing;
+  job: FrontendJobListing;
   userType?: string; // Optional, if needed for user-specific logic
-  setJob: React.Dispatch<React.SetStateAction<JobListing | null>>; // For updating job state after deletion
+  setJob: React.Dispatch<React.SetStateAction<FrontendJobListing | null>>; // For updating job state after deletion
   violationOptions: ViolationOption[]; // pass in list of {violationId, description}
 }
 const JobDetailsCard: React.FC<Props> = ({
@@ -58,15 +58,13 @@ const JobDetailsCard: React.FC<Props> = ({
   const { applyJob, applicationLoading } = useApplyJob({
     onSuccess: () => {
       setJob((prev) =>
-        prev.map((j) =>
-          j.jobId === job.jobId
-            ? {
-                ...j,
-                isApplied: true,
-                numApplicants: (j.numApplicants || 0) + 1,
-              }
-            : j
-        )
+        prev && prev.jobId === job.jobId
+          ? {
+              ...prev,
+              isApplied: true,
+              numApplicants: (prev.numApplicants || 0) + 1,
+            }
+          : prev
       );
       setOpen(false);
     },
@@ -103,7 +101,7 @@ const JobDetailsCard: React.FC<Props> = ({
         onClose={() => setOpen(false)}
         onSubmit={handleResumeSubmit}
         jobTitle={job.title}
-        companyName={job.companyName}
+        companyName={job.company.name}
         loading={applicationLoading}
       />
       {/* Header: Title + Field badge + Bookmark + Posted On */}
@@ -214,12 +212,12 @@ const JobDetailsCard: React.FC<Props> = ({
           <b className="text-gray-400">Salary:</b> $
           {job.minSalary.toLocaleString()}–${job.maxSalary.toLocaleString()}
         </span>
-        {typeof job.yearsOfExperience === "number" &&
-          job.yearsOfExperience > 0 && (
+        {typeof job.experiencePreferred === "number" &&
+          job.experiencePreferred > 0 && (
             <span className="flex items-center gap-1">
               <span>
                 <b className="text-gray-400">Experience Preferred:</b>{" "}
-                {`${job.yearsOfExperience} year(s)`}
+                {`${job.experiencePreferred} year(s)`}
               </span>
             </span>
           )}
@@ -245,18 +243,33 @@ const JobDetailsCard: React.FC<Props> = ({
         </>
       )}
       <div className="mt-6 flex items-center space-x-4">
-        {userType === Role.User && (
-          <Link
-            to=""
-            onClick={() => setOpen(true)}
-            className="
-            bg-green-500 hover:bg-green-600 text-white font-medium
-            px-6 py-2 rounded-xl transition
-            "
-          >
-            Apply Now
-          </Link>
-        )}
+        {userType === Role.User &&
+          (job.isApplied ? (
+            /* Already applied ─ outline, disabled */
+            <button
+              type="button"
+              disabled
+              className="
+        border border-gray-500 text-gray-400
+        font-medium px-6 py-2 rounded-xl
+        cursor-not-allowed select-none
+      "
+            >
+              Applied
+            </button>
+          ) : (
+            /* Not applied ─ normal green link */
+            <Link
+              to="" // keep your “open modal” behaviour
+              onClick={() => setOpen(true)}
+              className="
+        bg-green-500 hover:bg-green-600 text-white font-medium
+        px-6 py-2 rounded-xl transition
+      "
+            >
+              Apply Now
+            </Link>
+          ))}
 
         <div className="inline-flex items-center space-x-1 bg-zinc-800 text-gray-300 text-sm font-medium px-2.5 py-1 rounded-lg">
           <Calendar className="w-4 h-4" />

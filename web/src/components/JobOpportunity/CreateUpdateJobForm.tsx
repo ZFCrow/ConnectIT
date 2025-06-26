@@ -1,17 +1,19 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import type { JobListing } from "../../type/jobListing";
+import {
+  JobTypeEnum,
+  WorkArrangementEnum,
+  type JobListing,
+} from "../../type/jobListing";
 import axios from "axios";
 
 // Static lists
-const jobTypes = ["Full Time", "Part Time", "Contract", "Internship"];
-const arrangements = ["Remote", "Hybrid", "Onsite"];
+const jobTypes = JobTypeEnum.options;
+const arrangements = WorkArrangementEnum.options;
 
 // Default empty job
 const defaultJob = (): JobListing => ({
-  applicants: [],
   jobId: Date.now(),
-  companyId: 123,
   title: "",
   fieldOfWork: "",
   description: "",
@@ -23,6 +25,7 @@ const defaultJob = (): JobListing => ({
   applicationDeadline: new Date().toISOString(),
   responsibilities: [""],
   experiencePreferred: 0,
+  jobApplication: [],
 });
 
 interface JobFormProps {
@@ -95,7 +98,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
             </label>
             <select
               id="fieldOfWork"
-              value={form.field}
+              value={form.fieldOfWork}
               onChange={(e) => change("fieldOfWork", e.target.value)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
@@ -137,8 +140,8 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
             </label>
             <select
               id="jobType"
-              value={form.type}
-              onChange={(e) => change("jobType", e.target.value)}
+              value={form.jobType}
+              onChange={(e) => change("jobType", e.target.value as JobTypeEnum)}
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
               {jobTypes.map((t) => (
@@ -158,7 +161,9 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
             <select
               id="arrangement"
               value={form.workArrangement}
-              onChange={(e) => change("workArrangement", e.target.value)}
+              onChange={(e) =>
+                change("workArrangement", e.target.value as WorkArrangementEnum)
+              }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             >
               {arrangements.map((a) => (
@@ -181,10 +186,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
               step={100}
               value={form.minSalary === 0 ? "" : form.minSalary}
               onChange={(e) =>
-                change(
-                  "minSalary",
-                  e.target.value === "" ? "" : +e.target.value
-                )
+                change("minSalary", e.target.value === "" ? 0 : +e.target.value)
               }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
@@ -202,10 +204,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
               step={100}
               value={form.maxSalary === 0 ? "" : form.maxSalary}
               onChange={(e) =>
-                change(
-                  "maxSalary",
-                  e.target.value === "" ? "" : +e.target.value
-                )
+                change("maxSalary", e.target.value === "" ? 0 : +e.target.value)
               }
               className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
             />
