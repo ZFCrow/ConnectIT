@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
 import type { ReactNode } from "react";
 
 export const Role = {
@@ -16,11 +22,18 @@ interface AuthContextType {
   userId: number | null;
   companyId: number | null;
   isLoading: boolean;
+  verified: boolean | null;
+
   login: (
     accountId: number,
     role: Role,
     name: string,
-    opts?: { userId?: number; companyId?: number; profilePicUrl?: string }
+    opts?: {
+      userId?: number;
+      companyId?: number;
+      profilePicUrl?: string;
+      verified?: boolean | null;
+    }
   ) => void;
   logout: () => void;
 }
@@ -32,7 +45,8 @@ const AuthContext = createContext<AuthContextType>({
   profilePicUrl: null,
   userId: null,
   companyId: null,
-  isLoading:     true,
+  verified: null,
+  isLoading: true,
   login: () => {},
   logout: () => {},
 });
@@ -46,28 +60,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [profilePicUrl, setProfilePic] = useState<string | null>(null);
   const [userId, setUserId] = useState<number | null>(null);
   const [companyId, setCompanyId] = useState<number | null>(null);
-  const [isLoading,     setIsLoading]     = useState<boolean>(true);
-
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [verified, setVerified] = useState<boolean | null>(null);
   useEffect(() => {
     let isMounted = true;
 
     async function bootstrapAuth() {
       try {
         const res = await fetch("/api/me", {
-          method:      "GET",
+          method: "GET",
           credentials: "include",
         });
 
         if (res.ok) {
           const data = await res.json();
-          console.log(data)
+          console.log(data);
           if (!isMounted) return;
-          setAccountId(     data.accountId     ?? null);
-          setRole(          data.role          ?? null);
-          setName(          data.name          ?? null);
-          setProfilePic( data.profilePicUrl ?? null);
-          setUserId(        data.userId        ?? null);
-          setCompanyId(     data.companyId     ?? null);
+          setAccountId(data.accountId ?? null);
+          setRole(data.role ?? null);
+          setName(data.name ?? null);
+          setProfilePic(data.profilePicUrl ?? null);
+          setUserId(data.userId ?? null);
+          setCompanyId(data.companyId ?? null);
+          setVerified(data.verified ?? null);
         } else {
           // 401 or empty payload → user not logged in
           console.log("json returns nothing");
@@ -88,91 +103,99 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const login = (
     acctId: number,
-    r:      Role,
-    nm:     string,
-    opts:   { userId?: number; companyId?: number; profilePicUrl?: string } = {}
+    r: Role,
+    nm: string,
+    opts: {
+      userId?: number;
+      companyId?: number;
+      profilePicUrl?: string;
+      verified?: boolean;
+    } = {}
   ) => {
     setAccountId(acctId);
     setRole(r);
     setName(nm);
-    setUserId(opts.userId          ?? null);
-    setCompanyId(opts.companyId    ?? null);
+    setUserId(opts.userId ?? null);
+    setCompanyId(opts.companyId ?? null);
     setProfilePic(opts.profilePicUrl ?? null);
+    setVerified(opts.verified ?? null);
   };
 
   const logout = async () => {
     try {
       await fetch("/api/logout", {
-        method:      "POST",
+        method: "POST",
         credentials: "include",
       });
     } catch (err) {
       console.error("[AuthProvider] Logout failed", err);
     } finally {
       setAccountId(null);
-      setRole(     null);
-      setName(     null);
-      setUserId(   null);
+      setRole(null);
+      setName(null);
+      setUserId(null);
       setCompanyId(null);
       setProfilePic(null);
+      setVerified(null);
     }
   };
 
   useEffect(() => {
-  if (!isLoading && accountId) {
+    if (!isLoading && accountId) {
+      const refreshInterval = setInterval(() => {
+        fetch("/api/refresh", {
+          method: "POST",
+          credentials: "include",
+        })
+          .then((res) => {
+            if (!res.ok) {
+              console.error(
+                "[AuthProvider] Token refresh failed:",
+                res.statusText
+              );
+            }
+          })
+          .catch((err) => {
+            console.error("[AuthProvider] Token refresh network error:", err);
+          });
+      }, 15 * 60 * 1000); // 15 minutes
 
-    const refreshInterval = setInterval(() => {
-      fetch("/api/refresh", {
-        method:      "POST",
-        credentials: "include",
-      })
-      .then(res => {
-        if (!res.ok) {
-          console.error("[AuthProvider] Token refresh failed:", res.statusText);
-        }
-      })
-      .catch(err => {
-        console.error("[AuthProvider] Token refresh network error:", err);
-      });
-    }, 15 * 60 * 1000); // 15 minutes
-
-    return () => {
-      clearInterval(refreshInterval);
+      return () => {
+        clearInterval(refreshInterval);
       };
     }
   }, [isLoading, accountId]);
 
-
   // memoize the context value
-  const authValue = useMemo(() => ({
-    accountId,
-    role,
-    name,
-    profilePicUrl,
-    userId,
-    companyId,
-    isLoading,
-    login,
-    logout,
-  }), [
-    accountId,
-    role,
-    name,
-    profilePicUrl,
-    userId,
-    companyId,
-    isLoading,
-    login,
-    logout,
-  ]);
+  const authValue = useMemo(
+    () => ({
+      accountId,
+      role,
+      name,
+      profilePicUrl,
+      userId,
+      companyId,
+      verified,
+      isLoading,
+      login,
+      logout,
+    }),
+    [
+      accountId,
+      role,
+      name,
+      profilePicUrl,
+      userId,
+      companyId,
+      verified,
+      isLoading,
+      login,
+      logout,
+    ]
+  );
 
-  
   return (
-    <AuthContext.Provider
-      value={authValue}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
   );
 };
 

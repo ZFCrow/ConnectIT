@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { useState,useEffect  } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, Role } from "@/contexts/AuthContext";
 import {
   User,
@@ -31,9 +31,7 @@ import { Verify2FAForm } from "./Verify2FAForm";
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
 function getCookie(name: string): string | null {
-  const match = document.cookie.match(
-    new RegExp("(^|; )" + name + "=([^;]*)")
-  );
+  const match = document.cookie.match(new RegExp("(^|; )" + name + "=([^;]*)"));
   return match ? decodeURIComponent(match[2]) : null;
 }
 
@@ -55,23 +53,17 @@ export function LoginForm() {
 
   const callCreateToken = async (account: AccountData) => {
     try {
+      await axios.post("/api/create_token", account, { withCredentials: true });
 
-      await axios.post(
-        "/api/create_token",
-        account,
-        { withCredentials: true }
-      );
-
-      login(
-        account.accountId,
-        account.role,
-        account.name,
-        {
-          userId: (account as User).userId,
-          companyId: (account as Company).companyId,
-          profilePicUrl: account.profilePicUrl,
-        }
-      );
+      login(account.accountId, account.role, account.name, {
+        userId: (account as User).userId,
+        companyId: (account as Company).companyId,
+        profilePicUrl: account.profilePicUrl,
+        verified:
+          account.role === Role.Company
+            ? (account as Company).verified === 1 // 1 ⇒ true
+            : true,
+      });
       navigate("/");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Token creation failed.");

@@ -19,14 +19,13 @@ import CompanyJobsPage from "./Pages/JobOpportunity/CompanyJobPage";
 import CreateEditJobPage from "./Pages/JobOpportunity/CreateEditJobPage";
 import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
 
-
 import ProtectedRoutes from "./ProtectedRoutes";
 import PublicRoute from "./PublicRoutes";
-import LoginPage           from "@/Pages/auth/Login";
-import RegisterPage        from "@/Pages/auth/Register";
+import LoginPage from "@/Pages/auth/Login";
+import RegisterPage from "@/Pages/auth/Register";
+import PendingApprovalPage from "./Pages/PendingApprovalPage";
 
 function App() {
-
   return (
     <>
       <div className="min-h-screen flex flex-col gap-2 bg-amber-50 text-black dark:bg-zinc-900 dark:text-slate-100 transition-colors ">
@@ -34,15 +33,13 @@ function App() {
 
         <main className="flex-1">
           <Routes>
+            <Route element={<PublicRoute />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
 
-         <Route element={<PublicRoute />}>
-           <Route path="/login"    element={<LoginPage    />} />
-           <Route path="/register" element={<RegisterPage />} />
-         </Route>
-
-            {/* Protected Routes */ }
-            <Route path="/*" element={<ProtectedRoutes />} /> 
-
+            {/* Protected Routes */}
+            <Route path="/*" element={<ProtectedRoutes />} />
             {/* <Route path="/" element={<Homepage />} />
             <Route path="/post/:postId" element={<Postpage />} />
             <Route path="/otherpage" element={<Otherpage />} />

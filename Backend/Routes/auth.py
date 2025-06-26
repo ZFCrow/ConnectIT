@@ -267,6 +267,7 @@ def create_token():
     profile_pic_url = data.get("profilePicUrl")
     user_id         = data.get("userId")
     company_id      = data.get("companyId")
+    is_verified    = data.get("verified")
 
     if not account_id or not user_role or not name:
 
@@ -288,6 +289,8 @@ def create_token():
         profile_pic_url,
         user_id,
         company_id,
+        is_verified=is_verified
+        
     )
     if not token:
 
@@ -389,6 +392,7 @@ def me():
         "profilePicUrl": data.get("profilePicUrl"),
         "userId":        data.get("userId"),
         "companyId":     data.get("companyId"),
+        "verified":    data.get("verified"),
     }), 200
 
 @auth_bp.route('/refresh', methods=['POST'])
@@ -410,6 +414,7 @@ def refresh():
         profile_pic_url= data.get("profilePicUrl"),
         user_id        = data.get("userId"),
         company_id     = data.get("companyId"),
+        is_verified    = data.get("verified"),
         orig_iat       = datetime.fromisoformat(data["origIat"])
     )
     resp = make_response(jsonify({}), 200)

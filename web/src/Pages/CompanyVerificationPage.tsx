@@ -107,7 +107,10 @@ const CompanyVerificationPage: React.FC = () => {
 
       {/* Company Cards List */}
       {loading ? (
-        <LoadingSpinner message="Loading companies..." className="flex items-center justify-center py-16" />
+        <LoadingSpinner
+          message="Loading companies..."
+          className="flex items-center justify-center py-16"
+        />
       ) : filteredCompanies.length > 0 ? (
         <ul className="space-y-5">
           {filteredCompanies.map((company) => (

@@ -16,6 +16,7 @@ class JWTUtils:
         profile_pic_url: str | None = None,
         user_id:         int  | None = None,
         company_id:      int  | None = None,
+        is_verified: bool | None = None,
         orig_iat:        datetime | None = None,
     ) -> str:
         now = datetime.now(timezone.utc)
@@ -29,7 +30,7 @@ class JWTUtils:
             "profilePicUrl": profile_pic_url,
             "userId":   str(user_id)    if user_id    is not None else None,
             "companyId":str(company_id) if company_id is not None else None,
-
+            "verified": is_verified,
             "iat": now,
             "exp": now + JWTUtils.SLIDING_EXP,
 
