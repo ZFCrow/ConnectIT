@@ -5,12 +5,14 @@ from Security.ValidateInputs import validate_register, validate_login
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
+from Security.ValidateCaptcha import verify_hcaptcha
 import time
 from Security.Limiter import (
     limiter,
     get_register_key,
     is_locked,
     increment_failed_attempts,
+    get_failed_attempts_count,
     reset_login_attempts,
     ratelimit_logger,
 )
@@ -112,6 +114,7 @@ def login():
     start_time = time.time()  # Start timer
     payload = request.get_json() or {}
     email = payload.get("email")
+    captcha_token = payload.get("captchaToken")
 
     if is_locked(email):
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -132,6 +135,42 @@ def login():
         })
 
         return jsonify({"error": "Account locked due to too many failed attempts"}), 403
+    
+    current_failed_attempts = get_failed_attempts_count(email)
+    CAPTCHA_THRESHOLD = 3
+
+    if current_failed_attempts >= CAPTCHA_THRESHOLD:
+        if not captcha_token:
+            # If CAPTCHA is required but not provided, signal frontend to show it
+            SplunkLogging.send_log({
+                "event": "Login Attempt Failed",
+                "reason": "CAPTCHA required but token missing",
+                "email": email,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
+            })
+            # Return a response that tells the frontend to display the CAPTCHA
+            return jsonify({"message": "Please complete the Captcha below", "showCaptcha": True}), 400
+        
+        # If CAPTCHA token is provided, verify it
+        captcha_result = verify_hcaptcha(captcha_token)
+        if not captcha_result["success"]:
+            # If CAPTCHA verification fails, increment failed attempts and return error
+            increment_failed_attempts(email) # Failed CAPTCHA counts as a failed attempt
+            SplunkLogging.send_log({
+                "event": "Login Attempt Failed",
+                "reason": "HCaptcha verification failed",
+                "hcaptcha_errors": captcha_result.get("data", {}).get("error-codes"),
+                "email": email,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
+            })
+            # Also tell frontend to show CAPTCHA again if verification failed
+            return jsonify({"error": "CAPTCHA verification failed.", "showCaptcha": True}), 400
 
     errors = validate_login(payload)
     if errors:
@@ -153,7 +192,8 @@ def login():
 
     if not account:
         count = increment_failed_attempts(email)
-        if count >= 5:
+
+        if count > 5:
             timestamp = datetime.now(timezone.utc).isoformat()
             ratelimit_logger.warning(
                 f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "

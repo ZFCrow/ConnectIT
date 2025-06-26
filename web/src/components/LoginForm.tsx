@@ -27,6 +27,7 @@ import toast from "react-hot-toast";
 
 import { Generate2FAForm } from "./Generate2FAForm";
 import { Verify2FAForm } from "./Verify2FAForm";
+import { HCaptchaForm } from "./HcaptchaForm"; // Import your HCaptchaForm
 
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
@@ -42,6 +43,8 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [step, setStep] = useState<"login" | "generate" | "verify">("login");
   const [user, setUser] = useState<AccountData | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [showCaptcha, setShowCaptcha] = useState(false); 
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -52,6 +55,8 @@ export function LoginForm() {
   //       axios.defaults.headers.common["X-CSRFToken"] = csrf;
   //     }
   //   }, []);
+
+  const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
 
   const callCreateToken = async (account: AccountData) => {
     try {
@@ -72,6 +77,8 @@ export function LoginForm() {
           profilePicUrl: account.profilePicUrl,
         }
       );
+      setCaptchaToken(null);
+      setShowCaptcha(false);
       navigate("/");
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Token creation failed.");
@@ -80,12 +87,23 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+
+    if (showCaptcha && !captchaToken) {
+        toast.error("Please complete the CAPTCHA before logging in.");
+        return;
+    }
+
     try {
       const response = await axios.post("/api/login", {
         email,
         password,
+        captchaToken: captchaToken,
       });
       const data = response.data;
+
+      setCaptchaToken(null);
+      setShowCaptcha(false);
 
       let parsed;
       switch (data.role) {
@@ -112,6 +130,19 @@ export function LoginForm() {
       console.error("Login failed", err);
       const msg = err.response?.data?.error || err.response?.data?.message;
       toast.error(msg || "Login error");
+
+      // Debugging: Log response from backend
+      console.log("Login catch block - Backend response data:", err.response?.data);
+
+      if (err.response?.data?.showCaptcha) {
+        setShowCaptcha(true);
+        setCaptchaToken(null); 
+
+      } else {
+        setShowCaptcha(false);
+        setCaptchaToken(null); 
+
+      }
     }
   };
 
@@ -152,6 +183,17 @@ export function LoginForm() {
                   required
                 />
               </div>
+
+              {showCaptcha && HCAPTCHA_SITEKEY &&(
+                <div className="space-y-2">
+                  <Label htmlFor="captcha">Please verify you're not a robot</Label>
+                  <HCaptchaForm
+                    sitekey={HCAPTCHA_SITEKEY}
+                    onTokenChange={setCaptchaToken}
+                  />
+                </div>
+              )}
+
               <p className="text-sm text-muted-foreground text-center">
                 Don’t have an account?{" "}
                 <Link
