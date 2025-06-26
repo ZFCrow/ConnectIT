@@ -29,6 +29,14 @@ services:
     volumes:
       - redis-data:/data
 
+  wrk:
+    build:
+      context: tools/wrk
+      dockerfile: wrk.dockerfile
+    depends_on:
+      - backend
+    # Change -t, -c, -d or URL to suit your test
+    command: ["-t2", "-c20", "-d30s", "--latency", "http://backend:5000/"]
 volumes:
   redis-data:
     

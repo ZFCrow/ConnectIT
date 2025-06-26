@@ -10,6 +10,7 @@ from pathlib import Path
 
 Base = declarative_base()
 
+
 class DatabaseContext:
     """
     Database context manager with SSH tunnel support - similar to Entity Framework DbContext
@@ -287,5 +288,15 @@ class DatabaseContext:
         """Context manager exit"""
         self.dispose()
 
+
 # Global instance (singleton pattern)
 db_context = DatabaseContext()
+
+
+#db_context = None
+
+# def get_db_context():
+#     global _db_context
+#     if _db_context is None:
+#         _db_context = DatabaseContext()
+#     return _db_context

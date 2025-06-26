@@ -38,7 +38,7 @@ services:
         - "8000:8000" # Splunk web UI
         - "8088:8088" # HEC (HTTP Event Collector) endpoint
       env_file:
-      - .env.dev
+      - .env
       environment:
         # Accept Splunk license
         - SPLUNK_START_ARGS=--accept-license
@@ -54,3 +54,12 @@ services:
         nofile:
           soft: 65536
           hard: 65536
+          
+  wrk:
+    build:
+      context: tools/wrk
+      dockerfile: wrk.dockerfile
+    depends_on:
+      - backend
+    # Change -t, -c, -d or URL to suit your test
+    command: ["-t2", "-c20", "-d30s", "--latency", "http://backend:5000/"]
