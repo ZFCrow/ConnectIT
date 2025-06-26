@@ -6,10 +6,8 @@ import { useNavigate } from "react-router-dom";
 import ApplicantsTab from "../../components/JobOpportunity/ApplicantTab";
 import {
   JobApplicationSchema,
-  type Applicant,
   type JobApplication,
 } from "../../type/JobApplicationSchema";
-import { sampleApplicants } from "../../components/FakeData/sampleApplicants";
 import axios from "axios";
 import { JobListingSchema } from "../../type/jobListing";
 import { Role, useAuth } from "@/contexts/AuthContext";

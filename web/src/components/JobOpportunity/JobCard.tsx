@@ -10,7 +10,6 @@ import {
   Bookmark,
   User,
   BookmarkCheck,
-  Edit2,
   Trash2,
   User2,
 } from "lucide-react";
@@ -20,7 +19,6 @@ import { dateLocale, dateFormatOptions } from "./SharedConfig";
 import { useState } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { Role } from "@/contexts/AuthContext";
-import axios from "axios";
 import DeleteJobModal from "./DeleteJobModal";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
 import { useApplyJob } from "@/utility/handleApplyJob";
@@ -108,14 +106,11 @@ const JobCard: React.FC<Props> = ({
               )
             }
           >
-            {userType === Role.User ? (
-              job.isBookmarked ? (
-                (console.log("Job is bookmarked:", job.isBookmarked),
-                (<BookmarkCheck className="w-6 h-6 text-green-500" />))
-              ) : (
-                <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
-              )
-            ) : null}
+            {userType === Role.User && job.isBookmarked ? (
+              <BookmarkCheck className="w-6 h-6 text-green-500" />
+            ) : (
+              <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
+            )}
           </span>
 
           <div className="flex items-center gap-1 bg-zinc-800 px-2 py-1 rounded-md">
@@ -214,7 +209,6 @@ const JobCard: React.FC<Props> = ({
         </div>
       </div>
       {/* Buttons Column */}
-      {console.log("JobCard userType:", userType)}
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
         {userType === Role.Company && (
           <>

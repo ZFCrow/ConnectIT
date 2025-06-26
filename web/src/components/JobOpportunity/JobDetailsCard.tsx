@@ -14,15 +14,10 @@ import {
   dateFormatOptions,
   //   applicationRoute,
 } from "./SharedConfig";
-import { useMemo } from "react";
 import ResumeUploadModal from "./ResumeUploadModal";
 import { useState } from "react";
 import ApplicantCard from "./ApplicantCard";
-import type {
-  Applicant,
-  JobApplication,
-} from "../../type/JobApplicationSchema";
-import { sampleApplicants } from "../FakeData/sampleApplicants";
+import type { JobApplication } from "../../type/JobApplicationSchema";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { useDeleteJob } from "@/utility/handleDeleteJob";
 import DeleteJobModal from "./DeleteJobModal";

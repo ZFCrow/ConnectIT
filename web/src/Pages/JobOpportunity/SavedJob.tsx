@@ -6,6 +6,10 @@ import axios from "axios";
 import { useAuth, Role } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import {
+  fetchViolationOptions,
+  ViolationOption,
+} from "@/utility/fetchViolationOptions";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,6 +20,9 @@ export default function MyJobsPage() {
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(false);
   const { role, userId } = useAuth();
+  const [violationOptions, setViolationOptions] = useState<ViolationOption[]>(
+    []
+  );
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
@@ -23,7 +30,10 @@ export default function MyJobsPage() {
         // Fetch bookmarked & applied IDs
         let bookmarkedIds: number[] = [];
         let appliedIds: number[] = [];
-
+        if (role === Role.Admin) {
+          const opts = await fetchViolationOptions();
+          setViolationOptions(opts);
+        }
         if (role === Role.User && userId) {
           const bookmarkRes = await axios.get(
             `/api/getBookmarkedJob/${userId}`
@@ -157,6 +167,7 @@ export default function MyJobsPage() {
               job={job}
               setJobListings={setJobListings}
               userType={role}
+              violationOptions={violationOptions}
             />
           ))
         ) : (
