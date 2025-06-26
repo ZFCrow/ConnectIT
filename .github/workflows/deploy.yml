@@ -22,13 +22,11 @@ jobs:
 
     steps: 
       - name: Checkout code
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
-        run: npm run build
+      - name: Build web
+        working-directory: web
+        run: npm ci && npm run build
 
   deploy: 
     #if: ${{ github.event.workflow_run.conclusion == 'success' }} 
