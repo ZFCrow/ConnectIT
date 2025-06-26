@@ -1,3 +1,4 @@
+import secrets
 from flask import Blueprint, request, jsonify, make_response, abort
 from Boundary.AccountBoundary import AccountBoundary
 from SQLModels.AccountModel import Role
@@ -259,7 +260,6 @@ def login():
         if account.twoFaEnabled:
             otp = payload.get("otp")
             if not otp:
-                # tell the client “OTP required” (no cookie yet) with a 200 status
                 SplunkLogging.send_log({
                 "event": "Login Partial Success",
                 "reason": "Missing 2FA authentication",
@@ -274,7 +274,6 @@ def login():
 
             totp = pyotp.TOTP(account.twoFaSecret)
             if not totp.verify(otp):
-                # bad code → still a 401
                 SplunkLogging.send_log({
                 "event": "Login Failed",
                 "reason": "Invalid two-factor code",
@@ -446,7 +445,6 @@ def refresh():
     except jwt.PyJWTError:
         abort(401)
 
-    # Issue a new token with same origIat
     new_token = JWTUtils.generate_jwt_token(
         account_id     = data["sub"],
         user_role      = data["role"],
@@ -464,16 +462,24 @@ def refresh():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
+    # Attempt to pull email/ID from the cookie for your audit log
+    raw = JWTUtils.get_token_from_cookie()
+    user_email = None
+    try:
+        claims = JWTUtils.decode_jwt_token(raw)
+        user_email = claims.get("name") or claims.get("sub")
+    except Exception:
+        pass
 
     SplunkLogging.send_log({
-        "event": "Login Successful",
-        "email": account.email,
-        "role": account.role,
+        "event": "Logout",
+        "user": user_email,
         "ip": request.remote_addr,
         "user_agent": str(request.user_agent),
         "method": request.method,
         "path": request.path
-        })
-    
+    })
+
+    # This must match the cookie name you used in set_auth_cookie (default: "session_token")
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     return JWTUtils.remove_auth_cookie(resp)
