@@ -128,8 +128,8 @@ app = create_app()
 
 @app.route("/")
 def index():
-    print("request from")
-    print ("request from")
+    #print("request from")
+    #print ("request from")
 
     return jsonify({"message": "Welcome to the API!"})
 

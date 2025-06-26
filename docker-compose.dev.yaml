@@ -30,30 +30,7 @@ services:
       - ./logs:/var/log
       
 
-  
-  splunk:
-      image: splunk/splunk:latest
-      container_name: splunk
-      ports:
-        - "8000:8000" # Splunk web UI
-        - "8088:8088" # HEC (HTTP Event Collector) endpoint
-      env_file:
-      - .env
-      environment:
-        # Accept Splunk license
-        - SPLUNK_START_ARGS=--accept-license
-        - SPLUNK_ENABLE_LISTEN=8088
-      volumes:
-        - splunk_data:/opt/splunk/var/lib/splunk # Persistent storage for Splunk data
-      healthcheck:
-        test: ["CMD-SHELL", "curl -f http://localhost:8000/en-US/account/login || exit 1"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      ulimits:
-        nofile:
-          soft: 65536
-          hard: 65536
+
           
   wrk:
     build:
