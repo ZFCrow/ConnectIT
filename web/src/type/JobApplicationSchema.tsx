@@ -3,7 +3,7 @@ import { z } from "zod";
 export const JobApplicationSchema = z.object({
   applicationId: z.number(),
   appliedAt: z.string(), // Optionally: z.coerce.date() if you want a Date
-  bio: z.string(),
+  bio: z.string().nullable().optional(),
   email: z.string().email(),
   jobId: z.number(),
   name: z.string(),

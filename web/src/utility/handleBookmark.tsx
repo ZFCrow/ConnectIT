@@ -1,42 +1,42 @@
 import axios from "axios";
-
-// Generic type T for your JobListing type
+type MaybeBookmarked = {
+  jobId?: number | null;
+  isBookmarked?: boolean | null;
+};
+/** Generic job shape that has a bookmark flag */
 export const handleBookmarkToggle = async <
-  T extends { jobId: number; isBookmarked: boolean }
+  T extends MaybeBookmarked,
+  // S can be ONE job, an ARRAY of jobs, or null
+  S extends T | T[] | null
 >(
   userId: number,
   jobId: number,
   isBookmarked: boolean,
-  setJobListings?: React.Dispatch<React.SetStateAction<T[]>>
+  setState?: React.Dispatch<React.SetStateAction<S>>
 ) => {
-  const optimisticUpdate = (prev: T[] | T) => {
+  // -------- optimistic update --------
+  const optimisticUpdate = (prev: S): S => {
     if (Array.isArray(prev)) {
-      // Update job in the array
-      return prev.map((job) =>
-        job.jobId === jobId ? { ...job, isBookmarked: !isBookmarked } : job
-      );
-    } else if (prev && typeof prev === "object") {
-      // Update single job object
-      if ((prev as T).jobId === jobId) {
-        return { ...prev, isBookmarked: !isBookmarked };
-      }
-      return prev;
+      return prev.map((j) =>
+        j.jobId === jobId ? { ...j, isBookmarked: !isBookmarked } : j
+      ) as S;
+    }
+    if (prev && (prev as T).jobId === jobId) {
+      return { ...prev, isBookmarked: !isBookmarked } as S;
     }
     return prev;
   };
 
   try {
-    setJobListings(optimisticUpdate as any); // React will call with prev value
-
+    setState?.(optimisticUpdate);
     if (isBookmarked) {
       await axios.delete(`/api/removeBookmark/${userId}/${jobId}`);
     } else {
       await axios.post(`/api/addBookmark`, { userId, jobId });
     }
   } catch (err) {
-    // Roll back UI if API fails
-    setJobListings(optimisticUpdate as any);
-
+    // rollback
+    setState?.(optimisticUpdate);
     console.error("Failed to toggle bookmark:", err);
   }
 };

@@ -1,7 +1,11 @@
 // src/pages/MyJobsPage.tsx
 import React, { useEffect, useState } from "react";
 import JobCard from "../../components/JobOpportunity/JobCard";
-import { JobListingSchema, type JobListing } from "../../type/jobListing";
+import {
+  FrontendJobListing,
+  JobListingSchema,
+  type JobListing,
+} from "../../type/jobListing";
 import axios from "axios";
 import { useAuth, Role } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
@@ -17,7 +21,7 @@ export default function MyJobsPage() {
   const [tab, setTab] = useState<"saved" | "applied">("saved");
   const [savedPage, setSavedPage] = useState(1);
   const [appliedPage, setAppliedPage] = useState(1);
-  const [jobListings, setJobListings] = useState<JobListing[]>([]);
+  const [jobListings, setJobListings] = useState<FrontendJobListing[]>([]);
   const [loading, setLoading] = useState(false);
   const { role, userId } = useAuth();
   const [violationOptions, setViolationOptions] = useState<ViolationOption[]>(

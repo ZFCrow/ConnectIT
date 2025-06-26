@@ -35,3 +35,5 @@ export const FrontendJobListingSchema = JobListingSchema.extend({
 
 export type FrontendJobListing = z.infer<typeof FrontendJobListingSchema>;
 export type JobListing = z.infer<typeof JobListingSchema>;
+export type JobTypeEnum = z.infer<typeof JobTypeEnum>; // from z.enum([...])
+export type WorkArrangementEnum = z.infer<typeof WorkArrangementEnum>;

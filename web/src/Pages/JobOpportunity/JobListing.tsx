@@ -7,7 +7,7 @@ import { ApplicationToaster } from "@/components/CustomToaster";
 import LoadingSpinner from "@/components/ui/loading-circle";
 import { Link } from "react-router-dom";
 import { Bookmark, CheckCircle } from "lucide-react";
-import { JobListing } from "@/type/jobListing";
+import { FrontendJobListing, JobListing } from "@/type/jobListing";
 import { JobListingSchema } from "@/type/jobListing";
 import axios from "axios";
 import { Role, useAuth } from "@/contexts/AuthContext";
@@ -70,7 +70,7 @@ const JobListingPage: React.FC = () => {
         ]);
 
         setViolationOptions(violations);
-        setJobListings(jobsData as JobListing[]);
+        setJobListings(jobsData as FrontendJobListing[]);
       } catch (err) {
         // Handle error as needed
         setViolationOptions([]);
@@ -100,7 +100,8 @@ const JobListingPage: React.FC = () => {
     const matchesType = filterType === "All" || job.jobType === filterType;
     const matchesArrangement =
       filterArrangement === "All" || job.workArrangement === filterArrangement;
-    const matchesField = filterField === "All" || job.field === filterField;
+    const matchesField =
+      filterField === "All" || job.fieldOfWork === filterField;
     const meetsMin = !minSalary || job.minSalary >= Number(minSalary);
     const meetsMax = !maxSalary || job.maxSalary <= Number(maxSalary);
     return (
@@ -199,7 +200,10 @@ const JobListingPage: React.FC = () => {
         {/* Job Cards column (with loading, jobs, or no results) */}
         <div className="flex-1 space-y-6">
           {loading ? (
-            <LoadingSpinner message="Loading jobs..." className="h-[200px] flex items-center justify-center" />
+            <LoadingSpinner
+              message="Loading jobs..."
+              className="h-[200px] flex items-center justify-center"
+            />
           ) : paginated.length > 0 ? (
             paginated.map((job) => (
               <JobCard

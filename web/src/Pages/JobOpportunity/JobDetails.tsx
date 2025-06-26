@@ -5,7 +5,11 @@ import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
-import { JobListing, JobListingSchema } from "@/type/jobListing";
+import {
+  FrontendJobListing,
+  JobListing,
+  JobListingSchema,
+} from "@/type/jobListing";
 import { useEffect, useState } from "react";
 import {
   fetchViolationOptions,
@@ -14,28 +18,53 @@ import {
 
 export default function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
-  const [job, setJob] = useState<JobListing | null>(null);
+  const [job, setJob] = useState<FrontendJobListing | null>(null);
   const [loading, setLoading] = useState(true);
   const [violationOptions, setViolationOptions] = useState<ViolationOption[]>(
     []
   );
+  const { role, userId, companyId } = useAuth();
 
   useEffect(() => {
     if (!jobId) return;
 
     const loadAll = async () => {
       setLoading(true);
+
       try {
+        // ────────── fetch core job + violation list first ──────────
         const [jobRes, violationOpts] = await Promise.all([
           axios.get(`/api/jobDetails/${jobId}`),
           fetchViolationOptions(),
         ]);
 
-        // parse + set
-        setJob(JobListingSchema.parse(jobRes.data));
+        // Parse the bare job
+        const parsed = JobListingSchema.parse(
+          jobRes.data
+        ) as FrontendJobListing;
+
+        // ────────── fetch bookmark / application status (if user) ──────────
+        if (role === Role.User && userId) {
+          const [bookmarkRes, appliedRes] = await Promise.all([
+            axios.get(`/api/getBookmarkedJob/${userId}`), // returns [jobId…]
+            axios.get(`/api/getAppliedJobId/${userId}`), // returns [jobId…]
+          ]);
+
+          const bookmarkedIds: number[] = bookmarkRes.data ?? [];
+          const appliedIds: number[] = appliedRes.data ?? [];
+
+          parsed.isBookmarked = bookmarkedIds.includes(parsed.jobId);
+          parsed.isApplied = appliedIds.includes(parsed.jobId);
+        } else {
+          // viewer is company/admin/guest: default flags
+          parsed.isBookmarked = false;
+          parsed.isApplied = false;
+        }
+
+        setJob(parsed);
         setViolationOptions(violationOpts);
       } catch (err) {
-        console.error("Failed to load job details or violations", err);
+        console.error("Failed to load job details / violations", err);
         setJob(null);
         setViolationOptions([]);
       } finally {
@@ -44,10 +73,8 @@ export default function JobDetailPage() {
     };
 
     loadAll();
-  }, [jobId]);
-
+  }, [jobId, role, userId]);
   // const job = sampleJobs.find((j) => j.jobId === Number(jobId));
-  const { role, userId, companyId } = useAuth();
   if (!job) {
     if (loading) {
       return (
