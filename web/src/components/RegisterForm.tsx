@@ -34,8 +34,7 @@ export function RegisterForm() {
   const navigate = useNavigate();
 
   // Captcha
-  const { captchaVerificationStatus, verifyCaptchaToken } =
-    useCaptchaVerification();
+  const { captchaVerificationStatus, verifyCaptchaToken } = useCaptchaVerification();
   const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
 
   const handleSubmit = async (e: React.FormEvent) => {
