@@ -5,15 +5,15 @@ name: Deploy to Production
 
 on: 
   # workflow_dispatch: {} # Allows manual triggering of the workflow
-  # workflow_run:
-  #   workflows: ["OWASP Dependency Check"]
-  #   types:
-  #     - completed 
+  workflow_run:
+    workflows: ["OWASP Dependency Check"]
+    types:
+      - completed 
 
-  push: 
-    branches: [main] # Trigger on push to main branch
-  pull_request:
-    branches: [main] # Trigger on pull request to main branch 
+  # push: 
+  #   branches: [main] # Trigger on push to main branch
+  # pull_request:
+  #   branches: [main] # Trigger on pull request to main branch 
 
 
 jobs: 
