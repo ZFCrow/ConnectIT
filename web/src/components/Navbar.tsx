@@ -30,8 +30,8 @@ const Navbar = () => {
   const { accountId, role, logout } = useAuth();
   const navigate = useNavigate();
 
-  console.log("Navbar rendered with role:", role);
-  console.log("Navbar rendered with accountId:", accountId);
+  // console.log("Navbar rendered with role:", role);
+  // console.log("Navbar rendered with accountId:", accountId);
 
   return (
     <nav
@@ -54,46 +54,50 @@ const Navbar = () => {
 
       <NavigationMenu>
         <NavigationMenuList>
-          {role !== Role.Company && (
-            <NavigationMenuItem>
-              <Link
-                to="/jobListing"
-                className={clsx(
-                  navigationMenuTriggerStyle(),
-                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700 "
-                )}
-              >
-                Job Opportunities Board{" "}
-              </Link>
-            </NavigationMenuItem>
-          )}
+          {accountId && (
+            <>
+              {role !== Role.Company && (
+                <NavigationMenuItem>
+                  <Link
+                    to="/jobListing"
+                    className={clsx(
+                      navigationMenuTriggerStyle(),
+                      "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                    )}
+                  >
+                    Job Opportunities Board
+                  </Link>
+                </NavigationMenuItem>
+              )}
 
-          {role === Role.Company && (
-            <NavigationMenuItem>
-              <Link
-                to="/company/recruitmentDashboard"
-                className={clsx(
-                  navigationMenuTriggerStyle(),
-                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
-                )}
-              >
-                Recruitment Dashboard
-              </Link>
-            </NavigationMenuItem>
-          )}
+              {role === Role.Company && (
+                <NavigationMenuItem>
+                  <Link
+                    to="/company/recruitmentDashboard"
+                    className={clsx(
+                      navigationMenuTriggerStyle(),
+                      "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                    )}
+                  >
+                    Recruitment Dashboard
+                  </Link>
+                </NavigationMenuItem>
+              )}
 
-          {role === Role.Admin && (
-            <NavigationMenuItem>
-              <Link
-                to="/companyVerification"
-                className={clsx(
-                  navigationMenuTriggerStyle(),
-                  "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
-                )}
-              >
-                Company Verification
-              </Link>
-            </NavigationMenuItem>
+              {role === Role.Admin && (
+                <NavigationMenuItem>
+                  <Link
+                    to="/companyVerification"
+                    className={clsx(
+                      navigationMenuTriggerStyle(),
+                      "!bg-amber-200 hover:!bg-amber-100 dark:!bg-zinc-800 dark:hover:!bg-zinc-700"
+                    )}
+                  >
+                    Company Verification
+                  </Link>
+                </NavigationMenuItem>
+              )}
+            </>
           )}
 
           {accountId ? (
