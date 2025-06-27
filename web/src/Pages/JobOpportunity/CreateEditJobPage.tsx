@@ -42,18 +42,24 @@ const CreateEditJobPage: React.FC = () => {
       // Optionally show a toast or success
       navigate(-1); // or wherever
     } catch (err) {
-      // Handle error (show toast, set error state, etc)
-      // server sends { error: { content: "Failed because …" } }
-      const serverErr = err?.response?.data?.error;
+      const errors = err?.response?.data?.error;
 
-      const message =
-        typeof serverErr === "string"
-          ? serverErr
-          : typeof serverErr?.content === "string"
-          ? serverErr.content
-          : "Failed to create job listing, please try again.";
+      if (errors && typeof errors === "object") {
+        /* errors → { title: "Title cannot be empty", description: "Description …" } */
 
-      toast.error(message); // ✅ always a simple string
+        Object.entries(errors).forEach(([field, message]) => {
+          if (typeof message === "string") {
+            toast.error(message, { id: `job-${field}` }); // id keeps one toast per field
+          }
+        });
+      } else {
+        toast.error(
+          typeof errors === "string"
+            ? errors
+            : "Failed to create job listing, please try again."
+        );
+      }
+
       console.error("Failed to submit job:", err);
     }
   };
