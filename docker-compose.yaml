@@ -42,6 +42,7 @@ services:
         - SPLUNK_START_ARGS=--accept-license
         - SPLUNK_ENABLE_LISTEN=8088
         - SPLUNK_HEC_URL=https://splunk.connectitweb.site:443/services/collector
+        - SPLUNK_HTTP_ENABLESSL=false
       volumes:
         - splunk_data:/opt/splunk/var/lib/splunk # Persistent storage for Splunk data
         - splunk_etc:/opt/splunk/etc # Persistent storage for Splunk configurations
