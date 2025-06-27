@@ -45,7 +45,7 @@ services:
       volumes:
         - splunk_data:/opt/splunk/var/lib/splunk # Persistent storage for Splunk data
         - splunk_etc:/opt/splunk/etc # Persistent storage for Splunk configurations
-        - ./splunk-config.conf:/opt/splunk/etc/system/local/web.conf:ro
+        - ./splunk-config.conf:/opt/splunk/etc/system/local/web.conf
       healthcheck:
         test: ["CMD-SHELL", "curl -f http://localhost:8000/en-US/account/login || exit 1"]
         interval: 30s
