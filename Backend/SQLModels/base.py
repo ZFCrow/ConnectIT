@@ -160,20 +160,27 @@ class DatabaseContext:
             session.close()
     
     def create_database(self):
-        """Create all tables - equivalent to EF's Database.EnsureCreated()"""
         if not self._is_initialized:
             raise RuntimeError("Database context not initialized.")
-        
+
         try:
             print("→ Registering models...")
-            # Import models to register them with Base
             self._register_models()
-            
-            print("→ Creating database schema...")
+
+            print("→ Checking for missing tables...")
+            existing = set(self.get_tables())
+            all_models = set(Base.metadata.tables.keys())
+            missing = all_models - existing
+
+            if not missing:
+                print("✓ All tables already exist — nothing to create.")
+                return False
+
+            print(f"→ Creating missing tables: {missing}")
             Base.metadata.create_all(bind=self.engine)
-            print("→ Database schema created successfully!")
+            print("✅ Database schema created successfully!")
             return True
-            
+
         except Exception as e:
             print(f"✗ Failed to create database schema: {e}")
             return False
@@ -291,7 +298,7 @@ class DatabaseContext:
 
 # Global instance (singleton pattern)
 db_context = DatabaseContext()
-
+db_context.create_database()
 
 #db_context = None
 
