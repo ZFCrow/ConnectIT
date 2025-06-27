@@ -25,7 +25,7 @@ from Routes.label import label_bp
 from Routes.violation import violation_bp
 from Routes.comment import comment_bp
 from Routes.post import post_bp
-from Routes.errorHandling import error_handling_bp 
+# from Routes.errorHandling import error_handling_bp 
 from Routes.captcha import captcha_bp
 from Routes.multifactorAuth import multi_factor_auth_bp 
 
@@ -36,45 +36,6 @@ from Security import ValidateCaptcha, SplunkUtils
 
 # app = Flask(__name__)
 # Limiter.limiter.init_app(app)
-
-
-# @app.errorhandler(RateLimitExceeded)
-# def handle_rate_limit_exceeded(e):
-#     if request.path == "/register":
-#         user = ""
-#     elif request.path == "/addJob":
-#         company_id = (request.get_json()).get("company_id")
-#         user = f" | companyId={company_id}"
-#     elif request.path == "/applyJob":
-#         user_id = request.form.get("userId") or request.get_json().get("userId")
-#         user = f" | userId={user_id}"
-#     else:
-#         account_id = (
-#             request.form.get("accountId")
-#             or request.args.get("accountId")
-#             or (request.get_json()).get("accountId")
-#         )
-#         user = f" | accountId={account_id}"
-
-#     timestamp = datetime.now(timezone.utc).isoformat()
-
-#     message = (
-#         f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-#         f"route={request.path} | method={request.method} | "
-#         f"limit={e.description}{user}"
-#     )
-#     Limiter.ratelimit_logger.warning(message)
-
-#     return (
-#         jsonify(
-#             {
-#                 "error": "Rate limit exceeded",
-#                 "message": str(e.description),
-#                 "status": 429,
-#             }
-#         ),
-#         429,
-#     )
 
 
 # # allow all domains to access the API
@@ -115,11 +76,48 @@ def create_app():
     app.register_blueprint(post_bp)
 
     # Register error handlers, routes, etc.
-    app.register_blueprint(error_handling_bp)
+    # app.register_blueprint(error_handling_bp)
     app.register_blueprint(captcha_bp)
     app.register_blueprint(multi_factor_auth_bp) 
 
 
+    @app.errorhandler(RateLimitExceeded)
+    def handle_rate_limit_exceeded(e):
+        if request.path == "/register":
+            user = ""
+        elif request.path == "/addJob":
+            company_id = (request.get_json()).get("company_id")
+            user = f" | companyId={company_id}"
+        elif request.path == "/applyJob":
+            user_id = request.form.get("userId") or request.get_json().get("userId")
+            user = f" | userId={user_id}"
+        else:
+            account_id = (
+                request.form.get("accountId")
+                or request.args.get("accountId")
+                or (request.get_json()).get("accountId")
+            )
+            user = f" | accountId={account_id}"
+
+        timestamp = datetime.now(timezone.utc).isoformat()
+
+        message = (
+            f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+            f"route={request.path} | method={request.method} | "
+            f"limit={e.description}{user}"
+        )
+        Limiter.ratelimit_logger.warning(message)
+
+        return (
+            jsonify(
+                {
+                    "error": "Rate limit exceeded",
+                    "message": str(e.description),
+                    "status": 429,
+                }
+            ),
+            429,
+        )
 
 
     return app
