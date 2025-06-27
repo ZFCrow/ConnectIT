@@ -21,15 +21,6 @@ server {
 }
 
 server {
-    listen 443 ssl default_server;
-    server_name _;
-    
-    ssl_certificate /etc/nginx/ssl/live/connectitweb.site/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/live/connectitweb.site/privkey.pem;
-    
-    return 301 https://connectitweb.site$request_uri;
-}
-server {
     listen 443 ssl;
     http2 on;
     server_name connectitweb.site www.connectitweb.site;
@@ -97,6 +88,15 @@ server {
                 return 405; # HEC only accepts POST
             }
         }
+    }
+    server {
+        listen 443 ssl default_server;
+        server_name _;
+        
+        ssl_certificate /etc/nginx/ssl/live/connectitweb.site/fullchain.pem;
+        ssl_certificate_key /etc/nginx/ssl/live/connectitweb.site/privkey.pem;
+    
+        return 301 https://connectitweb.site$request_uri;
     }
     
 }
