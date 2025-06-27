@@ -30,16 +30,13 @@ type CreatePostbarProps = {
   retrievedTags: Label[]; // optional prop to pass all tags
 };
 
-
-
 const CreatePostbar: FC<CreatePostbarProps> = ({
   retrievedTags,
   // createPostFunction ,
   // onPostCreated = () => {}, // default to empty function if not provided
 }) => {
-
-  const {profilePicUrl, name} = useAuth(); // destructure profilePicUrl from the context
-  console.log("profilePicUrl", profilePicUrl);  
+  const { profilePicUrl, name } = useAuth(); // destructure profilePicUrl from the context
+  console.log("profilePicUrl", profilePicUrl);
   const { createPost, createPostPending } = usePostContext(); // get the createPost function and status from the context
   const [open, setOpen] = useState(false); // dialog open state
 
@@ -60,10 +57,15 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
       setSelectedTags([]);
       setOpen(false);
     } catch (err) {
+      const raw = err.response?.data?.error;
       const message =
-        err.response?.data?.error || "Failed to create post, please try again.";
+        typeof raw === "string"
+          ? raw
+          : typeof raw?.content === "string"
+          ? raw.content
+          : "Failed to create post, please try again.";
 
-      toast.error(message);
+      toast.error(message); // ✅ always a primitive
       console.error("Failed to create post:", err);
     }
   };
@@ -71,12 +73,15 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
   return (
     <>
       <Card className="flex flex-row items-center gap-4 p-4 h-20">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={profilePicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${name}`}
-                  />
-                  <AvatarFallback>{name}</AvatarFallback>
-                </Avatar>
+        <Avatar className="h-10 w-10">
+          <AvatarImage
+            src={
+              profilePicUrl ||
+              `https://api.dicebear.com/7.x/initials/svg?seed=${name}`
+            }
+          />
+          <AvatarFallback>{name}</AvatarFallback>
+        </Avatar>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>

@@ -43,11 +43,17 @@ const CreateEditJobPage: React.FC = () => {
       navigate(-1); // or wherever
     } catch (err) {
       // Handle error (show toast, set error state, etc)
-      const message =
-        err.response?.data?.error ||
-        "Failed to create job listing, please try again.";
+      // server sends { error: { content: "Failed because …" } }
+      const serverErr = err?.response?.data?.error;
 
-      toast.error(message);
+      const message =
+        typeof serverErr === "string"
+          ? serverErr
+          : typeof serverErr?.content === "string"
+          ? serverErr.content
+          : "Failed to create job listing, please try again.";
+
+      toast.error(message); // ✅ always a simple string
       console.error("Failed to submit job:", err);
     }
   };
