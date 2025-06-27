@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # Stage 1: “builder” uses Node to install & compile your React app
 # ──────────────────────────────────────────────────────────────────────────────
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # 1) Copy package files so this layer can be cached when deps don’t change
@@ -10,6 +10,8 @@ RUN npm ci
 
 # 2) Copy the rest of your source, then build the production bundle
 COPY . .
+ARG VITE_HCAPTCHA_SITEKEY
+ENV VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
 RUN npm run build
 # Now /app/dist contains your compiled React app
 

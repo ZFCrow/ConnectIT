@@ -54,6 +54,7 @@ services:
           hard: 65536
 volumes:
   redis-data:
-    
+  splunk_data: {} # Volume for Splunk data persistence
+
 
 

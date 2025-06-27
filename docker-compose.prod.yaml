@@ -28,6 +28,8 @@ services:
     build:
       context: ./web
       dockerfile: webProd.Dockerfile
+      args:
+        VITE_HCAPTCHA_SITEKEY: ${VITE_HCAPTCHA_SITEKEY}
     container_name: web-prod
     expose:
       - "3300"
@@ -35,7 +37,7 @@ services:
       - .env
     volumes: []
     command: []
-    restart: unless-stopped  # Add this line
+    restart: unless-stopped
 
 
   reverse-proxy:
