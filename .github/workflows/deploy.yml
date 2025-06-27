@@ -104,49 +104,49 @@ jobs:
       
 
 
-      # Generate .env files on EC2 
-      - name: Generate .env files on EC2
-        run: |
-          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
-          # ─── .env ─────────────────────────────────────
-          cat > /home/$SSH_USER/ConnectIT/.env <<E1
-          FLASK_RUN_HOST=$FLASK_RUN_HOST
-          FLASK_RUN_PORT=$FLASK_RUN_PORT
-          VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
-          HCAPTCHA_SECRET=$HCAPTCHA_SECRET
-          FERNET_KEY=$FERNET_KEY
-          JWT_SECRET=$JWT_SECRET
-          SPLUNK_HEC_URL=$SPLUNK_HEC_URL
-          SPLUNK_HEC_TOKEN=$SPLUNK_HEC_TOKEN
-          SPLUNK_SOURCE=$SPLUNK_SOURCE
-          SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
-          SPLUNK_PASSWORD=$SPLUNK_PASSWORD
-          MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
-          MYSQL_DATABASE=$MYSQL_DATABASE_DEV
-          MYSQL_USER=$MYSQL_USER_DEV
-          MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
-          E1
+      # # Generate .env files on EC2 
+      # - name: Generate .env files on EC2
+      #   run: |
+      #     ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+      #     # ─── .env ─────────────────────────────────────
+      #     cat > /home/$SSH_USER/ConnectIT/.env <<E1
+      #     FLASK_RUN_HOST=$FLASK_RUN_HOST
+      #     FLASK_RUN_PORT=$FLASK_RUN_PORT
+      #     VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
+      #     HCAPTCHA_SECRET=$HCAPTCHA_SECRET
+      #     FERNET_KEY=$FERNET_KEY
+      #     JWT_SECRET=$JWT_SECRET
+      #     SPLUNK_HEC_URL=$SPLUNK_HEC_URL
+      #     SPLUNK_HEC_TOKEN=$SPLUNK_HEC_TOKEN
+      #     SPLUNK_SOURCE=$SPLUNK_SOURCE
+      #     SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
+      #     SPLUNK_PASSWORD=$SPLUNK_PASSWORD
+      #     MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
+      #     MYSQL_DATABASE=$MYSQL_DATABASE_DEV
+      #     MYSQL_USER=$MYSQL_USER_DEV
+      #     MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
+      #     E1
 
-          # # ─── .env.dev ───────────(Commented out)──────────────────────
-          # cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
-          # MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
-          # FLASK_DEBUG=$FLASK_DEBUG_DEV
-          # USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
-          # SSH_HOST=$SSH_HOST
-          # SSH_PORT=$SSH_PORT
-          # SSH_USER=$SSH_USER
-          # PEM_FILE=$PEM_FILE
-          # E2
+      #     # # ─── .env.dev ───────────(Commented out)──────────────────────
+      #     # cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
+      #     # MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
+      #     # FLASK_DEBUG=$FLASK_DEBUG_DEV
+      #     # USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
+      #     # SSH_HOST=$SSH_HOST
+      #     # SSH_PORT=$SSH_PORT
+      #     # SSH_USER=$SSH_USER
+      #     # PEM_FILE=$PEM_FILE
+      #     # E2
 
-          # ─── .env.prod ────────────────────────────────
-          cat > /home/$SSH_USER/ConnectIT/.env.prod <<E3
-          MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_PROD
-          MYSQL_DATABASE=$MYSQL_DATABASE_PROD
-          MYSQL_USER=$MYSQL_USER_PROD
-          MYSQL_PASSWORD=$MYSQL_PASSWORD_PROD
-          FLASK_DEBUG=$FLASK_DEBUG_PROD
-          MYSQL_CONTAINER_NAME=$MYSQL_CONTAINER_NAME
-          MYSQL_CONTAINER_PORT=$MYSQL_CONTAINER_PORT
-          USE_SSH_TUNNEL=$USE_SSH_TUNNEL_PROD
-          E3
-          EOF
+      #     # ─── .env.prod ────────────────────────────────
+      #     cat > /home/$SSH_USER/ConnectIT/.env.prod <<E3
+      #     MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_PROD
+      #     MYSQL_DATABASE=$MYSQL_DATABASE_PROD
+      #     MYSQL_USER=$MYSQL_USER_PROD
+      #     MYSQL_PASSWORD=$MYSQL_PASSWORD_PROD
+      #     FLASK_DEBUG=$FLASK_DEBUG_PROD
+      #     MYSQL_CONTAINER_NAME=$MYSQL_CONTAINER_NAME
+      #     MYSQL_CONTAINER_PORT=$MYSQL_CONTAINER_PORT
+      #     USE_SSH_TUNNEL=$USE_SSH_TUNNEL_PROD
+      #     E3
+      #     EOF

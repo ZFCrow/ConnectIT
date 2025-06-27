@@ -278,12 +278,4 @@ class DatabaseContext:
 
 # Global instance (singleton pattern)
 db_context = DatabaseContext()
-db_context.create_database()
 
-#db_context = None
-
-# def get_db_context():
-#     global _db_context
-#     if _db_context is None:
-#         _db_context = DatabaseContext()
-#     return _db_context
