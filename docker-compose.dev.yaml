@@ -1,7 +1,6 @@
 # volumes:
 #   node_modules: {}                      # ← declare it at top level
 volumes:
-  splunk_data: {} # Volume for Splunk data persistence
 
 services:
   web:
