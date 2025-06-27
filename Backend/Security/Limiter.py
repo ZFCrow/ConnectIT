@@ -61,8 +61,10 @@ def reset_login_attempts(email: str):
 
 # get account ID
 def get_account_key():
-    return (request.get_json()).get("accountId") or request.form.get("accountId")
-
+    if request.is_json:
+        return request.get_json().get("accountId")
+    else:
+        return request.form.get("accountId")
 
 # get company ID
 def get_company_key():

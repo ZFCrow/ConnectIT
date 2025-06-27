@@ -58,7 +58,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-#@limiter.limit("1 per hour", key_func=get_account_key) # here is the issue that the profile cannot save
+@limiter.limit("1 per hour", key_func=get_account_key) # here is the issue that the profile cannot save
 def save_profile():
     updated_data = request.form.to_dict()
     portfolioFile = request.files.get("portfolioFile", None)
