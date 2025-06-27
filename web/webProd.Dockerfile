@@ -10,6 +10,8 @@ RUN npm ci
 
 # 2) Copy the rest of your source, then build the production bundle
 COPY . .
+ARG VITE_HCAPTCHA_SITEKEY
+ENV VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
 RUN npm run build
 # Now /app/dist contains your compiled React app
 
