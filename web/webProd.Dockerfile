@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # Stage 1: “builder” uses Node to install & compile your React app
 # ──────────────────────────────────────────────────────────────────────────────
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # 1) Copy package files so this layer can be cached when deps don’t change
