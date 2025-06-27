@@ -21,14 +21,14 @@ server {
     }
 }
 
-# Splunk Web UI HTTPS Server Block
 server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
+    listen 443 ssl;
+    http2 on;
     server_name splunk.connectitweb.site;
 
     ssl_certificate /etc/nginx/ssl/live/connectitweb.site/fullchain.pem;
     ssl_certificate_key /etc/nginx/ssl/live/connectitweb.site/privkey.pem;
+
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
@@ -40,32 +40,43 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         
-        # Critical for Splunk UI
+        # CRITICAL for Splunk UI - these were missing!
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Server $host;
         proxy_set_header X-Forwarded-Port 443;
+        proxy_set_header Connection "";
+        proxy_http_version 1.1;
         
-        # Allow larger request bodies for Splunk uploads
-        client_max_body_size 100M;
+        # Disable buffering for real-time responses - CRITICAL!
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
         
-        # Increase timeouts
+        # Increase timeouts for Splunk operations
         proxy_connect_timeout 300;
         proxy_send_timeout 300;
         proxy_read_timeout 300;
         send_timeout 300;
         
-        # Important: Don't buffer responses for real-time data
-        proxy_buffering off;
-        proxy_redirect off;
+        # Allow larger uploads
+        client_max_body_size 100M;
+        
+        # Important for Splunk redirects
+        proxy_redirect default;
     }
 
-    # Handle WebSocket connections for real-time updates
-    location /services/collector/event {
-        proxy_pass http://splunk:8088/services/collector/event;
+    # Splunk HEC Endpoint
+    location /services/collector {
+        proxy_pass http://splunk:8088/services/collector;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+            
+        if ($request_method !~ ^(POST)$) {
+            return 405;
+        }
     }
 }
 
