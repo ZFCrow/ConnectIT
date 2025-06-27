@@ -10,6 +10,8 @@ export const JobApplicationSchema = z.object({
   resumeURL: z.string().url(),
   status: z.enum(["Applied", "Accepted", "Rejected"]),
   userId: z.number(),
+  profilePicUrl: z.string().url().nullable().optional(), // Optional profile picture URL
+  accountId: z.number().nullable().optional(), // Optional account ID
 });
 
 export type JobApplication = z.infer<typeof JobApplicationSchema>;

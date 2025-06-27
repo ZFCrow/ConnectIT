@@ -34,6 +34,7 @@ class JobListing:
         isDeleted: bool = False,
         company: Optional [Company] = None,
         jobApplication: Optional[List[JobApplication]] = None,
+
     ):
         self.jobId = jobId
         self.company = company 
@@ -51,7 +52,7 @@ class JobListing:
         self.experiencePreferred = experiencePreferred
         self.responsibilities = responsibilities 
         self.jobApplication = jobApplication if jobApplication is not None else []
-
+  
     # Getters & Setters
     def getJobId(self) -> int:
         return self.jobId
@@ -196,6 +197,7 @@ class JobListing:
             "jobApplication": [
                 app.to_dict() for app in self.jobApplication
             ] if self.jobApplication else [],
+
         }
     @classmethod
     def from_JobListingModel(cls, orm_obj, numApplicants=0) -> "JobListing":

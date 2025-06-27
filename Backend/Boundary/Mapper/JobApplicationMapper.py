@@ -76,7 +76,7 @@ class JobApplicationMapper:
             print(f"Retrieved {len(applications)} applications for company {companyId} with job IDs {job_ids}")
             print(f"Applications: {applications}")
             return [JobApplication.from_model(a) for a in applications]
-    
+
     @staticmethod
     def getAppliedJobIds(userId: int) -> list[int]:
         """

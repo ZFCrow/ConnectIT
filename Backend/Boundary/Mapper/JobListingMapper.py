@@ -84,7 +84,10 @@ class JobListingMapper:
                 .filter(JobApplicationModel.jobId == job_id)
                 .scalar()
             )
+        
+        
             return JobListing.from_JobListingModel(job_listing,numApplicants=numApplicants)
+
     
     @staticmethod
     def getAllJobListings(company_id:int = None) -> list["JobListing"]:

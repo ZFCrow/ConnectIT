@@ -2,6 +2,7 @@ import React from "react";
 import { Mail, FileText, Calendar as CalIcon } from "lucide-react";
 import type { JobApplication } from "../../type/JobApplicationSchema"; // Use your JobApplication Zod type
 import PdfViewerModal from "../PortfolioModal";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 export type ApplicantCardProps = {
   applicant: JobApplication & { jobTitle: string }; // Use JobApplication, not Applicant, and add jobTitle.
@@ -27,6 +28,8 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
     jobTitle,
     jobId,
     appliedAt,
+    profilePicUrl, // Optional, if you want to display profile picture
+    accountId, // Optional, if you want to use account ID
   } = applicant;
 
   const appliedDate = new Date(appliedAt).toLocaleDateString("en-SG", {
@@ -41,11 +44,36 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
         {/* LEFT COLUMN */}
         <div className="flex-1 space-y-3">
           {/* 1) Name + Job Title + Status */}
+
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-2xl font-semibold text-white">{name}</span>
+            {/* clickable area 👉 avatar + name */}
+            <a
+              href={`/profile/${accountId}`}
+              className="flex items-center gap-3 group"
+            >
+              <Avatar className="h-10 w-10 rounded-full">
+                <AvatarImage
+                  src={
+                    profilePicUrl ||
+                    `https://api.dicebear.com/7.x/initials/svg?seed=${name}`
+                  }
+                  alt={`${name}'s avatar`}
+                  className="rounded-full object-cover"
+                />
+                <AvatarFallback>{name}</AvatarFallback>
+              </Avatar>
+
+              <span className="text-2xl font-semibold text-white group-hover:underline">
+                {name}
+              </span>
+            </a>
+
+            {/* job label */}
             <span className="px-2 py-1 bg-zinc-800 text-gray-200 text-xs rounded">
               {jobTitle} #{jobId}
             </span>
+
+            {/* status pill */}
             <span
               className={`${
                 status === "Applied"

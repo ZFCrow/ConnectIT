@@ -143,7 +143,12 @@ const JobCard: React.FC<Props> = ({
       <div className="space-y-2">
         {(job.company.name || job.company.location) && (
           <div className="text-sm text-gray-400">
-            {job.company.name}
+            <Link
+              to={`/profile/${job.company.accountId}`}
+              className="hover:underline text-blue-400"
+            >
+              {job.company.name}
+            </Link>
             {job.company.location ? ` @ ${job.company.location}` : ""}
           </div>
         )}
