@@ -472,7 +472,7 @@ def logout():
         pass
 
     SplunkLogging.send_log({
-        "event": "Logout",
+        "event": "Logout Success",
         "user": user_email,
         "ip": request.remote_addr,
         "user_agent": str(request.user_agent),

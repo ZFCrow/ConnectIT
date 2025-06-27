@@ -29,8 +29,8 @@ from Routes.post import post_bp
 from Routes.captcha import captcha_bp
 from Routes.multifactorAuth import multi_factor_auth_bp 
 
-from Security import ValidateCaptcha, TwoFactorAuth, Limiter
-from Security import ValidateCaptcha, SplunkUtils
+from Security import ValidateCaptcha, TwoFactorAuth, Limiter, SplunkUtils
+
 
 
 
@@ -48,7 +48,7 @@ from Security import ValidateCaptcha, SplunkUtils
 # app.register_blueprint(post_bp)
 
 # #splunk
-# SplunkLogging = SplunkUtils.SplunkLogger()
+SplunkLogging = SplunkUtils.SplunkLogger()
 
 
 # CORS(app)
@@ -106,6 +106,17 @@ def create_app():
             f"route={request.path} | method={request.method} | "
             f"limit={e.description}{user}"
         )
+
+        SplunkLogging.send_log({
+            "event": "Rate Limit Success",
+            "function": f"{e.description}@{request.path}",
+            "User": user,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
+        })
+        
         Limiter.ratelimit_logger.warning(message)
 
         return (
