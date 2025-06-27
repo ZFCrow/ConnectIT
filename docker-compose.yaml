@@ -30,7 +30,7 @@ services:
       - redis-data:/data
 
   splunk:
-      image: splunk/splunk:latest
+      image: splunk/splunk:9.1.2
       container_name: splunk
       #ports:
       #  - "8000:8000" # Splunk web UI
@@ -57,6 +57,7 @@ services:
 volumes:
   redis-data:
   splunk_data: {} # Volume for Splunk data persistence
+  splunk_etc: {} # Volume for Splunk Configurations persistence
 
 
 
