@@ -1,9 +1,9 @@
 from Control.LabelControl import LabelControl
 
 
-class LabelBoundary: 
+class LabelBoundary:
     def __init__(self):
-        pass 
+        pass
 
     @staticmethod
     def handleRetrieveAllLabels() -> list:
@@ -11,6 +11,7 @@ class LabelBoundary:
         Handle the retrieval of all labels.
         """
         print("Label boundary: Retrieving all labels.")
-        labels = LabelControl.retrieveAllLabels()  # Call the control layer to get labels
+        # Call the control layer to get labels
+        labels = LabelControl.retrieveAllLabels()
         print(f"Label boundary: Retrieved {len(labels)} labels.")
-        return labels  # Return the list of labels 
+        return labels  # Return the list of labels

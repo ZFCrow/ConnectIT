@@ -1,15 +1,14 @@
-from sqlalchemy.orm import joinedload
-from SQLModels.base import db_context 
+from SQLModels.base import db_context
 from SQLModels.CommentModel import CommentModel
-from Entity.Comment import Comment 
+from Entity.Comment import Comment
 
 
-class CommentMapper: 
+class CommentMapper:
     """
-    Mapper class for Comment objects. 
+    Mapper class for Comment objects.
     """
 
-    @staticmethod 
+    @staticmethod
     def createComment(comment: Comment) -> Comment:
         """
         Create a new comment in the database.
@@ -23,14 +22,13 @@ class CommentMapper:
             #     created
 
             # )
-            comment_model = comment.toCommentModel() 
+            comment_model = comment.toCommentModel()
             session.add(comment_model)
             session.commit()
-            return Comment.from_CommentModel(comment_model)  # Return the created Comment entity
-        
+            # Return the created Comment entity
+            return Comment.from_CommentModel(comment_model)
 
-
-    @staticmethod 
+    @staticmethod
     def deleteComment(commentId: int) -> bool:
         """
         Delete a comment by its ID.
@@ -38,10 +36,14 @@ class CommentMapper:
         """
 
         with db_context.session_scope() as session:
-            comment_model = session.query(CommentModel).filter(CommentModel.commentId == commentId).first()
+            comment_model = session.query(
+                CommentModel
+                ).filter(
+                    CommentModel.commentId == commentId
+                    ).first()
             if comment_model:
                 comment_model.isDeleted = True
                 session.commit()
                 return True
             else:
-                return False 
+                return False

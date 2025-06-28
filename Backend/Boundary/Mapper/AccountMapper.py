@@ -17,7 +17,8 @@ class AccountMapper:
     def getAccountById(accountId) -> Optional[Account]:
         with db_context.session_scope() as session:
             account = session.query(AccountModel)\
-                .options(joinedload(AccountModel.user), joinedload(AccountModel.company))\
+                .options(joinedload(AccountModel.user),
+                         joinedload(AccountModel.company))\
                 .filter(AccountModel.accountId == accountId)\
                 .first()
 
@@ -37,18 +38,20 @@ class AccountMapper:
                     company_data = account.company.to_dict()
                     company_data.update(account_data)
                     return Company.from_dict(company_data)
-                
+
             elif account.role == Role.Admin:
                 return Account.from_dict(account_data)
-            
+
     @staticmethod
     def getAccountByEmail(email) -> Optional[Account]:
         with db_context.session_scope() as session:
             account = session.query(AccountModel)\
-                .options(joinedload(AccountModel.user), joinedload(AccountModel.company))\
+                .options(
+                    joinedload(AccountModel.user),
+                    joinedload(AccountModel.company))\
                 .filter(AccountModel.email == email)\
                 .first()
-            
+
             if not account:
                 return None
 
@@ -65,10 +68,10 @@ class AccountMapper:
                     company_data = account.company.to_dict()
                     company_data.update(account_data)
                     return Company.from_dict(company_data)
-                
+
             elif account.role == Role.Admin:
                 return Account.from_dict(account_data)
-            
+
     @staticmethod
     def createAccount(account: Account) -> bool:
         try:
@@ -85,12 +88,16 @@ class AccountMapper:
                 account.accountId = accountModel.accountId
 
                 if account.role == Role.User.value:
-                    userModel = UserModel(accountId=accountModel.accountId)
+                    userModel = UserModel(
+                        accountId=accountModel.accountId
+                        )
                     session.add(userModel)
 
                 elif account.role == Role.Company.value:
-                    new_url = rename_file('companyDocument/company_temp.pdf',
-                                          f'companyDocument/company_{account.accountId}.pdf')
+                    new_url = rename_file(
+                        'companyDocument/company_temp.pdf',
+                        f'companyDocument/company_{account.accountId}.pdf'
+                        )
                     companyModel = CompanyModel(
                         accountId=accountModel.accountId,
                         companyDocUrl=new_url
@@ -99,42 +106,71 @@ class AccountMapper:
 
                 session.commit()
                 return True
-            
+
         except Exception as e:
             print(f"Error creating account: {e}")
             traceback.print_exc()
             return False
-        
+
     @staticmethod
     def updateAccount(account: Account) -> bool:
         try:
             with db_context.session_scope() as session:
-                accountModel = session.query(AccountModel).filter_by(accountId=account.accountId).first()
-                
+                accountModel = session.query(
+                    AccountModel
+                    ).filter_by(
+                        accountId=account.accountId
+                        ).first()
+
                 if not accountModel:
-                    print(f"No account found with ID: {account.accountId}")
+                    print(f"No account found with ID: \
+                          {account.accountId}")
                     return False
 
                 # Update base Account fields
                 accountModel.name = account.name
                 if account.profilePicUrl:
-                    accountModel.profilePicUrl = getattr(account, "profilePicUrl", accountModel.profilePicUrl)
-                if hasattr(account, 'passwordHash') and account.passwordHash != '':
-                    accountModel.passwordHash = getattr(account, 'passwordHash')
+                    accountModel.profilePicUrl = getattr(
+                        account, "profilePicUrl",
+                        accountModel.profilePicUrl
+                        )
+                if hasattr(
+                        account, 'passwordHash'
+                        ) and account.passwordHash != '':
+                    accountModel.passwordHash = getattr(
+                        account, 'passwordHash'
+                        )
 
                 # Role-specific updates
                 if accountModel.role == Role.User:
-                    userModel = session.query(UserModel).filter_by(accountId=account.accountId).first()
+                    userModel = session.query(
+                        UserModel
+                        ).filter_by(
+                            accountId=account.accountId
+                            ).first()
                     if userModel:
-                        userModel.bio = getattr(account, "bio", userModel.bio)
+                        userModel.bio = getattr(
+                            account, "bio", userModel.bio
+                            )
                         if account.portfolioUrl:
-                            userModel.portfolioUrl = getattr(account, "portfolioUrl", userModel.portfolioUrl)
+                            userModel.portfolioUrl = getattr(
+                                account, "portfolioUrl",
+                                userModel.portfolioUrl
+                                )
 
                 elif accountModel.role == Role.Company:
-                    companyModel = session.query(CompanyModel).filter_by(accountId=account.accountId).first()
+                    companyModel = session.query(
+                        CompanyModel
+                        ).filter_by(
+                            accountId=account.accountId
+                            ).first()
                     if companyModel:
-                        companyModel.description = getattr(account, "description", companyModel.description)
-                        companyModel.location = getattr(account, "location", companyModel.location)
+                        companyModel.description = getattr(
+                            account, "description", companyModel.description
+                            )
+                        companyModel.location = getattr(
+                            account, "location", companyModel.location
+                            )
 
                 session.commit()
                 return True
@@ -143,14 +179,17 @@ class AccountMapper:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
-        
 
     @staticmethod
     def disableAccount(accountId: int) -> bool:
         try:
             with db_context.session_scope() as session:
-                accountModel = session.query(AccountModel).filter_by(accountId=accountId).first()
-                
+                accountModel = session.query(
+                    AccountModel
+                    ).filter_by(
+                        accountId=accountId
+                        ).first()
+
                 if not accountModel:
                     print(f"No account found with ID: {accountId}")
                     return False
@@ -164,26 +203,30 @@ class AccountMapper:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
-        
+
     @staticmethod
     def setTwoFa(acc_id: int, secret: str, enabled: bool):
         try:
             with db_context.session_scope() as session:
-                account = session.query(AccountModel).filter_by(accountId=acc_id).first()
+                account = session.query(
+                    AccountModel
+                    ).filter_by(
+                        accountId=acc_id
+                        ).first()
                 if not account:
                     return False
-                
+
                 account.twoFaEnabled = enabled
                 account.twoFaSecret = secret
 
                 session.commit()
                 return True
-            
+
         except Exception as e:
             print(f"Error updating account: {e}")
             traceback.print_exc()
             return False
-    
+
     @staticmethod
     def getAllCompanies() -> list["CompanyModel"]:
         """
@@ -195,7 +238,7 @@ class AccountMapper:
             return [Company.from_model(company) for company in companies]
 
     @staticmethod
-    def setCompanyVerified(company_id: int, verified:int) :
+    def setCompanyVerified(company_id: int, verified: int):
         """
         Set the 'verified' status for a company.
         :param company_id: ID of the company to update.
@@ -203,7 +246,11 @@ class AccountMapper:
         :return: True if update was successful, False otherwise.
         """
         with db_context.session_scope() as session:
-            company = session.query(CompanyModel).filter_by(companyId=company_id).first()
+            company = session.query(
+                CompanyModel
+                ).filter_by(
+                    companyId=company_id
+                    ).first()
             if not company:
                 return False
             company.verified = verified

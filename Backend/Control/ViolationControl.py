@@ -1,5 +1,7 @@
-from Boundary.TableDataGateway.ViolationGateway import ViolationGateway 
-from Entity.Violation import Violation 
+from Boundary.TableDataGateway.ViolationGateway import ViolationGateway
+from Entity.Violation import Violation
+
+
 class ViolationControl:
     def __init__(self):
         pass

@@ -1,9 +1,8 @@
 from Utils.UploadDocUtil import upload_to_path
 from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
-from Entity.JobListing import JobListing
-from SQLModels.base import db_context  
-from Entity.JobApplication import JobApplication 
+from Entity.JobApplication import JobApplication
+
 
 class JobApplicationControl:
     def __init__(self):
@@ -11,8 +10,10 @@ class JobApplicationControl:
         Initializes the JobListingControl class.
         This class is responsible for managing job listings.
         """
-        # self.db = DatabaseConnection()  # Example: Initialize database connection
+        # self.db = DatabaseConnection()
+        # # Example: Initialize database connection
         print("JobListingControl initialized")
+
     @staticmethod
     def approveApplication(applicationId: int):
         """
@@ -21,7 +22,7 @@ class JobApplicationControl:
         """
         print(f"Approving application with applicationId: {applicationId}")
         return JobApplicationMapper.approveApplication(applicationId)
-    
+
     @staticmethod
     def rejectApplication(applicationId: int):
         """
@@ -30,8 +31,9 @@ class JobApplicationControl:
         """
         print(f"Rejecting application with applicationId: {applicationId}")
         return JobApplicationMapper.rejectApplication(applicationId)
+
     @staticmethod
-    def applyJob(jobId: int, userId: int, resumeFile = None):
+    def applyJob(jobId: int, userId: int, resumeFile=None):
         """
         Applies for a job by jobId.
         :param jobId: ID of the job to apply for.
@@ -48,7 +50,11 @@ class JobApplicationControl:
             )
             print("Resume uploaded to:", resume_url)
         print(f"Applying for job with jobId: {jobId} by userId: {userId}")
-        return JobApplicationMapper.applyJob(jobId, userId,resumeURL=resume_url)
+        return JobApplicationMapper.applyJob(
+            jobId,
+            userId,
+            resumeURL=resume_url
+            )
 
     @staticmethod
     def getApplicationsByCompanyId(companyId: int):
@@ -57,8 +63,12 @@ class JobApplicationControl:
         :param companyId: ID of the company to retrieve applications for.
         :return: List of JobApplicationModel instances.
         """
-        print(f"Retrieving applications for company with companyId: {companyId}")
+        print(
+            f"Retrieving applications for \
+            company with companyId: {companyId}"
+            )
         return JobApplicationMapper.getApplicationsByCompanyId(companyId)
+
     @staticmethod
     def getAppliedJobIds(userId: int):
         """
@@ -68,7 +78,7 @@ class JobApplicationControl:
         """
         print(f"Retrieving applications for user with userId: {userId}")
         return JobApplicationMapper.getAppliedJobIds(userId)
-    
+
     @staticmethod
     def getAllFieldOfWork():
         """
@@ -77,9 +87,8 @@ class JobApplicationControl:
         """
         print("Retrieving all field of work options")
         return FieldOfWorkTDG.getAllFieldOfWork()
-    
 
-    @staticmethod 
+    @staticmethod
     def getLatestAppliedJobs(userId: int) -> list[JobApplication]:
         """
         Retrieves the latest job listing that the user has applied for.
@@ -87,4 +96,4 @@ class JobApplicationControl:
         :return: JobListing instance representing the latest applied job.
         """
         print(f"Retrieving latest applied job for user with userId: {userId}")
-        return JobApplicationMapper.getLatestAppliedJobs(userId) 
+        return JobApplicationMapper.getLatestAppliedJobs(userId)
