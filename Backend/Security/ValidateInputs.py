@@ -34,6 +34,15 @@ def validate_login(data: dict) -> dict:
 
     if not validate_email(data["email"]):
         errors["email"] = "Invalid email format"
+    
+    pwd = data.get("password", "")
+    if len(pwd) < 8:
+        errors["password"] = (  # nosec
+            "Password must be at least 8 characters long."
+        )
+    elif len(pwd) > 64:
+        errors["password"] = "Password must not exceed 64 characters."  # nosec
+
     return errors
 
 
