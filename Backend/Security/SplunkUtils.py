@@ -37,6 +37,7 @@ class SplunkLogger:
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
+                verify=False,
                 timeout=10
             )
 
