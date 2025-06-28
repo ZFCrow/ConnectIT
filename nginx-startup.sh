@@ -37,7 +37,10 @@ server {
 
     location / {
 
-EOF
+EOF_STATIC_PART_TOP
+
+    # This part needs to be outside the 'EOF' block to allow shell variable expansion
+    # It will append the 'allow' lines directly to the CONFIG_FILE
     IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
     for i in "${ADDRS[@]}"; do
         if [ -n "$i" ]; then
@@ -47,8 +50,9 @@ EOF
     echo "            deny all;" >> "$CONFIG_FILE"
     echo "            # --- END IP LIMITING ---" >> "$CONFIG_FILE"
 
-    
-    cat >> "$CONFIG_FILE" << 'EOF'
+    # Continue the 'EOF' block for the rest of the static config
+    cat >> "$CONFIG_FILE" << 'EOF_STATIC_PART_BOTTOM'
+
         proxy_pass http://splunk:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
