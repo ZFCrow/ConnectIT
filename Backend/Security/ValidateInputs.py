@@ -69,8 +69,9 @@ def validate_register(data: dict) -> dict:
 
     pwd = data.get("password", "")
     if len(pwd) < 8:
-        errors["password"] = "Password must be at least \
-            8 characters long."  # nosec
+        errors["password"] = (  # nosec
+            "Password must be at least 8 characters long."
+        )
     elif len(pwd) > 64:
         errors["password"] = "Password must not exceed 64 characters."  # nosec
     elif is_common_password(pwd):
