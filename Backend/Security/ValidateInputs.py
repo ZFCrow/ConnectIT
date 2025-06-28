@@ -34,7 +34,7 @@ def validate_login(data: dict) -> dict:
 
     if not validate_email(data["email"]):
         errors["email"] = "Invalid email format"
-    
+
     pwd = data.get("password", "")
     if len(pwd) < 8:
         errors["password"] = (  # nosec
