@@ -1,7 +1,8 @@
 // src/components/CompanyCard.tsx
 import React from "react";
 import { FileText, Mail, MapPin } from "lucide-react";
-import { Company, getCompanyStatus } from "@/type/account";
+import { Company } from "@/type/account";
+import { getCompanyStatus } from "@/utility/getCompanyStatus";
 import PdfViewerModal from "./PortfolioModal";
 
 interface CompanyCardProps {

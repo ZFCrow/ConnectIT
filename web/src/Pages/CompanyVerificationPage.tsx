@@ -1,7 +1,8 @@
 // src/pages/company/CompanyVerificationPage.tsx
 import React, { useState, useMemo, useEffect } from "react";
 import CompanyCard from "../components/companyCard";
-import { Company, getCompanyStatus } from "@/type/account";
+import { Company } from "@/type/account";
+import { getCompanyStatus } from "@/utility/getCompanyStatus";
 import axios from "axios";
 import LoadingSpinner from "@/components/ui/loading-circle";
 // src/pages/company/CompanyVerificationPage.tsx (or wherever you need it)

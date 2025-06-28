@@ -11,8 +11,7 @@ import {
   ProfileAction,
   Tabs,
   TabPanel,
-  ProfileJobCard,
-  ProfilePostCard
+  ProfileJobCard
 } from "@/components/ProfileCard"
 import  PdfViewerModal  from "@/components/PortfolioModal"
 import ConfirmModal from "@/components/CustomDialogs/ConfirmDialog";
@@ -20,7 +19,8 @@ import { Button } from "@/components/ui/button"
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { User, UserSchema, ValidatedUser, 
   Company, CompanySchema, ValidatedCompany,
-AccountSchema, ValidatedAccount, getCompanyStatus } from "@/type/account";
+AccountSchema, ValidatedAccount } from "@/type/account";
+import { getCompanyStatus } from "@/utility/getCompanyStatus";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 import LoadingSpinner from "@/components/ui/loading-circle";
@@ -44,7 +44,7 @@ const ProfilePage = () => {
     // Fix the comparison - both are now numbers
     const isOwner = viewIdNumber === accountId;
 
-    const [activeTab, setActiveTab] = useState("Posts");
+    const [activeTab, setActiveTab] = useState("Job Listings");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -97,14 +97,13 @@ const ProfilePage = () => {
     };
 
     fetchAccount();
-  }, []);
+  }, [viewId]);
 
   const handleConfirmDisable = async (password: string) => {
     try {
       const response = await axios.post(`/api/profile/disable/${accountId}`, {
         password,
       });
-      console.log("Account disabled:", response.data);
       // Redirect to home page and logout?
       logout();
       navigate('/');
@@ -126,7 +125,7 @@ const ProfilePage = () => {
   if (!loading && user.isDisabled){
     return (
       <div className="w-4/5 mx-auto px-4 py-8">
-        <div className="mt-6 text-center text-gray-400">This user's account is disabled.</div>
+        <div className="mt-6 text-center text-gray-400">This user&rsquo;s account is disabled.</div>
       </div>
     );
   }
@@ -202,20 +201,6 @@ const ProfilePage = () => {
                   />
 
                   <div className="pt-4">
-                    {/* {activeTab === "Posts" && (
-                      <TabPanel isActive={true}>
-                        {mockPosts ? (
-                          <div className="space-y-4">
-                            {mockPosts.filter((post) => post.accountId == user.accountId).map((post) => (
-                              <ProfilePostCard key={post.id} {...post} />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-sm text-muted-foreground">No posts yet.</div>
-                        )}
-                      </TabPanel>
-                    )} */}
-
                     {activeTab === "Job Listings" && user.role === Role.Company && (
                       <TabPanel isActive={true}>
                         {jobListings && jobListings.length > 0 ? (
