@@ -54,6 +54,9 @@ jobs:
       # Python (backend) - Flake8 + Bandit
       # ======================
 
+      - name: Show Current Directory
+        run: pwd
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -65,14 +68,14 @@ jobs:
 
       - name: Run Flake8
         run: |
-          flake8 backend/ --format sarif --output-file reports/flake8-results.sarif || true
+          flake8 Backend/ --format sarif --output-file reports/flake8-results.sarif || true
       
       - name: Debug Flake8 Output
         run: cat reports/flake8-results.sarif || echo "No Flake8 report found"
 
       - name: Run Bandit (JSON)
         run: |
-          bandit -r backend/ -f json -o reports/bandit-results.json || true
+          bandit -r Backend/ -f json -o reports/bandit-results.json || true
 
       - name: Add Bandit JSON to SARIF converter
         run: |
