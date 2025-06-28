@@ -3,22 +3,6 @@
 CERT_PATH="/etc/nginx/ssl/live/connectitweb.site/fullchain.pem"
 CONFIG_FILE="/etc/nginx/conf.d/default.conf"
 
-ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
-
-IP_LIMIT_BLOCK=""
-if [ -n "$ALLOWED_IPS_STRING" ]; then
-    IP_LIMIT_BLOCK=$(printf '            # --- IP LIMITING (Dynamically Generated) ---\n')
-
-    for ip in $(printf '%s' "$ALLOWED_IPS_STRING" | tr ',' ' '); do
-        [ -n "$ip" ] && \
-        IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            allow %s;\n' "$ip")"
-    done
-
-    # add the deny all and footer
-    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            deny all;\n')"
-    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            # --- END IP LIMITING ---\n')"
-fi
-
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found, generating HTTPS config..."
     
@@ -51,8 +35,6 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
-
-${IP_LIMIT_BLOCK}
 
         proxy_pass http://splunk:8000;
         proxy_set_header Host $host;
