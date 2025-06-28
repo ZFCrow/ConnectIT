@@ -50,11 +50,6 @@ jobs:
       - name: Debug ESLint Output
         run: cat reports/eslint-results.sarif || echo "No SARIF report generated"
 
-      - name: Upload ESLint SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: reports/eslint-results.sarif
-
       # ======================
       # Python (backend) - Flake8 + Bandit
       # ======================
@@ -158,12 +153,17 @@ jobs:
         run: |
           python bandit_json_to_sarif.py reports/bandit-results.json reports/bandit-results.sarif
 
+      - name: Upload ESLint SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/eslint-results.sarif
+
       - name: Upload Bandit SARIF
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/bandit-results.sarif
       
       - name: Upload Flake8 SARIF
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/flake8-results.sarif
