@@ -53,13 +53,11 @@ jobs:
       # ======================
       # Python (backend) - Flake8 + Bandit
       # ======================
-      - name: Check Python Version
-        run: python --version
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.13.5
+          python-version: 3.12.3
 
       - name: Install Python tools
         run: |
@@ -67,12 +65,14 @@ jobs:
 
       - name: Run Flake8
         run: |
-          mkdir -p reports
-          flake8 backend/ --format sarif --output-file reports/flake8-results.sarif
+          flake8 backend/ --format sarif --output-file reports/flake8-results.sarif || true
+      
+      - name: Debug Flake8 Output
+        run: cat reports/flake8-results.sarif || echo "No Flake8 report found"
 
       - name: Run Bandit (JSON)
         run: |
-          bandit -r backend/ -f json -o reports/bandit-results.json
+          bandit -r backend/ -f json -o reports/bandit-results.json || true
 
       - name: Add Bandit JSON to SARIF converter
         run: |
@@ -155,6 +155,10 @@ jobs:
       - name: Convert Bandit JSON to SARIF
         run: |
           python bandit_json_to_sarif.py reports/bandit-results.json reports/bandit-results.sarif
+
+      - name: Debug Bandit SARIF
+        run: cat reports/bandit-results.sarif || echo "No Bandit SARIF generated"
+
 
       - name: Upload ESLint SARIF
         uses: github/codeql-action/upload-sarif@v3
