@@ -25,14 +25,10 @@ from Routes.label import label_bp
 from Routes.violation import violation_bp
 from Routes.comment import comment_bp
 from Routes.post import post_bp
-# from Routes.errorHandling import error_handling_bp 
 from Routes.captcha import captcha_bp
-from Routes.multifactorAuth import multi_factor_auth_bp 
+from Routes.multifactorAuth import multi_factor_auth_bp
 
-from Security import ValidateCaptcha, TwoFactorAuth, Limiter, SplunkUtils
-
-
-
+from Security import Limiter, SplunkUtils
 
 # app = Flask(__name__)
 # Limiter.limiter.init_app(app)
@@ -52,12 +48,6 @@ SplunkLogging = SplunkUtils.SplunkLogger()
 
 
 # CORS(app)
-
-
-
-
-
-
 def create_app():
     app = Flask(__name__)
 
@@ -78,8 +68,7 @@ def create_app():
     # Register error handlers, routes, etc.
     # app.register_blueprint(error_handling_bp)
     app.register_blueprint(captcha_bp)
-    app.register_blueprint(multi_factor_auth_bp) 
-
+    app.register_blueprint(multi_factor_auth_bp)
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
@@ -89,7 +78,8 @@ def create_app():
             company_id = (request.get_json()).get("company_id")
             user = f" | companyId={company_id}"
         elif request.path == "/applyJob":
-            user_id = request.form.get("userId") or request.get_json().get("userId")
+            user_id = request.form.get("userId") or \
+                request.get_json().get("userId")
             user = f" | userId={user_id}"
         else:
             account_id = (
@@ -116,7 +106,6 @@ def create_app():
             "method": request.method,
             "path": request.path
         })
-        
         Limiter.ratelimit_logger.warning(message)
 
         return (
@@ -129,16 +118,16 @@ def create_app():
             ),
             429,
         )
-
-
     return app
+
 
 app = create_app()
 
+
 @app.route("/")
 def index():
-    #print("request from")
-    #print ("request from")
+    # print("request from")
+    # print ("request from")
 
     return jsonify({"message": "Welcome to the API!"})
 
@@ -150,7 +139,8 @@ def index():
 
 # @app.route("/test")
 # def test():
-#     # useSSH = os.environ.get("USE_SSH_TUNNEL",6 "False").lower() in ("1", "true", "yes")
+#     # useSSH = os.environ.get("USE_SSH_TUNNEL",6 "False").lower() in\
+#  ("1", "true", "yes")
 #     useSSH = os.environ.get("USE_SSH_TUNNEL") in ("1", "true", "yes")
 #     if useSSH:
 #         print("ssh is turned on")
@@ -182,13 +172,15 @@ def index():
 #     db = DatabaseContext()
 #     success = (
 #         db.initialize()
-#     )  # Initialize the database connection and create tables if they don't exist
+#     )  # Initialize the database connection and create tables \
+# if they don't exist
 #     if success:
 #         tables = db.get_tables()  # Get the list of tables in the database
 
 #         print(f"Tables in the database: {tables}")
 #         return jsonify(
-#             {"message": "Database initialized successfully!", "tables": tables}
+#             {"message": "Database initialized successfully!", \
+# "tables": tables}
 #         )
 #     else:
 #         return jsonify({"message": "Database initialization failed!"}), 500
@@ -202,7 +194,8 @@ def index():
 #     token = data.get("token")
 
 #     if not token:
-#         return jsonify({"success": False, "message": "Missing CAPTCHA token"}), 400
+#         return jsonify({"success": False, "message": \
+# "Missing CAPTCHA token"}), 400
 
 #     result = ValidateCaptcha.verify_hcaptcha(token)
 #     print(f"Token received: {token}")
@@ -248,9 +241,8 @@ def index():
 if __name__ == "__main__":
 
     # Dev-server entrypoint
-    
     app.run(
         host=os.getenv("FLASK_RUN_HOST", "127.0.0.1"),
         port=int(os.getenv("FLASK_RUN_PORT", 5000)),
-        debug=os.getenv("FLASK_DEBUG", "false").lower() in ("1","true")
+        debug=os.getenv("FLASK_DEBUG", "false").lower() in ("1", "true")
     )

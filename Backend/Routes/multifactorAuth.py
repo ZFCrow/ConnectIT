@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
-from Security import TwoFactorAuth 
+from Security import TwoFactorAuth
 
 
-multi_factor_auth_bp = Blueprint("multi_factor_auth", __name__) 
-
+multi_factor_auth_bp = Blueprint("multi_factor_auth", __name__)
 
 
 # Route for 2FA Qr-code generation

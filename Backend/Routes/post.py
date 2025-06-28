@@ -22,9 +22,10 @@ def get_all_posts():
     if posts:
 
         for post in posts:
+            # Convert each post entity to a dictionary for JSON serialization
             allPosts.append(
                 post.toDict()
-            )  # Convert each post entity to a dictionary for JSON serialization
+            )
     return jsonify(allPosts), 200  # Return the list of posts as JSON
 
 
@@ -90,13 +91,18 @@ def delete_post(post_id):
         return (
             jsonify(
                 {
-                    "message": f"Post with ID {post_id} deleted successfully! with account {accountId} and violations {violations}"
+                    "message": f"Post with ID \
+                        {post_id} deleted successfully! \
+                            with account {accountId} and \
+                                violations {violations}"
                 }
             ),
             200,
         )
     else:
-        return jsonify({"error": f"Failed to delete post with ID {post_id}"}), 500
+        return jsonify(
+            {"error": f"Failed to delete post with ID {post_id}"}
+            ), 500
 
 
 @post_bp.route("/posts/paginated", methods=["GET"])
@@ -121,7 +127,8 @@ def get_paginated_posts():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
-@post_bp.route("/post/<int:post_id>", methods=["GET"]) 
+
+@post_bp.route("/post/<int:post_id>", methods=["GET"])
 def get_post_by_id(post_id):
     """
     Retrieve a post by its ID.
@@ -131,13 +138,14 @@ def get_post_by_id(post_id):
             post_id
         )  # Use the boundary to handle retrieval of a post by its ID
         if post:
-            return jsonify(post.toDict()), 200  # Convert the post to a dictionary and return it as JSON
+            # Convert the post to a dictionary and return it as JSON
+            return jsonify(post.toDict()), 200
         else:
             return jsonify({"error": "Post not found"}), 404
     except Exception as e:
         print(f"Error retrieving post by ID: {e}")
         traceback.print_exc()
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
 
 
 @post_bp.route("/toggleLikes/<int:post_id>/<int:account_id>", methods=["POST"])

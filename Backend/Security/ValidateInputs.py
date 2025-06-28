@@ -5,19 +5,24 @@ import os
 EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 BLEACH_KWARGS = dict(tags=[], attributes={}, strip=True)
 
+
 def required_fields(data: dict, fields: list[str]) -> list[str]:
     return [f for f in fields if f not in data or data[f] is None]
 
+
 def sanitize_input(val: str) -> str:
     return bleach.clean(val, **BLEACH_KWARGS)
+
 
 def sanitize_fields(data: dict, fields: list[str]) -> None:
     for f in fields:
         if f in data and isinstance(data[f], str):
             data[f] = sanitize_input(data[f])
 
+
 def validate_email(email: str) -> bool:
     return bool(EMAIL_REGEX.match(email))
+
 
 def validate_login(data: dict) -> dict:
     errors = {}
@@ -25,27 +30,31 @@ def validate_login(data: dict) -> dict:
     if missing:
         errors["missing"] = f"Missing fields: {', '.join(missing)}"
         return errors
-    
     sanitize_fields(data, ["email"])
 
     if not validate_email(data["email"]):
         errors["email"] = "Invalid email format"
     return errors
 
+
 def load_bad_passwords() -> set:
     try:
-        file_path = os.path.join(os.path.dirname(__file__), "10k-most-common.txt")
+        file_path = os.path.join(os.path.dirname(__file__),
+                                 "10k-most-common.txt")
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             return set(line.strip().lower() for line in f if line.strip())
     except FileNotFoundError:
         print("Warning: Blocklist file not found.")
         return set()
 
+
 # Load once at app start (global)
 BAD_PASSWORDS = load_bad_passwords()
 
+
 def is_common_password(password: str) -> bool:
     return password.strip().lower() in BAD_PASSWORDS
+
 
 def validate_register(data: dict) -> dict:
     errors = {}
@@ -53,7 +62,6 @@ def validate_register(data: dict) -> dict:
     if missing:
         errors["missing"] = f"Missing fields: {', '.join(missing)}"
         return errors
-    
     sanitize_fields(data, ["name", "email"])
 
     if not validate_email(data["email"]):
@@ -61,13 +69,15 @@ def validate_register(data: dict) -> dict:
 
     pwd = data.get("password", "")
     if len(pwd) < 8:
-        errors["password"] = "Password must be at least 8 characters long." #nosec
+        errors["password"] = "Password must be at least \
+            8 characters long."  # nosec
     elif len(pwd) > 64:
-        errors["password"] = "Password must not exceed 64 characters." #nosec
+        errors["password"] = "Password must not exceed 64 characters."  # nosec
     elif is_common_password(pwd):
-        errors["password"] = "Password is too common." #nosec
+        errors["password"] = "Password is too common."  # nosec
 
     return errors
+
 
 def validate_post(data: dict) -> dict:
     errors = {}
@@ -75,7 +85,6 @@ def validate_post(data: dict) -> dict:
     if missing:
         errors["missing"] = f"Missing fields: {', '.join(missing)}"
         return errors
-    
     sanitize_fields(data, ["title", "content"])
     title = data.get("title", "").strip()
     content = data.get("content", "").strip()
@@ -90,13 +99,14 @@ def validate_post(data: dict) -> dict:
 
     return errors
 
+
 def validate_comment(data: dict) -> dict:
     errors = {}
     missing = required_fields(data, ["content"])
     if missing:
         errors["missing"] = f"Missing fields: {', '.join(missing)}"
         return errors
-    
+
     sanitize_fields(data, ["content"])
     content = data.get("content", "").strip()
 
@@ -107,17 +117,18 @@ def validate_comment(data: dict) -> dict:
 
     return errors
 
+
 def validate_job_listing(data: dict) -> dict:
     errors = {}
-    missing = required_fields(data, ["title", "description", "minSalary", "maxSalary", "experiencePreferred"])
+    missing = required_fields(data, ["title", "description", "minSalary",
+                                     "maxSalary", "experiencePreferred"])
     if missing:
         errors["missing"] = f"Missing fields: {', '.join(missing)}"
         return errors
-    
+
     sanitize_fields(data, ["title", "description", "responsibilities"])
     title = data.get("title", "").strip()
     description = data.get("description", "").strip()
-    
     if len(title) < 1:
         errors["title"] = "Title cannot be empty"
     elif len(title) > 100:
@@ -135,13 +146,16 @@ def validate_job_listing(data: dict) -> dict:
         cleaned = []
         for idx, item in enumerate(raw_reqs):
             if not isinstance(item, str):
-                errors[f"responsibilities[{idx}]"] = "Each responsibility must be a string"
+                errors[f"responsibilities[{idx}]"] = "Each responsibility \
+                    must be a string"
                 continue
             text = sanitize_input(item).strip()
             if len(text) < 1:
-                errors[f"responsibilities[{idx}]"] = "Each responsibility cannot be empty"
+                errors[f"responsibilities[{idx}]"] = "Each responsibility \
+                    cannot be empty"
             elif len(text) > 500:
-                errors[f"responsibilities[{idx}]"] = "Each responsibility must not exceed 500 characters"
+                errors[f"responsibilities[{idx}]"] = "Each responsibility \
+                    must not exceed 500 characters"
             else:
                 cleaned.append(text)
 
@@ -165,6 +179,7 @@ def validate_job_listing(data: dict) -> dict:
         errors["experience"] = "Invalid years of experience format"
 
     return errors
+
 
 def validate_profile(data: dict) -> dict:
     errors: dict[str, str] = {}

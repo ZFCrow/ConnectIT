@@ -9,4 +9,4 @@ class ViolationControl:
         """
         Retrieve all violations from the database.
         """
-        return ViolationGateway.getAllViolations() 
+        return ViolationGateway.getAllViolations()

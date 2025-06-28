@@ -1,11 +1,12 @@
 # Backend/SQLModels/CompanyModel.py
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 
+
 class CompanyModel(Base):
-    __tablename__ = "Company" 
-    
+    __tablename__ = "Company"
+
     # Just the primary key for FK reference
     companyId = Column(Integer, primary_key=True, autoincrement=True)
     # Or use 'id' if that's your user table primary key:
@@ -13,10 +14,15 @@ class CompanyModel(Base):
     description = Column(String(1024), nullable=True)
     location = Column(String(255), nullable=True)
     companyDocUrl = Column(String(512), nullable=False)
-    verified = Column(Integer, nullable=False, default=0) ##  IMPORTANT TODO: Change to INT when merged
+    verified = Column(Integer, nullable=False, default=0)
 
-    accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False, unique=True)
-    
+    accountId = Column(
+        Integer,
+        ForeignKey("Account.accountId"),
+        nullable=False,
+        unique=True
+        )
+
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
     account = relationship("AccountModel", back_populates="company")
@@ -30,7 +36,7 @@ class CompanyModel(Base):
             "companyDocUrl": self.companyDocUrl,
             "verified": self.verified
         }
-    
+
     @classmethod
     def from_dict(cls, data):
         """
@@ -46,6 +52,6 @@ class CompanyModel(Base):
             companyDocUrl=data.get("companyDocUrl"),
             verified=data.get("verified", False)
         )
-    
+
     def __repr__(self):
         return f"<Company(companyId={self.companyID})>"

@@ -1,10 +1,8 @@
 # job_listing_routes.py
 
 from flask import Blueprint, request, jsonify
-from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Control.JobApplicationControl import JobApplicationControl
-from Control.JobListingControl import JobListingControl  # Import your control class
-from Entity.JobListing import JobListing  # Import your entity class
+from Control.JobListingControl import JobListingControl
 from Security.Limiter import limiter, get_company_key, get_user_key
 from Security.ValidateInputs import validate_job_listing
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
@@ -17,17 +15,19 @@ SplunkLogging = SplunkUtils.SplunkLogger()
 # GET all job listings
 @job_listing_bp.route("/joblistings", methods=["GET"])
 def get_all_job_listings():
-    listings = JobListingControl.getAllJobListings()  # implement this in your control
+    listings = JobListingControl.getAllJobListings()
     print(f"All job listings: {[l.to_dict() for l in listings]}")
-    return jsonify([l.to_dict() for l in listings]), 200
+    return jsonify([listing.to_dict() for listing in listings]), 200
 
 
 # GET a single job detail
 @job_listing_bp.route("/jobDetails/<int:job_id>", methods=["GET"])
 def get_job_details(job_id):
-    listings = JobListingControl.getJobDetails(job_id)  # implement this in your control
+    listings = JobListingControl.getJobDetails(job_id)
     return (
-        jsonify(listings.to_dict()) if listings else jsonify({"error": "Job not found"})
+        jsonify(listings.to_dict())
+        if listings
+        else jsonify({"error": "Job not found"})
     ), 200
 
 
@@ -36,7 +36,7 @@ def get_company_job_listings(company_id):
     # Pass company_id so you only get jobs for that company
     listings = JobListingControl.getAllJobListings(company_id=company_id)
     print(f"Company job listings: {[l.to_dict() for l in listings]}")
-    return jsonify([l.to_dict() for l in listings]), 200
+    return jsonify([listing.to_dict() for listing in listings]), 200
 
 
 # POST new job listing
@@ -44,7 +44,7 @@ def get_company_job_listings(company_id):
 @limiter.limit("15 per hour", key_func=get_company_key)
 def create_job_listing():
     job_data = request.get_json()
-    print("JOB DATA: ",job_data)
+    print("JOB DATA: ", job_data)
 
     errors = validate_job_listing(job_data)
     if errors:
@@ -100,28 +100,28 @@ def delete_job_listing(jobId):
 
     if success:
         SplunkLogging.send_log({
-        "event": "Job Listing Delete Success",
-        "jobId": jobId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Job Listing Delete Success",
+            "jobId": jobId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
     else:
         SplunkLogging.send_log({
-        "event": "Job listing delete Fail",
-        "jobId": jobId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Job listing delete Fail",
+            "jobId": jobId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
         return jsonify({"error": "Failed to delete job listing"}), 200
-    #return (
+    # return (
     #    jsonify({"message": "Job listing deleted successfully!"})
     #    if success
     #    else jsonify({"error": "Failed to delete job listing"})
-    #), 200
+    # ), 200
 
 
 @job_listing_bp.route("/applyJob", methods=["POST"])
@@ -141,7 +141,7 @@ def apply_job():
                 enforce_pdf_limits(resumeFile)
                 resumeFile = sanitize_pdf(resumeFile)
             except ValueError as e:
-                
+
                 SplunkLogging.send_log({
                     "event": "Job Application Failed",
                     "reason": "Invalid PDF upload",
@@ -173,7 +173,7 @@ def apply_job():
             "method": request.method,
             "path": request.path
         })
-         
+
         return jsonify({"error": "Job ID is required"}), 400
 
     if not userId:
@@ -187,7 +187,7 @@ def apply_job():
             "method": request.method,
             "path": request.path
         })
-        
+
         return jsonify({"error": "User ID is required"}), 400
 
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
@@ -216,11 +216,14 @@ def apply_job():
             "method": request.method,
             "path": request.path
         })
-         
+
         return jsonify({"error": "Failed to apply for job"}), 500
 
 
-@job_listing_bp.route("/approveApplication/<int:applicationId>", methods=["POST"])
+@job_listing_bp.route(
+        "/approveApplication/<int:applicationId>",
+        methods=["POST"]
+        )
 def approve_application(applicationId):
     """
     Approves a job application by applicationId.
@@ -229,30 +232,33 @@ def approve_application(applicationId):
     if success:
 
         SplunkLogging.send_log({
-        "event": "Approve Application Success",
-        "applicationId": applicationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Approve Application Success",
+            "applicationId": applicationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
 
         return jsonify({"message": "Application submitted successfully!"}), 201
     else:
 
         SplunkLogging.send_log({
-        "event": "Approve Application Failed",
-        "applicationId": applicationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Approve Application Failed",
+            "applicationId": applicationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
 
         return jsonify({"error": "Failed to apply for job"}), 500
 
 
-@job_listing_bp.route("/rejectApplication/<int:applicationId>", methods=["DELETE"])
+@job_listing_bp.route(
+        "/rejectApplication/<int:applicationId>",
+        methods=["DELETE"]
+        )
 def reject_application(applicationId):
     """
     Rejects a job application by applicationId.
@@ -261,33 +267,36 @@ def reject_application(applicationId):
 
     if success:
         SplunkLogging.send_log({
-        "event": "Reject Application success",
-        "applicationId": applicationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Reject Application success",
+            "applicationId": applicationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
         return jsonify({"message": "Application rejected successfully!"}), 200
     else:
         SplunkLogging.send_log({
-        "event": "Reject Application Failed",
-        "applicationId": applicationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Reject Application Failed",
+            "applicationId": applicationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
         return jsonify({"error": "Failed to reject application"}), 500
-    #return (
+    # return (
     #    jsonify({"message": "Application rejected successfully!"})
     #    if success
     #
     #    else jsonify({"error": "Failed to reject application"})
-    #), 200
+    # ), 200
 
 
-@job_listing_bp.route("/getApplicantsByCompanyId/<int:companyId>", methods=["GET"])
+@job_listing_bp.route(
+        "/getApplicantsByCompanyId/<int:companyId>",
+        methods=["GET"]
+    )
 def getApplicantsByCompanyId(companyId):
     """
     Retrieves all job applications submitted to jobs by this company.
@@ -345,7 +354,10 @@ def add_bookmark():
     ), 200
 
 
-@job_listing_bp.route("/removeBookmark/<int:userId>/<int:jobId>", methods=["DELETE"])
+@job_listing_bp.route(
+        "/removeBookmark/<int:userId>/<int:jobId>",
+        methods=["DELETE"]
+    )
 def remove_bookmark(userId, jobId):
     """
     Removes a job from the user's bookmarks.
@@ -393,7 +405,10 @@ def get_all_violations():
     return JobListingControl.getAllViolations()
 
 
-@job_listing_bp.route("/setViolation/<int:jobId>/<int:violationId>", methods=["POST"])
+@job_listing_bp.route(
+        "/setViolation/<int:jobId>/<int:violationId>",
+        methods=["POST"]
+        )
 def set_violation(jobId, violationId):
     """
     Sets a violation for a job listing.
@@ -405,32 +420,32 @@ def set_violation(jobId, violationId):
 
     if success:
         SplunkLogging.send_log({
-        "event": "Set Violation Success",
-        "JobId": jobId,
-        "violationId": violationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Set Violation Success",
+            "JobId": jobId,
+            "violationId": violationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
 
         return jsonify({"message": "Violation set successfully!"}), 200
-    
+
     else:
         SplunkLogging.send_log({
-        "event": "Set Violation Failed",
-        "JobId": jobId,
-        "violationId": violationId,
-        "ip": request.remote_addr,
-        "user_agent": str(request.user_agent),
-        "method": request.method,
-        "path": request.path
+            "event": "Set Violation Failed",
+            "JobId": jobId,
+            "violationId": violationId,
+            "ip": request.remote_addr,
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path
         })
 
         return jsonify({"error": "Failed to set violation"}), 500
 
-    #return (
+    # return (
     #    jsonify({"message": "Violation set successfully!"})
     #    if success
     #    else jsonify({"error": "Failed to set violation"})
-    #), 200
+    # ), 200

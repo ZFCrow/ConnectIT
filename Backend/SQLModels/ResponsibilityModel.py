@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from .base import Base
 from sqlalchemy.orm import relationship
 
+
 class ResponsibilityModel(Base):
     __tablename__ = 'Responsibility'
 
@@ -15,4 +16,6 @@ class ResponsibilityModel(Base):
     )
 
     def __repr__(self):
-        return f"<Responsibility(id={self.id}, jobId={self.jobId}, description='{self.description}')>"
+        return f"<Responsibility(id={self.id}, \
+            jobId={self.jobId}, description=\
+                '{self.description}')>"
