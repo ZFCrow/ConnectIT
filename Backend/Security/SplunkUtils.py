@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class SplunkLogger:
     def __init__(self):
 
@@ -37,13 +36,12 @@ class SplunkLogger:
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=False
+                verify=False  # Not recommended in production; use valid certs
             )
 
             if self.debug:
                 print(f"[SplunkLogger] Log sent to Splunk: {payload}")
-                print(f"[SplunkLogger] Response status code: \
-                      {response.status_code}")
+                print(f"[SplunkLogger] Response status code: {response.status_code}")
 
         except Exception as e:
             print(f"[SplunkLogger] Failed to send log to Splunk: {e}")
