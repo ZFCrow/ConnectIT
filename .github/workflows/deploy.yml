@@ -60,11 +60,15 @@ jobs:
       PEM_FILE: ${{ secrets.PEM_FILE }} # Set your PEM file for SSH access 
       FERNET_KEY: ${{ secrets.FERNET_KEY }} # Set your Fernet key for encryption 
       JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
-      SPLUNK_HEC_URL: ${{ secrets.SPLUNK_HEC_URL }} # Set your Splunk HEC URL for logging
+      
+
       SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
       SPLUNK_SOURCE: ${{ secrets.SPLUNK_SOURCE }} # Set your Splunk source for logging
       SPLUNK_SOURCETYPE: ${{ secrets.SPLUNK_SOURCETYPE }} # Set your Splunk sourcetype for logging 
       SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }} # Set your Splunk password for logging
+      SPLUNK_IP_WHITELIST: ${{ secrets.SPLUNK_IP_WHITELIST }} # Set your Splunk IP whitelist for security 
+
+
       HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
       
       #.env.prod , some keys added a _PROD as it shares the same name as development keys
@@ -116,11 +120,6 @@ jobs:
           HCAPTCHA_SECRET=$HCAPTCHA_SECRET
           FERNET_KEY=$FERNET_KEY
           JWT_SECRET=$JWT_SECRET
-          SPLUNK_HEC_URL=$SPLUNK_HEC_URL
-          SPLUNK_HEC_TOKEN=$SPLUNK_HEC_TOKEN
-          SPLUNK_SOURCE=$SPLUNK_SOURCE
-          SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
-          SPLUNK_PASSWORD=$SPLUNK_PASSWORD
           MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
           MYSQL_DATABASE=$MYSQL_DATABASE_DEV
           MYSQL_USER=$MYSQL_USER_DEV
@@ -148,5 +147,12 @@ jobs:
           MYSQL_CONTAINER_NAME=$MYSQL_CONTAINER_NAME
           MYSQL_CONTAINER_PORT=$MYSQL_CONTAINER_PORT
           USE_SSH_TUNNEL=$USE_SSH_TUNNEL_PROD
+
+              
+          SPLUNK_HEC_TOKEN=$SPLUNK_HEC_TOKEN
+          SPLUNK_SOURCE=$SPLUNK_SOURCE
+          SPLUNK_SOURCETYPE=$SPLUNK_SOURCETYPE
+          SPLUNK_PASSWORD=$SPLUNK_PASSWORD
+          SPLUNK_IP_WHITELIST=$SPLUNK_IP_WHITELIST 
           E3
           EOF
