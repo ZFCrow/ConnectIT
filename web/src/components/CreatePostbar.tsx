@@ -36,7 +36,6 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
   // onPostCreated = () => {}, // default to empty function if not provided
 }) => {
   const { profilePicUrl, name } = useAuth(); // destructure profilePicUrl from the context
-  console.log("profilePicUrl", profilePicUrl);
   const { createPost, createPostPending } = usePostContext(); // get the createPost function and status from the context
   const [open, setOpen] = useState(false); // dialog open state
 

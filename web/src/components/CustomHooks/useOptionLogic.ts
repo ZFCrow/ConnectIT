@@ -4,7 +4,6 @@ import { useState, useCallback, useMemo } from "react";
 export function useOptionLogic<T, K extends keyof T>(
   allItems: T[],
   selectedItems: T[],
-  key: K
 ) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -12,32 +11,33 @@ export function useOptionLogic<T, K extends keyof T>(
   const filtered = useMemo(
     () =>
       allItems.filter((item) =>
-        String(item[key]).toLowerCase().includes(search.toLowerCase())
+      
+        String(item["name"]).toLowerCase().includes(search.toLowerCase())
       ),
-    [allItems, key, search]
+    [allItems, search]
   );
 
   const toggle = useCallback(
     (item: T) => {
-      console.log("Toggling item:", item);
-      const exists = selectedItems.some((s) => s[key] === item[key]);
+      
+      const exists = selectedItems.some((s) => s["name"] === item["name"]);
       const next = exists
-        ? selectedItems.filter((s) => s[key] !== item[key])
+        ? selectedItems.filter((s) => s["name"] !== item["name"])
         : [...selectedItems, item];
       setOpen(true);
       return next;
     },
-    [key, selectedItems]
+    [selectedItems]
   );
 
   const removeItem = useCallback( 
     (item: T) => {
-      console.log("Removing item:", item);
-      const next = selectedItems.filter((s) => s[key] !== item[key]);
+      
+      const next = selectedItems.filter((s) => s["name"] !== item["name"]);
       //setOpen(true);
       return next;
     },
-    [key, selectedItems]
+    [selectedItems]
   ); 
 
   return { open, setOpen, search, setSearch, filtered, toggle, removeItem };

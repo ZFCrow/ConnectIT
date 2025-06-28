@@ -15,38 +15,9 @@ interface ViolationPickerProps {
 
 export function ViolationPicker({ allViolations, selected, onChange }: ViolationPickerProps) {
   const { open, setOpen, search, setSearch, filtered, toggle, removeItem } =
-    useOptionLogic<Violation, "name">(allViolations, selected, "name");
+    useOptionLogic<Violation, "name">(allViolations, selected,);
 
   return (
-    //! from gpt
-    // <div>
-    //   <Popover open={open} onOpenChange={setOpen}>
-    //     <PopoverTrigger asChild>
-    //       <Button>{selected.length ? `${selected.length} chosen` : "Select violations..."}</Button>
-    //     </PopoverTrigger>
-    //     <PopoverContent>
-    //       <input 
-    //         placeholder="Search reasons…" 
-    //         value={search} 
-    //         onChange={(e)=>setSearch(e.target.value)}
-    //       />
-    //       {filtered.map((v) => (
-    //         <div key={v.violationId} onClick={()=>onChange(toggle(v))}>
-    //           {v.name} {selected.some(s=>s.violationId===v.violationId) && <Check />}
-    //         </div>
-    //       ))}
-    //     </PopoverContent>
-    //   </Popover>
-    //   <div>
-    //     {selected.map((v)=>(
-    //       <Badge key={v.violationId} onClick={()=>onChange(toggle(v))}>
-    //         {v.name} <X />
-    //       </Badge>
-    //     ))}
-    //   </div>
-    // </div>
-
-
          <div className="flex flex-col gap-2">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>

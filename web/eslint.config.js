@@ -44,7 +44,31 @@ export default [
         "warn",
         { allowConstantExport: true },
       ],
-      "security/detect-eval-with-expression": "error"
+      "security/detect-eval-with-expression": "error",
+      "security-node/detect-insecure-randomness": "off" // removed it as it is being use for optimistic pushing and the data is not important
+    },
+
+  },
+
+  // adding exceptions for shadcn UI files & theme-provider 
+  {
+    files: [
+      "src/components/ui/**/*.{ts,tsx}", 
+      "src/components/theme-provider.tsx",
+    ],
+    rules: {
+      // completely turn off the fast-refresh warning here
+      "react-refresh/only-export-components": "off",
+      "react/prop-types": "off",
+    },
+  }, 
+
+  // adding exceptions for contexts file since fast refresh is not needed 
+  {
+    files: ["src/contexts/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+     
     },
   },
 ];
