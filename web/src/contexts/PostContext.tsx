@@ -1,10 +1,10 @@
 // src/contexts/PostContext.tsx
-import { createContext, useContext } from "react";
+import { createContext, useContext, ReactNode } from "react"; 
 import usePostManager from "@/components/CustomHooks/usePostManager";
 
 const PostContext = createContext<ReturnType<typeof usePostManager> | null>(null);
 
-export const PostProvider = ({ children }) => {
+export const PostProvider = ({ children }: { children: ReactNode }) => {
   const manager = usePostManager(); // keeps all your existing logic
   return <PostContext.Provider value={manager}>{children}</PostContext.Provider>;
 };

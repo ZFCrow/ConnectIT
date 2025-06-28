@@ -1,4 +1,4 @@
-import { use, useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
     useInfiniteQuery,
     useMutation,
@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Post } from "@/type/Post";
 import type { CreatePostDTO, DeletePostDTO } from "@/type/Post";
 import type { CreateCommentDTO, Comment } from "@/type/Comment"; 
-import { Axios, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { useViolationManager } from "./useViolationManager";
 import type { JobApplication } from "@/type/JobApplicationSchema"; // Import JobApplication type 
 import type { JobListing } from "@/type/jobListing"; // Import JobListing type 
@@ -40,10 +40,10 @@ const usePostManager = () => {
     useEffect(() => {
         if (accountId){
             fetchViolations(); // Fetch violations when the hook mounts
-            console.log("Fetching violations for accountId:", accountId); 
+         
         }
     
-    }, [accountId]);
+    }, [accountId, fetchViolations]);
 
 
     // ✅ Move state INSIDE the hook
@@ -76,7 +76,7 @@ const usePostManager = () => {
                 },
             }).then(res => {
                 
-                console.log('Fetched posts:', res.data);
+               
                 return res.data;
             }), 
         
@@ -114,7 +114,7 @@ const usePostManager = () => {
             })
         },
         onSuccess: (res) => {
-            console.log('Post created successfully:', res.data);
+            
             qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
         }, 
     })
@@ -133,7 +133,7 @@ const usePostManager = () => {
             });
         },
         onSuccess: () => {
-            console.log('Post deleted successfully');
+            
             qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
             setPostToDelete(null); // Reset post to delete
             setSelectedViolations([]); // Reset selected violations 
@@ -206,7 +206,7 @@ const usePostManager = () => {
             },
 
             onSuccess: () => {
-                console.log('Post like toggled successfully');
+             
                 qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
             },
             onError: (_err, _vars, context) => {
@@ -297,7 +297,7 @@ const usePostManager = () => {
                 return { previousData };
                 },
             onSuccess: () => {
-                console.log('Comment created successfully');
+            
                 qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
             },
             onError: (_err, _vars, context) => { 
@@ -358,7 +358,7 @@ const usePostManager = () => {
             },
             
             onSuccess: () => {
-                console.log('Comment deleted successfully');
+           
                 qc.invalidateQueries({ queryKey: ['posts'] }); // Invalidate posts cache
             },  
         }
@@ -421,7 +421,7 @@ const usePostManager = () => {
             queryFn: () => {
 
                 return api.get<Post>(`/post/${postId}`).then(res => {
-                    console.log('Fetched individual post:', res.data);
+                    
                     // Add to cache if not already present 
                     addPostToCache(res.data); // Add to cache 
                     return res.data;
@@ -496,36 +496,36 @@ const usePostManager = () => {
 
     
 
-    // ✅ Console log when data changes
-    useEffect(() => {
-        if (recentAppliedJobs) {
-            console.log('📋 Recent Applied Jobs:', recentAppliedJobs);
-            console.log('📊 Number of applications:', recentAppliedJobs.length);
+    // // ✅ Console log when data changes
+    // useEffect(() => {
+    //     if (recentAppliedJobs) {
+    //         console.log('📋 Recent Applied Jobs:', recentAppliedJobs);
+    //         console.log('📊 Number of applications:', recentAppliedJobs.length);
             
-            // Log individual jobs
-            recentAppliedJobs.forEach((job, index) => {
-                console.log(`Job ${index + 1}:`, job);
-            });
-        }
-        if (recentPostedJobs) {
-            console.log('📋 Recent Posted Jobs:', recentPostedJobs);
-            console.log('📊 Number of posted jobs:', recentPostedJobs.length);
+    //         // Log individual jobs
+    //         recentAppliedJobs.forEach((job, index) => {
+    //             console.log(`Job ${index + 1}:`, job);
+    //         });
+    //     }
+    //     if (recentPostedJobs) {
+    //         console.log('📋 Recent Posted Jobs:', recentPostedJobs);
+    //         console.log('📊 Number of posted jobs:', recentPostedJobs.length);
         
-        }
-        if (userId){ 
-            console.log(`User ${userId} has ${recentAppliedJobs?.length ?? 0} recent applied jobs.`);
-        }
+    //     }
+    //     if (userId){ 
+    //         console.log(`User ${userId} has ${recentAppliedJobs?.length ?? 0} recent applied jobs.`);
+    //     }
 
-        if (accountId) {
-            console.log(`Account ${accountId} has ${recentInteractions?.length ?? 0} recent interactions.`);
-        }
+    //     if (accountId) {
+    //         console.log(`Account ${accountId} has ${recentInteractions?.length ?? 0} recent interactions.`);
+    //     }
 
-        if (companyId) {
-            console.log(`Company ${companyId} has ${recentPostedJobs?.length ?? 0} recent posted jobs.`);
-        }
+    //     if (companyId) {
+    //         console.log(`Company ${companyId} has ${recentPostedJobs?.length ?? 0} recent posted jobs.`);
+    //     }
 
     
-    }, [accountId, userId, recentInteractions, recentAppliedJobs]);
+    // }, [accountId, userId, recentInteractions, recentAppliedJobs]);
 
 
 

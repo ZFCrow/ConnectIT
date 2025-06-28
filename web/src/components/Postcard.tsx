@@ -139,7 +139,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
         content: commentContent,
       });
       setCommentContent(""); // Clear input
-      console.log("Comment posted:", commentContent);
+     
     } catch (err) {
       const message =
         err.response?.data?.error ||
