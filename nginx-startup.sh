@@ -3,6 +3,8 @@
 CERT_PATH="/etc/nginx/ssl/live/connectitweb.site/fullchain.pem"
 CONFIG_FILE="/etc/nginx/conf.d/default.conf"
 
+ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
+
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found, generating HTTPS config..."
     cat > $CONFIG_FILE << 'EOF'
@@ -34,6 +36,23 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
+
+EOF_STATIC_PART_TOP
+
+    # This part needs to be outside the 'EOF' block to allow shell variable expansion
+    # It will append the 'allow' lines directly to the CONFIG_FILE
+    IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
+    for i in "${ADDRS[@]}"; do
+        if [ -n "$i" ]; then
+            echo "            allow $i;" >> "$CONFIG_FILE"
+        fi
+    done
+    echo "            deny all;" >> "$CONFIG_FILE"
+    echo "            # --- END IP LIMITING ---" >> "$CONFIG_FILE"
+
+    # Continue the 'EOF' block for the rest of the static config
+    cat >> "$CONFIG_FILE" << 'EOF_STATIC_PART_BOTTOM'
+
         proxy_pass http://splunk:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

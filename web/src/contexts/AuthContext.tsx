@@ -140,31 +140,44 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  useEffect(() => {
-    if (!isLoading && accountId) {
-      const refreshInterval = setInterval(() => {
-        fetch("/api/refresh", {
-          method: "POST",
-          credentials: "include",
-        })
-          .then((res) => {
-            if (!res.ok) {
-              console.error(
-                "[AuthProvider] Token refresh failed:",
-                res.statusText
-              );
-            }
-          })
-          .catch((err) => {
-            console.error("[AuthProvider] Token refresh network error:", err);
-          });
-      }, 15 * 60 * 1000); // 15 minutes
+    const endSession = async () => {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+   window.location.reload();
+  };
 
-      return () => {
-        clearInterval(refreshInterval);
-      };
-    }
-  }, [isLoading, accountId]);
+    useEffect(() => {
+    const ttlId = setTimeout(() => {
+      endSession();
+    }, 1440 * 60 * 1000); // 30 minutes
+
+    return () => clearTimeout(ttlId);
+  }, []);
+
+  // inactivity detector
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        endSession();
+        window.location.reload();
+      }, 30 * 60 * 1000);
+    };
+
+    const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+
+    resetTimer(); // start initial timer
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, []);
 
   // memoize the context value
   const authValue = useMemo(
@@ -201,10 +214,5 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  // console.log("[useAuth] context returned", {
-  //   accountId: ctx.accountId,
-  //   role:      ctx.role,
-  //   name:      ctx.name,
-  // });
   return ctx;
 };
