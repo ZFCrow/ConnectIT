@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import Postcard from "@/components/Postcard";
+import { useEffect } from "react";
 import CreatePostbar from "@/components/CreatePostbar";
 import ListingCard from "@/components/listingCard";
 import FullHeightVerticalBar from "@/components/FullHeightVerticalBar";
@@ -8,15 +6,13 @@ import PostDeleteDialog from "@/components/CustomDialogs/PostDeleteDialog";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { usePostContext } from "@/contexts/PostContext";
 import { useLabelManager } from "@/components/CustomHooks/useLabelManager";
-import { create } from "domain";
-import PostCardSkeleton from "@/components/PostCardSkeleton";
 import ListingCardSkeleton from "@/components/ListingCardSkeleton";
 import PostsSection from "./Home/Sections/PostsSection";
 
 
 
 const Homepage = () => {
-  const { accountId, role, userId, companyId } = useAuth();
+  const { role } = useAuth();
 
 
     // New pagination context
@@ -43,7 +39,7 @@ const Homepage = () => {
 
   useEffect(() => {
     fetchLabels(); // fetch the labels on mounts
-  }, []);
+  }, [fetchLabels]);
 
   return (
     <>

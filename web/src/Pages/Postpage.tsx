@@ -11,10 +11,9 @@ const Postpage = () => {
   const navigate = useNavigate();
   const idNum = postId ? Number(postId) : NaN;
 
-  if (isNaN(idNum)) {
-    return <Navigate to="/" replace />;
-  }
 
+
+  
   const {
     useIndividualPost,
     postToDelete, // dialog state from context 
@@ -30,6 +29,8 @@ const Postpage = () => {
 
   const [isDeleted, setIsDeleted] = useState(false);
 
+
+
   // Redirect to “not found” if after loading there’s still no post
   useEffect(() => {
     if (!isLoadingPost && !post) {
@@ -37,6 +38,13 @@ const Postpage = () => {
     }
   }, [isLoadingPost, post, navigate]);
 
+
+    
+  if (isNaN(idNum)) {
+    return <Navigate to="/" replace />;
+  }
+
+  
   return (
     <div className="flex w-full gap-20 h-[calc(100vh-5rem)]">
       <div className="ml-3 flex-1 overflow-y-auto scrollbar-hide">

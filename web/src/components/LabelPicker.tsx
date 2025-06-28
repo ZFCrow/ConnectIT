@@ -17,7 +17,7 @@ export function LabelPicker({ allLabels, selected, onChange }: LabelPickerProps)
   const { open, setOpen, search, setSearch, filtered, toggle, removeItem } = useOptionLogic<Label, "name">(
     allLabels,
     selected,
-    "name"
+    
   );
 
   return (
