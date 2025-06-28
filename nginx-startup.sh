@@ -5,9 +5,25 @@ CONFIG_FILE="/etc/nginx/conf.d/default.conf"
 
 ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
 
+IP_LIMIT_BLOCK=""
+if [ -n "$ALLOWED_IPS_STRING" ]; then
+    IP_LIMIT_BLOCK="            # --- IP LIMITING (Dynamically Generated) ---\n"
+    IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
+    for i in "${ADDRS[@]}"; do
+        if [ -n "$i" ]; then
+            # Ensure proper indentation for the generated Nginx config
+            IP_LIMIT_BLOCK+="            allow $i;\n"
+        fi
+    done
+    IP_LIMIT_BLOCK+="            deny all;\n"
+    IP_LIMIT_BLOCK+="# --- END IP LIMITING ---"
+fi
+
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found, generating HTTPS config..."
-    cat > $CONFIG_FILE << 'EOF'
+    
+    # Write the first part of the config
+    cat > "$CONFIG_FILE" << 'EOF'
 
 server {
     listen 80;
@@ -37,24 +53,7 @@ server {
 
     location / {
 
-EOF
-
-    # Add IP whitelist if provided
-    if [ -n "$ALLOWED_IPS_STRING" ]; then
-        echo "        # --- IP LIMITING ---" >> "$CONFIG_FILE"
-        IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
-        for i in "${ADDRS[@]}"; do
-            if [ -n "$i" ]; then
-                echo "        allow $i;" >> "$CONFIG_FILE"
-            fi
-        done
-        echo "        deny all;" >> "$CONFIG_FILE"
-        echo "        # --- END IP LIMITING ---" >> "$CONFIG_FILE"
-        echo "" >> "$CONFIG_FILE"
-    fi
-
-    # Continue with the rest of the configuration
-    cat >> "$CONFIG_FILE" << 'EOF'
+${IP_LIMIT_BLOCK}
 
         proxy_pass http://splunk:8000;
         proxy_set_header Host $host;
