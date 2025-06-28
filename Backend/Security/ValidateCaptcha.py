@@ -2,6 +2,7 @@ import os
 import requests
 from flask import request
 
+
 def verify_hcaptcha(token: str) -> dict:
 
     HCAPTCHA_SECRET = os.getenv("HCAPTCHA_SECRET")
@@ -22,7 +23,9 @@ def verify_hcaptcha(token: str) -> dict:
     }
 
     try:
-        response = requests.post("https://hcaptcha.com/siteverify", data=payload)
+        # 5 seconds for connection, 10 seconds for read
+        response = requests.post("https://hcaptcha.com/siteverify",
+                                 data=payload, timeout=(5, 10))
         result = response.json()
         if result.get("success"):
             return {
@@ -48,6 +51,7 @@ def verify_hcaptcha(token: str) -> dict:
         print(f"Unexpected error during CAPTCHA verification: {e}")
         return {
             "success": False,
-            "message": f"An unexpected error occurred during CAPTCHA verification: {str(e)}",
+            "message": f"An unexpected error occurred during \
+                CAPTCHA verification: {str(e)}",
             "data": None
         }

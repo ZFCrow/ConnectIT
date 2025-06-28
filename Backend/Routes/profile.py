@@ -1,8 +1,12 @@
 from flask import Blueprint, request, jsonify, abort
-from Control.AccountControl import AccountControl
 from Boundary.AccountBoundary import AccountBoundary
 from Security.Limiter import limiter, get_account_key
-from Security.ValidateFiles import enforce_image_limits, enforce_pdf_limits, sanitize_image, sanitize_pdf
+from Security.ValidateFiles import (
+    enforce_image_limits,
+    enforce_pdf_limits,
+    sanitize_image,
+    sanitize_pdf
+    )
 from Security.ValidateInputs import validate_profile
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
@@ -11,6 +15,7 @@ from SQLModels.AccountModel import Role
 SplunkLogging = SplunkUtils.SplunkLogger()
 
 profile_bp = Blueprint("profile", __name__, url_prefix="/profile")
+
 
 def _authenticate():
     token = JWTUtils.get_token_from_cookie()
@@ -22,13 +27,13 @@ def _authenticate():
         abort(401, description="Invalid or expired token")
     return claims
 
+
 @profile_bp.route("/<int:account_id>", methods=["GET"])
 def get_user(account_id):
     claims = _authenticate()
     user_id = claims.get("sub")
     if user_id != account_id:
         abort(403, description="You may only view your own profile")
-
 
     account = AccountBoundary.viewAccount(account_id)
 
@@ -56,7 +61,8 @@ def get_user(account_id):
             "userId",
         ]
         optional_data = {
-            key: getattr(account, key) for key in optional_keys if hasattr(account, key)
+            key: getattr(account, key)
+            for key in optional_keys if hasattr(account, key)
         }
 
         return jsonify({**base_data, **optional_data})
@@ -75,7 +81,8 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-@limiter.limit("1 per hour", key_func=get_account_key) # here is the issue that the profile cannot save
+# below is the issue that the profile cannot save
+@limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
@@ -86,9 +93,9 @@ def save_profile():
         abort(400, description="Invalid accountId in form data")
     if user_id != form_account_id:
         abort(403, description="Forbidden to update this profile")
-    
+
     updated_data["accountId"] = form_account_id
-    
+
     portfolioFile = request.files.get("portfolioFile", None)
     profilePic = request.files.get("profilePic", None)
 
@@ -114,17 +121,17 @@ def save_profile():
         except Exception as e:
 
             SplunkLogging.send_log({
-            "event": "Profile Update Failed",
-            "reason": "Validation error - PDF",
-            "accountId": updated_data.get("accountId"),
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
+                "event": "Profile Update Failed",
+                "reason": "Validation error - PDF",
+                "accountId": updated_data.get("accountId"),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
             })
-            
+
             return jsonify({"error": str(e)}), 400
-        
+
     if profilePic:
         try:
             enforce_image_limits(profilePic)
@@ -132,13 +139,13 @@ def save_profile():
         except Exception as e:
 
             SplunkLogging.send_log({
-            "event": "Profile Update Failed",
-            "reason": "Validation error - Profile picture",
-            "accountId": updated_data.get("accountId"),
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
+                "event": "Profile Update Failed",
+                "reason": "Validation error - Profile picture",
+                "accountId": updated_data.get("accountId"),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path
             })
 
             return jsonify({"error": str(e)}), 400
@@ -181,7 +188,7 @@ def disable(account_id):
     user_id = claims.get("sub")
     if user_id != account_id:
         abort(403, description="Forbidden to disable this account")
-    
+
     auth_data = request.get_json()
 
     success = AccountBoundary.disableAccount(account_id, auth_data)
@@ -223,7 +230,10 @@ def get_all_companies():
     return jsonify([company.to_dict() for company in companies]), 200
 
 
-@profile_bp.route("/setCompanyVerified/<int:company_id>/<int:verified>", methods=["POST"])
+@profile_bp.route(
+        "/setCompanyVerified/<int:company_id>/<int:verified>",
+        methods=["POST"]
+        )
 def set_company_verified(company_id, verified):
     """
     Sets the verification status of a company.
@@ -236,7 +246,11 @@ def set_company_verified(company_id, verified):
         abort(403, description="Forbidden")
     success = AccountBoundary.setCompanyVerified(company_id, verified)
     return (
-        jsonify({"message": "Company verification status updated successfully!"})
+        jsonify(
+            {"message": "Company verification status updated successfully!"}
+            )
         if success
-        else jsonify({"error": "Failed to update company verification status"})
+        else jsonify(
+            {"error": "Failed to update company verification status"}
+            )
     ), 200

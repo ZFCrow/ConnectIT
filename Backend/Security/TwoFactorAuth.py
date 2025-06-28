@@ -8,6 +8,7 @@ import os
 
 fernet = Fernet(os.getenv("FERNET_KEY").encode())
 
+
 def create_qrcode(email: str):
     # Generate a base32 secret
     secret = pyotp.random_base32()
@@ -38,7 +39,6 @@ def validate2FA(code: str, encrypted_secret: str):
         secret = fernet.decrypt(encrypted_secret.encode()).decode()
     except Exception:
         return {"verified": False, "error": "Decryption failed"}, 400
-        
     totp = pyotp.TOTP(secret)
     if totp.verify(code):
         return {"verified": True}, 200

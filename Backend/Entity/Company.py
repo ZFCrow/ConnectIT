@@ -10,7 +10,7 @@ class Company(Account):
     description: str
     location: str
     companyDocUrl: str
-    verified: int  ## TODO: KEEP INT WHEN MERGED
+    verified: int
 
     @classmethod
     def from_dict(cls, data):
@@ -45,7 +45,8 @@ class Company(Account):
 
     def to_dict(self) -> dict:
         """
-        Plain-Python, JSON-ready representation of Company (incl. Account fields).
+        Plain-Python,
+        JSON-ready representation of Company (incl. Account fields).
         """
         raw = asdict(self)
 

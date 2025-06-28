@@ -1,31 +1,33 @@
 from Boundary.TableDataGateway.ViolationGateway import ViolationGateway
 from Boundary.Mapper.JobListingMapper import JobListingMapper
 from Entity.JobListing import JobListing
-from SQLModels.base import db_context  
+
+
 class JobListingControl:
     def __init__(self):
         """
         Initializes the JobListingControl class.
         This class is responsible for managing job listings.
         """
-        # self.db = DatabaseConnection()  # Example: Initialize database connection
+        # self.db = DatabaseConnection()
+        # # Example: Initialize database connection
         print("JobListingControl initialized")
+
     @staticmethod
-    def addJobListing( job_data:dict):
+    def addJobListing(job_data: dict):
         """
         Adds a new job listing.
         job_data: dict containing job details.
         """
         jobListing: JobListing = JobListing.from_dict(job_data)
         company_id = job_data.get('company_id')
-        sucess=JobListingMapper.addJob(jobListing,company_id)  # Assuming JobListingMapper has an addJob method
+        sucess = JobListingMapper.addJob(jobListing, company_id)
         print(f"Adding job listing: {job_data}")
         if sucess:
             return True
         else:
             return False
-        
- 
+
     @staticmethod
     def getJobDetails(job_id):
         """
@@ -34,7 +36,7 @@ class JobListingControl:
         # Example: return self.db.query(Job).filter_by(job_id=job_id).first()
         print(f"Retrieving job details for job_id: {job_id}")
         return JobListingMapper.getJobDetails(job_id)
-    
+
     @staticmethod
     def getAllJobListings(company_id: int = None):
         """
@@ -42,18 +44,20 @@ class JobListingControl:
         """
         if (company_id is None):
             print("Retrieving all job listings")
-            return JobListingMapper.getAllJobListings()  # Assuming JobListingMapper has a getAllJobListings method
+            # Assuming JobListingMapper has a getAllJobListings method
+            return JobListingMapper.getAllJobListings()
         else:
             print("Retrieving all job listings")
-            return JobListingMapper.getAllJobListings(company_id)  
+            return JobListingMapper.getAllJobListings(company_id)
+
     @staticmethod
-    def deleteJob( jobId: int):
+    def deleteJob(jobId: int):
         """
         Deletes a job listing by its jobId.
         """
         # Example: job = self.db.query(Job).get(jobId)
         # if job: self.db.delete(job); self.db.commit()'
-        success = JobListingMapper.deleteJob(jobId)  # Assuming JobListingMapper has a deleteJob method
+        success = JobListingMapper.deleteJob(jobId)
         print(f"Deleting job with jobId: {jobId}")
 
         return success
@@ -65,8 +69,8 @@ class JobListingControl:
         Retrieves all bookmarked job IDs for a user.
         """
         print(f"Retrieving bookmarked job IDs for userId: {userId}")
-        return JobListingMapper.getBookmarkedJobIds(userId)  # Assuming JobListingMapper has a getBookmarkedJobId method
-    
+        return JobListingMapper.getBookmarkedJobIds(userId)
+
     @staticmethod
     def addBookmark(userId: int, jobId: int):
         """
@@ -74,6 +78,7 @@ class JobListingControl:
         """
         print(f"Adding jobId {jobId} to bookmarks for userId {userId}")
         return JobListingMapper.addBookmark(userId, jobId)
+
     @staticmethod
     def removeBookmark(userId: int, jobId: int):
         """
@@ -81,9 +86,8 @@ class JobListingControl:
         """
         print(f"Removing jobId {jobId} from bookmarks for userId {userId}")
         return JobListingMapper.removeBookmark(userId, jobId)
-    
 
-    @staticmethod 
+    @staticmethod
     def getLatestJobListings(companyID, limit: int = 5):
         """
         Retrieves the latest job listings.
@@ -91,10 +95,8 @@ class JobListingControl:
         :return: List of latest job listings.
         """
         print(f"Retrieving latest {limit} job listings")
-        return JobListingMapper.getLatestJobListingsByCompany(companyID, limit) 
+        return JobListingMapper.getLatestJobListingsByCompany(companyID, limit)
 
-
-    
     @staticmethod
     def getAllViolations():
         """
@@ -102,8 +104,9 @@ class JobListingControl:
         :return: List of all violations.
         """
         print("Retrieving all violations")
-        return ViolationGateway.getAllViolationOptions()  # Assuming JobListingMapper has a getAllViolations method
-    
+        # Assuming JobListingMapper has a getAllViolations method
+        return ViolationGateway.getAllViolationOptions()
+
     @staticmethod
     def setViolation(jobId: int, violationId: int) -> bool:
         """

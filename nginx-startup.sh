@@ -3,27 +3,9 @@
 CERT_PATH="/etc/nginx/ssl/live/connectitweb.site/fullchain.pem"
 CONFIG_FILE="/etc/nginx/conf.d/default.conf"
 
-ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
-
-IP_LIMIT_BLOCK=""
-if [ -n "$ALLOWED_IPS_STRING" ]; then
-    IP_LIMIT_BLOCK="            # --- IP LIMITING (Dynamically Generated) ---\n"
-    IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
-    for i in "${ADDRS[@]}"; do
-        if [ -n "$i" ]; then
-            # Ensure proper indentation for the generated Nginx config
-            IP_LIMIT_BLOCK+="            allow $i;\n"
-        fi
-    done
-    IP_LIMIT_BLOCK+="            deny all;\n"
-    IP_LIMIT_BLOCK+="# --- END IP LIMITING ---"
-fi
-
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found, generating HTTPS config..."
-    
-    # Write the first part of the config
-    cat > "$CONFIG_FILE" << 'EOF'
+    cat > $CONFIG_FILE << 'EOF'
 
 server {
     listen 80;
@@ -52,9 +34,6 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
-
-${IP_LIMIT_BLOCK}
-
         proxy_pass http://splunk:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

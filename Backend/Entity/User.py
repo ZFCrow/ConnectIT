@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from Entity.Account import Account
 
+
 @dataclass
 class User(Account):
     userId: int

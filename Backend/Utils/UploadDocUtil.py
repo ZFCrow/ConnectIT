@@ -1,6 +1,7 @@
 from werkzeug.utils import secure_filename
 from firebaseStorage import bucket, BUCKET_NAME
-ALLOWED_ROOTS = {"companyDocument", "portfolio", "profilePic", "resume"}  # safety
+ALLOWED_ROOTS = {"companyDocument", "portfolio", "profilePic", "resume"}
+
 
 def upload_to_path(file_obj, target_path, public=True):
     """

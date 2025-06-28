@@ -1,6 +1,4 @@
 from SQLModels.JobViolationModel import JobViolationModel
-from Entity.Company import Company
-from SQLModels.CompanyModel import CompanyModel
 from SQLModels.SavedJobModel import SavedJobModel
 from SQLModels.FieldOfWorkModel import FieldOfWorkModel
 from SQLModels.JobApplicationModel import JobApplicationModel
@@ -13,6 +11,7 @@ from sqlalchemy import func
 
 from sqlalchemy.orm import selectinload
 
+
 class JobListingMapper:
     @staticmethod
     def addJob(jobListing: JobListing, company_id: int):
@@ -21,11 +20,15 @@ class JobListingMapper:
         :param job_data: dict containing job details.
         """
         with db_context.session_scope() as session:
-            
-            field: FieldOfWorkModel = session.query(FieldOfWorkModel).filter(
-                    func.lower(FieldOfWorkModel.description) == jobListing.fieldOfWork
+
+            field: FieldOfWorkModel = session.query(
+                FieldOfWorkModel
+                ).filter(
+                    func.lower(
+                        FieldOfWorkModel.description
+                        ) == jobListing.fieldOfWork
                 ).first()
-            
+
             job_listing_model = JobListingModel(
                 # jobId is auto-increment, don't need to set unless updating
                 companyId=company_id,
@@ -39,13 +42,13 @@ class JobListingMapper:
                 fieldOfWorkId=field.fieldOfWorkId,
                 createdAt=jobListing.createdAt,
                 workArrangement=jobListing.workArrangement.value,
-                isDeleted= jobListing.isDeleted
+                isDeleted=jobListing.isDeleted
             )
-     
+
             session.add(job_listing_model)
             session.flush()
-        
-            ## Add the responsibilities to the job listing
+
+            # Add the responsibilities to the job listing
             for responsibility in jobListing.responsibilities:
 
                 responsibility_model = ResponsibilityModel(
@@ -54,11 +57,9 @@ class JobListingMapper:
                 )
                 session.add(responsibility_model)
             return True
-        
     # @staticmethod
     # def getAllJobListings() -> list["JobListing"]:
-       
-    
+
     @staticmethod
     def getJobDetails(job_id: int) -> "JobListing":
         """
@@ -69,9 +70,11 @@ class JobListingMapper:
                 session.query(JobListingModel)
                 .options(
                     selectinload(JobListingModel.company),
-                    selectinload(JobListingModel.fieldOfWork),  # <-- load fieldOfWork relation
+                    selectinload(JobListingModel.fieldOfWork),
                     selectinload(JobListingModel.responsibilities),
-                    selectinload(JobListingModel.jobApplication).selectinload(JobApplicationModel.user).selectinload(UserModel.account)
+                    selectinload(JobListingModel.jobApplication)
+                    .selectinload(JobApplicationModel.user)
+                    .selectinload(UserModel.account)
                 )
                 .filter(JobListingModel.jobId == job_id)
                 .first()
@@ -84,28 +87,38 @@ class JobListingMapper:
                 .filter(JobApplicationModel.jobId == job_id)
                 .scalar()
             )
-        
-        
-            return JobListing.from_JobListingModel(job_listing,numApplicants=numApplicants)
 
-    
+            return JobListing.from_JobListingModel(
+                job_listing,
+                numApplicants=numApplicants
+                )
+
     @staticmethod
-    def getAllJobListings(company_id:int = None) -> list["JobListing"]:
-        
+    def getAllJobListings(company_id: int = None) -> list["JobListing"]:
         with db_context.session_scope() as session:
             # Build base query
             base_query = (
                 session.query(
                     JobListingModel,
-                    func.count(JobApplicationModel.applicationId).label("numApplicants")
+                    func.count(
+                        JobApplicationModel.applicationId
+                        ).label("numApplicants")
                 )
-                .outerjoin(JobApplicationModel, JobListingModel.jobId == JobApplicationModel.jobId)
-                .options(selectinload(JobListingModel.company),selectinload(JobListingModel.fieldOfWork))
+                .outerjoin(
+                    JobApplicationModel,
+                    JobListingModel.jobId == JobApplicationModel.jobId
+                    )
+                .options(
+                    selectinload(JobListingModel.company),
+                    selectinload(JobListingModel.fieldOfWork)
+                    )
                 .group_by(JobListingModel.jobId)
-                .filter(JobListingModel.isDeleted == 0) 
+                .filter(JobListingModel.isDeleted == 0)
             )
             if company_id is not None:
-                base_query = base_query.filter(JobListingModel.companyId == company_id)
+                base_query = base_query.filter(
+                    JobListingModel.companyId == company_id
+                    )
             orm_results = base_query.all()
 
             # Each result is (JobListingModel, numApplicants)
@@ -113,22 +126,25 @@ class JobListingMapper:
                 JobListing.from_JobListingModel(orm, numApplicants)
                 for orm, numApplicants in orm_results
             ]
-         
+
     @staticmethod
     def deleteJob(jobId: int) -> bool:
         """
         Soft-deletes a job listing by setting isDeleted=1.
         """
         with db_context.session_scope() as session:
-            job_listing = session.query(JobListingModel).filter_by(jobId=jobId).first()
+            job_listing = session.query(
+                JobListingModel
+                ).filter_by(
+                    jobId=jobId
+                    ).first()
             if not job_listing:
                 return False
-            
+
             job_listing.isDeleted = 1  # Mark as deleted
             # No need for session.delete, just update and commit on exit
             return True
 
-        
     @staticmethod
     def getBookmarkedJobIds(userId: int) -> list[int]:
         """
@@ -144,6 +160,7 @@ class JobListingMapper:
             )
             # job_ids is a list of one-tuples, so flatten it
             return [jid[0] for jid in job_ids]
+
     @staticmethod
     def addBookmark(userId: int, jobId: int) -> bool:
         """
@@ -158,11 +175,11 @@ class JobListingMapper:
             ).first()
             if existing_bookmark:
                 return False  # Already bookmarked
-            
+
             new_bookmark = SavedJobModel(userId=userId, jobListingId=jobId)
             session.add(new_bookmark)
             return True
-        
+
     @staticmethod
     def removeBookmark(userId: int, jobId: int) -> bool:
         """
@@ -177,10 +194,10 @@ class JobListingMapper:
             ).first()
             if not bookmark:
                 return False  # Not bookmarked
-            
+
             session.delete(bookmark)
             return True
-        
+
     @staticmethod
     def setViolation(jobId: int, violationId: int) -> bool:
         """
@@ -195,7 +212,10 @@ class JobListingMapper:
             return True
 
     @staticmethod
-    def getLatestJobListingsByCompany(company_id: int, limit: int = 5) -> list["JobListing"]:
+    def getLatestJobListingsByCompany(
+            company_id: int,
+            limit: int = 5
+            ) -> list["JobListing"]:
         """
         Retrieves the latest job listings for a specific company.
         :param company_id: ID of the
@@ -203,9 +223,14 @@ class JobListingMapper:
         with db_context.session_scope() as session:
             job_listings = (
                 session.query(JobListingModel)
-                .filter(JobListingModel.companyId == company_id, JobListingModel.isDeleted == 0)
+                .filter(
+                    JobListingModel.companyId == company_id,
+                    JobListingModel.isDeleted == 0
+                    )
                 .order_by(JobListingModel.createdAt.desc())
                 .limit(limit)
                 .all()
             )
-            return [JobListing.from_JobListingModel(job) for job in job_listings]
+            return [
+                JobListing.from_JobListingModel(job) for job in job_listings
+                ]

@@ -1,10 +1,12 @@
 from enum import Enum
 from datetime import datetime
 
+
 class Status(Enum):
     APPLIED = "Applied"
     ACCEPTED = "Accepted"
     REJECTED = "Rejected"
+
 
 class JobApplication:
     def __init__(
@@ -30,8 +32,10 @@ class JobApplication:
         self.status = status
         self.appliedAt = appliedAt
         self.resumeURL = resumeURL
-        self.profilePicUrl = profilePicUrl  # Optional, for user profile picture
-        self.accountId = accountId  # Optional, for user account ID
+        # Optional, for user profile picture
+        self.profilePicUrl = profilePicUrl
+        # Optional, for user account ID
+        self.accountId = accountId
 
     def getApplicationId(self) -> int:
         return self.applicationId
@@ -68,14 +72,19 @@ class JobApplication:
 
     def setResumeURL(self, url: str) -> None:
         self.resumeURL = url
+
     def getProfilePicUrl(self) -> str:
         return self.profilePicUrl
+
     def setProfilePicUrl(self, url: str) -> None:
         self.profilePicUrl = url
+
     def getAccountId(self) -> int:
         return self.accountId
+
     def setAccountId(self, id: int) -> None:
         self.accountId = id
+
     def from_dict(cls, raw: dict) -> 'JobApplication':
         """
         Converts a dictionary to a JobApplication object.
@@ -95,7 +104,7 @@ class JobApplication:
             profilePicUrl=raw.get("profilePicUrl", None),  # Optional
             accountId=raw.get("accountId", None)  # Optional
         )
-    
+
     def to_dict(self) -> dict:
         """
         Converts the JobApplication object to a dictionary.
@@ -109,12 +118,13 @@ class JobApplication:
             "email": self.email,
             "bio": self.bio,
             "status": self.status.value,  # Convert Enum to string
-            "appliedAt": self.appliedAt.isoformat(),  # Convert datetime to ISO string
+            # Convert datetime to ISO string
+            "appliedAt": self.appliedAt.isoformat(),
             "resumeURL": self.resumeURL,
             "profilePicUrl": self.profilePicUrl,  # Optional
             "accountId": self.accountId  # Optional
         }
-    
+
     @classmethod
     def from_model(cls, model) -> 'JobApplication':
         """
@@ -132,8 +142,12 @@ class JobApplication:
             status=model.status,
             appliedAt=model.appliedAt,
             resumeURL=model.resumeURL,
-            accountId     = (model.user.account.accountId
-                    if model.user and model.user.account else None),
-            profilePicUrl = (model.user.account.profilePicUrl
-                            if model.user and model.user.account else None),
+            accountId=(
+                model.user.account.accountId
+                if model.user and model.user.account else None
+                ),
+            profilePicUrl=(
+                model.user.account.profilePicUrl
+                if model.user and model.user.account else None
+                ),
         )

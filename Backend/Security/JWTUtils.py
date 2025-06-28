@@ -1,22 +1,24 @@
-import jwt, os
+import jwt
+import os
 from datetime import datetime, timedelta, timezone
 from flask import request
 
+
 class JWTUtils:
-    SECRET_KEY     = os.getenv("JWT_SECRET")
-    ALGORITHM      = "HS512"
+    SECRET_KEY = os.getenv("JWT_SECRET")
+    ALGORITHM = "HS512"
     EXPIRATION = timedelta(hours=24)
 
     @staticmethod
     def generate_jwt_token(
-        account_id:      int,
-        user_role:       str,
-        name:            str,
+        account_id: int,
+        user_role: str,
+        name: str,
         profile_pic_url: str | None = None,
-        user_id:         int  | None = None,
-        company_id:      int  | None = None,
+        user_id: int | None = None,
+        company_id: int | None = None,
         is_verified: bool | None = None,
-        orig_iat:        datetime | None = None,
+        orig_iat: datetime | None = None,
     ) -> str:
         now = datetime.now(timezone.utc)
         if orig_iat is None:
@@ -27,15 +29,19 @@ class JWTUtils:
             "role":     user_role,
             "name":     name,
             "profilePicUrl": profile_pic_url,
-            "userId":   str(user_id)    if user_id    is not None else None,
-            "companyId":str(company_id) if company_id is not None else None,
+            "userId":   str(user_id) if user_id is not None else None,
+            "companyId": str(company_id) if company_id is not None else None,
             "verified": is_verified,
             "iat": now,
             "exp": now + JWTUtils.EXPIRATION,
 
             "origIat": orig_iat.isoformat()
         }
-        return jwt.encode(payload, JWTUtils.SECRET_KEY, algorithm=JWTUtils.ALGORITHM)
+        return jwt.encode(
+            payload,
+            JWTUtils.SECRET_KEY,
+            algorithm=JWTUtils.ALGORITHM
+            )
 
     @staticmethod
     def decode_jwt_token(token: str) -> dict:
@@ -50,9 +56,11 @@ class JWTUtils:
         if datetime.now(timezone.utc) - orig > JWTUtils.EXPIRATION:
             raise jwt.ExpiredSignatureError("Token exceeded maximum lifetime")
 
-        data["sub"]       = int(data["sub"])
-        if data.get("userId")    is not None: data["userId"]    = int(data["userId"])
-        if data.get("companyId") is not None: data["companyId"] = int(data["companyId"])
+        data["sub"] = int(data["sub"])
+        if data.get("userId") is not None:
+            data["userId"] = int(data["userId"])
+        if data.get("companyId") is not None:
+            data["companyId"] = int(data["companyId"])
 
         return data
 

@@ -1,15 +1,14 @@
-from Control.ViolationControl import ViolationControl 
-from Entity.Violation import Violation 
+from Control.ViolationControl import ViolationControl
+from Entity.Violation import Violation
 
 
-
-class ViolationBoundary: 
+class ViolationBoundary:
     def __init__(self):
-        pass 
+        pass
 
     @staticmethod
     def handleRetrieveAllViolations() -> list[Violation]:
         """
         Handle the retrieval of all violations.
         """
-        return ViolationControl.retrieveAllViolations() 
+        return ViolationControl.retrieveAllViolations()

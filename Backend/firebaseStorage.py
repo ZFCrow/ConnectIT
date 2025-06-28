@@ -11,7 +11,9 @@ if not firebase_admin._apps:                       # initialise once
     firebase_admin.initialize_app(cred, {"storageBucket": BUCKET_NAME})
 
 bucket = storage.bucket()                          # ready to use
-###TODO: REMOVE THIS FOR PROD, ONLY FOR TESTING PURPOSES
+
+
+# ##TODO: REMOVE THIS FOR PROD, ONLY FOR TESTING PURPOSES
 # ----------------------------------------------------------------------
 def list_company_documents() -> list[str]:
     """
@@ -20,11 +22,13 @@ def list_company_documents() -> list[str]:
     blobs = bucket.list_blobs(prefix="companyDocument/")
     # Exclude the folder placeholder itself (empty path)
     return [blob.name for blob in blobs if blob.name != "companyDocument/"]
+
+
 files = list_company_documents()
 print("Found:", len(files), "files")
 for f in files:
     print(" •", f)
-########Should see output like this:
+# #######Should see output like this:
 # ----------------------------------------------------------------------
 # Found: 1 files
 #   • companyDocument/2412.17481v2.pdf

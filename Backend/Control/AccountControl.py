@@ -14,28 +14,34 @@ class AccountControl:
     @staticmethod
     def createAccount(accountData: dict) -> bool:
         if "password" in accountData and accountData["password"]:
-            accountData["passwordHash"] = AuthUtils.hash_password(accountData["password"])
+            accountData["passwordHash"] = AuthUtils.hash_password(
+                accountData["password"]
+                )
             del accountData["password"]  # Remove plain password
 
         companyDoc = accountData.get('companyDoc', None)
         doc_url = None
         if companyDoc:
-            dest_name = f'companyDocument/company_temp.pdf'
-            doc_url = upload_to_path(companyDoc, target_path=dest_name, public=True)
+            dest_name = 'companyDocument/company_temp.pdf'
+            doc_url = upload_to_path(
+                companyDoc,
+                target_path=dest_name,
+                public=True
+                )
             accountData['companyDocUrl'] = doc_url
-
 
         account = Account.from_dict(accountData)
         if accountData['role'] == Role.Company.value:
             account = Company.from_dict(accountData)
 
         return AccountMapper.createAccount(account)
-    
+
     @staticmethod
     def authenticateAccount(accountData: dict) -> Account:
         email = accountData.get('email', '')
+
         account = AccountMapper.getAccountByEmail(email)
-        
+
         password = accountData.get('password', '')
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
@@ -44,11 +50,11 @@ class AccountControl:
             return None
 
         return account
-    
+
     @staticmethod
     def getAccountById(accountId: int) -> Account:
         return AccountMapper.getAccountById(accountId)
-    
+
     @staticmethod
     def updateAccount(accountData: dict) -> bool:
         password = accountData.get('password', '')
@@ -59,11 +65,15 @@ class AccountControl:
         # Get the existing account to access the stored hash/salt
         target_acc = AccountMapper.getAccountById(account_id)
 
-        # Only if ALL password-related field are filled, validate and attempt update
+        # Only if ALL password-related field are filled,
+        # validate and attempt update
         # This abit weird, might need change
         if password and newPass and confirmPass:
             # Verify old password
-            if not AuthUtils.verify_hash_password(password, target_acc.passwordHash):
+            if not AuthUtils.verify_hash_password(
+                password,
+                target_acc.passwordHash
+            ):
                 print("Old password is incorrect.")
                 return False
 
@@ -86,7 +96,11 @@ class AccountControl:
 
         if profilePic:
             dest_name = f'profilePic/acc_{account_id}.png'
-            profilePic_url = upload_to_path(profilePic, target_path=dest_name, public=True)
+            profilePic_url = upload_to_path(
+                profilePic,
+                target_path=dest_name,
+                public=True
+                )
 
         accountData['profilePicUrl'] = profilePic_url
 
@@ -95,7 +109,11 @@ class AccountControl:
 
         if portfolioFile:
             dest_name = f'portfolio/user_{account_id}.pdf'
-            resume_url = upload_to_path(portfolioFile, target_path=dest_name, public=True)
+            resume_url = upload_to_path(
+                portfolioFile,
+                target_path=dest_name,
+                public=True
+                )
 
         accountData['portfolioUrl'] = resume_url
 
@@ -112,20 +130,23 @@ class AccountControl:
             return False
 
         return AccountMapper.updateAccount(account)
-    
+
     @staticmethod
     def disableAccount(accountId: int, authData: dict) -> bool:
         account = AccountMapper.getAccountById(accountId)
 
         password = authData.get('password', '')
 
-        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+        auth = AuthUtils.verify_hash_password(
+            password,
+            account.passwordHash
+            )
 
         if not auth:
             return False
 
         return AccountMapper.disableAccount(accountId)
-    
+
     @staticmethod
     def setTwoFa(accountId: int, data: dict) -> bool:
         secret = data.get('secret', None)
@@ -135,7 +156,7 @@ class AccountControl:
             return False
 
         return AccountMapper.setTwoFa(accountId, secret, enabled)
-    
+
     @staticmethod
     def getAllCompanies():
         """
@@ -144,10 +165,9 @@ class AccountControl:
         """
         print("Retrieving all companies")
         return AccountMapper.getAllCompanies()
-    
 
     @staticmethod
-    def setCompanyVerified(company_id: int, verified:int ):
+    def setCompanyVerified(company_id: int, verified: int):
         """
         Sets the verification status of a company.
         :param company_id: ID of the company to verify.

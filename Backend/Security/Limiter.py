@@ -26,15 +26,17 @@ def get_register_key():
 
 
 # /login
-r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, decode_responses=True)
+r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"),
+                port=6379, decode_responses=True)
+
 
 def get_failed_attempts_count(email: str) -> int:
-    
     key = f"failcount:{email}"
     count_str = r.get(key)
     if count_str:
         return int(count_str)
     return 0
+
 
 def is_locked(email: str) -> bool:
     """Check if the user is locked due to failed login attempts."""
@@ -65,6 +67,7 @@ def get_account_key():
         return request.get_json().get("accountId")
     else:
         return request.form.get("accountId")
+
 
 # get company ID
 def get_company_key():
