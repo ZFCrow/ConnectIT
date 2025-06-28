@@ -53,10 +53,13 @@ jobs:
       # ======================
       # Python (backend) - Flake8 + Bandit
       # ======================
+      - name: Check Python Version
+        run: python --version
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: 3.13.5
 
       - name: Install Python tools
         run: |
