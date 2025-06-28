@@ -22,7 +22,7 @@ def verify_hcaptcha(token: str) -> dict:
     }
 
     try:
-        response = requests.post("https://hcaptcha.com/siteverify", data=payload)
+        response = requests.post("https://hcaptcha.com/siteverify", data=payload, timeout=(5, 10))  # 5 seconds for connection, 10 seconds for read
         result = response.json()
         if result.get("success"):
             return {

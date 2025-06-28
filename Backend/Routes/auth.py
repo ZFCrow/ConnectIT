@@ -468,8 +468,9 @@ def logout():
     try:
         claims = JWTUtils.decode_jwt_token(raw)
         user_email = claims.get("name") or claims.get("sub")
-    except Exception:
-        pass
+    except (AttributeError, KeyError) as e:
+        auth_bp.logger.warning(f"Could not extract user email from claims: {e}")
+        user_email = None
 
     SplunkLogging.send_log({
         "event": "Logout Success",
