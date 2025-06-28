@@ -8,15 +8,15 @@ ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
 IP_LIMIT_BLOCK=""
 if [ -n "$ALLOWED_IPS_STRING" ]; then
     IP_LIMIT_BLOCK="            # --- IP LIMITING (Dynamically Generated) ---\n"
-    IFS=',' read -ra ADDRS <<< "$ALLOWED_IPS_STRING"
-    for i in "${ADDRS[@]}"; do
-        if [ -n "$i" ]; then
-            # Ensure proper indentation for the generated Nginx config
-            IP_LIMIT_BLOCK+="            allow $i;\n"
-        fi
+
+    # Split on commas by translating them to spaces:
+    for ip in $(printf '%s' "$ALLOWED_IPS_STRING" | tr ',' ' '); do
+        [ -n "$ip" ] && \
+        IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}            allow $ip;\n"
     done
-    IP_LIMIT_BLOCK+="            deny all;\n"
-    IP_LIMIT_BLOCK+="# --- END IP LIMITING ---"
+
+    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}            deny all;\n"
+    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}# --- END IP LIMITING ---"
 fi
 
 if [ -f "$CERT_PATH" ]; then
