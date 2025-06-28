@@ -54,9 +54,6 @@ jobs:
       # Python (backend) - Flake8 + Bandit
       # ======================
 
-      - name: Show Current Directory
-        run: pwd
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
