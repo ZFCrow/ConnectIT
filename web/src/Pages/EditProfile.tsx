@@ -120,7 +120,7 @@ const EditProfilePage = () => {
         "Failed to save profile, please try again.";
 
       toast.error(message);
-      console.log("Failed to save profile", err);
+      // console.log("Failed to save profile", err);
     }
   };
 

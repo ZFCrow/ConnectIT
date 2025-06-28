@@ -32,8 +32,12 @@ import { HCaptchaForm } from "./HcaptchaForm"; // Import your HCaptchaForm
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
 function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp("(^|; )" + name + "=([^;]*)"));
-  return match ? decodeURIComponent(match[2]) : null;
+  const cookies = document.cookie.split("; ");
+  for (const cookie of cookies) {
+    const [key, val] = cookie.split("=");
+    if (key === name) return decodeURIComponent(val);
+  }
+  return null;
 }
 
 export function LoginForm() {
@@ -124,10 +128,8 @@ export function LoginForm() {
       toast.error(msg || "Login error");
 
       // Debugging: Log response from backend
-      console.log(
-        "Login catch block - Backend response data:",
-        err.response?.data
-      );
+      // console.log("Login catch block - Backend response data:",
+      //   err?.response?.data ?? {});
 
       if (err.response?.data?.showCaptcha) {
         setShowCaptcha(true);
@@ -182,7 +184,7 @@ export function LoginForm() {
               {showCaptcha && HCAPTCHA_SITEKEY && (
                 <div className="space-y-2">
                   <Label htmlFor="captcha">
-                    Please verify you're not a robot
+                    Please verify you&rsquo;re not a robot
                   </Label>
                   <HCaptchaForm
                     sitekey={HCAPTCHA_SITEKEY}
@@ -192,7 +194,7 @@ export function LoginForm() {
               )}
 
               <p className="text-sm text-muted-foreground text-center">
-                Don’t have an account?{" "}
+                Don&rsquo;t have an account?{" "}
                 <Link
                   to="/register"
                   className="text-sm text-blue-600 dark:text-blue-400 hover:underline"

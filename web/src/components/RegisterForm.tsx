@@ -41,7 +41,7 @@ export function RegisterForm() {
     e.preventDefault();
     const formData = new FormData();
 
-    if (password != confirmPassword) {
+    if (`${password}` !== `${confirmPassword}`) {
       setError("Passwords do not match.");
       return;
     }
@@ -69,7 +69,7 @@ export function RegisterForm() {
         formData.append("companyDoc", companyDoc);
       }
 
-      const response = await axios.post("/api/register", formData);
+      await axios.post("/api/register", formData);
 
       navigate("/login");
     } catch (err: any) {
@@ -84,7 +84,7 @@ export function RegisterForm() {
         toast.error(message);
       }
       // toast.error("Error during registration, please try again.");
-      console.log("Registration failed", err);
+      // console.log("Registration failed:", err);
     }
   };
 

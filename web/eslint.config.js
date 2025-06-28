@@ -44,6 +44,7 @@ export default [
         "warn",
         { allowConstantExport: true },
       ],
+      "react/prop-types": "off",
       "security/detect-eval-with-expression": "error"
     },
   },
