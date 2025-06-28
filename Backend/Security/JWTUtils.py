@@ -5,8 +5,7 @@ from flask import request
 class JWTUtils:
     SECRET_KEY     = os.getenv("JWT_SECRET")
     ALGORITHM      = "HS512"
-    SLIDING_EXP    = timedelta(minutes=30)
-    MAX_LIFETIME   = timedelta(hours=24)
+    EXPIRATION = timedelta(hours=24)
 
     @staticmethod
     def generate_jwt_token(
@@ -32,7 +31,7 @@ class JWTUtils:
             "companyId":str(company_id) if company_id is not None else None,
             "verified": is_verified,
             "iat": now,
-            "exp": now + JWTUtils.SLIDING_EXP,
+            "exp": now + JWTUtils.EXPIRATION,
 
             "origIat": orig_iat.isoformat()
         }
@@ -48,7 +47,7 @@ class JWTUtils:
         )
 
         orig = datetime.fromisoformat(data["origIat"])
-        if datetime.now(timezone.utc) - orig > JWTUtils.MAX_LIFETIME:
+        if datetime.now(timezone.utc) - orig > JWTUtils.EXPIRATION:
             raise jwt.ExpiredSignatureError("Token exceeded maximum lifetime")
 
         data["sub"]       = int(data["sub"])
@@ -59,7 +58,7 @@ class JWTUtils:
 
     @staticmethod
     def set_auth_cookie(response, token: str, name: str = "session_token"):
-        expires = datetime.now(timezone.utc) + JWTUtils.SLIDING_EXP
+        expires = datetime.now(timezone.utc) + JWTUtils.EXPIRATION
         response.set_cookie(
             name,
             token,
