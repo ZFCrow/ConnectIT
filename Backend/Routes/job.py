@@ -16,7 +16,7 @@ SplunkLogging = SplunkUtils.SplunkLogger()
 @job_listing_bp.route("/joblistings", methods=["GET"])
 def get_all_job_listings():
     listings = JobListingControl.getAllJobListings()
-    print(f"All job listings: {[l.to_dict() for l in listings]}")
+    print(f"All job listings: {[listing.to_dict() for listing in listings]}")
     return jsonify([listing.to_dict() for listing in listings]), 200
 
 
@@ -31,11 +31,16 @@ def get_job_details(job_id):
     ), 200
 
 
-@job_listing_bp.route("/companyJobListings/<int:company_id>", methods=["GET"])
+@job_listing_bp.route(
+        "/companyJobListings/<int:company_id>",
+        methods=["GET"],
+    )
 def get_company_job_listings(company_id):
     # Pass company_id so you only get jobs for that company
     listings = JobListingControl.getAllJobListings(company_id=company_id)
-    print(f"Company job listings: {[l.to_dict() for l in listings]}")
+    print(
+        f"Company job listings: {[listing.to_dict() for listing in listings]}"
+    )
     return jsonify([listing.to_dict() for listing in listings]), 200
 
 
