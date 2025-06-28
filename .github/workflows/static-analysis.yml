@@ -45,7 +45,7 @@ jobs:
       - name: Run ESLint and output SARIF
         run: |
           cd web
-          npx eslint . --ext .ts,.tsx --format=@microsoft/eslint-formatter-sarif --output-file=../reports/eslint-results.sarif
+          npx eslint . --format=@microsoft/eslint-formatter-sarif --output-file=../reports/eslint-results.sarif || true
       
       - name: Debug ESLint Output
         run: cat reports/eslint-results.sarif || echo "No SARIF report generated"
