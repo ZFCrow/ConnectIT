@@ -7,23 +7,22 @@ ALLOWED_IPS_STRING="${SPLUNK_IP_WHITELIST:-}"
 
 IP_LIMIT_BLOCK=""
 if [ -n "$ALLOWED_IPS_STRING" ]; then
-    IP_LIMIT_BLOCK="            # --- IP LIMITING (Dynamically Generated) ---\n"
+    IP_LIMIT_BLOCK=$(printf '            # --- IP LIMITING (Dynamically Generated) ---\n')
 
-    # Split on commas by translating them to spaces:
     for ip in $(printf '%s' "$ALLOWED_IPS_STRING" | tr ',' ' '); do
         [ -n "$ip" ] && \
-        IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}            allow $ip;\n"
+        IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            allow %s;\n' "$ip")"
     done
 
-    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}            deny all;\n"
-    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}# --- END IP LIMITING ---"
+    # add the deny all and footer
+    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            deny all;\n')"
+    IP_LIMIT_BLOCK="${IP_LIMIT_BLOCK}$(printf '            # --- END IP LIMITING ---\n')"
 fi
 
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found, generating HTTPS config..."
     
-    # Write the first part of the config
-    cat > "$CONFIG_FILE" << 'EOF'
+    cat > "$CONFIG_FILE" << EOF
 
 server {
     listen 80;
