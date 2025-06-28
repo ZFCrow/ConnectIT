@@ -76,7 +76,7 @@ services:
           --rsa-key-size 4096 \
           --expand \
           --force-renewal \
-          -d connectitweb.site -d www.connectitweb.site 
+          -d connectitweb.site -d www.connectitweb.site -d splunk.connectitweb.site
 
 
 
