@@ -51,7 +51,7 @@ def deleteComment(comment_id):
         if not data or 'accountId' not in data:
             return jsonify({"error": "Missing required fields"}), 400
 
-        success = CommentControl.deleteComment(comment_id, data['accountId']) 
+        success = CommentControl.deleteComment(comment_id) 
         if success:
             return jsonify(
                 {"message": f"Comment with ID {comment_id} \
