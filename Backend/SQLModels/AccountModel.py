@@ -37,25 +37,19 @@ class AccountModel(Base):
     comments = relationship("CommentModel", back_populates="account")
     postLikes = relationship("PostLikesModel", back_populates="account")
     user = relationship("UserModel", back_populates="account", uselist=False)
-    company = relationship(
-        "CompanyModel",
-        back_populates="account",
-        uselist=False
-        )
+    company = relationship("CompanyModel", back_populates="account", uselist=False)
 
     def to_dict(self):
         return {
-            'accountId': self.accountId,  # Match the column name
-            'name': self.name,
-            'email': self.email,
-            'passwordHash': self.passwordHash,
-            'profilePicUrl': self.profilePicUrl,
-            'role':
-                self.role.value if hasattr(self.role, 'value')
-                else str(self.role),
-            'isDisabled': self.isDisabled,
-            'twoFaEnabled': self.twoFaEnabled,
-            'twoFaSecret': self.twoFaSecret
+            "accountId": self.accountId,  # Match the column name
+            "name": self.name,
+            "email": self.email,
+            "passwordHash": self.passwordHash,
+            "profilePicUrl": self.profilePicUrl,
+            "role": self.role.value if hasattr(self.role, "value") else str(self.role),
+            "isDisabled": self.isDisabled,
+            "twoFaEnabled": self.twoFaEnabled,
+            "twoFaSecret": self.twoFaSecret,
         }
 
     def __repr__(self):

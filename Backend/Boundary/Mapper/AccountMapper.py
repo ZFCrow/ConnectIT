@@ -16,11 +16,14 @@ class AccountMapper:
     @staticmethod
     def getAccountById(accountId) -> Optional[Account]:
         with db_context.session_scope() as session:
-            account = session.query(AccountModel)\
-                .options(joinedload(AccountModel.user),
-                         joinedload(AccountModel.company))\
-                .filter(AccountModel.accountId == accountId)\
+            account = (
+                session.query(AccountModel)
+                .options(
+                    joinedload(AccountModel.user), joinedload(AccountModel.company)
+                )
+                .filter(AccountModel.accountId == accountId)
                 .first()
+            )
 
             if not account:
                 return None
@@ -45,12 +48,14 @@ class AccountMapper:
     @staticmethod
     def getAccountByEmail(email) -> Optional[Account]:
         with db_context.session_scope() as session:
-            account = session.query(AccountModel)\
+            account = (
+                session.query(AccountModel)
                 .options(
-                    joinedload(AccountModel.user),
-                    joinedload(AccountModel.company))\
-                .filter(AccountModel.email == email)\
+                    joinedload(AccountModel.user), joinedload(AccountModel.company)
+                )
+                .filter(AccountModel.email == email)
                 .first()
+            )
 
             if not account:
                 return None
@@ -80,7 +85,7 @@ class AccountMapper:
                     name=account.name,
                     email=account.email,
                     passwordHash=account.passwordHash,
-                    role=account.role
+                    role=account.role,
                 )
                 session.add(accountModel)
                 session.flush()
@@ -88,20 +93,17 @@ class AccountMapper:
                 account.accountId = accountModel.accountId
 
                 if account.role == Role.User.value:
-                    userModel = UserModel(
-                        accountId=accountModel.accountId
-                        )
+                    userModel = UserModel(accountId=accountModel.accountId)
                     session.add(userModel)
 
                 elif account.role == Role.Company.value:
                     new_url = rename_file(
-                        'companyDocument/company_temp.pdf',
-                        f'companyDocument/company_{account.accountId}.pdf'
-                        )
+                        "companyDocument/company_temp.pdf",
+                        f"companyDocument/company_{account.accountId}.pdf",
+                    )
                     companyModel = CompanyModel(
-                        accountId=accountModel.accountId,
-                        companyDocUrl=new_url
-                        )
+                        accountId=accountModel.accountId, companyDocUrl=new_url
+                    )
                     session.add(companyModel)
 
                 session.commit()
@@ -116,61 +118,55 @@ class AccountMapper:
     def updateAccount(account: Account) -> bool:
         try:
             with db_context.session_scope() as session:
-                accountModel = session.query(
-                    AccountModel
-                    ).filter_by(
-                        accountId=account.accountId
-                        ).first()
+                accountModel = (
+                    session.query(AccountModel)
+                    .filter_by(accountId=account.accountId)
+                    .first()
+                )
 
                 if not accountModel:
-                    print(f"No account found with ID: \
-                          {account.accountId}")
+                    print(
+                        f"No account found with ID: \
+                          {account.accountId}"
+                    )
                     return False
 
                 # Update base Account fields
                 accountModel.name = account.name
                 if account.profilePicUrl:
                     accountModel.profilePicUrl = getattr(
-                        account, "profilePicUrl",
-                        accountModel.profilePicUrl
-                        )
-                if hasattr(
-                        account, 'passwordHash'
-                        ) and account.passwordHash != '':
-                    accountModel.passwordHash = getattr(
-                        account, 'passwordHash'
-                        )
+                        account, "profilePicUrl", accountModel.profilePicUrl
+                    )
+                if hasattr(account, "passwordHash") and account.passwordHash != "":
+                    accountModel.passwordHash = getattr(account, "passwordHash")
 
                 # Role-specific updates
                 if accountModel.role == Role.User:
-                    userModel = session.query(
-                        UserModel
-                        ).filter_by(
-                            accountId=account.accountId
-                            ).first()
+                    userModel = (
+                        session.query(UserModel)
+                        .filter_by(accountId=account.accountId)
+                        .first()
+                    )
                     if userModel:
-                        userModel.bio = getattr(
-                            account, "bio", userModel.bio
-                            )
+                        userModel.bio = getattr(account, "bio", userModel.bio)
                         if account.portfolioUrl:
                             userModel.portfolioUrl = getattr(
-                                account, "portfolioUrl",
-                                userModel.portfolioUrl
-                                )
+                                account, "portfolioUrl", userModel.portfolioUrl
+                            )
 
                 elif accountModel.role == Role.Company:
-                    companyModel = session.query(
-                        CompanyModel
-                        ).filter_by(
-                            accountId=account.accountId
-                            ).first()
+                    companyModel = (
+                        session.query(CompanyModel)
+                        .filter_by(accountId=account.accountId)
+                        .first()
+                    )
                     if companyModel:
                         companyModel.description = getattr(
                             account, "description", companyModel.description
-                            )
+                        )
                         companyModel.location = getattr(
                             account, "location", companyModel.location
-                            )
+                        )
 
                 session.commit()
                 return True
@@ -184,11 +180,9 @@ class AccountMapper:
     def disableAccount(accountId: int) -> bool:
         try:
             with db_context.session_scope() as session:
-                accountModel = session.query(
-                    AccountModel
-                    ).filter_by(
-                        accountId=accountId
-                        ).first()
+                accountModel = (
+                    session.query(AccountModel).filter_by(accountId=accountId).first()
+                )
 
                 if not accountModel:
                     print(f"No account found with ID: {accountId}")
@@ -208,11 +202,9 @@ class AccountMapper:
     def setTwoFa(acc_id: int, secret: str, enabled: bool):
         try:
             with db_context.session_scope() as session:
-                account = session.query(
-                    AccountModel
-                    ).filter_by(
-                        accountId=acc_id
-                        ).first()
+                account = (
+                    session.query(AccountModel).filter_by(accountId=acc_id).first()
+                )
                 if not account:
                     return False
 
@@ -246,11 +238,9 @@ class AccountMapper:
         :return: True if update was successful, False otherwise.
         """
         with db_context.session_scope() as session:
-            company = session.query(
-                CompanyModel
-                ).filter_by(
-                    companyId=company_id
-                    ).first()
+            company = (
+                session.query(CompanyModel).filter_by(companyId=company_id).first()
+            )
             if not company:
                 return False
             company.verified = verified

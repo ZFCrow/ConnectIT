@@ -14,15 +14,15 @@ class Account:
     twoFaSecret: str
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'Account':
+    def from_dict(cls, data: dict) -> "Account":
         return cls(
-            accountId=data.get('accountId', 0),
-            name=data.get('name', ''),
-            email=data.get('email', ''),
-            passwordHash=data.get('passwordHash', ''),
-            profilePicUrl=data.get('profilePicUrl', ''),
-            role=data.get('role', ''),
-            isDisabled=data.get('isDisabled', False),
-            twoFaEnabled=data.get('twoFaEnabled', False),
-            twoFaSecret=data.get('twoFaSecret', '')
+            accountId=data.get("accountId", 0),
+            name=data.get("name", ""),
+            email=data.get("email", ""),
+            passwordHash=data.get("passwordHash", ""),
+            profilePicUrl=data.get("profilePicUrl", ""),
+            role=data.get("role", ""),
+            isDisabled=data.get("isDisabled", False),
+            twoFaEnabled=data.get("twoFaEnabled", False),
+            twoFaSecret=data.get("twoFaSecret", ""),
         )

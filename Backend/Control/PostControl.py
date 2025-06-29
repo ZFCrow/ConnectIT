@@ -22,19 +22,13 @@ class PostControl:
 
     @staticmethod
     def retrievePaginatedPosts(
-        page: int,
-        pageSize: int,
-        sortBy: str = 'createdAt',
-        filterLabel: str = None
+        page: int, pageSize: int, sortBy: str = "createdAt", filterLabel: str = None
     ) -> dict[str, any]:
         """
         Retrieve paginated posts from the database.
         """
         results = PostMapper.getPosts(
-            page=page,
-            pageSize=pageSize,
-            filterLabel=filterLabel,
-            sortBy=sortBy
+            page=page, pageSize=pageSize, filterLabel=filterLabel, sortBy=sortBy
         )
         return results
 
@@ -64,7 +58,7 @@ class PostControl:
         # should retrieve the labels
         # from the postData and get them from the label gateway ?
         # should be a list of label IDs
-        labels: str = postData.get('labels', [])
+        labels: str = postData.get("labels", [])
         listofLabels = LabelGateway.getLabelsbyIds(labels)
         # Create Post entity from dictionary and labels
         post = Post.fromDict(postData, labels=listofLabels)
@@ -87,7 +81,5 @@ class PostControl:
         """
         Toggle the like status of a post for a given account.
         """
-        msg = PostMapper.createDeletePostLikes(
-            postId=postId, accountId=accountId
-            )
+        msg = PostMapper.createDeletePostLikes(postId=postId, accountId=accountId)
         return msg  # Return the success status of the like toggle operation

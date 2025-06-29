@@ -14,14 +14,10 @@ class PostModel(Base):
     content = Column(String(1000), nullable=False)
 
     # timestamp
-    date = Column('date', DateTime, nullable=False, default=datetime.now)
+    date = Column("date", DateTime, nullable=False, default=datetime.now)
 
     # foreign key to Account Table
-    accountId = Column(
-        Integer,
-        ForeignKey('Account.accountId'),
-        nullable=False
-        )
+    accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False)
 
     isDeleted = Column(Integer, default=0, nullable=False)
 
@@ -29,10 +25,14 @@ class PostModel(Base):
     account = relationship("AccountModel", back_populates="posts")
     postLabels = relationship("PostLabelModel", back_populates="post")
 
-    comments = relationship("CommentModel", primaryjoin=and_(
-        CommentModel.postId == postId,
-        CommentModel.isDeleted == 0  # Only include non-deleted comments
-    ), back_populates="post")
+    comments = relationship(
+        "CommentModel",
+        primaryjoin=and_(
+            CommentModel.postId == postId,
+            CommentModel.isDeleted == 0,  # Only include non-deleted comments
+        ),
+        back_populates="post",
+    )
 
     postLikes = relationship("PostLikesModel", back_populates="post")
     postViolations = relationship("PostViolationModel", back_populates="post")

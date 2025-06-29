@@ -21,8 +21,8 @@ class JobApplicationMapper:
                 userId=userId,
                 resumeURL=resumeURL,
                 status=Status.APPLIED,
-                appliedAt=datetime.now()
-                )
+                appliedAt=datetime.now(),
+            )
             session.add(application)
             session.commit()
             return True
@@ -35,11 +35,11 @@ class JobApplicationMapper:
         :param applicationId: ID of the application to approve.
         """
         with db_context.session_scope() as session:
-            application = session.query(
-                JobApplicationModel
-                ).filter(
-                    JobApplicationModel.applicationId == applicationId
-                    ).first()
+            application = (
+                session.query(JobApplicationModel)
+                .filter(JobApplicationModel.applicationId == applicationId)
+                .first()
+            )
             if application:
                 application.status = Status.ACCEPTED
                 session.commit()
@@ -53,11 +53,11 @@ class JobApplicationMapper:
         :param applicationId: ID of the application to reject.
         """
         with db_context.session_scope() as session:
-            application = session.query(
-                JobApplicationModel
-                ).filter(
-                    JobApplicationModel.applicationId == applicationId
-                    ).first()
+            application = (
+                session.query(JobApplicationModel)
+                .filter(JobApplicationModel.applicationId == applicationId)
+                .first()
+            )
             if application:
                 application.status = Status.REJECTED
                 session.commit()
@@ -73,26 +73,34 @@ class JobApplicationMapper:
         """
         with db_context.session_scope() as session:
             # 1. Get all job IDs belonging to this company
-            job_ids = session.query(JobListingModel.jobId).filter(
-                JobListingModel.companyId == companyId
-            ).all()
+            job_ids = (
+                session.query(JobListingModel.jobId)
+                .filter(JobListingModel.companyId == companyId)
+                .all()
+            )
             # job_ids is a list of 1-tuples: [(1,), (2,), ...], so flatten:
             job_ids = [jid for (jid,) in job_ids]
             if not job_ids:
                 return []
-            print(f"Retrieved {len(job_ids)} job IDs for company \
-                  {companyId}: {job_ids}")
+            print(
+                f"Retrieved {len(job_ids)} job IDs for company \
+                  {companyId}: {job_ids}"
+            )
             # 2. Get all applications where jobId is in that list
-            applications = session.query(
-                JobApplicationModel
-                ).options(
-                    selectinload(JobApplicationModel.user)
-                    .selectinload(UserModel.account)
-                    ).filter(
-                JobApplicationModel.jobId.in_(job_ids)
-            ).all()
-            print(f"Retrieved {len(applications)} applications for company \
-                  {companyId} with job IDs {job_ids}")
+            applications = (
+                session.query(JobApplicationModel)
+                .options(
+                    selectinload(JobApplicationModel.user).selectinload(
+                        UserModel.account
+                    )
+                )
+                .filter(JobApplicationModel.jobId.in_(job_ids))
+                .all()
+            )
+            print(
+                f"Retrieved {len(applications)} applications for company \
+                  {companyId} with job IDs {job_ids}"
+            )
             print(f"Applications: {applications}")
             return [JobApplication.from_model(a) for a in applications]
 
@@ -114,10 +122,7 @@ class JobApplicationMapper:
             return [jid[0] for jid in job_ids]
 
     @staticmethod
-    def getLatestAppliedJobs(
-            userId: int,
-            limit: int = 5
-            ) -> list[JobApplication]:
+    def getLatestAppliedJobs(userId: int, limit: int = 5) -> list[JobApplication]:
         """
         Retrieves the latest job applications made by the user.
         :param userId: ID of the user.
@@ -132,7 +137,8 @@ class JobApplicationMapper:
                 .limit(limit)
                 .all()
             )
-            return [
-                JobApplication.from_model(app)
-                for app in applications
-                ] if applications else []
+            return (
+                [JobApplication.from_model(app) for app in applications]
+                if applications
+                else []
+            )

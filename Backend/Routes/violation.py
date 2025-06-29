@@ -1,26 +1,22 @@
-
 from flask import Blueprint, jsonify
-from Control.ViolationControl import ViolationControl 
+from Control.ViolationControl import ViolationControl
 import traceback
 
 
 violation_bp = Blueprint("violation", __name__)
 
 
-@violation_bp.route('/violations', methods=['GET'])
+@violation_bp.route("/violations", methods=["GET"])
 def violations():
     """
     Endpoint to check for violations.
     """
     try:
-    
-    
-        violations = ViolationControl.retrieveAllViolations() 
+
+        violations = ViolationControl.retrieveAllViolations()
         if violations:
             # Convert each violation to a dictionary
-            return jsonify(
-                [violation.toDict() for violation in violations]
-                ), 200
+            return jsonify([violation.toDict() for violation in violations]), 200
         else:
             return jsonify({"message": "No violations found"}), 404
 

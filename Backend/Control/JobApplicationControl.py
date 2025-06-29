@@ -43,18 +43,10 @@ class JobApplicationControl:
         if resumeFile:
             # Choose a deterministic storage name (e.g. userID_jobID.pdf)
             dest_name = f"resume/user_{userId}_job_{jobId}_resume.pdf"
-            resume_url = upload_to_path(
-                resumeFile,
-                target_path=dest_name,
-                public=True
-            )
+            resume_url = upload_to_path(resumeFile, target_path=dest_name, public=True)
             print("Resume uploaded to:", resume_url)
         print(f"Applying for job with jobId: {jobId} by userId: {userId}")
-        return JobApplicationMapper.applyJob(
-            jobId,
-            userId,
-            resumeURL=resume_url
-            )
+        return JobApplicationMapper.applyJob(jobId, userId, resumeURL=resume_url)
 
     @staticmethod
     def getApplicationsByCompanyId(companyId: int):
@@ -66,7 +58,7 @@ class JobApplicationControl:
         print(
             f"Retrieving applications for \
             company with companyId: {companyId}"
-            )
+        )
         return JobApplicationMapper.getApplicationsByCompanyId(companyId)
 
     @staticmethod

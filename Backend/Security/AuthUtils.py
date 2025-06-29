@@ -7,6 +7,4 @@ def hash_password(password: str) -> str:
 
 
 def verify_hash_password(password: str, hashPassword: str) -> bool:
-    return bcrypt.checkpw(
-        password.encode("utf-8"), hashPassword.encode("utf-8")
-        )
+    return bcrypt.checkpw(password.encode("utf-8"), hashPassword.encode("utf-8"))

@@ -21,7 +21,7 @@ class JobApplication:
         appliedAt: datetime,
         resumeURL: str,
         profilePicUrl: str = None,
-        accountId: int = None
+        accountId: int = None,
     ):
         self.applicationId = applicationId
         self.jobId = jobId
@@ -85,7 +85,7 @@ class JobApplication:
     def setAccountId(self, id: int) -> None:
         self.accountId = id
 
-    def from_dict(cls, raw: dict) -> 'JobApplication':
+    def from_dict(cls, raw: dict) -> "JobApplication":
         """
         Converts a dictionary to a JobApplication object.
         :param raw: Dictionary containing job application data.
@@ -102,7 +102,7 @@ class JobApplication:
             appliedAt=raw["appliedAt"],
             resumeURL=raw["resumeURL"],
             profilePicUrl=raw.get("profilePicUrl", None),  # Optional
-            accountId=raw.get("accountId", None)  # Optional
+            accountId=raw.get("accountId", None),  # Optional
         )
 
     def to_dict(self) -> dict:
@@ -122,11 +122,11 @@ class JobApplication:
             "appliedAt": self.appliedAt.isoformat(),
             "resumeURL": self.resumeURL,
             "profilePicUrl": self.profilePicUrl,  # Optional
-            "accountId": self.accountId  # Optional
+            "accountId": self.accountId,  # Optional
         }
 
     @classmethod
-    def from_model(cls, model) -> 'JobApplication':
+    def from_model(cls, model) -> "JobApplication":
         """
         Converts a SQLAlchemy model to a JobApplication object.
         :param model: SQLAlchemy model instance.
@@ -144,10 +144,12 @@ class JobApplication:
             resumeURL=model.resumeURL,
             accountId=(
                 model.user.account.accountId
-                if model.user and model.user.account else None
-                ),
+                if model.user and model.user.account
+                else None
+            ),
             profilePicUrl=(
                 model.user.account.profilePicUrl
-                if model.user and model.user.account else None
-                ),
+                if model.user and model.user.account
+                else None
+            ),
         )

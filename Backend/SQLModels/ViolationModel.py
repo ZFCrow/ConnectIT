@@ -11,7 +11,4 @@ class ViolationModel(Base):
     description = Column(String(255), nullable=False)
 
     # relationships
-    postViolations = relationship(
-        "PostViolationModel",
-        back_populates="violation"
-        )
+    postViolations = relationship("PostViolationModel", back_populates="violation")

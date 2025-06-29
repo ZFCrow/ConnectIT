@@ -1,18 +1,18 @@
 from flask import Blueprint, jsonify
-from Control.LabelControl import LabelControl 
+from Control.LabelControl import LabelControl
 import traceback
 
 
 label_bp = Blueprint("label", __name__)
 
 
-@label_bp.route('/labels', methods=['GET'])
+@label_bp.route("/labels", methods=["GET"])
 def getAllLabels():
     """
     Retrieve all labels from the database.
     """
     try:
-        
+
         labels = LabelControl.retrieveAllLabels()
 
         if labels:

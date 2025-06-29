@@ -26,8 +26,10 @@ class LabelModel(Base):
         Enum(
             ColorEnum,
             native_enum=False,
-            values_callable=lambda enum: [e.value for e in enum]
-            ), nullable=False)
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
+        nullable=False,
+    )
 
     # rs
     postLabels = relationship("PostLabelModel", back_populates="label")

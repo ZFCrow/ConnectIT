@@ -19,15 +19,17 @@ class LabelGateway:
         """
 
         with db_context.session_scope() as session:
-            labelModels = session.query(LabelModel).options(
-                joinedload(
-                    LabelModel.postLabels
-                    )  # Load associated post labels
-              ).all()
+            labelModels = (
+                session.query(LabelModel)
+                .options(
+                    joinedload(LabelModel.postLabels)  # Load associated post labels
+                )
+                .all()
+            )
             if labelModels:
                 LabelGateway.labelsCache = {
-                    lm.labelId: Label.fromLabelModel(lm)
-                    for lm in labelModels}
+                    lm.labelId: Label.fromLabelModel(lm) for lm in labelModels
+                }
                 return list(LabelGateway.labelsCache.values())
             else:
                 return []
@@ -42,11 +44,9 @@ class LabelGateway:
             return LabelGateway.labelsCache[labelId]
 
         with db_context.session_scope() as session:
-            labelModel = session.query(
-                LabelModel
-                ).filter(
-                    LabelModel.labelId == labelId
-                    ).first()
+            labelModel = (
+                session.query(LabelModel).filter(LabelModel.labelId == labelId).first()
+            )
             if labelModel:
                 label = Label.fromLabelModel(labelModel)
                 LabelGateway.labelsCache[labelId] = label

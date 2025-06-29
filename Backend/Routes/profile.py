@@ -5,8 +5,8 @@ from Security.ValidateFiles import (
     enforce_image_limits,
     enforce_pdf_limits,
     sanitize_image,
-    sanitize_pdf
-    )
+    sanitize_pdf,
+)
 from Security.ValidateInputs import validate_profile
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
@@ -61,22 +61,23 @@ def get_user(account_id):
             "userId",
         ]
         optional_data = {
-            key: getattr(account, key)
-            for key in optional_keys if hasattr(account, key)
+            key: getattr(account, key) for key in optional_keys if hasattr(account, key)
         }
 
         return jsonify({**base_data, **optional_data})
 
     else:
-        SplunkLogging.send_log({
-            "event": "Profile Access Failed",
-            "reason": "Account not found",
-            "accountId": account_id,
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Profile Access Failed",
+                "reason": "Account not found",
+                "accountId": account_id,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
         return jsonify({"error": "Account not found"}), 404
 
 
@@ -102,15 +103,17 @@ def save_profile():
     errors = validate_profile(updated_data)
     if errors:
 
-        SplunkLogging.send_log({
-            "event": "Profile Update Failed",
-            "reason": "Validation error - input fields",
-            "accountId": updated_data.get("accountId"),
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Profile Update Failed",
+                "reason": "Validation error - input fields",
+                "accountId": updated_data.get("accountId"),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
 
         return jsonify({"error": errors}), 400
 
@@ -120,15 +123,17 @@ def save_profile():
             portfolioFile = sanitize_pdf(portfolioFile)
         except Exception as e:
 
-            SplunkLogging.send_log({
-                "event": "Profile Update Failed",
-                "reason": "Validation error - PDF",
-                "accountId": updated_data.get("accountId"),
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path
-            })
+            SplunkLogging.send_log(
+                {
+                    "event": "Profile Update Failed",
+                    "reason": "Validation error - PDF",
+                    "accountId": updated_data.get("accountId"),
+                    "ip": request.remote_addr,
+                    "user_agent": str(request.user_agent),
+                    "method": request.method,
+                    "path": request.path,
+                }
+            )
 
             return jsonify({"error": str(e)}), 400
 
@@ -138,15 +143,17 @@ def save_profile():
             profilePic = sanitize_image(profilePic)
         except Exception as e:
 
-            SplunkLogging.send_log({
-                "event": "Profile Update Failed",
-                "reason": "Validation error - Profile picture",
-                "accountId": updated_data.get("accountId"),
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path
-            })
+            SplunkLogging.send_log(
+                {
+                    "event": "Profile Update Failed",
+                    "reason": "Validation error - Profile picture",
+                    "accountId": updated_data.get("accountId"),
+                    "ip": request.remote_addr,
+                    "user_agent": str(request.user_agent),
+                    "method": request.method,
+                    "path": request.path,
+                }
+            )
 
             return jsonify({"error": str(e)}), 400
 
@@ -157,27 +164,31 @@ def save_profile():
 
     if success:
 
-        SplunkLogging.send_log({
-            "event": "Profile update success",
-            "accountId": updated_data.get("accountId"),
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Profile update success",
+                "accountId": updated_data.get("accountId"),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
 
         return jsonify({"message": "Profile saved successfully!"}), 201
     else:
 
-        SplunkLogging.send_log({
-            "event": "Profile Update failed",
-            "reason": "Failed to save profile",
-            "accountId": updated_data.get("accountId"),
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Profile Update failed",
+                "reason": "Failed to save profile",
+                "accountId": updated_data.get("accountId"),
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
 
         return jsonify({"error": "Failed to save profile"}), 500
 
@@ -195,27 +206,31 @@ def disable(account_id):
 
     if success:
 
-        SplunkLogging.send_log({
-            "event": "Account Disabled success",
-            "accountId": account_id,
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Account Disabled success",
+                "accountId": account_id,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
 
         return jsonify({"message": "Account disabled successfully!"}), 201
     else:
 
-        SplunkLogging.send_log({
-            "event": "Account Disable failed",
-            "reason": "Failed to disable account",
-            "accountId": account_id,
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Account Disable failed",
+                "reason": "Failed to disable account",
+                "accountId": account_id,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
 
         return jsonify({"error": "Failed to disable account"}), 500
 
@@ -231,9 +246,8 @@ def get_all_companies():
 
 
 @profile_bp.route(
-        "/setCompanyVerified/<int:company_id>/<int:verified>",
-        methods=["POST"]
-        )
+    "/setCompanyVerified/<int:company_id>/<int:verified>", methods=["POST"]
+)
 def set_company_verified(company_id, verified):
     """
     Sets the verification status of a company.
@@ -246,11 +260,7 @@ def set_company_verified(company_id, verified):
         abort(403, description="Forbidden")
     success = AccountBoundary.setCompanyVerified(company_id, verified)
     return (
-        jsonify(
-            {"message": "Company verification status updated successfully!"}
-            )
+        jsonify({"message": "Company verification status updated successfully!"})
         if success
-        else jsonify(
-            {"error": "Failed to update company verification status"}
-            )
+        else jsonify({"error": "Failed to update company verification status"})
     ), 200

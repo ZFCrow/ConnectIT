@@ -20,7 +20,7 @@ class JobListingControl:
         job_data: dict containing job details.
         """
         jobListing: JobListing = JobListing.from_dict(job_data)
-        company_id = job_data.get('company_id')
+        company_id = job_data.get("company_id")
         sucess = JobListingMapper.addJob(jobListing, company_id)
         print(f"Adding job listing: {job_data}")
         if sucess:
@@ -42,7 +42,7 @@ class JobListingControl:
         """
         Retrieves all job listings.
         """
-        if (company_id is None):
+        if company_id is None:
             print("Retrieving all job listings")
             # Assuming JobListingMapper has a getAllJobListings method
             return JobListingMapper.getAllJobListings()

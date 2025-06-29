@@ -4,14 +4,12 @@ from .base import Base
 
 
 class FieldOfWorkModel(Base):
-    __tablename__ = 'FieldOfWork'
+    __tablename__ = "FieldOfWork"
 
     fieldOfWorkId = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(String(100), unique=True, nullable=False)
 
     # Reverse relationship to JobListingModel
     jobListing = relationship(
-        "JobListingModel",
-        back_populates="fieldOfWork",
-        lazy="selectin"
+        "JobListingModel", back_populates="fieldOfWork", lazy="selectin"
     )

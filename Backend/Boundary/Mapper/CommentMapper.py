@@ -36,11 +36,11 @@ class CommentMapper:
         """
 
         with db_context.session_scope() as session:
-            comment_model = session.query(
-                CommentModel
-                ).filter(
-                    CommentModel.commentId == commentId
-                    ).first()
+            comment_model = (
+                session.query(CommentModel)
+                .filter(CommentModel.commentId == commentId)
+                .first()
+            )
             if comment_model:
                 comment_model.isDeleted = True
                 session.commit()

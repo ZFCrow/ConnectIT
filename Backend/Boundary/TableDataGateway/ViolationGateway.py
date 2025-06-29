@@ -20,17 +20,21 @@ class ViolationGateway:
 
         with db_context.session_scope() as session:
 
-            violationModels = session.query(ViolationModel).options(
-                joinedload(
-                    ViolationModel.postViolations
+            violationModels = (
+                session.query(ViolationModel)
+                .options(
+                    joinedload(
+                        ViolationModel.postViolations
                     )  # Load associated post violations
-              ).all()
+                )
+                .all()
+            )
 
             if violationModels:
                 ViolationGateway.violationsCache = {
                     vm.violationId: Violation.fromViolationModel(vm)
                     for vm in violationModels
-                    }
+                }
                 return list(ViolationGateway.violationsCache.values())
 
     @staticmethod
@@ -43,11 +47,11 @@ class ViolationGateway:
             return ViolationGateway.violationsCache[violationId]
 
         with db_context.session_scope() as session:
-            violationModel = session.query(
-                ViolationModel
-                ).filter(
-                    ViolationModel.violationId == violationId
-                    ).first()
+            violationModel = (
+                session.query(ViolationModel)
+                .filter(ViolationModel.violationId == violationId)
+                .first()
+            )
             if violationModel:
                 violation = Violation.fromViolationModel(violationModel)
                 ViolationGateway.violationsCache[violationId] = violation
@@ -64,9 +68,7 @@ class ViolationGateway:
         violations = []
         for violationId in violationIds:
             if violationId in ViolationGateway.violationsCache:
-                violations.append(
-                    ViolationGateway.violationsCache[violationId]
-                    )
+                violations.append(ViolationGateway.violationsCache[violationId])
             else:
                 violation = ViolationGateway.getViolationById(violationId)
                 if violation:
@@ -82,9 +84,7 @@ class ViolationGateway:
         :return: List of violations
         """
         with db_context.session_scope() as session:
-            violationModels: ViolationModel = (
-                session.query(ViolationModel).all()
-            )
+            violationModels: ViolationModel = session.query(ViolationModel).all()
             return [
                 {"violationId": vm.violationId, "description": vm.description}
                 for vm in violationModels

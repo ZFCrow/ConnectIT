@@ -11,12 +11,8 @@ class CommentModel(Base):
     commentId = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(String(1028), nullable=False)
     createdAt = Column(DateTime, nullable=False, default=datetime.now)
-    accountId = Column(
-        Integer,
-        ForeignKey('Account.accountId'),
-        nullable=False
-        )
-    postId = Column(Integer, ForeignKey('Post.postId'), nullable=False)
+    accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False)
+    postId = Column(Integer, ForeignKey("Post.postId"), nullable=False)
     isDeleted = Column(Integer, default=0, nullable=False)
 
     # Relationships

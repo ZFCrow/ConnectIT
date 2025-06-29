@@ -20,12 +20,10 @@ class Comment:
     @staticmethod
     def getSingaporeTimezone() -> pytz.timezone:
         """Get Singapore timezone"""
-        return datetime.now(
-            pytz.timezone('Asia/Singapore')
-            ).replace(tzinfo=None)
+        return datetime.now(pytz.timezone("Asia/Singapore")).replace(tzinfo=None)
 
     @classmethod
-    def from_CommentModel(cls, comment_model) -> 'Comment':
+    def from_CommentModel(cls, comment_model) -> "Comment":
         """Create Comment entity from CommentModel instance"""
         # createdAt = cls._parse_datetime(comment_model.createdAt)
         return cls(
@@ -36,17 +34,14 @@ class Comment:
             postId=comment_model.postId,
             isDeleted=bool(comment_model.isDeleted),
             accountUsername=(
-                comment_model.account.name
-                if comment_model.account
-                else None
-                ),
+                comment_model.account.name if comment_model.account else None
+            ),
             accountDisplayPicture=(
-                comment_model.account.profilePicUrl
-                if comment_model.account else None
-            )
+                comment_model.account.profilePicUrl if comment_model.account else None
+            ),
         )
 
-    def toCommentModel(self) -> 'CommentModel':
+    def toCommentModel(self) -> "CommentModel":
         """Convert Comment entity to CommentModel for database operations"""
         return CommentModel(
             # commentId=self.commentId,
@@ -55,24 +50,24 @@ class Comment:
             accountId=self.accountId,
             postId=self.postId,
             # Convert bool to int for database storage
-            isDeleted=int(self.isDeleted)
+            isDeleted=int(self.isDeleted),
         )
 
     def toDict(self) -> dict:
         """Convert Comment entity to dictionary for JSON serialization"""
         return {
-            'commentId': self.commentId,
-            'content': self.content,
-            'createdAt': (
+            "commentId": self.commentId,
+            "content": self.content,
+            "createdAt": (
                 self.createdAt.isoformat()
                 if isinstance(self.createdAt, datetime)
                 else self.createdAt
-                ),
-            'accountId': self.accountId,
-            'postId': self.postId,
-            'isDeleted': self.isDeleted,
-            'username': self.accountUsername,
-            'displayPicUrl': self.accountDisplayPicture
+            ),
+            "accountId": self.accountId,
+            "postId": self.postId,
+            "isDeleted": self.isDeleted,
+            "username": self.accountUsername,
+            "displayPicUrl": self.accountDisplayPicture,
         }
 
     # @staticmethod
@@ -82,16 +77,16 @@ class Comment:
     #     return datetime.now(SINGAPORE_TZ)
 
     @classmethod
-    def fromDict(cls, data: dict) -> 'Comment':
+    def fromDict(cls, data: dict) -> "Comment":
         """Create Comment entity from dictionary"""
         return cls(
-            commentId=data.get('commentId', 0),
-            content=data.get('content', ''),
+            commentId=data.get("commentId", 0),
+            content=data.get("content", ""),
             # Default to current Singapore time if not provided
             createdAt=cls.getSingaporeTimezone(),
-            accountId=data.get('accountId', 0),
-            postId=data.get('postId', 0),
-            isDeleted=data.get('isDeleted', False),
-            accountUsername=data.get('accountUsername', None),
-            accountDisplayPicture=data.get('accountDisplayPicture', None)
+            accountId=data.get("accountId", 0),
+            postId=data.get("postId", 0),
+            isDeleted=data.get("isDeleted", False),
+            accountUsername=data.get("accountUsername", None),
+            accountDisplayPicture=data.get("accountDisplayPicture", None),
         )

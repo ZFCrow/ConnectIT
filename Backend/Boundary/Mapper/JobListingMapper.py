@@ -21,13 +21,13 @@ class JobListingMapper:
         """
         with db_context.session_scope() as session:
 
-            field: FieldOfWorkModel = session.query(
-                FieldOfWorkModel
-                ).filter(
-                    func.lower(
-                        FieldOfWorkModel.description
-                        ) == jobListing.fieldOfWork
-                ).first()
+            field: FieldOfWorkModel = (
+                session.query(FieldOfWorkModel)
+                .filter(
+                    func.lower(FieldOfWorkModel.description) == jobListing.fieldOfWork
+                )
+                .first()
+            )
 
             job_listing_model = JobListingModel(
                 # jobId is auto-increment, don't need to set unless updating
@@ -42,7 +42,7 @@ class JobListingMapper:
                 fieldOfWorkId=field.fieldOfWorkId,
                 createdAt=jobListing.createdAt,
                 workArrangement=jobListing.workArrangement.value,
-                isDeleted=jobListing.isDeleted
+                isDeleted=jobListing.isDeleted,
             )
 
             session.add(job_listing_model)
@@ -52,11 +52,11 @@ class JobListingMapper:
             for responsibility in jobListing.responsibilities:
 
                 responsibility_model = ResponsibilityModel(
-                    responsibility=responsibility,
-                    jobId=job_listing_model.jobId
+                    responsibility=responsibility, jobId=job_listing_model.jobId
                 )
                 session.add(responsibility_model)
             return True
+
     # @staticmethod
     # def getAllJobListings() -> list["JobListing"]:
 
@@ -74,7 +74,7 @@ class JobListingMapper:
                     selectinload(JobListingModel.responsibilities),
                     selectinload(JobListingModel.jobApplication)
                     .selectinload(JobApplicationModel.user)
-                    .selectinload(UserModel.account)
+                    .selectinload(UserModel.account),
                 )
                 .filter(JobListingModel.jobId == job_id)
                 .first()
@@ -89,9 +89,8 @@ class JobListingMapper:
             )
 
             return JobListing.from_JobListingModel(
-                job_listing,
-                numApplicants=numApplicants
-                )
+                job_listing, numApplicants=numApplicants
+            )
 
     @staticmethod
     def getAllJobListings(company_id: int = None) -> list["JobListing"]:
@@ -100,25 +99,23 @@ class JobListingMapper:
             base_query = (
                 session.query(
                     JobListingModel,
-                    func.count(
-                        JobApplicationModel.applicationId
-                        ).label("numApplicants")
+                    func.count(JobApplicationModel.applicationId).label(
+                        "numApplicants"
+                    ),
                 )
                 .outerjoin(
                     JobApplicationModel,
-                    JobListingModel.jobId == JobApplicationModel.jobId
-                    )
+                    JobListingModel.jobId == JobApplicationModel.jobId,
+                )
                 .options(
                     selectinload(JobListingModel.company),
-                    selectinload(JobListingModel.fieldOfWork)
-                    )
+                    selectinload(JobListingModel.fieldOfWork),
+                )
                 .group_by(JobListingModel.jobId)
                 .filter(JobListingModel.isDeleted == 0)
             )
             if company_id is not None:
-                base_query = base_query.filter(
-                    JobListingModel.companyId == company_id
-                    )
+                base_query = base_query.filter(JobListingModel.companyId == company_id)
             orm_results = base_query.all()
 
             # Each result is (JobListingModel, numApplicants)
@@ -133,11 +130,7 @@ class JobListingMapper:
         Soft-deletes a job listing by setting isDeleted=1.
         """
         with db_context.session_scope() as session:
-            job_listing = session.query(
-                JobListingModel
-                ).filter_by(
-                    jobId=jobId
-                    ).first()
+            job_listing = session.query(JobListingModel).filter_by(jobId=jobId).first()
             if not job_listing:
                 return False
 
@@ -154,9 +147,7 @@ class JobListingMapper:
         """
         with db_context.session_scope() as session:
             job_ids = (
-                session.query(SavedJobModel.jobListingId)
-                .filter_by(userId=userId)
-                .all()
+                session.query(SavedJobModel.jobListingId).filter_by(userId=userId).all()
             )
             # job_ids is a list of one-tuples, so flatten it
             return [jid[0] for jid in job_ids]
@@ -170,9 +161,11 @@ class JobListingMapper:
         :return: True if bookmark was added successfully, False otherwise.
         """
         with db_context.session_scope() as session:
-            existing_bookmark = session.query(SavedJobModel).filter_by(
-                userId=userId, jobListingId=jobId
-            ).first()
+            existing_bookmark = (
+                session.query(SavedJobModel)
+                .filter_by(userId=userId, jobListingId=jobId)
+                .first()
+            )
             if existing_bookmark:
                 return False  # Already bookmarked
 
@@ -189,9 +182,11 @@ class JobListingMapper:
         :return: True if bookmark was removed successfully, False otherwise.
         """
         with db_context.session_scope() as session:
-            bookmark = session.query(SavedJobModel).filter_by(
-                userId=userId, jobListingId=jobId
-            ).first()
+            bookmark = (
+                session.query(SavedJobModel)
+                .filter_by(userId=userId, jobListingId=jobId)
+                .first()
+            )
             if not bookmark:
                 return False  # Not bookmarked
 
@@ -213,9 +208,8 @@ class JobListingMapper:
 
     @staticmethod
     def getLatestJobListingsByCompany(
-            company_id: int,
-            limit: int = 5
-            ) -> list["JobListing"]:
+        company_id: int, limit: int = 5
+    ) -> list["JobListing"]:
         """
         Retrieves the latest job listings for a specific company.
         :param company_id: ID of the
@@ -225,12 +219,10 @@ class JobListingMapper:
                 session.query(JobListingModel)
                 .filter(
                     JobListingModel.companyId == company_id,
-                    JobListingModel.isDeleted == 0
-                    )
+                    JobListingModel.isDeleted == 0,
+                )
                 .order_by(JobListingModel.createdAt.desc())
                 .limit(limit)
                 .all()
             )
-            return [
-                JobListing.from_JobListingModel(job) for job in job_listings
-                ]
+            return [JobListing.from_JobListingModel(job) for job in job_listings]

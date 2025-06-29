@@ -13,9 +13,7 @@ def verify_captcha_endpoint():
     token = data.get("token")
 
     if not token:
-        return jsonify(
-            {"success": False, "message": "Missing CAPTCHA token"}
-            ), 400
+        return jsonify({"success": False, "message": "Missing CAPTCHA token"}), 400
 
     result = ValidateCaptcha.verify_hcaptcha(token)
     print(f"Token received: {token}")

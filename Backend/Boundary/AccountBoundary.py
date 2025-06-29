@@ -36,6 +36,5 @@ class AccountBoundary:
     @staticmethod
     def setCompanyVerified(company_id: int, verified: int):
         return AccountControl.setCompanyVerified(
-            company_id=company_id,
-            verified=verified
-            )
+            company_id=company_id, verified=verified
+        )

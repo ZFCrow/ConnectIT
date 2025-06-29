@@ -45,16 +45,10 @@ class Post:
     @staticmethod
     def getSingaporeTimezone() -> pytz.timezone:
         """Get Singapore timezone"""
-        return datetime.now(
-            pytz.timezone('Asia/Singapore')
-            ).replace(tzinfo=None)
+        return datetime.now(pytz.timezone("Asia/Singapore")).replace(tzinfo=None)
 
     @classmethod
-    def from_PostModel(
-        cls,
-        post_model: PostModel,
-        labels: List[Label]
-    ) -> 'Post':
+    def from_PostModel(cls, post_model: PostModel, labels: List[Label]) -> "Post":
         """Create Post entity from PostModel instance"""
         # liked = any
         # (like.account.accountId == userAccountId\
@@ -68,36 +62,35 @@ class Post:
             accountId=post_model.accountId,
             isDeleted=post_model.isDeleted,
             associated_labels=labels,
-            accountUsername=(
-                post_model.account.name if post_model.account else None
-                ),
+            accountUsername=(post_model.account.name if post_model.account else None),
             accountDisplayPicture=(
-                post_model.account.profilePicUrl
-                if post_model.account else None
-                ),
+                post_model.account.profilePicUrl if post_model.account else None
+            ),
             # likes = len(post_model.postLikes) if post_model.postLikes else 0,
             # # Count of likes from postLikes relationship
             # List of account IDs who liked the post
-            likedBy=[
-                like.accountId for like in post_model.postLikes
-                ]if post_model.postLikes else [],
+            likedBy=(
+                [like.accountId for like in post_model.postLikes]
+                if post_model.postLikes
+                else []
+            ),
             # liked = liked
         )
 
     @classmethod
-    def fromDict(cls, data: Dict[str, Any], labels: list[Label]) -> 'Post':
+    def fromDict(cls, data: Dict[str, Any], labels: list[Label]) -> "Post":
         """Create Post entity from dictionary"""
         return cls(
             # Default to 0 if not provided
-            post_id=data.get('id', 0),
-            title=data.get('title'),
-            content=data.get('content'),
+            post_id=data.get("id", 0),
+            title=data.get("title"),
+            content=data.get("content"),
             # Default to current Singapore time if not provided
-            date=data.get('date', cls.getSingaporeTimezone()),
-            accountId=data.get('accountId'),
+            date=data.get("date", cls.getSingaporeTimezone()),
+            accountId=data.get("accountId"),
             # Labels should be passed as a list of Label entities
             associated_labels=labels,
-            isDeleted=data.get('is_deleted', 0)
+            isDeleted=data.get("is_deleted", 0),
         )
 
     def toDict(self) -> Dict[str, Any]:
@@ -105,15 +98,14 @@ class Post:
         return {
             "id": self.post_id,
             "username": self.accountUsername,
-            "date": self.date.isoformat()
-            if isinstance(self.date, datetime)
-            else self.date,
+            "date": (
+                self.date.isoformat() if isinstance(self.date, datetime) else self.date
+            ),
             "labels": [label.toDict() for label in self.associated_labels],
             "title": self.title,
             "content": self.content,
             # Convert comments to dicts
-            "comments": [comment.toDict()
-                         for comment in self.associated_comments],
+            "comments": [comment.toDict() for comment in self.associated_comments],
             # "likes": self.likes,  # Count of likes
             # "liked": self.liked,  # Placeholder for liked status
             "accountId": self.accountId,
@@ -141,10 +133,8 @@ class Post:
         return [label.labelID for label in self.associated_labels]
 
     def set_account_info(
-            self,
-            username: str,
-            display_pic_url: Optional[str] = None
-            ) -> None:
+        self, username: str, display_pic_url: Optional[str] = None
+    ) -> None:
         """Set account display information"""
         self.accountUsername = username
         self.accountDisplayPicture = display_pic_url

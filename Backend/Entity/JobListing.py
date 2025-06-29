@@ -53,9 +53,7 @@ class JobListing:
         self.numApplicants = numApplicants
         self.experiencePreferred = experiencePreferred
         self.responsibilities = responsibilities
-        self.jobApplication = (
-            jobApplication if jobApplication is not None else []
-        )
+        self.jobApplication = jobApplication if jobApplication is not None else []
 
     # Getters & Setters
     def getJobId(self) -> int:
@@ -149,100 +147,71 @@ class JobListing:
         handling Enums and Optionals.
         """
         # Parse enums from string (case-insensitive, forgiving)
-        job_type_value = (
-            data.get('jobType')
-            or
-            data.get('job_type')
-            or
-            'Full Time'
-        )
+        job_type_value = data.get("jobType") or data.get("job_type") or "Full Time"
         job_type = JobType(job_type_value)
 
         work_arrangement_value = (
-            data.get('workArrangement')
-            or
-            data.get('work_arrangement')
-            or
-            'Onsite'
+            data.get("workArrangement") or data.get("work_arrangement") or "Onsite"
         )
         work_arrangement = WorkArrangement(work_arrangement_value)
 
         # Parse datetimes (expecting ISO strings)
-        deadline = (
-            data.get('applicationDeadline')
-            or
-            data.get('application_deadline')
-            )
-        created_at = data.get('createdAt') or data.get('created_at')
+        deadline = data.get("applicationDeadline") or data.get("application_deadline")
+        created_at = data.get("createdAt") or data.get("created_at")
         application_deadline = (
-            datetime.fromisoformat(deadline)
-            if isinstance(deadline, str) else deadline
+            datetime.fromisoformat(deadline) if isinstance(deadline, str) else deadline
         )
         created_at = (
             datetime.fromisoformat(created_at)
-            if isinstance(created_at, str) else created_at
+            if isinstance(created_at, str)
+            else created_at
         )
 
         return cls(
-            jobId=data.get('jobId') or data.get('job_id'),
-            title=data.get('title'),
-            description=data.get('description'),
+            jobId=data.get("jobId") or data.get("job_id"),
+            title=data.get("title"),
+            description=data.get("description"),
             applicationDeadline=application_deadline,
-            minSalary=data.get('minSalary') or data.get('min_salary'),
-            maxSalary=data.get('maxSalary') or data.get('max_salary'),
+            minSalary=data.get("minSalary") or data.get("min_salary"),
+            maxSalary=data.get("maxSalary") or data.get("max_salary"),
             jobType=JobType(job_type),
             createdAt=created_at,
             workArrangement=WorkArrangement(work_arrangement),
             fieldOfWork=(
-                data.get('fieldOfWork')
-                or
-                data.get('field_of_work')
-                or
-                'Other'
-                ),
-            responsibilities=data.get('responsibilities', []),
-            isDeleted=data.get('isDeleted') or data.get('is_deleted', False),
-            company=data.get('company'),
-            jobApplication=(
-                data.get('jobApplication')
-                or
-                data.get('job_application')
-                ),
+                data.get("fieldOfWork") or data.get("field_of_work") or "Other"
+            ),
+            responsibilities=data.get("responsibilities", []),
+            isDeleted=data.get("isDeleted") or data.get("is_deleted", False),
+            company=data.get("company"),
+            jobApplication=(data.get("jobApplication") or data.get("job_application")),
             experiencePreferred=(
-                data.get('experiencePreferred')
-                or
-                data.get('experience_preferred', 0)
-                ),
-            numApplicants=(
-                data.get('numApplicants')
-                or
-                data.get('num_applicants', 0)
-                ),
+                data.get("experiencePreferred") or data.get("experience_preferred", 0)
+            ),
+            numApplicants=(data.get("numApplicants") or data.get("num_applicants", 0)),
         )
 
     def to_dict(self) -> dict:
         return {
-            "jobId":            self.jobId,
-            "title":            self.title,
-            "description":      self.description,
+            "jobId": self.jobId,
+            "title": self.title,
+            "description": self.description,
             "applicationDeadline": self.applicationDeadline.isoformat(),
-            "minSalary":        self.minSalary,
-            "maxSalary":        self.maxSalary,
-            "jobType":          self.jobType.value,          # Enum → str
-            "createdAt":        self.createdAt.isoformat(),
-            "workArrangement":  self.workArrangement.value,
-            "fieldOfWork":      self.fieldOfWork,
+            "minSalary": self.minSalary,
+            "maxSalary": self.maxSalary,
+            "jobType": self.jobType.value,  # Enum → str
+            "createdAt": self.createdAt.isoformat(),
+            "workArrangement": self.workArrangement.value,
+            "fieldOfWork": self.fieldOfWork,
             "responsibilities": list(self.responsibilities),
-            "isDeleted":        self.isDeleted,
-            "company": (
-                self.company.to_dict() if self.company else None
-            ),
+            "isDeleted": self.isDeleted,
+            "company": (self.company.to_dict() if self.company else None),
             "experiencePreferred": self.experiencePreferred,
             "numApplicants": self.numApplicants,
-            "jobApplication": [
-                app.to_dict() for app in self.jobApplication
-            ] if self.jobApplication else [],
-
+            "jobApplication": (
+                [app.to_dict() for app in self.jobApplication]
+                if self.jobApplication
+                else []
+            ),
         }
 
     @classmethod
@@ -260,17 +229,21 @@ class JobListing:
             workArrangement=orm_obj.workArrangement,
             fieldOfWork=orm_obj.fieldOfWork.description,
             responsibilities=[
-                r.responsibility for r in orm_obj.responsibilities
+                r.responsibility
+                for r in orm_obj.responsibilities
                 if r.responsibility is not None
-                ],
+            ],
             isDeleted=orm_obj.isDeleted,
             company=Company.from_model(orm_obj.company),
-            jobApplication=[
-                JobApplication.from_model(a) for a in orm_obj.jobApplication
-                ] if orm_obj.jobApplication else [],
+            jobApplication=(
+                [JobApplication.from_model(a) for a in orm_obj.jobApplication]
+                if orm_obj.jobApplication
+                else []
+            ),
             experiencePreferred=(
                 orm_obj.experiencePreferred
-                if orm_obj.experiencePreferred is not None else 0
-                ),
-            numApplicants=numApplicants
+                if orm_obj.experiencePreferred is not None
+                else 0
+            ),
+            numApplicants=numApplicants,
         )

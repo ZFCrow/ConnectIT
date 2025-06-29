@@ -10,19 +10,11 @@ class SavedJobModel(Base):
 
     savedJobId = Column(Integer, primary_key=True, autoincrement=True)
     userId = Column(Integer, ForeignKey("User.userId"), nullable=False)
-    jobListingId = Column(
-        Integer,
-        ForeignKey("JobListing.jobId"),
-        nullable=False
-        )
+    jobListingId = Column(Integer, ForeignKey("JobListing.jobId"), nullable=False)
 
     # Relationships
     user = relationship("UserModel", lazy="selectin")
     job = relationship("JobListingModel", lazy="selectin")
 
     # Ensure a user can only bookmark a job once
-    __table_args__ = (UniqueConstraint(
-        "userId",
-        "jobListingId",
-        name="_user_job_uc"),
-        )
+    __table_args__ = (UniqueConstraint("userId", "jobListingId", name="_user_job_uc"),)

@@ -79,8 +79,7 @@ def create_app():
             company_id = (request.get_json()).get("company_id")
             user = f" | companyId={company_id}"
         elif request.path == "/applyJob":
-            user_id = request.form.get("userId") or \
-                request.get_json().get("userId")
+            user_id = request.form.get("userId") or request.get_json().get("userId")
             user = f" | userId={user_id}"
         else:
             account_id = (
@@ -98,15 +97,17 @@ def create_app():
             f"limit={e.description}{user}"
         )
 
-        SplunkLogging.send_log({
-            "event": "Rate Limit Success",
-            "function": f"{e.description}@{request.path}",
-            "User": user,
-            "ip": request.remote_addr,
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Rate Limit Success",
+                "function": f"{e.description}@{request.path}",
+                "User": user,
+                "ip": request.remote_addr,
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
         Limiter.ratelimit_logger.warning(message)
 
         return (
@@ -119,6 +120,7 @@ def create_app():
             ),
             429,
         )
+
     return app
 
 
@@ -131,6 +133,7 @@ def index():
     # print ("request from")
 
     return jsonify({"message": "Welcome to the API!"})
+
 
 # @app.route("/hello")
 # def hello():
@@ -245,5 +248,5 @@ if __name__ == "__main__":
     app.run(
         host=os.getenv("FLASK_RUN_HOST", "127.0.0.1"),
         port=int(os.getenv("FLASK_RUN_PORT", 5000)),
-        debug=os.getenv("FLASK_DEBUG", "false").lower() in ("1", "true")
+        debug=os.getenv("FLASK_DEBUG", "false").lower() in ("1", "true"),
     )

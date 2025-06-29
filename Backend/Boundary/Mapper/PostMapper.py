@@ -27,22 +27,25 @@ class PostMapper:
         Fetch a post by its ID.
         """
         with db_context.session_scope() as session:
-            post = session.query(PostModel).options(
-                # Load the associated account
-                joinedload(PostModel.account),
-                joinedload(
-                    PostModel.postLabels
-                    # Load associated labels
+            post = (
+                session.query(PostModel)
+                .options(
+                    # Load the associated account
+                    joinedload(PostModel.account),
+                    joinedload(
+                        PostModel.postLabels
+                        # Load associated labels
                     ).joinedload(PostLabelModel.label),
-                joinedload(
-                    PostModel.comments
-                    # Load associated comments and their accounts
+                    joinedload(
+                        PostModel.comments
+                        # Load associated comments and their accounts
                     ).joinedload(CommentModel.account),
-                # Load associated likes
-                joinedload(PostModel.postLikes)
-            ).filter(
-                PostModel.postId == postId, PostModel.isDeleted == 0
-                ).first()  # Only fetch non-deleted posts
+                    # Load associated likes
+                    joinedload(PostModel.postLikes),
+                )
+                .filter(PostModel.postId == postId, PostModel.isDeleted == 0)
+                .first()
+            )  # Only fetch non-deleted posts
             if post:
                 # find the labels , find the correct label entity ,
                 labelsModels = [pl.label for pl in post.postLabels]
@@ -66,20 +69,23 @@ class PostMapper:
         fetch from post , commetn and postlabel tables
         """
         with db_context.session_scope() as session:
-            posts = session.query(PostModel).options(
-                joinedload(PostModel.account),  # Load the associated account
-                joinedload(
-                    PostModel.postLabels
-                    # Load associated labels
+            posts = (
+                session.query(PostModel)
+                .options(
+                    joinedload(PostModel.account),  # Load the associated account
+                    joinedload(
+                        PostModel.postLabels
+                        # Load associated labels
                     ).joinedload(PostLabelModel.label),
-                joinedload(
-                    PostModel.comments
-                    # Load associated comments and their accounts
+                    joinedload(
+                        PostModel.comments
+                        # Load associated comments and their accounts
                     ).joinedload(CommentModel.account),
-                joinedload(PostModel.postLikes)  # Load associated likes
-            ).filter(
-                PostModel.isDeleted == 0
-                ).all()  # Only fetch non-deleted posts
+                    joinedload(PostModel.postLikes),  # Load associated likes
+                )
+                .filter(PostModel.isDeleted == 0)
+                .all()
+            )  # Only fetch non-deleted posts
             # now i need to retrieve all the label entity for
             # each post and put it in each post
             listofPostEntities = []
@@ -122,18 +128,15 @@ class PostMapper:
             if filterLabel:
                 query = query.filter(
                     PostModel.postLabels.any(
-                        PostLabelModel.label.has(
-                            LabelModel.description == filterLabel
-                            )
+                        PostLabelModel.label.has(LabelModel.description == filterLabel)
                     )
                 )
             commentCount = (
-
                 select(func.count(CommentModel.commentId))
                 .where(
-                    CommentModel.postId == PostModel.postId,
-                    CommentModel.isDeleted == 0
-                    ).scalar_subquery()
+                    CommentModel.postId == PostModel.postId, CommentModel.isDeleted == 0
+                )
+                .scalar_subquery()
             )
             # check if theres sortBy
             if sortBy:
@@ -147,19 +150,14 @@ class PostMapper:
             totalCount = query.count()  # Get total count of posts
             totalPages = ceil(totalCount / pageSize)  # Calculate total pages
             postModels = (
-                query
-                .options(
+                query.options(
                     # Load the associated account
                     joinedload(PostModel.account),
                     # Load associated labels
-                    joinedload(PostModel.postLabels).joinedload(
-                        PostLabelModel.label
-                        ),
+                    joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),
                     # Load associated comments and their accounts
-                    joinedload(PostModel.comments).joinedload(
-                        CommentModel.account
-                        ),
-                    joinedload(PostModel.postLikes)  # Load associated likes
+                    joinedload(PostModel.comments).joinedload(CommentModel.account),
+                    joinedload(PostModel.postLikes),  # Load associated likes
                 )
                 .offset((page - 1) * pageSize)  # Apply pagination offset
                 .limit(pageSize)  # Limit the number of posts per page
@@ -184,7 +182,7 @@ class PostMapper:
                 "totalCount": totalCount,  # Total number of posts
                 "totalPages": totalPages,  # Total number of pages
                 "currentPage": page,  # Current page numbe
-                "pageSize": pageSize  # Number of posts per page
+                "pageSize": pageSize,  # Number of posts per page
             }
 
     @staticmethod
@@ -200,7 +198,7 @@ class PostMapper:
                     content=post.content,
                     date=post.date,
                     accountId=post.accountId,
-                    isDeleted=post.isDeleted
+                    isDeleted=post.isDeleted,
                 )
                 session.add(postModel)
                 # FLUSH : send INSERT to db, gets the
@@ -215,16 +213,16 @@ class PostMapper:
                         # Use the auto-incremented ID after flush
                         postId=postModel.postId,
                         # Assuming labelID is the ID of the label entity
-                        labelId=label.labelId
+                        labelId=label.labelId,
                     )
                     session.add(postLabelModel)
 
                 # load the account to get username
-                account = session.query(
-                    AccountModel
-                    ).filter(
-                        AccountModel.accountId == post.accountId
-                        ).first()
+                account = (
+                    session.query(AccountModel)
+                    .filter(AccountModel.accountId == post.accountId)
+                    .first()
+                )
                 print(f"Post created with ID: {postModel.postId}")
                 # Update the post ID with the auto-incremented
                 # ID from the database
@@ -237,10 +235,7 @@ class PostMapper:
             return False
 
     @staticmethod
-    def deletePost(
-            postId: int,
-            violations: list[Violation]
-            ) -> bool:
+    def deletePost(postId: int, violations: list[Violation]) -> bool:
         """
         we will update the isDeleted field to True
         instead of deleting the post from the database.
@@ -252,11 +247,9 @@ class PostMapper:
         """
         try:
             with db_context.session_scope() as session:
-                post = session.query(
-                    PostModel
-                    ).filter(
-                        PostModel.postId == postId
-                        ).first()
+                post = (
+                    session.query(PostModel).filter(PostModel.postId == postId).first()
+                )
                 if post:
                     post.isDeleted = True
                     # session.commit()
@@ -269,8 +262,7 @@ class PostMapper:
                             # Assuming PostViolationModel exists
                             # and has postId and violationId fields
                             postViolationModel = PostViolationModel(
-                                postId=postId,
-                                violationId=violation.violationId
+                                postId=postId, violationId=violation.violationId
                             )
                             session.add(postViolationModel)
                         session.commit()
@@ -290,83 +282,85 @@ class PostMapper:
         try:
             with db_context.session_scope() as session:
                 # Check if the like already exists
-                existing_like = session.query(PostLikesModel).filter(
-                    PostLikesModel.postId == postId,
-                    PostLikesModel.accountId == accountId
-                ).first()
+                existing_like = (
+                    session.query(PostLikesModel)
+                    .filter(
+                        PostLikesModel.postId == postId,
+                        PostLikesModel.accountId == accountId,
+                    )
+                    .first()
+                )
                 # we remove the like if it exists,
                 # otherwise we create a new like
                 if existing_like:
                     session.delete(existing_like)
-                    print(f"Like removed for post ID {postId} \
-                          by account ID {accountId}.")
+                    print(
+                        f"Like removed for post ID {postId} \
+                          by account ID {accountId}."
+                    )
                     return {
                         "success": True,
                         "message": f"Like removed for post ID {postId} \
-                            by account ID {accountId}."
+                            by account ID {accountId}.",
                     }
                 else:
                     # Create a new like
-                    new_like = PostLikesModel(
-                        postId=postId,
-                        accountId=accountId
-                    )
+                    new_like = PostLikesModel(postId=postId, accountId=accountId)
                     session.add(new_like)
-                    print(f"Like added for post ID {postId} \
-                          by account ID {accountId}.")
+                    print(
+                        f"Like added for post ID {postId} \
+                          by account ID {accountId}."
+                    )
 
                     return {
                         "success": True,
                         "message": f"Like added for post ID \
-                            {postId} by account ID {accountId}."
+                            {postId} by account ID {accountId}.",
                     }
         except Exception as e:
-            print(f"Error toggling like for post ID {postId} \
-                  by account ID {accountId}: {e}")
+            print(
+                f"Error toggling like for post ID {postId} \
+                  by account ID {accountId}: {e}"
+            )
             return {
                 "success": False,
                 "message": f"Error toggling like for post ID \
-                    {postId} by account ID {accountId}: {e}"
+                    {postId} by account ID {accountId}: {e}",
             }
 
     @staticmethod
-    def getRecentlyInteractedPosts(
-            accountId: int,
-            limit: int = 5
-            ) -> list[Post]:
+    def getRecentlyInteractedPosts(accountId: int, limit: int = 5) -> list[Post]:
         """
         Fetch the most recent posts interacted by the account.
         """
         with db_context.session_scope() as session:
-            posts = session.query(PostModel).options(
-                joinedload(PostModel.account),  # Load the associated account
-                # Load associated labels
-                joinedload(PostModel.postLabels).joinedload(
-                    PostLabelModel.label),
-                # Load associated comments and their accounts
-                joinedload(PostModel.comments).joinedload(
-                    CommentModel.account),
-                joinedload(PostModel.postLikes)  # Load associated likes
-            ).filter(
-                (
-                    (PostModel.postLikes.any(
-                        PostLikesModel.accountId == accountId
-                        )) |
-                    (PostModel.comments.any(
-                        CommentModel.accountId == accountId
-                        ))
-                ) &
+            posts = (
+                session.query(PostModel)
+                .options(
+                    joinedload(PostModel.account),  # Load the associated account
+                    # Load associated labels
+                    joinedload(PostModel.postLabels).joinedload(PostLabelModel.label),
+                    # Load associated comments and their accounts
+                    joinedload(PostModel.comments).joinedload(CommentModel.account),
+                    joinedload(PostModel.postLikes),  # Load associated likes
+                )
+                .filter(
+                    (
+                        (PostModel.postLikes.any(PostLikesModel.accountId == accountId))
+                        | (PostModel.comments.any(CommentModel.accountId == accountId))
+                    )
+                    & (PostModel.isDeleted == 0)  # Only fetch non-deleted posts
+                )
+                .order_by(PostModel.date.desc())
+                .limit(limit)
+                .all()
+            )
 
-                (PostModel.isDeleted == 0)  # Only fetch non-deleted posts
-
-            ).order_by(PostModel.date.desc()).limit(limit).all()
-
-            labelModels = [
-                pl.label for post in posts for pl in post.postLabels
-                ]
+            labelModels = [pl.label for post in posts for pl in post.postLabels]
             labels = [Label.fromLabelModel(lm) for lm in labelModels]
 
-            return [
-                Post.from_PostModel(post, labels=labels)
-                for post in posts
-                ] if posts else []
+            return (
+                [Post.from_PostModel(post, labels=labels) for post in posts]
+                if posts
+                else []
+            )

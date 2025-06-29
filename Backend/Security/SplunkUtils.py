@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class SplunkLogger:
     def __init__(self):
 
@@ -20,14 +21,14 @@ class SplunkLogger:
 
         headers = {
             "Authorization": f"Splunk {self.token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
         payload = {
             "event": event_data,
             "source": self.source,
             "sourcetype": self.sourcetype,
-            "host": self.hostname
+            "host": self.hostname,
         }
 
         try:
@@ -36,7 +37,7 @@ class SplunkLogger:
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=False  # Not recommended in production; use valid certs
+                verify=False,  # Not recommended in production; use valid certs
             )
 
             if self.debug:

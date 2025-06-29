@@ -17,11 +17,8 @@ class CompanyModel(Base):
     verified = Column(Integer, nullable=False, default=0)
 
     accountId = Column(
-        Integer,
-        ForeignKey("Account.accountId"),
-        nullable=False,
-        unique=True
-        )
+        Integer, ForeignKey("Account.accountId"), nullable=False, unique=True
+    )
 
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
@@ -34,7 +31,7 @@ class CompanyModel(Base):
             "description": self.description,
             "location": self.location,
             "companyDocUrl": self.companyDocUrl,
-            "verified": self.verified
+            "verified": self.verified,
         }
 
     @classmethod
@@ -50,7 +47,7 @@ class CompanyModel(Base):
             description=data.get("description"),
             location=data.get("location"),
             companyDocUrl=data.get("companyDocUrl"),
-            verified=data.get("verified", False)
+            verified=data.get("verified", False),
         )
 
     def __repr__(self):

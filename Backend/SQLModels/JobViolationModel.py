@@ -10,7 +10,5 @@ class JobViolationModel(Base):
     jobId: int = Column(Integer)
     violationId: int = Column(Integer)
     date: datetime = Column(
-        DateTime,
-        default_factory=datetime.utcnow,
-        default=datetime.now
-        )
+        DateTime, default_factory=datetime.utcnow, default=datetime.now
+    )

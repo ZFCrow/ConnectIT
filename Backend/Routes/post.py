@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from Control.PostControl import PostControl 
+from Control.PostControl import PostControl
 import traceback
 from Security.ValidateInputs import validate_post
 from Security.Limiter import limiter, get_account_key
@@ -28,8 +28,10 @@ def createPost():
         if errors:
             return jsonify({"error": errors}), 400
 
-        postData["accountId"] = accountId 
-        post, success = PostControl.createPost(postData)  # Use the control layer to create the post 
+        postData["accountId"] = accountId
+        post, success = PostControl.createPost(
+            postData
+        )  # Use the control layer to create the post
 
         if success:
             # return jsonify({"message": "Post created successfully!"}), 201
@@ -63,7 +65,7 @@ def delete_post(post_id):
 
     success = PostControl.deletePost(
         post_id, violations=violations
-    )  # Use the control layer to delete the post by its ID 
+    )  # Use the control layer to delete the post by its ID
     if success:
         return (
             jsonify(
@@ -77,9 +79,7 @@ def delete_post(post_id):
             200,
         )
     else:
-        return jsonify(
-            {"error": f"Failed to delete post with ID {post_id}"}
-            ), 500
+        return jsonify({"error": f"Failed to delete post with ID {post_id}"}), 500
 
 
 @post_bp.route("/posts/paginated", methods=["GET"])
@@ -96,12 +96,8 @@ def get_paginated_posts():
         filterLabel = request.args.get("filterLabel", default=None, type=str)
         sortBy = request.args.get("sortBy", default=None, type=str)
 
-
         results = PostControl.retrievePaginatedPosts(
-            page=page,
-            pageSize=pageSize,
-            sortBy=sortBy,
-            filterLabel=filterLabel
+            page=page, pageSize=pageSize, sortBy=sortBy, filterLabel=filterLabel
         )  # Use the control layer to retrieve paginated posts
 
         return jsonify(results), 200  # Return the paginated results as JSON
@@ -118,10 +114,9 @@ def get_post_by_id(post_id):
     """
     try:
 
-        post = PostControl.retrievePostById( 
+        post = PostControl.retrievePostById(
             post_id
-        )  # Use the control layer to retrieve the post by its ID 
-
+        )  # Use the control layer to retrieve the post by its ID
 
         if post:
             # Convert the post to a dictionary and return it as JSON
@@ -141,11 +136,9 @@ def toggleLikes(post_id, account_id):
     """
     try:
 
-
-        result = PostControl.toggleLikes( 
+        result = PostControl.toggleLikes(
             post_id, account_id
-        )  # Use the control layer to toggle likes for the post 
-
+        )  # Use the control layer to toggle likes for the post
 
         return jsonify(result), 200  # Return the result as JSON
     except Exception as e:
@@ -161,9 +154,9 @@ def get_recently_interacted_posts(account_id):
     """
     try:
 
-        posts = PostControl.retrieveRecentlyInteractedPosts( 
+        posts = PostControl.retrieveRecentlyInteractedPosts(
             account_id
-        )  # Use the control layer to retrieve recently interacted posts 
+        )  # Use the control layer to retrieve recently interacted posts
         return (
             jsonify([post.toDict() for post in posts]),
             200,

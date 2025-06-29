@@ -11,12 +11,8 @@ class PostLikesModel(Base):
     # pri key
     postLikesId = Column(Integer, primary_key=True, autoincrement=True)
     createdAt = Column(DateTime, nullable=False, default=datetime.utcnow)
-    accountId = Column(
-        Integer,
-        ForeignKey('Account.accountId'),
-        nullable=False
-        )
-    postId = Column(Integer, ForeignKey('Post.postId'), nullable=False)
+    accountId = Column(Integer, ForeignKey("Account.accountId"), nullable=False)
+    postId = Column(Integer, ForeignKey("Post.postId"), nullable=False)
 
     # rs
     account = relationship("AccountModel", back_populates="postLikes")

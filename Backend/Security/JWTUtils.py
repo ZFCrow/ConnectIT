@@ -25,23 +25,18 @@ class JWTUtils:
             orig_iat = now
 
         payload = {
-            "sub":      str(account_id),
-            "role":     user_role,
-            "name":     name,
+            "sub": str(account_id),
+            "role": user_role,
+            "name": name,
             "profilePicUrl": profile_pic_url,
-            "userId":   str(user_id) if user_id is not None else None,
+            "userId": str(user_id) if user_id is not None else None,
             "companyId": str(company_id) if company_id is not None else None,
             "verified": is_verified,
             "iat": now,
             "exp": now + JWTUtils.EXPIRATION,
-
-            "origIat": orig_iat.isoformat()
+            "origIat": orig_iat.isoformat(),
         }
-        return jwt.encode(
-            payload,
-            JWTUtils.SECRET_KEY,
-            algorithm=JWTUtils.ALGORITHM
-            )
+        return jwt.encode(payload, JWTUtils.SECRET_KEY, algorithm=JWTUtils.ALGORITHM)
 
     @staticmethod
     def decode_jwt_token(token: str) -> dict:

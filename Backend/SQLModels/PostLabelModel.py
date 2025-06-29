@@ -9,8 +9,8 @@ class PostLabelModel(Base):
 
     # pri key
     PostLabelId = Column(Integer, primary_key=True, autoincrement=True)
-    postId = Column(Integer, ForeignKey('Post.postId'), nullable=False)
-    labelId = Column(Integer, ForeignKey('Label.labelId'), nullable=False)
+    postId = Column(Integer, ForeignKey("Post.postId"), nullable=False)
+    labelId = Column(Integer, ForeignKey("Label.labelId"), nullable=False)
 
     # rs
     post = relationship("PostModel", back_populates="postLabels")

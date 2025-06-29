@@ -6,11 +6,11 @@ from firebase_admin import credentials, storage
 BUCKET_NAME = "connectit-63f60.firebasestorage.app"
 SERVICE_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "firebase_key.json")
 
-if not firebase_admin._apps:                       # initialise once
+if not firebase_admin._apps:  # initialise once
     cred = credentials.Certificate(SERVICE_KEY)
     firebase_admin.initialize_app(cred, {"storageBucket": BUCKET_NAME})
 
-bucket = storage.bucket()                          # ready to use
+bucket = storage.bucket()  # ready to use
 
 
 # ##TODO: REMOVE THIS FOR PROD, ONLY FOR TESTING PURPOSES

@@ -26,8 +26,10 @@ def create_ssh_tunnel():
         remote_bind_address=(remote_host, remote_port),
     )
     tunnel.start()
-    print(f"→ SSH tunnel open: localhost:{tunnel.local_bind_port} → \
-          {remote_host}:{remote_port}")
+    print(
+        f"→ SSH tunnel open: localhost:{tunnel.local_bind_port} → \
+          {remote_host}:{remote_port}"
+    )
     return tunnel
 
 
@@ -47,11 +49,7 @@ def create_db_connection(tunnel=None):
     db_name = os.getenv("MYSQL_DATABASE")
 
     conn = pymysql.connect(
-        host=db_host,
-        port=db_port,
-        user=db_user,
-        password=db_password,
-        db=db_name
+        host=db_host, port=db_port, user=db_user, password=db_password, db=db_name
     )
     print("→ MySQL connection established through SSH tunnel")
     return conn
@@ -96,8 +94,7 @@ def noSshFlow():
 
 
 if __name__ == "__main__":
-    if os.environ.get("USE_SSH_TUNNEL", "False").lower()\
-          in ("1", "true", "yes"):
+    if os.environ.get("USE_SSH_TUNNEL", "False").lower() in ("1", "true", "yes"):
         sshFlow()
     else:
         noSshFlow()

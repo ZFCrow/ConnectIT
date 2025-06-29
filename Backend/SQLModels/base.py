@@ -43,8 +43,10 @@ class DatabaseContext:
         except Exception as e:
             print(f"→ Database Context initialization failed: {e}")
             if self.ssh_tunnel:
-                print(f"→ SSH tunnel remains active on localhost:\
-                      {self.ssh_tunnel.local_bind_port}")
+                print(
+                    f"→ SSH tunnel remains active on localhost:\
+                      {self.ssh_tunnel.local_bind_port}"
+                )
             raise e
 
     def create_ssh_tunnel(self):
@@ -69,45 +71,50 @@ class DatabaseContext:
             remote_bind_address=(remote_host, remote_port),
         )
         tunnel.start()
-        print(f"→ SSH tunnel open: localhost:{tunnel.local_bind_port} \
-              → {remote_host}:{remote_port}")
+        print(
+            f"→ SSH tunnel open: localhost:{tunnel.local_bind_port} \
+              → {remote_host}:{remote_port}"
+        )
         return tunnel
 
     def _setup_connection(self):
         """Setup SSH tunnel or direct connection"""
-        use_ssh = os.environ.get("USE_SSH_TUNNEL", "False")\
-            in ("1", "true", "yes")
+        use_ssh = os.environ.get("USE_SSH_TUNNEL", "False") in ("1", "true", "yes")
 
         if use_ssh:
             print("→ Setting up SSH tunnel connection...")
             self.ssh_tunnel = self.create_ssh_tunnel()
             self.connection_info = {
-                'host': "127.0.0.1",
-                'port': self.ssh_tunnel.local_bind_port,
-                'connection_type': 'SSH Tunnel',
-                'remote_host': os.getenv('SSH_HOST'),
-                'remote_port': os.getenv('MYSQL_REMOTE_PORT')
+                "host": "127.0.0.1",
+                "port": self.ssh_tunnel.local_bind_port,
+                "connection_type": "SSH Tunnel",
+                "remote_host": os.getenv("SSH_HOST"),
+                "remote_port": os.getenv("MYSQL_REMOTE_PORT"),
             }
-            print(f"→ SSH tunnel active: localhost:\
+            print(
+                f"→ SSH tunnel active: localhost:\
                   {self.connection_info['port']} → \
                     {self.connection_info['remote_host']}:\
-                        {self.connection_info['remote_port']}")
+                        {self.connection_info['remote_port']}"
+            )
         else:
             print("→ Setting up direct connection...")
             self.connection_info = {
-                'host': os.getenv("MYSQL_CONTAINER_NAME"),
-                'port': int(os.getenv("MYSQL_CONTAINER_PORT")),
-                'connection_type': 'Direct'
+                "host": os.getenv("MYSQL_CONTAINER_NAME"),
+                "port": int(os.getenv("MYSQL_CONTAINER_PORT")),
+                "connection_type": "Direct",
             }
-            print(f"→ Direct connection: {self.connection_info['host']}:\
-                  {self.connection_info['port']}")
+            print(
+                f"→ Direct connection: {self.connection_info['host']}:\
+                  {self.connection_info['port']}"
+            )
 
     def _create_engine(self):
         """Create SQLAlchemy engine and session factory"""
         db_credentials = {
-            'user': os.getenv("MYSQL_USER"),
-            'password': os.getenv("MYSQL_PASSWORD"),
-            'database': os.getenv("MYSQL_DATABASE")
+            "user": os.getenv("MYSQL_USER"),
+            "password": os.getenv("MYSQL_PASSWORD"),
+            "database": os.getenv("MYSQL_DATABASE"),
         }
 
         connection_string = (
@@ -115,21 +122,21 @@ class DatabaseContext:
             f"@{self.connection_info['host']}:{self.connection_info['port']}/{db_credentials['database']}"  # noqa: E501
         )
 
-        print(f"→ Creating engine: mysql+pymysql://{db_credentials['user']}\
+        print(
+            f"→ Creating engine: mysql+pymysql://{db_credentials['user']}\
               :***@{self.connection_info['host']}:{self.connection_info['port']}/\
-                {db_credentials['database']}")
+                {db_credentials['database']}"
+        )
 
         self.engine = create_engine(
             connection_string,
             echo=True,
             pool_pre_ping=True,
-            pool_recycle=3600  # Recycle connections every hour
+            pool_recycle=3600,  # Recycle connections every hour
         )
 
         self.SessionLocal = sessionmaker(
-            autocommit=False,
-            autoflush=False,
-            bind=self.engine
+            autocommit=False, autoflush=False, bind=self.engine
         )
 
     def _test_connection(self):
@@ -147,7 +154,7 @@ class DatabaseContext:
         if not self._is_initialized:
             raise RuntimeError(
                 "Database context not initialized. Call initialize() first."
-                )
+            )
         return self.SessionLocal()
 
     def get_engine(self):
@@ -155,7 +162,7 @@ class DatabaseContext:
         if not self._is_initialized:
             raise RuntimeError(
                 "Database context not initialized. Call initialize() first."
-                )
+            )
         return self.engine
 
     @contextmanager
@@ -199,7 +206,7 @@ class DatabaseContext:
 
     def _register_models(self):
         """Register all models with Base -
-          equivalent to EF's DbSet properties"""
+        equivalent to EF's DbSet properties"""
         try:
             # Add other models as you create them
             registered_models = [cls.__name__ for cls in Base.__subclasses__()]
@@ -209,10 +216,7 @@ class DatabaseContext:
             print(f"✗ Failed to import models: {e}")
             raise
 
-    def get_table_info(
-            self,
-            table_name: str
-            ) -> Optional[List[Dict[str, Any]]]:
+    def get_table_info(self, table_name: str) -> Optional[List[Dict[str, Any]]]:
         """Get table schema information"""
         if not self._is_initialized:
             raise RuntimeError("Database context not initialized.")
@@ -222,14 +226,16 @@ class DatabaseContext:
                 result = session.execute(text(f"DESCRIBE {table_name}"))
                 columns = []
                 for row in result.fetchall():
-                    columns.append({
-                        "field": row[0],
-                        "type": row[1],
-                        "null": row[2],
-                        "key": row[3],
-                        "default": row[4],
-                        "extra": row[5]
-                    })
+                    columns.append(
+                        {
+                            "field": row[0],
+                            "type": row[1],
+                            "null": row[2],
+                            "key": row[3],
+                            "default": row[4],
+                            "extra": row[5],
+                        }
+                    )
                 return columns
         except Exception as e:
             print(f"→ Failed to describe table {table_name}: {e}")
@@ -256,13 +262,14 @@ class DatabaseContext:
     def get_connection_info(self) -> Dict[str, Any]:
         """Get current connection information"""
         return {
-            'initialized': self._is_initialized,
-            'connection_type': self.connection_info.get('connection_type'),
-            'host': self.connection_info.get('host'),
-            'port': self.connection_info.get('port'),
-            'ssh_tunnel_active': self.ssh_tunnel is not None,
-            'local_tunnel_port':
+            "initialized": self._is_initialized,
+            "connection_type": self.connection_info.get("connection_type"),
+            "host": self.connection_info.get("host"),
+            "port": self.connection_info.get("port"),
+            "ssh_tunnel_active": self.ssh_tunnel is not None,
+            "local_tunnel_port": (
                 self.ssh_tunnel.local_bind_port if self.ssh_tunnel else None
+            ),
         }
 
     def dispose(self):

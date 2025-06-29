@@ -11,17 +11,13 @@ class PostViolationModel(Base):
     # primary key
     postViolationId = Column(Integer, primary_key=True, autoincrement=True)
 
-    date = Column('date', DateTime, nullable=False, default=datetime.utcnow)
+    date = Column("date", DateTime, nullable=False, default=datetime.utcnow)
 
     # foreign key to Post Table
-    postId = Column(Integer, ForeignKey('Post.postId'), nullable=False)
+    postId = Column(Integer, ForeignKey("Post.postId"), nullable=False)
 
     # foreign key to Violation Table
-    violationId = Column(
-        Integer,
-        ForeignKey('Violation.violationId'),
-        nullable=False
-        )
+    violationId = Column(Integer, ForeignKey("Violation.violationId"), nullable=False)
 
     # Relationships
     post = relationship("PostModel", back_populates="postViolations")

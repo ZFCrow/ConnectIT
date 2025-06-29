@@ -1,5 +1,6 @@
 from werkzeug.utils import secure_filename
 from firebaseStorage import bucket, BUCKET_NAME
+
 ALLOWED_ROOTS = {"companyDocument", "portfolio", "profilePic", "resume"}
 
 
@@ -12,7 +13,7 @@ def upload_to_path(file_obj, target_path, public=True):
     - Returns public URL (default) or gs:// URI.
     """
     # normalise path & keep it safe
-    parts = [p for p in target_path.split("/") if p]      # remove empty /..
+    parts = [p for p in target_path.split("/") if p]  # remove empty /..
     if parts[0] not in ALLOWED_ROOTS:
         raise ValueError(f"Root must be one of {ALLOWED_ROOTS}")
 

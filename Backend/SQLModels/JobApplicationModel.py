@@ -11,33 +11,15 @@ def _values(enum_cls):
 
 
 class JobApplicationModel(Base):
-    __tablename__ = 'JobApplication'
+    __tablename__ = "JobApplication"
     applicationId = Column(Integer, primary_key=True, autoincrement=True)
     jobId = Column(Integer, ForeignKey("JobListing.jobId"), nullable=False)
     userId = Column(Integer, ForeignKey("User.userId"), nullable=False)
     status = Column(
-        Enum(
-            Status,
-            values_callable=_values,
-            native_enum=True
-            ),
-        nullable=False
-        )
+        Enum(Status, values_callable=_values, native_enum=True), nullable=False
+    )
     # Assuming status is a string like "Applied", "Accepted", "Rejected"
-    appliedAt = Column(
-        DateTime,
-        nullable=False
-        )
-    resumeURL = Column(
-        String,
-        nullable=False,
-        default="https://www.example.com/"
-        )
-    jobListing = relationship(
-        "JobListingModel",
-        back_populates="jobApplication"
-    )
-    user = relationship(
-        "UserModel",
-        back_populates="jobApplications"
-    )
+    appliedAt = Column(DateTime, nullable=False)
+    resumeURL = Column(String, nullable=False, default="https://www.example.com/")
+    jobListing = relationship("JobListingModel", back_populates="jobApplication")
+    user = relationship("UserModel", back_populates="jobApplications")

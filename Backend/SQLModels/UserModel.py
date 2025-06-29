@@ -15,26 +15,20 @@ class UserModel(Base):
     portfolioUrl = Column(String(512), nullable=True)
 
     accountId = Column(
-        Integer,
-        ForeignKey("Account.accountId"),
-        nullable=False,
-        unique=True
-        )
+        Integer, ForeignKey("Account.accountId"), nullable=False, unique=True
+    )
 
     # Add relationships as needed
     # comments = relationship("CommentModel", back_populates="user")
     account = relationship("AccountModel", back_populates="user")
-    jobApplications = relationship(
-        "JobApplicationModel",
-        back_populates="user"
-    )
+    jobApplications = relationship("JobApplicationModel", back_populates="user")
 
     def to_dict(self):
         return {
             "userId": self.userId,
             "accountId": self.accountId,
             "bio": self.bio,
-            "portfolioUrl": self.portfolioUrl
+            "portfolioUrl": self.portfolioUrl,
         }
 
     def __repr__(self):
