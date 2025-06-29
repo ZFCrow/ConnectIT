@@ -39,7 +39,7 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
   const { createPost, createPostPending } = usePostContext(); // get the createPost function and status from the context
   const [open, setOpen] = useState(false); // dialog open state
 
-  const [title, setTitle] = useState("What's on your mind? 012");
+  const [title, setTitle] = useState("What's on your mind?");
   const [content, setContent] = useState("");
   const [selectedTags, setSelectedTags] = useState<Label[]>([]); // selected tags by the user
 
