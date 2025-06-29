@@ -168,6 +168,6 @@ jobs:
             sudo docker builder prune --all --force
             sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build --no-cache 
             
-            sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
+            sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate --remove-orphans
             
           EOF
