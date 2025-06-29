@@ -32,7 +32,7 @@ jobs:
         run: npm ci && npm run build
 
       - name: sanity check to check if the build is successful
-        run: test -d web.dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
+        run: test -d web/dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
 
  
 
