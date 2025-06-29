@@ -13,7 +13,7 @@ SplunkLogging = SplunkUtils.SplunkLogger()
 
 # GET all job listings
 @job_listing_bp.route("/joblistings", methods=["GET"])
-def get_all_job_listings():
+def getAllJobListings():
     listings = JobListingControl.getAllJobListings()
     print(f"All job listings: {[listing.to_dict() for listing in listings]}")
     return jsonify([listing.to_dict() for listing in listings]), 200
@@ -21,7 +21,7 @@ def get_all_job_listings():
 
 # GET a single job detail
 @job_listing_bp.route("/jobDetails/<int:job_id>", methods=["GET"])
-def get_job_details(job_id):
+def getJobDetails(job_id):
     listings = JobListingControl.getJobDetails(job_id)
     return (
         jsonify(listings.to_dict())
@@ -34,7 +34,7 @@ def get_job_details(job_id):
         "/companyJobListings/<int:company_id>",
         methods=["GET"],
     )
-def get_company_job_listings(company_id):
+def getCompanyJobListings(company_id):
     # Pass company_id so you only get jobs for that company
     listings = JobListingControl.getAllJobListings(company_id=company_id)
     print(
@@ -46,7 +46,7 @@ def get_company_job_listings(company_id):
 # POST new job listing
 @job_listing_bp.route("/addJob", methods=["POST"])
 @limiter.limit("15 per hour", key_func=get_company_key)
-def create_job_listing():
+def createJobListing():
     job_data = request.get_json()
     print("JOB DATA: ", job_data)
 
@@ -96,7 +96,7 @@ def create_job_listing():
 
 
 @job_listing_bp.route("/deleteJob/<int:jobId>", methods=["POST"])
-def delete_job_listing(jobId):
+def deleteJobListing(jobId):
     """
     Deletes a job listing by its jobId.
     """
@@ -130,7 +130,7 @@ def delete_job_listing(jobId):
 
 
 @job_listing_bp.route("/getFieldOfWork", methods=["GET"])
-def get_field_of_work():
+def getFieldOfWork():
     """
     Retrieves all field of work options.
     """
@@ -138,7 +138,7 @@ def get_field_of_work():
 
 
 @job_listing_bp.route("/getBookmarkedJob/<int:userId>", methods=["GET"])
-def get_bookmarked_jobs(userId):
+def getBookmarkedJobs(userId):
     """
     Retrieves all bookmarked job IDs for a user.
     """
@@ -147,7 +147,7 @@ def get_bookmarked_jobs(userId):
 
 
 @job_listing_bp.route("/addBookmark", methods=["POST"])
-def add_bookmark():
+def addBookmark():
     """
     Adds a job to the user's bookmarks.
     """
@@ -168,7 +168,7 @@ def add_bookmark():
         "/removeBookmark/<int:userId>/<int:jobId>",
         methods=["DELETE"]
     )
-def remove_bookmark(userId, jobId):
+def removeBookmark(userId, jobId):
     """
     Removes a job from the user's bookmarks.
     """
@@ -185,7 +185,7 @@ def remove_bookmark(userId, jobId):
 
 
 @job_listing_bp.route("/getLatestJobListings/<int:companyID>", methods=["GET"])
-def get_latest_job_listings(companyID):
+def getLatestJobListings(companyID):
     """
     Retrieves the latest job listings for a company.
     :param companyID: ID of the company.
@@ -196,7 +196,7 @@ def get_latest_job_listings(companyID):
 
 
 @job_listing_bp.route("/getAllViolations", methods=["GET"])
-def get_all_violations():
+def getAllViolations():
     """
     Retrieves all violations.
     :return: List of all violations.
@@ -208,7 +208,7 @@ def get_all_violations():
         "/setViolation/<int:jobId>/<int:violationId>",
         methods=["POST"]
         )
-def set_violation(jobId, violationId):
+def setViolation(jobId, violationId):
     """
     Sets a violation for a job listing.
     :param jobId: ID of the job to set the violation for.

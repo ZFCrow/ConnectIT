@@ -12,7 +12,7 @@ SplunkLogging = SplunkUtils.SplunkLogger()
 
 @job_application_bp.route("/applyJob", methods=["POST"])
 @limiter.limit("5 per hour", key_func=get_user_key)
-def apply_job():
+def applyJob():
     """
     Applies for a job listing.
     """
@@ -110,7 +110,7 @@ def apply_job():
         "/approveApplication/<int:applicationId>",
         methods=["POST"]
         )
-def approve_application(applicationId):
+def approveApplication(applicationId):
     """
     Approves a job application by applicationId.
     """
@@ -145,7 +145,7 @@ def approve_application(applicationId):
         "/rejectApplication/<int:applicationId>",
         methods=["DELETE"]
         )
-def reject_application(applicationId):
+def rejectApplication(applicationId):
     """
     Rejects a job application by applicationId.
     """
@@ -197,7 +197,7 @@ def getApplicantsByCompanyId(companyId):
 
 
 @job_application_bp.route("/getAppliedJobId/<int:userId>", methods=["GET"])
-def get_applied_jobs(userId):
+def getAppliedJobs(userId):
     """
     Retrieves all applied job IDs for a user.
     """
