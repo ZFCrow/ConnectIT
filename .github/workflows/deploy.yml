@@ -168,28 +168,4 @@ jobs:
               -f docker-compose.yaml \
               -f docker-compose.prod.yaml \
               up -d --build
-
-
-          #   # 1) Tear down any old containers
-          #   sudo docker compose \
-          #     -f docker-compose.yaml \
-          #     -f docker-compose.prod.yaml \
-          #     down --remove-orphans
-
-          #   # 2) Rebuild images (no cache)
-          #   sudo docker compose \
-          #     -f docker-compose.yaml \
-          #     -f docker-compose.prod.yaml \
-          #     build --no-cache
-
-          #   # 3) Bring everything back up
-          #   sudo docker compose \
-          #     -f docker-compose.yaml \
-          #     -f docker-compose.prod.yaml \
-          #     up -d --force-recreate --remove-orphans
-          #   EOFe/$SSH_USER/ConnectIT
-          # sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate --remove-orphans 
-          # EOF 
-
-
-          
+          EOF
