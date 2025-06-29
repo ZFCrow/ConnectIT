@@ -13,6 +13,7 @@ COPY . .
 ARG VITE_HCAPTCHA_SITEKEY
 ENV VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
 RUN npm run build
+RUN npm cache clean --force
 # Now /app/dist contains your compiled React app
 
 # ──────────────────────────────────────────────────────────────────────────────
