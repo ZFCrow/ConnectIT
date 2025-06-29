@@ -2,7 +2,7 @@
 import os
 import tempfile
 import uuid
-from PyPDF2 import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from PIL import Image
