@@ -5,41 +5,41 @@ name: Deploy to Production
 
 on: 
   # workflow_dispatch: {} # Allows manual triggering of the workflow
-  workflow_run:
-    workflows: 
-      - "OWASP Dependency Check"
-      - "Static Code Analysis"
-      - "Unit Testing"
-    types:
-      - completed 
+  # workflow_run:
+  #   workflows: 
+  #     - "OWASP Dependency Check"
+  #     - "Static Code Analysis"
+  #     - "Unit Testing"
+  #   types:
+  #     - completed 
 
-  # push: 
-  #   branches: [main] # Trigger on push to main branch
-  # pull_request:
-  #   branches: [main] # Trigger on pull request to main branch 
+  push: 
+    branches: [main] # Trigger on push to main branch
+  pull_request:
+    branches: [main] # Trigger on pull request to main branch 
 
 
 jobs: 
-  build: 
-    runs-on: ubuntu-latest 
+  # build: 
+  #   runs-on: ubuntu-latest 
 
-    steps: 
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps: 
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Build web
-        working-directory: web
-        run: npm ci && npm run build
+  #     - name: Build web
+  #       working-directory: web
+  #       run: npm ci && npm run build
 
-      - name: sanity check to check if the build is successful
-        run: test -d web/dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
+  #     - name: sanity check to check if the build is successful
+  #       run: test -d web/dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
 
  
 
         
   deploy: 
     runs-on: ubuntu-latest 
-    needs: build # Ensure the build job is completed before deploying 
+    #needs: build # Ensure the build job is completed before deploying 
 
     env: 
       #.env
@@ -157,33 +157,17 @@ jobs:
           SPLUNK_IP_WHITELIST=$SPLUNK_IP_WHITELIST 
           E3
           EOF
-          
+
       # Deploy to EC2
       - name: Deploy to EC2 via SSH
         run: |
           ssh -t -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<-EOF
             cd /home/$SSH_USER/ConnectIT
 
-            # 1) Tear down any old containers
             sudo docker compose \
               -f docker-compose.yaml \
               -f docker-compose.prod.yaml \
-              down --remove-orphans
-
-            # 2) Rebuild images (no cache)
-            sudo docker compose \
-              -f docker-compose.yaml \
-              -f docker-compose.prod.yaml \
-              build --no-cache
-
-            # 3) Bring everything back up
-            sudo docker compose \
-              -f docker-compose.yaml \
-              -f docker-compose.prod.yaml \
-              up -d --force-recreate --remove-orphans
-            EOFe/$SSH_USER/ConnectIT
-          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate --remove-orphans 
-          EOF 
+              up -d --build
 
 
           #   # 1) Tear down any old containers
