@@ -163,10 +163,10 @@ jobs:
           ssh -t -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<-EOF
             cd /home/$SSH_USER/ConnectIT
 
-            
+
             sudo docker system prune --all --volumes --force
             sudo docker builder prune --all --force
 
-            sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d 
+            sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up --build -d 
             
           EOF
