@@ -1,32 +1,11 @@
 from flask import Blueprint, request, jsonify
-from Boundary.PostBoundary import PostBoundary
+from Control.PostControl import PostControl 
 import traceback
 from Security.ValidateInputs import validate_post
 from Security.Limiter import limiter, get_account_key
 
 
 post_bp = Blueprint("post", __name__)
-
-
-@post_bp.route("/posts", methods=["GET"])
-def get_all_posts():
-    """
-    Retrieve all posts from the database.
-    """
-
-    # posts = PostControl.retrieveAllPosts()
-    posts = (
-        PostBoundary.handleRetrieveAllPosts()
-    )  # Use the boundary to handle the retrieval of all posts
-    allPosts = []
-    if posts:
-
-        for post in posts:
-            # Convert each post entity to a dictionary for JSON serialization
-            allPosts.append(
-                post.toDict()
-            )
-    return jsonify(allPosts), 200  # Return the list of posts as JSON
 
 
 @post_bp.route("/createPost", methods=["POST"])
@@ -49,9 +28,8 @@ def createPost():
         if errors:
             return jsonify({"error": errors}), 400
 
-        post, success = PostBoundary.createPost(
-            accountId, postData
-        )  # Use the boundary to create the post
+        postData["accountId"] = accountId 
+        post, success = PostControl.createPost(postData)  # Use the control layer to create the post 
 
         if success:
             # return jsonify({"message": "Post created successfully!"}), 201
@@ -83,10 +61,9 @@ def delete_post(post_id):
         "violations", []
     )  # Get the violations if they exist, else default to an empty list
 
-    success = PostBoundary.handleDeletePost(
+    success = PostControl.deletePost(
         post_id, violations=violations
-    )  # Use the boundary to handle the deletion of the post by its ID
-
+    )  # Use the control layer to delete the post by its ID 
     if success:
         return (
             jsonify(
@@ -118,9 +95,15 @@ def get_paginated_posts():
         )  # Debugging output to check pagination parameters
         filterLabel = request.args.get("filterLabel", default=None, type=str)
         sortBy = request.args.get("sortBy", default=None, type=str)
-        results = PostBoundary.handleRetrievePaginatedPosts(
-            page, pageSize, sortBy, filterLabel
-        )  # Use the boundary to handle paginated retrieval of posts
+
+
+        results = PostControl.retrievePaginatedPosts(
+            page=page,
+            pageSize=pageSize,
+            sortBy=sortBy,
+            filterLabel=filterLabel
+        )  # Use the control layer to retrieve paginated posts
+
         return jsonify(results), 200  # Return the paginated results as JSON
     except Exception as e:
         print(f"Error retrieving paginated posts: {e}")
@@ -134,9 +117,12 @@ def get_post_by_id(post_id):
     Retrieve a post by its ID.
     """
     try:
-        post = PostBoundary.handleRetrievePostById(
+
+        post = PostControl.retrievePostById( 
             post_id
-        )  # Use the boundary to handle retrieval of a post by its ID
+        )  # Use the control layer to retrieve the post by its ID 
+
+
         if post:
             # Convert the post to a dictionary and return it as JSON
             return jsonify(post.toDict()), 200
@@ -154,9 +140,13 @@ def toggleLikes(post_id, account_id):
     Toggle the like status of a post for a given account.
     """
     try:
-        result = PostBoundary.handleToggleLikes(
+
+
+        result = PostControl.toggleLikes( 
             post_id, account_id
-        )  # Use the boundary to handle toggling likes
+        )  # Use the control layer to toggle likes for the post 
+
+
         return jsonify(result), 200  # Return the result as JSON
     except Exception as e:
         print(f"Error toggling likes: {e}")
@@ -170,10 +160,10 @@ def get_recently_interacted_posts(account_id):
     Retrieve posts that the user has recently interacted with.
     """
     try:
-        posts = PostBoundary.handleRetrieveRecentlyInteractedPosts(
-            account_id
-        )  # Use the boundary to handle retrieval of recently interacted posts
 
+        posts = PostControl.retrieveRecentlyInteractedPosts( 
+            account_id
+        )  # Use the control layer to retrieve recently interacted posts 
         return (
             jsonify([post.toDict() for post in posts]),
             200,

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from Boundary.LabelBoundary import LabelBoundary
+from Control.LabelControl import LabelControl 
 import traceback
 
 
@@ -12,8 +12,9 @@ def getAllLabels():
     Retrieve all labels from the database.
     """
     try:
-        # Use the boundary to handle the retrieval of all labels
-        labels = LabelBoundary.handleRetrieveAllLabels()
+        
+        labels = LabelControl.retrieveAllLabels()
+
         if labels:
             # Convert each label to a dictionary
             return jsonify([label.toDict() for label in labels]), 200

@@ -25,7 +25,7 @@ import Postpage from "@/Pages/Postpage";
 
 
 const usePostManager = () => { 
-    const {accountId, userId, companyId, name} = useAuth(); 
+    const {accountId, userId, companyId, name, profilePicUrl} = useAuth(); 
     const qc = useQueryClient(); 
 
     // — VIOLATIONS STATE —
@@ -283,10 +283,11 @@ const usePostManager = () => {
                             accountId,
                             username: name,         // from your auth context
                             content,
+                            displayPicUrl: profilePicUrl
                             };
                             return {
                             ...p,
-                            comments: [optimisticComment, ...p.comments],
+                            comments: [...p.comments, optimisticComment],
                             };
                         }),
                         })),

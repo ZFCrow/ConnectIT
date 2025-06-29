@@ -1,6 +1,6 @@
 
 from flask import Blueprint, jsonify
-from Boundary.ViolationBoundary import ViolationBoundary
+from Control.ViolationControl import ViolationControl 
 import traceback
 
 
@@ -13,8 +13,9 @@ def violations():
     Endpoint to check for violations.
     """
     try:
-        # Use the boundary to handle the retrieval of all violations
-        violations = ViolationBoundary.handleRetrieveAllViolations()
+    
+    
+        violations = ViolationControl.retrieveAllViolations() 
         if violations:
             # Convert each violation to a dictionary
             return jsonify(

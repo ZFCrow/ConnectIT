@@ -1,6 +1,6 @@
 
 from flask import Blueprint, request, jsonify
-from Boundary.CommentBoundary import CommentBoundary
+from Control.CommentControl import CommentControl
 import traceback
 from Security.ValidateInputs import validate_comment
 from Security.Limiter import limiter, get_account_key
@@ -30,8 +30,7 @@ def addComment(post_id):
         if errors:
             return jsonify({"error": errors}), 400
 
-        # Use the boundary to handle adding the comment
-        commentEntity = CommentBoundary.handleCreateComment(comment)
+        commentEntity = CommentControl.createComment(comment)
         if commentEntity:
             return jsonify(commentEntity.toDict()), 201
         else:
@@ -52,8 +51,7 @@ def deleteComment(comment_id):
         if not data or 'accountId' not in data:
             return jsonify({"error": "Missing required fields"}), 400
 
-        # Use the boundary to handle deleting the comment
-        success = CommentBoundary.handleDeleteComment(comment_id)
+        success = CommentControl.deleteComment(comment_id, data['accountId']) 
         if success:
             return jsonify(
                 {"message": f"Comment with ID {comment_id} \
