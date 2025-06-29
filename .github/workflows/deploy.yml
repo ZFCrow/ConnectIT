@@ -158,25 +158,31 @@ jobs:
           E3
           EOF
 
-      # Start the Docker Compose services on EC2 
-      - name: Start docker compose services on EC2
+          
+      # Deploy to EC2
+      - name: Deploy to EC2 via SSH
         run: |
-          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
-          cd /home/$SSH_USER/ConnectIT
-          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml down --remove-orphans 
-          EOF
-      
-      - name: Build and start Docker Compose services on EC2 
-        run: |
-          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
-          cd /home/$SSH_USER/ConnectIT
-          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build --no-cache
-          EOF
+          ssh -t -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<-EOF
+            cd /home/$SSH_USER/ConnectIT
 
-      - name: Start Docker Compose services on EC2 
-        run: |
-          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
-          cd /home/$SSH_USER/ConnectIT
+            # 1) Tear down any old containers
+            sudo docker compose \
+              -f docker-compose.yaml \
+              -f docker-compose.prod.yaml \
+              down --remove-orphans
+
+            # 2) Rebuild images (no cache)
+            sudo docker compose \
+              -f docker-compose.yaml \
+              -f docker-compose.prod.yaml \
+              build --no-cache
+
+            # 3) Bring everything back up
+            sudo docker compose \
+              -f docker-compose.yaml \
+              -f docker-compose.prod.yaml \
+              up -d --force-recreate --remove-orphans
+            EOFe/$SSH_USER/ConnectIT
           sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate --remove-orphans 
           EOF 
 
