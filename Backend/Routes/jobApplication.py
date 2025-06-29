@@ -203,3 +203,14 @@ def getAppliedJobs(userId):
     """
     applied_job_ids = JobApplicationControl.getAppliedJobIds(userId)
     return jsonify(applied_job_ids), 200
+
+
+@job_application_bp.route("/getLatestAppliedJob/<int:userId>", methods=["GET"])
+def get_latest_applied_job(userId):
+    """
+    Retrieves the latest job listing that the user has applied for.
+    :param userId: ID of the user.
+    :return: Latest job listing applied by the user.
+    """
+    latest_job = JobApplicationControl.getLatestAppliedJobs(userId)
+    return jsonify([job.to_dict() for job in latest_job]), 200
