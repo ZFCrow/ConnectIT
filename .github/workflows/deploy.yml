@@ -164,15 +164,12 @@ jobs:
           ssh -t -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<-EOF
             cd /home/$SSH_USER/ConnectIT
 
-            sudo docker compose \
-              -f docker-compose.yaml \
-              -f docker-compose.prod.yaml \
-              up -d --build
             
-
-            # restart web 
+            sudo docker compose -f docker-compose.yaml -f docker-compose.dev.yaml build --no-cache 
+            
             sudo docker compose \
               -f docker-compose.yaml \
               -f docker-compose.prod.yaml \
-              restart web 
+              up -d
+            
           EOF
