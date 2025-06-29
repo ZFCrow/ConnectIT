@@ -287,8 +287,8 @@ const usePostManager = () => {
                             };
                             return {
                             ...p,
-                            comments: [optimisticComment,...p.comments],
-                            //comments: [...p.comments, optimisticComment],
+                            //comments: [optimisticComment,...p.comments],
+                            comments: [...p.comments, optimisticComment],
                             };
                         }),
                         })),
