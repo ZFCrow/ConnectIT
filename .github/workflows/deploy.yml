@@ -164,9 +164,21 @@ jobs:
           ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
           cd /home/$SSH_USER/ConnectIT
           sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml down --remove-orphans 
-          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build --no-cache
-          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
           EOF
+      
+      - name: Build and start Docker Compose services on EC2 
+        run: |
+          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+          cd /home/$SSH_USER/ConnectIT
+          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml build --no-cache
+          EOF
+
+      - name: Start Docker Compose services on EC2 
+        run: |
+          ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+          cd /home/$SSH_USER/ConnectIT
+          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --force-recreate --remove-orphans 
+          EOF 
 
 
           
