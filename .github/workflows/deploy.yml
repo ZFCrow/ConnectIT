@@ -27,15 +27,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # - name: Build web
-      #   working-directory: web
-      #   run: npm ci && npm run build
+      - name: Build web
+        working-directory: web
+        run: npm ci && npm run build
 
-      #upload the dist folder as an artifact 
-      # - name: Upload web build artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: web-build 
+      - name: sanity check to check if the build is successful
+        run: test -d web.dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
+
+ 
 
         
   deploy: 
@@ -165,5 +164,5 @@ jobs:
         run: |
           ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
           cd /home/$SSH_USER/ConnectIT
-          docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --build
+          sudo docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d --build
           EOF 
