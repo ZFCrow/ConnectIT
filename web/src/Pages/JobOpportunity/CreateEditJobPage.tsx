@@ -2,7 +2,7 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { JobForm } from "../../components/JobOpportunity/CreateUpdateJobForm";
 import type { JobListing } from "../../type/jobListing";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";

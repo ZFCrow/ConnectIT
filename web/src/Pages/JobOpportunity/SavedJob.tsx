@@ -6,7 +6,7 @@ import {
   JobListingSchema,
   type JobListing,
 } from "../../type/jobListing";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { useAuth, Role } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";

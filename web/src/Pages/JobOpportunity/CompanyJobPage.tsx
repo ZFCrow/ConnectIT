@@ -8,7 +8,7 @@ import {
   JobApplicationSchema,
   type JobApplication,
 } from "../../type/JobApplicationSchema";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { JobListingSchema } from "../../type/jobListing";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import { ApplicationToaster } from "@/components/CustomToaster";

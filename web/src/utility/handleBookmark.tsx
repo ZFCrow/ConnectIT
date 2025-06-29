@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 type MaybeBookmarked = {
   jobId?: number | null;
   isBookmarked?: boolean | null;

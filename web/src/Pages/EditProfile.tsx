@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { Link, useNavigate } from "react-router-dom";
 import {
   EditProfileCard,

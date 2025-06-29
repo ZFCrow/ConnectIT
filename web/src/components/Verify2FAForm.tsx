@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import toast from "react-hot-toast";
 
 type Props = {

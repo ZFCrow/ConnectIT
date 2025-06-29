@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import toast from "react-hot-toast";
 
 export function useDeleteJob(onSuccess?: (jobId: number) => void) {

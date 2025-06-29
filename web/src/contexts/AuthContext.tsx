@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import type { ReactNode } from "react";
-
+import axios from "@/utility/axiosConfig";
 export const Role = {
   User: "User",
   Admin: "Admin",
@@ -74,7 +74,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
         if (res.ok) {
           const data = await res.json();
-          console.log(data);
           if (!isMounted) return;
           setAccountId(data.accountId ?? null);
           setRole(data.role ?? null);
@@ -121,12 +120,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setVerified(opts.verified ?? null);
   };
 
-  const logout = async () => {
+   const logout = async () => {
     try {
-      await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await axios.post("/api/logout");
     } catch (err) {
       console.error("[AuthProvider] Logout failed", err);
     } finally {
@@ -141,11 +137,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
     const endSession = async () => {
-    await fetch("/api/logout", {
-      method: "POST",
-      credentials: "include",
-    });
-   window.location.reload();
+    await axios.post("/api/logout");
+    window.location.reload();
   };
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 
 // Type for a violation option
 export interface ViolationOption {

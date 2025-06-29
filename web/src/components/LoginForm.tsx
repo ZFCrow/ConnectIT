@@ -21,7 +21,7 @@ import {
   AccountSchema,
   ValidatedAccount,
 } from "@/type/account";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { ApplicationToaster } from "./CustomToaster";
 import toast from "react-hot-toast";
 
@@ -50,13 +50,6 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // useEffect(() => {
-  //     axios.defaults.withCredentials = true;
-  //     const csrf = getCookie("csrf_token");
-  //     if (csrf) {
-  //       axios.defaults.headers.common["X-CSRFToken"] = csrf;
-  //     }
-  //   }, []);
 
   const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
 

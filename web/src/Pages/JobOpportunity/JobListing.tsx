@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { Bookmark, CheckCircle } from "lucide-react";
 import { FrontendJobListing, JobListing } from "@/type/jobListing";
 import { JobListingSchema } from "@/type/jobListing";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { Role, useAuth } from "@/contexts/AuthContext";
 import {
   fetchViolationOptions,

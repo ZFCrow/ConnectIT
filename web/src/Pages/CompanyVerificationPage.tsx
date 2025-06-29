@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import CompanyCard from "../components/companyCard";
 import { Company } from "@/type/account";
 import { getCompanyStatus } from "@/utility/getCompanyStatus";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import LoadingSpinner from "@/components/ui/loading-circle";
 // src/pages/company/CompanyVerificationPage.tsx (or wherever you need it)
 

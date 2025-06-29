@@ -5,7 +5,7 @@ import {
   WorkArrangementEnum,
   type JobListing,
 } from "../../type/jobListing";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 
 // Static lists
 const jobTypes = JobTypeEnum.options;

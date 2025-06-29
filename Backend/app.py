@@ -12,7 +12,7 @@
 # if dev_env.exists():
 #     load_dotenv(dev_env, override=True)
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from flask_limiter.errors import RateLimitExceeded
 import os
@@ -27,8 +27,12 @@ from Routes.comment import comment_bp
 from Routes.post import post_bp
 from Routes.captcha import captcha_bp
 from Routes.multifactorAuth import multi_factor_auth_bp
+from Routes.csrf import csrf_bp
 from Routes.jobApplication import job_application_bp
 from Security import Limiter, SplunkUtils
+
+from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
 
 # app = Flask(__name__)
 # Limiter.limiter.init_app(app)
@@ -56,6 +60,39 @@ def create_app():
     CORS(app)
     SplunkUtils.SplunkLogger()
 
+    app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
+    CSRFProtect(app)
+
+    # Inject a CSRF token cookie on every response so your SPA can read it
+    @app.after_request
+    def inject_csrf_token(response):
+        try:
+            token = generate_csrf()
+            response.set_cookie(
+                "csrf_token",
+                token,
+                httponly=False,       # so client JS can read it
+                secure=True,         # change to True in prod over HTTPS
+                samesite="Strict",    # same-site for your SPA
+                path="/",
+            )
+        except Exception as e:
+            print(f"Failed to inject CSRF token: {e}")
+        return response
+
+    # Validate CSRF on all modifying requests (POST, "GET" ,PUT, DELETE)
+    @app.before_request
+    def verify_csrf_token():
+        if request.method in ("POST", "GET", "PUT", "DELETE"):
+            # Skip OPTIONS or if you've explicitly exempted routes
+            token = request.cookies.get("csrf_token") or request.headers.get("X-CSRFToken")
+            if not token:
+                abort(400, description="Missing CSRF token")
+            try:
+                validate_csrf(token)
+            except CSRFError as e:
+                abort(400, description=f"CSRF validation failed: {e}")
+
     # Register your blueprints
     app.register_blueprint(profile_bp)
     app.register_blueprint(auth_bp)
@@ -70,6 +107,7 @@ def create_app():
     # app.register_blueprint(error_handling_bp)
     app.register_blueprint(captcha_bp)
     app.register_blueprint(multi_factor_auth_bp)
+    app.register_blueprint(csrf_bp)
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):

@@ -1,6 +1,6 @@
 // src/utility/useApplyJob.ts
 import { useState } from "react";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { toast } from "react-hot-toast";
 
 type ApplyJobOptions = {

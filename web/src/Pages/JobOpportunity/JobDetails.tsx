@@ -4,7 +4,7 @@ import JobDetailsCard from "../../components/JobOpportunity/JobDetailsCard";
 import { jobListingRoute } from "@/components/JobOpportunity/SharedConfig";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import { Role, useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import {
   FrontendJobListing,
   JobListing,

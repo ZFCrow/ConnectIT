@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 
 const api = axios.create({
   baseURL: "/api",

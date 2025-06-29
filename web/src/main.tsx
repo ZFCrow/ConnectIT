@@ -7,6 +7,7 @@ import { ThemeProvider } from './components/theme-provider.tsx'
 import { AuthProvider } from '@/contexts/AuthContext.tsx' 
 import { PostProvider } from './contexts/PostContext.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import "./utility/axiosConfig.tsx";
 
 const queryClient = new QueryClient(); 
 

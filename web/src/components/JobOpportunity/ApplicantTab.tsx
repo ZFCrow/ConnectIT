@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import type { JobListing } from "../../type/jobListing";
 import type { JobApplication } from "../../type/JobApplicationSchema";
 import ApplicantCard from "./ApplicantCard";
-import axios from "axios";
+import axios from "@/utility/axiosConfig";
 import { toast } from "react-hot-toast";
 import { useApplicantActions } from "@/utility/handleApplication";
 import { ApplicationToaster } from "../CustomToaster";
