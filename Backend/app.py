@@ -27,7 +27,7 @@ from Routes.comment import comment_bp
 from Routes.post import post_bp
 from Routes.captcha import captcha_bp
 from Routes.multifactorAuth import multi_factor_auth_bp
-
+from Routes.jobApplication import job_application_bp
 from Security import Limiter, SplunkUtils
 
 # app = Flask(__name__)
@@ -60,6 +60,7 @@ def create_app():
     app.register_blueprint(profile_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(job_listing_bp)
+    app.register_blueprint(job_application_bp)
     app.register_blueprint(label_bp)
     app.register_blueprint(violation_bp)
     app.register_blueprint(comment_bp)
