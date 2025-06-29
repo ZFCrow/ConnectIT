@@ -1,5 +1,7 @@
 services:
   backend:
+    depends_on:
+      - sql-prod
     env_file:
       - .env.prod
 
@@ -35,6 +37,8 @@ services:
       - "3300"
     env_file:
       - .env
+    depends_on:
+      - backend
     volumes: []
     command: []
     restart: unless-stopped
