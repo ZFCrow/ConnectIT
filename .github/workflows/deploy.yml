@@ -7,9 +7,8 @@ on:
   workflow_dispatch: {} # Allows manual triggering of the workflow
   workflow_run:
     workflows: 
-      - "OWASP Dependency Check"
       - "Static Code Analysis"
-      - "Unit Testing"
+     
     types:
       - completed 
 
