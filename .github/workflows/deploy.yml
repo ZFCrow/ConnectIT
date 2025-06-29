@@ -4,35 +4,35 @@
 name: Deploy to Production 
 
 on: 
-  # workflow_dispatch: {} # Allows manual triggering of the workflow
-  # workflow_run:
-  #   workflows: 
-  #     - "OWASP Dependency Check"
-  #     - "Static Code Analysis"
-  #     - "Unit Testing"
-  #   types:
-  #     - completed 
+  workflow_dispatch: {} # Allows manual triggering of the workflow
+  workflow_run:
+    workflows: 
+      - "OWASP Dependency Check"
+      - "Static Code Analysis"
+      - "Unit Testing"
+    types:
+      - completed 
 
-  push: 
-    branches: [main] # Trigger on push to main branch
-  pull_request:
-    branches: [main] # Trigger on pull request to main branch 
+  # push: 
+  #   branches: [main] # Trigger on push to main branch
+  # pull_request:
+  #   branches: [main] # Trigger on pull request to main branch 
 
 
 jobs: 
-  # build: 
-  #   runs-on: ubuntu-latest 
+  build: 
+    runs-on: ubuntu-latest 
 
-  #   steps: 
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Build web
-  #       working-directory: web
-  #       run: npm ci && npm run build
+      - name: Build web
+        working-directory: web
+        run: npm ci && npm run build
 
-  #     - name: sanity check to check if the build is successful
-  #       run: test -d web/dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
+      - name: sanity check to check if the build is successful
+        run: test -d web/dist || (echo "Build failed, web.dist directory not found!" && exit 1) 
 
  
 
