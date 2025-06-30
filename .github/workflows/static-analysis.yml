@@ -65,7 +65,7 @@ jobs:
 
       - name: Run Flake8
         run: |
-          flake8 Backend/ --format sarif --output-file reports/flake8-results.sarif || true
+          flake8 Backend/ --output-file reports/flake8-results.sarif || true
       
       - name: Debug Flake8 Output
         run: cat reports/flake8-results.sarif || echo "No Flake8 report found"
@@ -175,8 +175,26 @@ jobs:
         with:
           sarif_file: reports/bandit-results.sarif
       
+      # - name: Upload Flake8 SARIF
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: reports/flake8-results.sarif
+
+      - name: Check Flake8 SARIF non-empty
+        id: flake8_sarif_check
+        run: |
+          if [ -s reports/flake8-results.sarif ]; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+
       - name: Upload Flake8 SARIF
+        if: steps.flake8_sarif_check.outputs.exists == 'true'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/flake8-results.sarif
+
+      
+      
 
