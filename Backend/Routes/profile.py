@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, abort
-from Boundary.AccountBoundary import AccountBoundary
+from Control.AccountControl import AccountControl
 from Security.Limiter import limiter, get_account_key
 from Security.ValidateFiles import (
     enforce_image_limits,
@@ -35,7 +35,7 @@ def get_user(account_id):
     if user_id != account_id:
         abort(403, description="You may only view your own profile")
 
-    account = AccountBoundary.viewAccount(account_id)
+    account = AccountControl.getAccountById(account_id)
 
     if account:
         base_data = {
@@ -160,7 +160,7 @@ def save_profile():
     updated_data["portfolioFile"] = portfolioFile
     updated_data["profilePic"] = profilePic
 
-    success = AccountBoundary.saveProfile(updated_data)
+    success = AccountControl.updateAccount(updated_data)
 
     if success:
 
@@ -202,7 +202,7 @@ def disable(account_id):
 
     auth_data = request.get_json()
 
-    success = AccountBoundary.disableAccount(account_id, auth_data)
+    success = AccountControl.disableAccount(account_id, auth_data)
 
     if success:
 
@@ -241,7 +241,7 @@ def get_all_companies():
     Retrieves all companies.
     :return: List of all companies.
     """
-    companies = AccountBoundary.getAllCompanies()
+    companies = AccountControl.getAllCompanies()
     return jsonify([company.to_dict() for company in companies]), 200
 
 
@@ -258,7 +258,7 @@ def set_company_verified(company_id, verified):
     claims = _authenticate()
     if claims.get("role") != Role.Admin.value:
         abort(403, description="Forbidden")
-    success = AccountBoundary.setCompanyVerified(company_id, verified)
+    success = AccountControl.setCompanyVerified(company_id, verified)
     return (
         jsonify({"message": "Company verification status updated successfully!"})
         if success

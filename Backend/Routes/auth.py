@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, abort
-from Boundary.AccountBoundary import AccountBoundary
+from Control.AccountControl import AccountControl
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
@@ -87,7 +87,7 @@ def register():
 
         payload["companyDoc"] = companyDoc
 
-    success = AccountBoundary.registerAccount(payload)
+    success = AccountControl.createAccount(payload)
 
     if success:
 
@@ -223,7 +223,7 @@ def login():
 
         return jsonify({"error": errors}), 400
 
-    account = AccountBoundary.loginAccount(payload)
+    account = AccountControl.authenticateAccount(payload)
     duration_ms = round((time.time() - start_time) * 1000, 2)  # Duration in ms
 
     if not account:
@@ -433,7 +433,7 @@ def save2fa():
 
         return jsonify({"error": "No account Id"}), 401
 
-    success = AccountBoundary.saveTwoFa(payload["accountId"], payload)
+    success = AccountControl.setTwoFa(payload["accountId"], payload)
 
     if success:
 
