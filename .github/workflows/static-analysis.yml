@@ -65,7 +65,10 @@ jobs:
 
       - name: Run Flake8
         run: |
-          flake8 Backend/ --format sarif --output-file reports/flake8-results.sarif || true
+          flake8 Backend/ \
+          --max-line-length=88 \ 
+          --extend-ignore=E203,W503 \
+          --format sarif --output-file reports/flake8-results.sarif || true
       
       - name: Debug Flake8 Output
         run: cat reports/flake8-results.sarif || echo "No Flake8 report found"
