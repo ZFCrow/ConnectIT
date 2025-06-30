@@ -44,6 +44,7 @@ jobs:
       #.env
       FLASK_RUN_HOST: ${{ secrets.FLASK_RUN_HOST }} # Set your Flask run host 
       FLASK_RUN_PORT: ${{ secrets.FLASK_RUN_PORT }} # Set your Flask run port 
+      FLASK_SECRET: ${{ secrets.FLASK_SECRET }} # Set your Flask secret key 
       VITE_HCAPTCHA_SITEKEY: ${{ secrets.VITE_HCAPTCHA_SITEKEY }} # Set your hCaptcha site key 
       MYSQL_ROOT_PASSWORD_DEV: ${{ secrets.MYSQL_ROOT_PASSWORD_DEV }} # Set your MySQL root password for development 
       MYSQL_DATABASE_DEV: ${{ secrets.MYSQL_DATABASE_DEV }} # Set your MySQL database name for development 
