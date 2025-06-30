@@ -65,8 +65,8 @@ jobs:
 
       - name: Run Flake8
         run: |
-          flake8 Backend/ --output-file reports/flake8-results.sarif || true
-      
+          # flake8 Backend/ --output-file reports/flake8-results.sarif || true
+          flake8 Backend/ --format=sarif > reports/flake8-results.sarif 2>/dev/null || true
       - name: Debug Flake8 Output
         run: cat reports/flake8-results.sarif || echo "No Flake8 report found"
 
