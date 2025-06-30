@@ -107,8 +107,8 @@ jobs:
             --exclude 'pytest.ini' \
             --exclude '.flake8' \
             --exclude '/tests' \
-            --exclude '.gitignore'
-            --exclude '.github/workflows'
+            --exclude '.gitignore' \
+            --exclude '.github/workflows' \
             -e "ssh -o StrictHostKeyChecking=no" \
             . \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT/
