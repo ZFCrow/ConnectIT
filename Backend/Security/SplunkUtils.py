@@ -32,13 +32,22 @@ class SplunkLogger:
             "host": self.hostname,
         }
 
+        ssl_verify_mode = os.getenv("SPLUNK_SSL_VERIFY", "certifi").lower()
+        if ssl_verify_mode == "false":
+            verify_setting = False
+            print("[SplunkLogger] WARNING: SSL verification disabled!")
+        elif ssl_verify_mode == "system":
+            verify_setting = True
+        else:  # "certifi" or default
+            verify_setting = certifi.where()
+
         try:
 
             response = requests.post(
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=certifi.where(),
+                verify=verify_setting,
                 timeout=60
             )
 
