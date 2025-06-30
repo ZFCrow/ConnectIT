@@ -83,7 +83,8 @@ jobs:
       USE_SSH_TUNNEL_PROD: ${{ secrets.USE_SSH_TUNNEL_PROD }} # Set whether to use SSH tunnel for production
 
 
-
+      # FIREBASE secrets 
+      FIREBASE_SECRET_JSON: ${{ secrets.FIREBASE_SECRET_JSON }}
 
     steps: 
       - name: Checkout code 
@@ -103,6 +104,11 @@ jobs:
         run: |
           rsync -avz \
             --exclude 'docker-compose.dev.*' \
+            --exclude 'pytest.ini' \
+            --exclude '.flake8' \
+            --exclude '/tests' \
+            --exclude '.gitignore'
+            --exclude '.github/workflows'
             -e "ssh -o StrictHostKeyChecking=no" \
             . \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT/
@@ -128,16 +134,10 @@ jobs:
           MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
           E1
 
-          # # ─── .env.dev ───────────(Commented out)──────────────────────
-          # cat > /home/$SSH_USER/ConnectIT/.env.dev <<E2
-          # MYSQL_REMOTE_PORT=$MYSQL_REMOTE_PORT
-          # FLASK_DEBUG=$FLASK_DEBUG_DEV
-          # USE_SSH_TUNNEL=$USE_SSH_TUNNEL_DEV
-          # SSH_HOST=$SSH_HOST
-          # SSH_PORT=$SSH_PORT
-          # SSH_USER=$SSH_USER
-          # PEM_FILE=$PEM_FILE
-          # E2
+          # ─── connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json ───────────(Commented out)──────────────────────
+          cat > /home/$SSH_USER/ConnectIT/connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json <<E2
+          $FIREBASE_SECRET_JSON
+          E2
 
           # ─── .env.prod ────────────────────────────────
           cat > /home/$SSH_USER/ConnectIT/.env.prod <<E3
