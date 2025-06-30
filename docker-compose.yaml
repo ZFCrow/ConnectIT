@@ -18,6 +18,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
       - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
+      - SPLUNK_SSL_VERIFY=certifi
     volumes:
       - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
 
