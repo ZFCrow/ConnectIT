@@ -2,7 +2,6 @@ import os
 import requests
 import json
 import socket
-import certifi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,22 +31,13 @@ class SplunkLogger:
             "host": self.hostname,
         }
 
-        ssl_verify_mode = os.getenv("SPLUNK_SSL_VERIFY", "certifi").lower()
-        if ssl_verify_mode == "false":
-            verify_setting = False
-            print("[SplunkLogger] WARNING: SSL verification disabled!")
-        elif ssl_verify_mode == "system":
-            verify_setting = True
-        else:  # "certifi" or default
-            verify_setting = certifi.where()
-
         try:
 
             response = requests.post(
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=verify_setting,
+                verify=False,  # Since traffic are not leaving the docker, there isnt a need to verify the SSL.
                 timeout=60
             )
 

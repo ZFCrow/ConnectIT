@@ -84,13 +84,9 @@ services:
   splunk:
       image: splunk/splunk:9.1.2
       container_name: splunk
-      #ports:
-      #  - "8000:8000" # Splunk web UI
-      #  - "8088:8088" # HEC (HTTP Event Collector) endpoint
       env_file:
       - .env.prod
       environment:
-        # Accept Splunk license
         - SPLUNK_START_ARGS=--accept-license
         - SPLUNK_ENABLE_LISTEN=8088
         - SPLUNK_HEC_URL=https://splunk.connectitweb.site:443/services/collector
