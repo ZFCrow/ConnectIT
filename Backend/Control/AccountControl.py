@@ -5,9 +5,13 @@ from Entity.User import User
 from Entity.Company import Company
 from Utils.UploadDocUtil import upload_to_path
 from Security import AuthUtils
-
+from Services.AuthService import AuthService 
+from Security.ValidateInputs import validate_login 
+from flask import request
 
 class AccountControl:
+    authService = AuthService() 
+
     def __init__(self):
         pass
 
@@ -33,7 +37,7 @@ class AccountControl:
         return AccountMapper.createAccount(account)
 
     @staticmethod
-    def authenticateAccount(accountData: dict) -> Account:
+    def authenticateAccount1(accountData: dict) -> Account:
         email = accountData.get("email", "")
 
         account = AccountMapper.getAccountByEmail(email)
@@ -42,10 +46,64 @@ class AccountControl:
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
-        if not auth:
-            return None
+        
+        return account if auth else None
+    
 
-        return account
+
+
+    @staticmethod
+    def authenticateAccount(accountData: dict,
+                            metaData : dict) -> dict[str, any]:
+
+        # check if acc is_locked (AuthService?)
+        email = accountData.get("email", "")
+        token = accountData.get("captchaToken", "")
+
+        isLocked = AccountControl.authService.check_account_locked(
+            email=email,
+            metaData=metaData
+        )
+        if isLocked: 
+            return {
+                "error": "Account is locked due to too many failed login attempts.",
+                "status": 403,
+                "account": None, 
+            } 
+        
+        # verifyCaptcha() - AuthService? 
+        data = AccountControl.authService.verifyCaptcha(email, token, request)
+        
+        if data.get("error", None) != None: 
+            return data 
+        
+
+        # no error so we continue
+
+        # validate Login
+        errors = validate_login(accountData) 
+        if errors: 
+            AccountControl.authService.sendLog(
+                {
+                    "event": "Login Attempt Failed",
+                    "reason": "Validation Errors",
+                    "errors": errors, 
+                    "ip": metaData["remote_addr"], 
+                    "user_agent": metaData["user_agent"],
+                    "method": metaData["method"], 
+                    "path": metaData["path"], 
+                
+                }
+            )
+
+        account = AccountMapper.getAccountByEmail(email)
+
+        password = accountData.get("password", "")
+
+        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+
+        data = AccountControl.authService.login(account, email, request)
+        return account if auth else None
 
     @staticmethod
     def getAccountById(accountId: int) -> Account:
