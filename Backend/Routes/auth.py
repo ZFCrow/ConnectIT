@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, make_response, abort
 from Boundary.AccountBoundary import AccountBoundary
+from Control.AccountControl import AccountControl 
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
@@ -122,229 +123,242 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    start_time = time.time()  # Start timer
-    payload = request.get_json() or {}
-    email = payload.get("email")
-    captcha_token = payload.get("captchaToken")
+    """
+    Login endpoint that handles user authentication. 
+    """
+    payload = request.get_json() or {} 
+    metaData = {
+        "path": request.path, 
+        "method": request.method,
+        "remote_addr": request.remote_addr, 
+        "user_agent": str(request.user_agent), 
+    }
+    # Use AccountControl to handle login logic
+    account = AccountControl.loginAccount(payload, metaData)  
 
-    if is_locked(email):
-        timestamp = datetime.now(timezone.utc).isoformat()
-        ratelimit_logger.warning(
-            f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-            f"route={request.path} | method={request.method} | "
-            f"limit=lockout after 5 failed logins | email={email}"
-        )
+    # start_time = time.time()  # Start timer
+    # payload = request.get_json() or {}
+    # email = payload.get("email")
+    # captcha_token = payload.get("captchaToken")
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Failed",
-                "reason": "Account locked due to rate limit",
-                "email": email,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+    # if is_locked(email):
+    #     timestamp = datetime.now(timezone.utc).isoformat()
+    #     ratelimit_logger.warning(
+    #         f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+    #         f"route={requeatst.ph} | method={request.method} | "
+    #         f"limit=lockout after 5 failed logins | email={email}"
+    #     )
 
-        return jsonify({"error": "Account locked due to too many failed attempts"}), 403
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Failed",
+    #             "reason": "Account locked due to rate limit",
+    #             "email": email,
+    #             "ip": request.remote_addr,
+    #             "user_agent": str(request.user_agent),
+    #             "method": request.method,
+    #             "path": request.path,
+    #         }
+    #     )
 
-    current_failed_attempts = get_failed_attempts_count(email)
-    CAPTCHA_THRESHOLD = 3
+    #     return jsonify({"error": "Account locked due to too many failed attempts"}), 403
 
-    if current_failed_attempts >= CAPTCHA_THRESHOLD:
-        if not captcha_token:
-            # If CAPTCHA is required but not provided,
-            # signal frontend to show it
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Attempt Failed",
-                    "reason": "CAPTCHA required but token missing",
-                    "email": email,
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                }
-            )
-            # Return a response that tells the frontend to display the CAPTCHA
-            return (
-                jsonify(
-                    {
-                        "message": "Please complete the Captcha \
-                 below",
-                        "showCaptcha": True,
-                    }
-                ),
-                400,
-            )
+    # current_failed_attempts = get_failed_attempts_count(email)
+    # CAPTCHA_THRESHOLD = 3
 
-        # If CAPTCHA token is provided, verify it
-        captcha_result = verify_hcaptcha(captcha_token)
-        if not captcha_result["success"]:
-            # If CAPTCHA verification fails,
-            # increment failed attempts and return error
-            # Failed CAPTCHA counts as a failed attempt
-            increment_failed_attempts(email)
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Attempt Failed",
-                    "reason": "HCaptcha verification failed",
-                    "hcaptcha_errors": captcha_result.get("data", {}).get(
-                        "error-codes"
-                    ),
-                    "email": email,
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                }
-            )
-            # Also tell frontend to show CAPTCHA again if verification failed
-            return (
-                jsonify({"error": "CAPTCHA verification failed.", "showCaptcha": True}),
-                400,
-            )
+    # if current_failed_attempts >= CAPTCHA_THRESHOLD:
+    #     if not captcha_token:
+    #         # If CAPTCHA is required but not provided,
+    #         # signal frontend to show it
+    #         SplunkLogging.send_log(
+    #             {
+    #                 "event": "Login Attempt Failed",
+    #                 "reason": "CAPTCHA required but token missing",
+    #                 "email": email,
+    #                 "ip": request.remote_addr,
+    #                 "user_agent": str(request.user_agent),
+    #                 "method": request.method,
+    #                 "path": request.path,
+    #             }
+    #         )
+    #         # Return a response that tells the frontend to display the CAPTCHA
+    #         return (
+    #             jsonify(
+    #                 {
+    #                     "message": "Please complete the Captcha \
+    #              below",
+    #                     "showCaptcha": True,
+    #                 }
+    #             ),
+    #             400,
+    #         )
 
-    errors = validate_login(payload)
-    if errors:
+    #     # If CAPTCHA token is provided, verify it
+    #     captcha_result = verify_hcaptcha(captcha_token)
+    #     if not captcha_result["success"]:
+    #         # If CAPTCHA verification fails,
+    #         # increment failed attempts and return error
+    #         # Failed CAPTCHA counts as a failed attempt
+    #         increment_failed_attempts(email)
+    #         SplunkLogging.send_log(
+    #             {
+    #                 "event": "Login Attempt Failed",
+    #                 "reason": "HCaptcha verification failed",
+    #                 "hcaptcha_errors": captcha_result.get("data", {}).get(
+    #                     "error-codes"
+    #                 ),
+    #                 "email": email,
+    #                 "ip": request.remote_addr,
+    #                 "user_agent": str(request.user_agent),
+    #                 "method": request.method,
+    #                 "path": request.path,
+    #             }
+    #         )
+    #         # Also tell frontend to show CAPTCHA again if verification failed
+    #         return (
+    #             jsonify({"error": "CAPTCHA verification failed.", "showCaptcha": True}),
+    #             400,
+    #         )
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Attempt Failed",
-                "reason": "Validation Errors",
-                "errors": errors,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+    # errors = validate_login(payload)
+    # if errors:
 
-        return jsonify({"error": errors}), 400
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Attempt Failed",
+    #             "reason": "Validation Errors",
+    #             "errors": errors,
+    #             "ip": request.remote_addr,
+    #             "user_agent": str(request.user_agent),
+    #             "method": request.method,
+    #             "path": request.path,
+    #         }
+    #     )
 
-    account = AccountBoundary.loginAccount(payload)
-    duration_ms = round((time.time() - start_time) * 1000, 2)  # Duration in ms
+    #     return jsonify({"error": errors}), 400
 
-    if not account:
-        count = increment_failed_attempts(email)
+    # account = AccountBoundary.loginAccount(payload)
+    # duration_ms = round((time.time() - start_time) * 1000, 2)  # Duration in ms
 
-        if count > 5:
-            timestamp = datetime.now(timezone.utc).isoformat()
-            ratelimit_logger.warning(
-                f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-                f"route={request.path} | method={request.method} | "
-                f"limit=lockout after 5 failed logins | email={email}"
-            )
+    # if not account:
+    #     count = increment_failed_attempts(email)
 
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Failed",
-                    "email": payload.get("email"),
-                    "reason": "Account locked",
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "duration_ms": round((time.time() - start_time) * 1000, 2),
-                }
-            )
+    #     if count > 5:
+    #         timestamp = datetime.now(timezone.utc).isoformat()
+    #         ratelimit_logger.warning(
+    #             f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
+    #             f"route={request.path} | method={request.method} | "
+    #             f"limit=lockout after 5 failed logins | email={email}"
+    #         )
 
-            return (
-                jsonify(
-                    {
-                        "error": "Account locked due to \
-                         too many failed attempts"
-                    }
-                ),
-                403,
-            )
+    #         SplunkLogging.send_log(
+    #             {
+    #                 "event": "Login Failed",
+    #                 "email": payload.get("email"),
+    #                 "reason": "Account locked",
+    #                 "ip": request.remote_addr,
+    #                 "user_agent": str(request.user_agent),
+    #                 "duration_ms": round((time.time() - start_time) * 1000, 2),
+    #             }
+    #         )
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Failed",
-                "reason": "Invalid credentials",
-                "email": email,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "duration_ms": duration_ms,
-            }
-        )
+    #         return (
+    #             jsonify(
+    #                 {
+    #                     "error": "Account locked due to \
+    #                      too many failed attempts"
+    #                 }
+    #             ),
+    #             403,
+    #         )
 
-        return jsonify({"message": "Incorrect credentials"}), 401
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Failed",
+    #             "reason": "Invalid credentials",
+    #             "email": email,
+    #             "ip": request.remote_addr,
+    #             "user_agent": str(request.user_agent),
+    #             "duration_ms": duration_ms,
+    #         }
+    #     )
 
-    if account:
-        reset_login_attempts(email)
-        base_data = {
-            "accountId": account.accountId,
-            "name": account.name,
-            "email": account.email,
-            "passwordHash": account.passwordHash,
-            "role": account.role,
-            "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl,
-            "twoFaEnabled": account.twoFaEnabled,
-            "twoFaSecret": account.twoFaSecret,
-        }
+    #     return jsonify({"message": "Incorrect credentials"}), 401
 
-        optional_keys = [
-            "bio",
-            "portfolioUrl",
-            "description",
-            "location",
-            "verified",
-            "companyId",
-            "userId",
-            "companyDocUrl",
-        ]
-        optional_data = {
-            key: getattr(account, key) for key in optional_keys if hasattr(account, key)
-        }
+    # if account:
+    #     reset_login_attempts(email)
+    #     base_data = {
+    #         "accountId": account.accountId,
+    #         "name": account.name,
+    #         "email": account.email,
+    #         "passwordHash": account.passwordHash,
+    #         "role": account.role,
+    #         "isDisabled": account.isDisabled,
+    #         "profilePicUrl": account.profilePicUrl,
+    #         "twoFaEnabled": account.twoFaEnabled,
+    #         "twoFaSecret": account.twoFaSecret,
+    #     }
 
-        merged = {**base_data, **optional_data}
+    #     optional_keys = [
+    #         "bio",
+    #         "portfolioUrl",
+    #         "description",
+    #         "location",
+    #         "verified",
+    #         "companyId",
+    #         "userId",
+    #         "companyDocUrl",
+    #     ]
+    #     optional_data = {
+    #         key: getattr(account, key) for key in optional_keys if hasattr(account, key)
+    #     }
 
-        if account.twoFaEnabled:
-            otp = payload.get("otp")
-            if not otp:
-                SplunkLogging.send_log(
-                    {
-                        "event": "Login Partial Success",
-                        "reason": "Missing 2FA authentication",
-                        "email": account.email,
-                        "ip": request.remote_addr,
-                        "user_agent": str(request.user_agent),
-                        "method": request.method,
-                        "path": request.path,
-                    }
-                )
-                return jsonify({"twoFaRequired": True, **merged}), 200
+    #     merged = {**base_data, **optional_data}
 
-            totp = pyotp.TOTP(account.twoFaSecret)
-            if not totp.verify(otp):
-                SplunkLogging.send_log(
-                    {
-                        "event": "Login Failed",
-                        "reason": "Invalid two-factor code",
-                        "email": account.email,
-                        "ip": request.remote_addr,
-                        "user_agent": str(request.user_agent),
-                        "method": request.method,
-                        "path": request.path,
-                    }
-                )
-                return jsonify({"error": "Invalid two-factor code"}), 401
+    #     if account.twoFaEnabled:
+    #         otp = payload.get("otp")
+    #         if not otp:
+    #             SplunkLogging.send_log(
+    #                 {
+    #                     "event": "Login Partial Success",
+    #                     "reason": "Missing 2FA authentication",
+    #                     "email": account.email,
+    #                     "ip": request.remote_addr,
+    #                     "user_agent": str(request.user_agent),
+    #                     "method": request.method,
+    #                     "path": request.path,
+    #                 }
+    #             )
+    #             return jsonify({"twoFaRequired": True, **merged}), 200
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Successful",
-                "email": account.email,
-                "role": account.role,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+    #         totp = pyotp.TOTP(account.twoFaSecret)
+    #         if not totp.verify(otp):
+    #             SplunkLogging.send_log(
+    #                 {
+    #                     "event": "Login Failed",
+    #                     "reason": "Invalid two-factor code",
+    #                     "email": account.email,
+    #                     "ip": request.remote_addr,
+    #                     "user_agent": str(request.user_agent),
+    #                     "method": request.method,
+    #                     "path": request.path,
+    #                 }
+    #             )
+    #             return jsonify({"error": "Invalid two-factor code"}), 401
 
-        return jsonify(merged), 200
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Successful",
+    #             "email": account.email,
+    #             "role": account.role,
+    #             "ip": request.remote_addr,
+    #             "user_agent": str(request.user_agent),
+    #             "method": request.method,
+    #             "path": request.path,
+    #         }
+    #     )
+
+    #     return jsonify(merged), 200
 
 
 @auth_bp.route("/create_token", methods=["POST"])
