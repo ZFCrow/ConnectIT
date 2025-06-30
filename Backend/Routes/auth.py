@@ -332,17 +332,17 @@ def login():
                 )
                 return jsonify({"error": "Invalid two-factor code"}), 401
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Successful",
-                "email": account.email,
-                "role": account.role,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+            SplunkLogging.send_log(
+                {
+                    "event": "Login Successful",
+                    "email": account.email,
+                    "role": account.role,
+                    "ip": request.remote_addr,
+                    "user_agent": str(request.user_agent),
+                    "method": request.method,
+                    "path": request.path,
+                }
+            )
 
         return jsonify(merged), 200
 
