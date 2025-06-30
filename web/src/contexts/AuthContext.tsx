@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
 import type { ReactNode } from "react";
 import axios from "@/utility/axiosConfig";
@@ -100,7 +101,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     };
   }, []);
 
-  const login = (
+  const login = useCallback(
+  (
     acctId: number,
     r: Role,
     nm: string,
@@ -118,36 +120,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setCompanyId(opts.companyId ?? null);
     setProfilePic(opts.profilePicUrl ?? null);
     setVerified(opts.verified ?? null);
-  };
+  },
+    []
+  );
 
-   const logout = async () => {
-    try {
-      await axios.post("/api/logout");
-    } catch (err) {
-      console.error("[AuthProvider] Logout failed", err);
-    } finally {
-      setAccountId(null);
-      setRole(null);
-      setName(null);
-      setUserId(null);
-      setCompanyId(null);
-      setProfilePic(null);
-      setVerified(null);
-    }
-  };
-
-    const endSession = async () => {
+  const logout = useCallback(async () => {
+  try {
     await axios.post("/api/logout");
-    window.location.reload();
-  };
+  } catch (err) {
+    console.error("[AuthProvider] Logout failed", err);
+  } finally {
+    setAccountId(null);
+    setRole(null);
+    setName(null);
+    setUserId(null);
+    setCompanyId(null);
+    setProfilePic(null);
+    setVerified(null);
+  }
+}, []);
 
-    useEffect(() => {
-    const ttlId = setTimeout(() => {
-      endSession();
-    }, 1440 * 60 * 1000); // 30 minutes
+  const endSession = async () => {
+  await axios.post("/api/logout");
+  window.location.reload();
+};
 
-    return () => clearTimeout(ttlId);
-  }, []);
+  useEffect(() => {
+  const ttlId = setTimeout(() => {
+    endSession();
+  }, 1440 * 60 * 1000); // 30 minutes
+
+  return () => clearTimeout(ttlId);
+}, []);
 
   // inactivity detector
   useEffect(() => {
