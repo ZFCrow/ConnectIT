@@ -2,6 +2,7 @@ import os
 import requests
 import json
 import socket
+import certifi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,7 +38,7 @@ class SplunkLogger:
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=False,  # Not recommended in production; use valid certs
+                verify=certifi.where(),
                 timeout=60
             )
 
