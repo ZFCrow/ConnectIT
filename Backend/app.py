@@ -70,9 +70,9 @@ def create_app():
             response.set_cookie(
                 "csrf_token",
                 token,
-                httponly=False,       # so client JS can read it
-                secure=True,         # change to True in prod over HTTPS
-                samesite="Strict",    # same-site for your SPA
+                httponly=False,  # so client JS can read it
+                secure=True,  # change to True in prod over HTTPS
+                samesite="Strict",  # same-site for your SPA
                 path="/",
             )
         except Exception as e:
@@ -84,7 +84,9 @@ def create_app():
     def verify_csrf_token():
         if request.method in ("POST", "GET", "PUT", "DELETE"):
             # Skip OPTIONS or if you've explicitly exempted routes
-            token = request.cookies.get("csrf_token") or request.headers.get("X-CSRFToken")
+            token = request.cookies.get("csrf_token") or request.headers.get(
+                "X-CSRFToken"
+            )
             if not token:
                 abort(400, description="Missing CSRF token")
             try:
@@ -105,7 +107,6 @@ def create_app():
     # Register error handlers, routes, etc.
     app.register_blueprint(captcha_bp)
     app.register_blueprint(multi_factor_auth_bp)
-
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
@@ -168,9 +169,7 @@ def index():
     return jsonify({"message": "Welcome to the API!"})
 
 
-
 if __name__ == "__main__":
-
     # Dev-server entrypoint
     app.run(
         host=os.getenv("FLASK_RUN_HOST", "127.0.0.1"),

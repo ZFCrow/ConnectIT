@@ -37,8 +37,10 @@ class SplunkLogger:
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                verify=False,  # Since traffic are not leaving the docker, there isnt a need to verify the SSL.
-                timeout=60
+                # Since traffic are not leaving the docker,
+                # there isn't a need to verify the SSL.
+                verify=False,
+                timeout=60,
             )
 
             if self.debug:
