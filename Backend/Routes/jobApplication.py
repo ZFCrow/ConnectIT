@@ -1,10 +1,14 @@
 # job_application_routes.py
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort, send_file
 from Control.JobApplicationControl import JobApplicationControl
 from Security.Limiter import limiter, get_user_key
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security import SplunkUtils
+from Utils.UploadDocUtil import download_by_uri
+from Security.FileEncUtils import decrypt_file_gcm
+from io import BytesIO
+import re
 
 job_application_bp = Blueprint("job_application", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
@@ -223,3 +227,33 @@ def get_latest_applied_job(userId):
     """
     latest_job = JobApplicationControl.getLatestAppliedJobs(userId)
     return jsonify([job.to_dict() for job in latest_job]), 200
+
+
+@job_application_bp.route("/resume/view", methods=["GET"])
+def view_resume():
+    gs_uri = request.args.get("uri")
+    if not gs_uri or not gs_uri.startswith("gs://"):
+        abort(400, description="Missing or invalid URI")
+    else:
+        gs_uri = gs_uri.split("?", 1)[0]
+
+    match = re.search(r"resume/user_(\d+)_job_(\d+)_resume\.enc", gs_uri)
+    if not match:
+        abort(400, description="Invalid resume filename format")
+
+    user_id, job_id = int(match.group(1)), int(match.group(2))
+
+    try:
+        enc_bytes = download_by_uri(gs_uri)
+        decrypted = decrypt_file_gcm(BytesIO(enc_bytes))
+
+        return send_file(
+            decrypted,
+            mimetype="application/pdf",
+            as_attachment=False,
+            download_name=f"user_{user_id}_job_{job_id}_resume.pdf",
+        )
+    except (PermissionError, FileNotFoundError, ValueError) as e:
+        abort(403, description=str(e))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

@@ -2,7 +2,7 @@ from Utils.UploadDocUtil import upload_to_path
 from Boundary.TableDataGateway.FieldOfWorkTDG import FieldOfWorkTDG
 from Boundary.Mapper.JobApplicationMapper import JobApplicationMapper
 from Entity.JobApplication import JobApplication
-
+from Security import FileEncUtils
 
 class JobApplicationControl:
     def __init__(self):
@@ -42,8 +42,9 @@ class JobApplicationControl:
         resume_url = None
         if resumeFile:
             # Choose a deterministic storage name (e.g. userID_jobID.pdf)
-            dest_name = f"resume/user_{userId}_job_{jobId}_resume.pdf"
-            resume_url = upload_to_path(resumeFile, target_path=dest_name, public=True)
+            encrypted_file = FileEncUtils.encrypt_file_gcm(resumeFile)
+            dest_name = f"resume/user_{userId}_job_{jobId}_resume.enc"
+            resume_url = upload_to_path(encrypted_file, target_path=dest_name, public=False)
             print("Resume uploaded to:", resume_url)
         print(f"Applying for job with jobId: {jobId} by userId: {userId}")
         return JobApplicationMapper.applyJob(jobId, userId, resumeURL=resume_url)

@@ -38,6 +38,8 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
     day: "numeric",
   });
   const [pdfOpen, setPdfOpen] = React.useState(false);
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+
   return (
     <li className="relative bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg">
       <div className="flex flex-col md:flex-row justify-between gap-6">
@@ -97,7 +99,14 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             </div>
             {resumeURL && (
               <button
-                onClick={() => setPdfOpen(true)}
+                onClick={() => {
+                  setPdfUrl(
+                    `/api/resume/view?uri=${encodeURIComponent(
+                      resumeURL
+                    )}`
+                  );
+                  setPdfOpen(true);
+                }}
                 className="flex items-center space-x-1 underline text-gray-200"
               >
                 <FileText className="w-5 h-5" />
@@ -191,7 +200,7 @@ const ApplicantCard: React.FC<ApplicantCardProps> = ({
             onClose={function (): void {
               setPdfOpen(false);
             }}
-            pdfUrl={resumeURL} // Pass the resume URL to the modal
+            pdfUrl={pdfUrl} // Pass the resume URL to the modal
             title="Viewing Resume" // Optional title for the modal
           />
         </>

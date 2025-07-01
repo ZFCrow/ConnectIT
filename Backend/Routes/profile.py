@@ -86,8 +86,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-# below is the issue that the profile cannot save
-# @limiter.limit("1 per hour", key_func=get_account_key)
+@limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
@@ -282,7 +281,7 @@ def view_portfolio_by_uri():
         gs_uri = gs_uri.split("?", 1)[0]
 
     # Check file ownership
-    match = re.search(r"(?:portfolio|resume)/user_(\d+)\.enc", gs_uri)
+    match = re.search(r"portfolio/user_(\d+)\.enc", gs_uri)
     if not match or int(match.group(1)) != user_id:
         abort(403, description="You may only access your own file")
 
@@ -294,7 +293,7 @@ def view_portfolio_by_uri():
             decrypted,
             mimetype="application/pdf",
             as_attachment=False,
-            download_name="portfolio.pdf",
+            download_name=f"user_{user_id}.pdf",
         )
 
     except (PermissionError, FileNotFoundError, ValueError) as e:
