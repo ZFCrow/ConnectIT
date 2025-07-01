@@ -7,7 +7,7 @@ import os
 from typing import Optional, List, Dict, Any
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
-import logging 
+import logging
 Base = declarative_base()
 
 

@@ -1,6 +1,5 @@
 from werkzeug.utils import secure_filename
 from firebaseStorage import bucket, BUCKET_NAME
-from urllib.parse import urlparse
 
 ALLOWED_ROOTS = {"companyDocument", "portfolio", "profilePic", "resume"}
 

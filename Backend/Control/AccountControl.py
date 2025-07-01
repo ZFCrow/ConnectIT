@@ -24,7 +24,9 @@ class AccountControl:
         if companyDoc:
             encrypted_file = FileEncUtils.encrypt_file_gcm(companyDoc)
             dest_name = "companyDocument/company_temp.enc"
-            doc_url = upload_to_path(encrypted_file, target_path=dest_name, public=False)
+            doc_url = upload_to_path(
+                encrypted_file, target_path=dest_name, public=False
+            )
             accountData["companyDocUrl"] = doc_url
 
         account = Account.from_dict(accountData)

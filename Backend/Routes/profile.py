@@ -219,7 +219,7 @@ def disable(account_id):
         resp = jsonify({"message": "Account disabled successfully!"})
         resp = JWTUtils.remove_auth_cookie(resp)
         return resp, 201
-    
+
     else:
 
         SplunkLogging.send_log(
@@ -319,7 +319,7 @@ def view_companydoc():
         abort(400, description="Invalid resume filename format")
 
     company_id = match.group(1)
-    
+
     try:
         enc_bytes = download_by_uri(gs_uri)
         decrypted = decrypt_file_gcm(BytesIO(enc_bytes))
