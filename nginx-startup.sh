@@ -40,28 +40,23 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         
-        # CRITICAL for Splunk UI - these were missing!
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-Server $host;
         proxy_set_header X-Forwarded-Port 443;
         proxy_set_header Connection "";
         proxy_http_version 1.1;
         
-        # Disable buffering for real-time responses - CRITICAL!
         proxy_buffering off;
         proxy_cache off;
         proxy_request_buffering off;
         
-        # Increase timeouts for Splunk operations
         proxy_connect_timeout 300;
         proxy_send_timeout 300;
         proxy_read_timeout 300;
         send_timeout 300;
-        
-        # Allow larger uploads
+ 
         client_max_body_size 100M;
         
-        # Important for Splunk redirects
         proxy_redirect default;
     }
 
