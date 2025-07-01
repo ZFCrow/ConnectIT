@@ -1,5 +1,6 @@
 from werkzeug.utils import secure_filename
 from firebaseStorage import bucket, BUCKET_NAME
+from urllib.parse import urlparse
 
 ALLOWED_ROOTS = {"companyDocument", "portfolio", "profilePic", "resume"}
 
@@ -61,3 +62,27 @@ def rename_file(old_path: str, new_path: str, public=True) -> str:
         new_blob.make_public()
         return new_blob.public_url
     return f"gs://{BUCKET_NAME}/{new_blob_path}"
+
+
+def download_by_uri(firebase_uri: str) -> bytes:
+    """
+    Parses a gs:// URI and downloads its content as bytes.
+    """
+    allowed_roots = {"companyDocument", "portfolio", "resume"}
+    if not firebase_uri.startswith("gs://"):
+        raise ValueError("Invalid Firebase URI format")
+
+    # Extract blob path from gs:// or HTTPS URL
+    blob_path = firebase_uri.split(f"{BUCKET_NAME}/", 1)[-1]
+
+    # Validate root folder
+    root = blob_path.split("/", 1)[0]
+    if root not in allowed_roots:
+        raise PermissionError(f"Access to '{root}' is not allowed")
+    
+    # Download from Firebase
+    blob = bucket.blob(blob_path)
+    if not blob.exists():
+        raise FileNotFoundError(f"No such blob: {blob_path}")
+    
+    return blob.download_as_bytes()

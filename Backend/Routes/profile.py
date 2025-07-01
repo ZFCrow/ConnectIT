@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, abort, send_file
 from Control.AccountControl import AccountControl
 from Security.Limiter import limiter, get_account_key
 from Security.ValidateFiles import (
@@ -11,6 +11,10 @@ from Security.ValidateInputs import validate_profile
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
 from SQLModels.AccountModel import Role
+from Utils.UploadDocUtil import download_by_uri
+from Security.FileEncUtils import decrypt_file_gcm
+from io import BytesIO
+import re
 
 SplunkLogging = SplunkUtils.SplunkLogger()
 
@@ -83,7 +87,7 @@ def get_user(account_id):
 
 @profile_bp.route("/save", methods=["POST"])
 # below is the issue that the profile cannot save
-@limiter.limit("1 per hour", key_func=get_account_key)
+# @limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
@@ -264,3 +268,36 @@ def set_company_verified(company_id, verified):
         if success
         else jsonify({"error": "Failed to update company verification status"})
     ), 200
+
+
+@profile_bp.route("/portfolio/view", methods=["GET"])
+def view_portfolio_by_uri():
+    claims = _authenticate()
+    user_id = claims.get("sub")
+
+    gs_uri = request.args.get("uri")
+    if not gs_uri or not gs_uri.startswith("gs://"):
+        abort(400, description="Missing or invalid URI")
+    else:
+        gs_uri = gs_uri.split("?", 1)[0]
+
+    # Check file ownership
+    match = re.search(r"(?:portfolio|resume)/user_(\d+)\.enc", gs_uri)
+    if not match or int(match.group(1)) != user_id:
+        abort(403, description="You may only access your own file")
+
+    try:
+        enc_bytes = download_by_uri(gs_uri)
+        decrypted = decrypt_file_gcm(BytesIO(enc_bytes))
+
+        return send_file(
+            decrypted,
+            mimetype="application/pdf",
+            as_attachment=False,
+            download_name="portfolio.pdf",
+        )
+
+    except (PermissionError, FileNotFoundError, ValueError) as e:
+        abort(403, description=str(e))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
