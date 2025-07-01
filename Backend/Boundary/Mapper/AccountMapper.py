@@ -100,7 +100,9 @@ class AccountMapper:
                     new_url = rename_file(
                         "companyDocument/company_temp.enc",
                         f"companyDocument/company_{account.accountId}.enc",
+                        public=False
                     )
+                    print("New", new_url)
                     companyModel = CompanyModel(
                         accountId=accountModel.accountId, companyDocUrl=new_url
                     )
