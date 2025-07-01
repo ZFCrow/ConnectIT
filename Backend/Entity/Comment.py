@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import pytz
 from SQLModels.CommentModel import CommentModel
@@ -6,87 +6,116 @@ from SQLModels.CommentModel import CommentModel
 
 @dataclass
 class Comment:
-    commentId: int
-    content: str
-    createdAt: datetime
-    accountId: int
-    postId: int
-    isDeleted: bool = False
-    # Additional fields for account information
-    # (not creating a separate Account entity)
-    accountUsername: str = None
-    accountDisplayPicture: str = None
+    # Private, name-mangled fields
+    __commentId: int
+    __content: str
+    __createdAt: datetime
+    __accountId: int
+    __postId: int
+    __isDeleted: bool = False
+    __accountUsername: str = field(default=None)
+    __accountDisplayPicture: str = field(default=None)
 
+    # ------------------------
+    # Public, read-only properties
+    # ------------------------
+    @property
+    def commentId(self) -> int:
+        return self.__commentId
+
+    @property
+    def content(self) -> str:
+        return self.__content
+
+    @property
+    def createdAt(self) -> datetime:
+        return self.__createdAt
+
+    @property
+    def accountId(self) -> int:
+        return self.__accountId
+
+    @property
+    def postId(self) -> int:
+        return self.__postId
+
+    @property
+    def isDeleted(self) -> bool:
+        return self.__isDeleted
+
+    @property
+    def accountUsername(self) -> str:
+        return self.__accountUsername
+
+    @property
+    def accountDisplayPicture(self) -> str:
+        return self.__accountDisplayPicture
+
+    # ------------------------
+    # Methods that mutate “private” state
+    # ------------------------
+    def mark_deleted(self) -> None:
+        """Soft-delete this comment."""
+        self.__isDeleted = True
+
+    def update_content(self, new_content: str) -> None:
+        """Change the comment’s text."""
+        self.__content = new_content
+
+    # ------------------------
+    # Timezone helper
+    # ------------------------
     @staticmethod
-    def getSingaporeTimezone() -> pytz.timezone:
-        """Get Singapore timezone"""
+    def getSingaporeTimezone() -> datetime:
+        """Get current Singapore time (naive datetime)."""
         return datetime.now(pytz.timezone("Asia/Singapore")).replace(tzinfo=None)
 
+    # ------------------------
+    # Converters
+    # ------------------------
     @classmethod
-    def from_CommentModel(cls, comment_model) -> "Comment":
-        """Create Comment entity from CommentModel instance"""
-        # createdAt = cls._parse_datetime(comment_model.createdAt)
+    def from_CommentModel(cls, m: CommentModel) -> "Comment":
         return cls(
-            commentId=comment_model.commentId,
-            content=comment_model.content,
-            createdAt=comment_model.createdAt,
-            accountId=comment_model.accountId,
-            postId=comment_model.postId,
-            isDeleted=bool(comment_model.isDeleted),
-            accountUsername=(
-                comment_model.account.name if comment_model.account else None
-            ),
-            accountDisplayPicture=(
-                comment_model.account.profilePicUrl if comment_model.account else None
-            ),
+            m.commentId,
+            m.content,
+            m.createdAt,
+            m.accountId,
+            m.postId,
+            bool(m.isDeleted),
+            m.account.name if m.account else None,
+            m.account.profilePicUrl if m.account else None,
         )
 
-    def toCommentModel(self) -> "CommentModel":
-        """Convert Comment entity to CommentModel for database operations"""
+    def toCommentModel(self) -> CommentModel:
         return CommentModel(
-            # commentId=self.commentId,
-            content=self.content,
-            createdAt=self.createdAt,
-            accountId=self.accountId,
-            postId=self.postId,
-            # Convert bool to int for database storage
-            isDeleted=int(self.isDeleted),
+            content=self.__content,
+            createdAt=self.__createdAt,
+            accountId=self.__accountId,
+            postId=self.__postId,
+            isDeleted=int(self.__isDeleted),
         )
 
     def toDict(self) -> dict:
-        """Convert Comment entity to dictionary for JSON serialization"""
         return {
-            "commentId": self.commentId,
-            "content": self.content,
-            "createdAt": (
-                self.createdAt.isoformat()
-                if isinstance(self.createdAt, datetime)
-                else self.createdAt
-            ),
-            "accountId": self.accountId,
-            "postId": self.postId,
-            "isDeleted": self.isDeleted,
-            "username": self.accountUsername,
-            "displayPicUrl": self.accountDisplayPicture,
+            "commentId": self.__commentId,
+            "content": self.__content,
+            "createdAt": self.__createdAt.isoformat(),
+            "accountId": self.__accountId,
+            "postId": self.__postId,
+            "isDeleted": self.__isDeleted,
+            "username": self.__accountUsername,
+            "displayPicUrl": self.__accountDisplayPicture,
         }
-
-    # @staticmethod
-    # def nowSG() -> pytz.timezone:
-    #     """Get Singapore timezone"""
-    #     print (f"Getting current time in Singapore timezone: {SINGAPORE_TZ}")
-    #     return datetime.now(SINGAPORE_TZ)
 
     @classmethod
     def fromDict(cls, data: dict) -> "Comment":
-        """Create Comment entity from dictionary"""
         return cls(
-            commentId=data.get("commentId", 0),
-            content=data.get("content", ""),
-            # Default to current Singapore time if not provided
-            createdAt=cls.getSingaporeTimezone(),
-            accountId=data.get("accountId", 0),
-            postId=data.get("postId", 0),
-            isDeleted=data.get("isDeleted", False),
-            accountUsername=data.get("accountUsername", None),
-            accountDisplayPicture=data.get("accountDisplayPicture", None),
+            data.get("commentId", 0),
+            data.get("content", ""),
+            cls.getSingaporeTimezone(),
+            data.get("accountId", 0),
+            data.get("postId", 0),
+            data.get("isDeleted", False),
+            data.get("accountUsername", None),
+            data.get("accountDisplayPicture", None),
         )

@@ -7,7 +7,7 @@ import os
 from typing import Optional, List, Dict, Any
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
-
+import logging 
 Base = declarative_base()
 
 
@@ -130,7 +130,7 @@ class DatabaseContext:
 
         self.engine = create_engine(
             connection_string,
-            echo=True,
+            echo=False,
             pool_pre_ping=True,
             pool_recycle=3600,  # Recycle connections every hour
         )
@@ -138,6 +138,7 @@ class DatabaseContext:
         self.SessionLocal = sessionmaker(
             autocommit=False, autoflush=False, bind=self.engine
         )
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
 
     def _test_connection(self):
         """Test database connection"""

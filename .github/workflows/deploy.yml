@@ -50,6 +50,10 @@ jobs:
       MYSQL_DATABASE_DEV: ${{ secrets.MYSQL_DATABASE_DEV }} # Set your MySQL database name for development 
       MYSQL_USER_DEV: ${{ secrets.MYSQL_USER_DEV }} # Set your MySQL user for development
       MYSQL_PASSWORD_DEV: ${{ secrets.MYSQL_PASSWORD_DEV }} # Set your MySQL password for development 
+      FERNET_KEY: ${{ secrets.FERNET_KEY }} # Set your Fernet key for encryption 
+      JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
+      HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
+      AES_GCM_KEY: ${{secrets.AES_GCM_KEY}}
       
       #.env.dev , some keys added a _DEV as it shares the same name as production keys 
       MYSQL_REMOTE_PORT : ${{ secrets.MYSQL_REMOTE_PORT }} # Set your MySQL remote port 
@@ -59,18 +63,7 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT }} # Set your SSH port 
       SSH_USER: ${{ secrets.SSH_USER }} # Set your SSH user 
       PEM_FILE: ${{ secrets.PEM_FILE }} # Set your PEM file for SSH access 
-      FERNET_KEY: ${{ secrets.FERNET_KEY }} # Set your Fernet key for encryption 
-      JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
-      
-
-      SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
-      SPLUNK_SOURCE: ${{ secrets.SPLUNK_SOURCE }} # Set your Splunk source for logging
-      SPLUNK_SOURCETYPE: ${{ secrets.SPLUNK_SOURCETYPE }} # Set your Splunk sourcetype for logging 
-      SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }} # Set your Splunk password for logging
-      SPLUNK_IP_WHITELIST: ${{ secrets.SPLUNK_IP_WHITELIST }} # Set your Splunk IP whitelist for security 
-
-
-      HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
+      ENCRYPTED_TOTP_SECRET: ${{ secrets.ENCRYPTED_TOTP_SECRET }} #! for testing so probably put it in the workflow file that does the playwright test!
       
       #.env.prod , some keys added a _PROD as it shares the same name as development keys
       MYSQL_ROOT_PASSWORD_PROD: ${{ secrets.MYSQL_ROOT_PASSWORD_PROD }} # Set your MySQL root password for production
@@ -81,6 +74,11 @@ jobs:
       MYSQL_CONTAINER_NAME: ${{ secrets.MYSQL_CONTAINER_NAME }} # Set your MySQL container name for production
       MYSQL_CONTAINER_PORT: ${{ secrets.MYSQL_CONTAINER_PORT }} # Set your MySQL container port for production
       USE_SSH_TUNNEL_PROD: ${{ secrets.USE_SSH_TUNNEL_PROD }} # Set whether to use SSH tunnel for production
+      SPLUNK_HEC_TOKEN: ${{ secrets.SPLUNK_HEC_TOKEN }}
+      SPLUNK_SOURCE: ${{ secrets.SPLUNK_SOURCE }} # Set your Splunk source for logging
+      SPLUNK_SOURCETYPE: ${{ secrets.SPLUNK_SOURCETYPE }} # Set your Splunk sourcetype for logging 
+      SPLUNK_PASSWORD: ${{ secrets.SPLUNK_PASSWORD }} # Set your Splunk password for logging
+      SPLUNK_IP_WHITELIST: ${{ secrets.SPLUNK_IP_WHITELIST }} # Set your Splunk IP whitelist for security 
 
 
       # FIREBASE secrets 
@@ -126,13 +124,14 @@ jobs:
           FLASK_RUN_PORT=$FLASK_RUN_PORT
           FLASK_SECRET=$FLASK_SECRET 
           VITE_HCAPTCHA_SITEKEY=$VITE_HCAPTCHA_SITEKEY
-          HCAPTCHA_SECRET=$HCAPTCHA_SECRET
-          FERNET_KEY=$FERNET_KEY
-          JWT_SECRET=$JWT_SECRET
           MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_DEV
           MYSQL_DATABASE=$MYSQL_DATABASE_DEV
           MYSQL_USER=$MYSQL_USER_DEV
-          MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV
+          MYSQL_PASSWORD=$MYSQL_PASSWORD_DEV          
+          FERNET_KEY=$FERNET_KEY
+          JWT_SECRET=$JWT_SECRET
+          HCAPTCHA_SECRET=$HCAPTCHA_SECRET
+          AES_GCM_KEY=$AES_GCM_KEY
           E1
 
           # ─── connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json ───────────(Commented out)──────────────────────
