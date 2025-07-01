@@ -238,6 +238,39 @@ def disable(account_id):
         return jsonify({"error": "Failed to disable account"}), 500
 
 
+@profile_bp.route("/portfolio/view", methods=["GET"])
+def view_portfolio():
+    claims = _authenticate()
+    user_id = claims.get("sub")
+
+    gs_uri = request.args.get("uri")
+    if not gs_uri or not gs_uri.startswith("gs://"):
+        abort(400, description="Missing or invalid URI")
+    else:
+        gs_uri = gs_uri.split("?", 1)[0]
+
+    # Check file ownership
+    match = re.search(r"portfolio/user_(\d+)\.enc", gs_uri)
+    if not match or int(match.group(1)) != user_id:
+        abort(403, description="You may only access your own file")
+
+    try:
+        enc_bytes = download_by_uri(gs_uri)
+        decrypted = decrypt_file_gcm(BytesIO(enc_bytes))
+
+        return send_file(
+            decrypted,
+            mimetype="application/pdf",
+            as_attachment=False,
+            download_name=f"user_{user_id}.pdf",
+        )
+
+    except (PermissionError, FileNotFoundError, ValueError) as e:
+        abort(403, description=str(e))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @profile_bp.route("/getAllCompanies", methods=["GET"])
 def get_all_companies():
     """
@@ -269,10 +302,11 @@ def set_company_verified(company_id, verified):
     ), 200
 
 
-@profile_bp.route("/portfolio/view", methods=["GET"])
-def view_portfolio_by_uri():
+@profile_bp.route("/companydoc/view", methods=["GET"])
+def view_companydoc():
     claims = _authenticate()
-    user_id = claims.get("sub")
+    if claims.get("role") != Role.Admin.value:
+        abort(403, description="Forbidden")
 
     gs_uri = request.args.get("uri")
     if not gs_uri or not gs_uri.startswith("gs://"):
@@ -281,10 +315,12 @@ def view_portfolio_by_uri():
         gs_uri = gs_uri.split("?", 1)[0]
 
     # Check file ownership
-    match = re.search(r"portfolio/user_(\d+)\.enc", gs_uri)
-    if not match or int(match.group(1)) != user_id:
-        abort(403, description="You may only access your own file")
+    match = re.search(r"companyDocument/company_(\d+)\.enc", gs_uri)
+    if not match:
+        abort(400, description="Invalid resume filename format")
 
+    company_id = match.group(1)
+    
     try:
         enc_bytes = download_by_uri(gs_uri)
         decrypted = decrypt_file_gcm(BytesIO(enc_bytes))
@@ -293,7 +329,7 @@ def view_portfolio_by_uri():
             decrypted,
             mimetype="application/pdf",
             as_attachment=False,
-            download_name=f"user_{user_id}.pdf",
+            download_name=f"company_{company_id}.pdf",
         )
 
     except (PermissionError, FileNotFoundError, ValueError) as e:

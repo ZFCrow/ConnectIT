@@ -22,8 +22,9 @@ class AccountControl:
         companyDoc = accountData.get("companyDoc", None)
         doc_url = None
         if companyDoc:
-            dest_name = "companyDocument/company_temp.pdf"
-            doc_url = upload_to_path(companyDoc, target_path=dest_name, public=True)
+            encrypted_file = FileEncUtils.encrypt_file_gcm(companyDoc)
+            dest_name = "companyDocument/company_temp.enc"
+            doc_url = upload_to_path(encrypted_file, target_path=dest_name, public=False)
             accountData["companyDocUrl"] = doc_url
 
         account = Account.from_dict(accountData)
@@ -99,10 +100,6 @@ class AccountControl:
         resume_url = None
 
         if portfolioFile:
-            # dest_name = f"portfolio/user_{account_id}.pdf"
-            # resume_url = upload_to_path(
-            #     portfolioFile, target_path=dest_name, public=True
-            # )
             encrypted_file = FileEncUtils.encrypt_file_gcm(portfolioFile)
             dest_name = f"portfolio/user_{account_id}.enc"
             

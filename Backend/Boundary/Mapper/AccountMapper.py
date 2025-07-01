@@ -98,8 +98,8 @@ class AccountMapper:
 
                 elif account.role == Role.Company.value:
                     new_url = rename_file(
-                        "companyDocument/company_temp.pdf",
-                        f"companyDocument/company_{account.accountId}.pdf",
+                        "companyDocument/company_temp.enc",
+                        f"companyDocument/company_{account.accountId}.enc",
                     )
                     companyModel = CompanyModel(
                         accountId=accountModel.accountId, companyDocUrl=new_url

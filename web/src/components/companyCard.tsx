@@ -17,6 +17,8 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
   onReject,
 }) => {
   const [pdfOpen, setPdfOpen] = React.useState(false);
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
+
   return (
     <li className="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl shadow-lg">
       <div className="flex justify-between items-start">
@@ -48,7 +50,10 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         {/* “View Document” link */}
         <button
           type="button"
-          onClick={() => setPdfOpen(true)}
+          onClick={() => {
+            setPdfUrl(`/api/profile/companydoc/view?uri=${encodeURIComponent(company.companyDocUrl)}`);
+            setPdfOpen(true);
+          }}
           className="flex items-center space-x-1 text-indigo-400 hover:underline"
         >
           <FileText className="w-5 h-5" />
@@ -103,7 +108,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         onClose={function (): void {
           setPdfOpen(false);
         }}
-        pdfUrl={company.companyDocUrl} // Pass the resume URL to the modal
+        pdfUrl={pdfUrl} // Pass the resume URL to the modal
         title="Viewing Company Document" // Optional title for the modal
       />
     </li>
