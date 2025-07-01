@@ -40,14 +40,28 @@ def verify_2fa():
 
     result, status_code = TwoFactorAuth.validate2FA(code, secret)
 
-    SplunkLogging.send_log(
-            {
-                "event": "2FA result",
-                "reason": result,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+    if result:
+
+        SplunkLogging.send_log(
+                {
+                    "event": "Login Failed",
+                    "reason": "Failed 2FA validation",
+                    "ip": request.remote_addr,
+                    "user_agent": str(request.user_agent),
+                    "method": request.method,
+                    "path": request.path,
+                }
+            )
+    
+    else:
+        SplunkLogging.send_log(
+                    {
+                        "event": "Login Success",
+                        "user": "xxx",
+                        "ip": request.remote_addr,
+                        "user_agent": str(request.user_agent),
+                        "method": request.method,
+                        "path": request.path,
+                    }
+                )
     return jsonify(result), status_code
