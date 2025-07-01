@@ -476,9 +476,9 @@ def me():
 
     try:
         data = JWTUtils.decode_jwt_token(token)
-    except jwt.ExpiredSignatureError as e:
+    except jwt.ExpiredSignatureError:
         return jsonify({}), 200
-    except jwt.PyJWTError as e:
+    except jwt.PyJWTError:
         return jsonify({}), 200
 
     return (
