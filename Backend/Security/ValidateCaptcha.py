@@ -18,7 +18,6 @@ def verify_hcaptcha(token: str) -> dict:
     payload = {
         "secret": HCAPTCHA_SECRET,
         "response": token,
-        # remote use for security checks
         "remoteip": request.remote_addr if request else "unknown",
     }
 

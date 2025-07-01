@@ -103,6 +103,8 @@ def register():
             }
         )
 
+        print(f"SUCCESS REGISTER")
+
         return jsonify({"message": "Account created successfully!"}), 201
     else:
 
@@ -126,6 +128,7 @@ def login():
     payload = request.get_json() or {}
     email = payload.get("email")
     captcha_token = payload.get("captchaToken")
+    print("DOES IT EVEN COME HERE")
 
     if is_locked(email):
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -146,6 +149,8 @@ def login():
                 "path": request.path,
             }
         )
+
+        print("LOGIN: SPLUNK LOG SEND HERE")
 
         return jsonify({"error": "Account locked due to too many failed attempts"}), 403
 
@@ -300,49 +305,6 @@ def login():
         }
 
         merged = {**base_data, **optional_data}
-
-        if account.twoFaEnabled:
-            otp = payload.get("otp")
-            if not otp:
-                SplunkLogging.send_log(
-                    {
-                        "event": "Login Partial Success",
-                        "reason": "Missing 2FA authentication",
-                        "email": account.email,
-                        "ip": request.remote_addr,
-                        "user_agent": str(request.user_agent),
-                        "method": request.method,
-                        "path": request.path,
-                    }
-                )
-                return jsonify({"twoFaRequired": True, **merged}), 200
-
-            totp = pyotp.TOTP(account.twoFaSecret)
-            if not totp.verify(otp):
-                SplunkLogging.send_log(
-                    {
-                        "event": "Login Failed",
-                        "reason": "Invalid two-factor code",
-                        "email": account.email,
-                        "ip": request.remote_addr,
-                        "user_agent": str(request.user_agent),
-                        "method": request.method,
-                        "path": request.path,
-                    }
-                )
-                return jsonify({"error": "Invalid two-factor code"}), 401
-
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Successful",
-                    "email": account.email,
-                    "role": account.role,
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                }
-            )
 
         return jsonify(merged), 200
 
