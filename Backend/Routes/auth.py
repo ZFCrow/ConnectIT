@@ -18,7 +18,6 @@ from Security.Limiter import (
 )
 from datetime import datetime, timezone
 import jwt
-import pyotp
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -103,7 +102,7 @@ def register():
             }
         )
 
-        print(f"SUCCESS REGISTER")
+        print("SUCCESS REGISTER")
 
         return jsonify({"message": "Account created successfully!"}), 201
     else:

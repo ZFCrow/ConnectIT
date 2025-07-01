@@ -51,9 +51,7 @@ def verify_2fa():
                 "method": request.method,
                 "path": request.path,
             }
-                
         )
-    
     else:
         SplunkLogging.send_log(
             {
