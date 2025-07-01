@@ -1,12 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict
 
+
 @dataclass
 class Label:
     # Private, name-mangled fields
-    __labelId:      int
-    __description:  str
-    __color:        str
+    __labelId: int
+    __description: str
+    __color: str
     __numberofUses: int = field(default=0)
 
     # ──────────── Public, read-only properties ────────────
@@ -51,9 +52,9 @@ class Label:
 
     def toDict(self) -> Dict[str, Any]:
         return {
-            "labelId":      self.__labelId,
-            "name":         self.__description,
-            "color":        self.__color,
+            "labelId": self.__labelId,
+            "name": self.__description,
+            "color": self.__color,
             "numberofUses": self.__numberofUses,
         }
 

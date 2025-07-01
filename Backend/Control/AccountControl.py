@@ -105,7 +105,7 @@ class AccountControl:
             # )
             encrypted_file = FileEncUtils.encrypt_file_gcm(portfolioFile)
             dest_name = f"portfolio/user_{account_id}.enc"
-            
+
             resume_url = upload_to_path(
                 encrypted_file, target_path=dest_name, public=False
             )

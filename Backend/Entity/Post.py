@@ -9,21 +9,22 @@ from Entity.Violation import Violation
 from SQLModels.PostModel import PostModel
 from SQLModels.CommentModel import CommentModel
 
+
 @dataclass
 class Post:
     # ─────────── Private, name-mangled fields ───────────
-    __post_id:             int
-    __title:               str
-    __content:             str
-    __date:                Union[datetime, str]
-    __accountId:           int
-    __isDeleted:           int                          = 0
-    __associated_labels:   List[Label]                  = field(default_factory=list)
-    __associated_comments: List[Comment]                = field(default_factory=list)
-    __associated_violations: List[Violation]            = field(default_factory=list)
-    __accountUsername:     Optional[str]                = None
-    __accountDisplayPicture: Optional[str]              = None
-    __likedBy:             List[int]                    = field(default_factory=list)
+    __post_id: int
+    __title: str
+    __content: str
+    __date: Union[datetime, str]
+    __accountId: int
+    __isDeleted: int = 0
+    __associated_labels: List[Label] = field(default_factory=list)
+    __associated_comments: List[Comment] = field(default_factory=list)
+    __associated_violations: List[Violation] = field(default_factory=list)
+    __accountUsername: Optional[str] = None
+    __accountDisplayPicture: Optional[str] = None
+    __likedBy: List[int] = field(default_factory=list)
 
     # ─────────── Public, read-only properties ───────────
     @property
@@ -93,18 +94,17 @@ class Post:
     def add_violation(self, violation: Violation) -> None:
         self.__associated_violations.append(violation)
 
-    def setAccountInfo(self, 
-                         username: str, 
-                         display_pic_url: Optional[str] = None) -> None:
+    def setAccountInfo(
+        self, username: str, display_pic_url: Optional[str] = None
+    ) -> None:
         self.__accountUsername = username
         self.__accountDisplayPicture = display_pic_url
 
     def set_date(self, new_date: Union[datetime, str]) -> None:
         self.__date = new_date
-    
+
     def setId(self, new_id: int) -> None:
-        self.__post_id = new_id 
-    
+        self.__post_id = new_id
 
     def like(self, account_id: int) -> None:
         if account_id not in self.__likedBy:
@@ -130,7 +130,10 @@ class Post:
             m.isDeleted,
             labels,
             [Comment.from_CommentModel(c) for c in getattr(m, "comments", [])],
-            [Violation.from_violationModel(v) for v in getattr(m, "postViolations", [])],
+            [
+                Violation.from_violationModel(v)
+                for v in getattr(m, "postViolations", [])
+            ],
             m.account.name if m.account else None,
             m.account.profilePicUrl if m.account else None,
             [like.accountId for like in getattr(m, "postLikes", [])],
@@ -156,12 +159,16 @@ class Post:
 
     def toDict(self) -> Dict[str, Any]:
         return {
-            "id":       self.__post_id,
+            "id": self.__post_id,
             "username": self.__accountUsername,
-            "date":     self.__date.isoformat() if isinstance(self.__date, datetime) else self.__date,
-            "labels":   [lbl.toDict() for lbl in self.__associated_labels],
-            "title":    self.__title,
-            "content":  self.__content,
+            "date": (
+                self.__date.isoformat()
+                if isinstance(self.__date, datetime)
+                else self.__date
+            ),
+            "labels": [lbl.toDict() for lbl in self.__associated_labels],
+            "title": self.__title,
+            "content": self.__content,
             "comments": [c.toDict() for c in self.__associated_comments],
             "accountId": self.__accountId,
             "displayPicUrl": self.__accountDisplayPicture,

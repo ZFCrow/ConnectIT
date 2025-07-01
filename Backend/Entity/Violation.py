@@ -2,11 +2,12 @@ from dataclasses import dataclass, field
 from typing import Dict, Any
 from SQLModels.ViolationModel import ViolationModel
 
+
 @dataclass
 class Violation:
     # ─────────── Private, name-mangled fields ───────────
     __violationId: int
-    __name:        str
+    __name: str
 
     # ─────────── Public, read-only properties ───────────
     @property
@@ -28,16 +29,10 @@ class Violation:
         """
         Create a Violation instance from a ViolationModel instance.
         """
-        return cls(
-            m.violationId,
-            m.description
-        )
+        return cls(m.violationId, m.description)
 
     def toDict(self) -> Dict[str, Any]:
         """
         Convert the Violation instance to a dictionary.
         """
-        return {
-            "violationId": self.__violationId,
-            "name":        self.__name
-        }
+        return {"violationId": self.__violationId, "name": self.__name}

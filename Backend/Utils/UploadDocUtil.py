@@ -79,10 +79,10 @@ def download_by_uri(firebase_uri: str) -> bytes:
     root = blob_path.split("/", 1)[0]
     if root not in allowed_roots:
         raise PermissionError(f"Access to '{root}' is not allowed")
-    
+
     # Download from Firebase
     blob = bucket.blob(blob_path)
     if not blob.exists():
         raise FileNotFoundError(f"No such blob: {blob_path}")
-    
+
     return blob.download_as_bytes()

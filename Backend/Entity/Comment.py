@@ -3,17 +3,18 @@ from datetime import datetime
 import pytz
 from SQLModels.CommentModel import CommentModel
 
+
 @dataclass
 class Comment:
     # Private, name-mangled fields
-    __commentId:           int
-    __content:             str
-    __createdAt:           datetime
-    __accountId:           int
-    __postId:              int
-    __isDeleted:           bool     = False
-    __accountUsername:     str      = field(default=None)
-    __accountDisplayPicture:str     = field(default=None)
+    __commentId: int
+    __content: str
+    __createdAt: datetime
+    __accountId: int
+    __postId: int
+    __isDeleted: bool = False
+    __accountUsername: str = field(default=None)
+    __accountDisplayPicture: str = field(default=None)
 
     # ------------------------
     # Public, read-only properties
@@ -97,12 +98,12 @@ class Comment:
     def toDict(self) -> dict:
         return {
             "commentId": self.__commentId,
-            "content":   self.__content,
+            "content": self.__content,
             "createdAt": self.__createdAt.isoformat(),
             "accountId": self.__accountId,
-            "postId":    self.__postId,
+            "postId": self.__postId,
             "isDeleted": self.__isDeleted,
-            "username":  self.__accountUsername,
+            "username": self.__accountUsername,
             "displayPicUrl": self.__accountDisplayPicture,
         }
 

@@ -15,6 +15,7 @@ from Entity.Violation import Violation
 from math import ceil
 import traceback
 
+
 class PostMapper:
     """
     Mapper class for handling database operations related to Post entities.
@@ -98,11 +99,11 @@ class PostMapper:
 
                     # find the comments, then create the
                     # comment entities from post entity
-                    #commentModels = [cm for cm in post.comments]
+                    # commentModels = [cm for cm in post.comments]
                     # create the post entity and pass the labels
                     postEntity = Post.from_PostModel(post, labels)
                     # add the comments to the post entity
-                    #postEntity.populateComments(commentModels)
+                    # postEntity.populateComments(commentModels)
                     listofPostEntities.append(postEntity)
             return listofPostEntities
 
@@ -167,11 +168,11 @@ class PostMapper:
                 labels = [Label.fromLabelModel(lm) for lm in labelsModels]
                 # find the comments, then create the
                 # comment entities from post entity
-                #commentModels = [cm for cm in pm.comments]
+                # commentModels = [cm for cm in pm.comments]
                 # create the post entity and pass the labels
                 postEntity = Post.from_PostModel(pm, labels)
                 # add the comments to the post entity
-                #postEntity.populateComments(commentModels)
+                # postEntity.populateComments(commentModels)
                 posts.append(postEntity.toDict())
             return {
                 "posts": posts,  # List of Post entities
@@ -228,7 +229,7 @@ class PostMapper:
                     username=account.name if account else None,
                     display_pic_url=account.profilePicUrl if account else None,
                 )
-                post.setId(postModel.postId) 
+                post.setId(postModel.postId)
 
                 return True  # Return True to indicate success
         except Exception as e:
@@ -246,15 +247,15 @@ class PostMapper:
         none to multiple violations. create them in postviolation
         table if it exists.
         """
-        print (f"Deleting post with ID {postId}...") 
+        print(f"Deleting post with ID {postId}...")
         try:
             with db_context.session_scope() as session:
                 post = (
                     session.query(PostModel).filter(PostModel.postId == postId).first()
                 )
                 if post:
-                    print (f"Found post with ID {postId}.") 
-                    post.isDeleted = True  # Mark the post as deleted 
+                    print(f"Found post with ID {postId}.")
+                    post.isDeleted = True  # Mark the post as deleted
 
                     print(f"Post with ID {postId} marked as deleted.")
                     # If there are violations,
@@ -265,18 +266,17 @@ class PostMapper:
                             # Assuming PostViolationModel exists
                             # and has postId and violationId fields
                             postViolationModel = PostViolationModel(
-                                postId=postId, 
-                                violationId=violation.violationId
+                                postId=postId, violationId=violation.violationId
                             )
                             session.add(postViolationModel)
-                        
+
                     return True
                 else:
                     print(f"Post with ID {postId} not found.")
                     return False
         except Exception as e:
             print(f"Error deleting post with ID {postId}: {e}")
-            
+
             return False
 
     @staticmethod
