@@ -13,7 +13,6 @@ from Entity.Post import Post
 from Entity.Label import Label
 from Entity.Violation import Violation
 from math import ceil
-import traceback
 
 
 class PostMapper:

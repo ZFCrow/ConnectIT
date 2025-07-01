@@ -7,7 +7,6 @@ from Entity.Label import Label
 from Entity.Comment import Comment
 from Entity.Violation import Violation
 from SQLModels.PostModel import PostModel
-from SQLModels.CommentModel import CommentModel
 
 
 @dataclass
