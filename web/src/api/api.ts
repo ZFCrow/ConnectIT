@@ -1,4 +1,3 @@
-// src/api.ts
 import baseAxios from "@/utility/axiosConfig";
 import axios, { type AxiosInstance } from "axios";
 
