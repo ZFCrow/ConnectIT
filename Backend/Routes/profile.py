@@ -34,10 +34,6 @@ def _authenticate():
 
 @profile_bp.route("/<int:account_id>", methods=["GET"])
 def get_user(account_id):
-    claims = _authenticate()
-    user_id = claims.get("sub")
-    if user_id != account_id:
-        abort(403, description="You may only view your own profile")
 
     account = AccountControl.getAccountById(account_id)
 
@@ -221,7 +217,10 @@ def disable(account_id):
             }
         )
 
-        return jsonify({"message": "Account disabled successfully!"}), 201
+        resp = jsonify({"message": "Account disabled successfully!"})
+        resp = JWTUtils.remove_auth_cookie(resp)
+        return resp, 201
+    
     else:
 
         SplunkLogging.send_log(
