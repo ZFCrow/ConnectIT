@@ -31,6 +31,7 @@ class AccountModel(Base):
     isDisabled = Column(Boolean, nullable=False, default=False)
     twoFaEnabled = Column(Boolean, nullable=True, default=False)
     twoFaSecret = Column(String(256), nullable=True)
+    sessionId = Column(String(128), nullable=True)
 
     # Relationship back to posts (optional)
     posts = relationship("PostModel", back_populates="account")
@@ -50,6 +51,7 @@ class AccountModel(Base):
             "isDisabled": self.isDisabled,
             "twoFaEnabled": self.twoFaEnabled,
             "twoFaSecret": self.twoFaSecret,
+            "sessionId": self.sessionId
         }
 
     def __repr__(self):
