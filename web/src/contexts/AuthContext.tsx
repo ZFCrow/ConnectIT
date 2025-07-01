@@ -84,7 +84,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           setCompanyId(data.companyId ?? null);
           setVerified(data.verified ?? null);
         } else {
-          // 401 or empty payload → user not logged in
           console.log("json returns nothing");
         }
       } catch (err) {
