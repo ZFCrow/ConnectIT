@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 
 AllowedExtensions = [".pdf"]
-Max_PDF_Size = 3 * 1024 * 1024  # 3 MB
+Max_PDF_Size = 1 * 1024 * 1024  # 1 MB
 AllowedImageFormats = {"JPEG", "PNG"}
 Max_Image_Size = 1 * 1024 * 1024  # 1 MB
 
