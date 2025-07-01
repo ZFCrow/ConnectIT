@@ -24,7 +24,7 @@ export const useCaptchaVerification = () => {
       const data = response.data;
 
       if (data.success) {
-        console.log('CAPTCHA Verification SUCCESS:', data.message);
+        // console.log('CAPTCHA Verification SUCCESS:', data.message);
         setCaptchaVerificationStatus('Verified');
       } else {
         console.error('CAPTCHA Verification FAILED:', data.message);

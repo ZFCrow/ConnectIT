@@ -470,26 +470,16 @@ def save2fa():
 def me():
 
     token = JWTUtils.get_token_from_cookie()
-    print(f"[Auth][me] Raw cookie token: {token}", flush=True)
 
     if not token:
-        print(
-            "[Auth][me] No JWT cookie found – \
-              returning empty payload",
-            flush=True,
-        )
         return jsonify({}), 200
 
     try:
         data = JWTUtils.decode_jwt_token(token)
-    except jwt.ExpiredSignatureError as e:
-        print(f"[Auth][me] Token expired: {e}", flush=True)
+    except jwt.ExpiredSignatureError:
         return jsonify({}), 200
-    except jwt.PyJWTError as e:
-        print(f"[Auth][me] JWT decode error: {e}", flush=True)
+    except jwt.PyJWTError:
         return jsonify({}), 200
-
-    print(f"[Auth][me] Decoded claims: {data}", flush=True)
 
     return (
         jsonify(

@@ -33,12 +33,12 @@ const CreateEditJobPage: React.FC = () => {
       experiencePreferred: job.experiencePreferred ?? 0,
       isDeleted: false,
     };
-    console.log("Submitting job payload:", payload);
+    // console.log("Submitting job payload:", payload);
     try {
       const response = await axios.post("/api/addJob", payload, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("Job created/updated:", response.data);
+      // console.log("Job created/updated:", response.data);
       // Optionally show a toast or success
       navigate(-1); // or wherever
     } catch (err) {

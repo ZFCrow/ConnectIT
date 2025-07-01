@@ -64,7 +64,7 @@ const CompanyVerificationPage: React.FC = () => {
         prev.map((c) => (c.companyId === companyId ? { ...c, verified: 2 } : c))
       );
       await axios.post(`/api/profile/setCompanyVerified/${companyId}/2`);
-      console.log("Company rejected:", companyId);
+      // console.log("Company rejected:", companyId);
 
       // Optionally: refresh company list or update state here
     } catch (err) {
