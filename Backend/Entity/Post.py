@@ -1,154 +1,176 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
+from typing import List, Optional, Dict, Any, Union
+import pytz
+
 from Entity.Label import Label
 from Entity.Comment import Comment
 from Entity.Violation import Violation
-
-
 from SQLModels.PostModel import PostModel
 from SQLModels.CommentModel import CommentModel
-import pytz
 
 
 @dataclass
 class Post:
-    # base data that tallys with the database
-    post_id: int
-    title: str
-    content: str
-    date: Union[datetime, str]
-    accountId: int
-    isDeleted: int = 0
+    # ─────────── Private, name-mangled fields ───────────
+    __post_id: int
+    __title: str
+    __content: str
+    __date: Union[datetime, str]
+    __accountId: int
+    __isDeleted: int = 0
+    __associated_labels: List[Label] = field(default_factory=list)
+    __associated_comments: List[Comment] = field(default_factory=list)
+    __associated_violations: List[Violation] = field(default_factory=list)
+    __accountUsername: Optional[str] = None
+    __accountDisplayPicture: Optional[str] = None
+    __likedBy: List[int] = field(default_factory=list)
 
-    # classes for associated data
-    associated_labels: List[Label] = field(default_factory=list)
-    # Placeholder for comments, can be replaced with actual Comment class
-    # associated_comments: List[Comment] = field(default_factory=list)
-    associated_comments: List[Comment] = field(default_factory=list)
-    # Placeholder for violations, can be replaced with actual Violation class
-    associated_violations: List[Violation] = field(default_factory=list)
+    # ─────────── Public, read-only properties ───────────
+    @property
+    def post_id(self) -> int:
+        return self.__post_id
 
-    # Additional fields for account information
-    # (not creating a separate Account entity)
-    accountUsername: Optional[str] = None
-    accountDisplayPicture: Optional[str] = None
+    @property
+    def title(self) -> str:
+        return self.__title
 
-    # likes : int = 0  # Placeholder for likes count
-    # Placeholder for list of account IDs who liked the post
-    likedBy: List[int] = field(default_factory=list)
+    @property
+    def content(self) -> str:
+        return self.__content
 
-    # liked : bool = False
-    # Placeholder for liked status i cant put it here
-    # because i cant link it to own account ID
+    @property
+    def date(self) -> Union[datetime, str]:
+        return self.__date
 
+    @property
+    def accountId(self) -> int:
+        return self.__accountId
+
+    @property
+    def isDeleted(self) -> int:
+        return self.__isDeleted
+
+    @property
+    def associated_labels(self) -> List[Label]:
+        return list(self.__associated_labels)  # return a copy
+
+    @property
+    def associated_comments(self) -> List[Comment]:
+        return list(self.__associated_comments)
+
+    @property
+    def associated_violations(self) -> List[Violation]:
+        return list(self.__associated_violations)
+
+    @property
+    def accountUsername(self) -> Optional[str]:
+        return self.__accountUsername
+
+    @property
+    def accountDisplayPicture(self) -> Optional[str]:
+        return self.__accountDisplayPicture
+
+    @property
+    def likedBy(self) -> List[int]:
+        return list(self.__likedBy)
+
+    # ─────────── Internal mutation methods ───────────
+    def mark_deleted(self) -> None:
+        """Soft-delete this post."""
+        self.__isDeleted = 1
+
+    def add_label(self, label: Label) -> None:
+        if label not in self.__associated_labels:
+            self.__associated_labels.append(label)
+
+    def remove_label(self, label: Label) -> None:
+        if label in self.__associated_labels:
+            self.__associated_labels.remove(label)
+
+    def add_comment(self, comment: Comment) -> None:
+        self.__associated_comments.append(comment)
+
+    def add_violation(self, violation: Violation) -> None:
+        self.__associated_violations.append(violation)
+
+    def setAccountInfo(
+        self, username: str, display_pic_url: Optional[str] = None
+    ) -> None:
+        self.__accountUsername = username
+        self.__accountDisplayPicture = display_pic_url
+
+    def set_date(self, new_date: Union[datetime, str]) -> None:
+        self.__date = new_date
+
+    def setId(self, new_id: int) -> None:
+        self.__post_id = new_id
+
+    def like(self, account_id: int) -> None:
+        if account_id not in self.__likedBy:
+            self.__likedBy.append(account_id)
+
+    def unlike(self, account_id: int) -> None:
+        if account_id in self.__likedBy:
+            self.__likedBy.remove(account_id)
+
+    # ─────────── Helpers & Converters ───────────
     @staticmethod
-    def getSingaporeTimezone() -> pytz.timezone:
-        """Get Singapore timezone"""
+    def getSingaporeTimezone() -> datetime:
         return datetime.now(pytz.timezone("Asia/Singapore")).replace(tzinfo=None)
 
     @classmethod
-    def from_PostModel(cls, post_model: PostModel, labels: List[Label]) -> "Post":
-        """Create Post entity from PostModel instance"""
-        # liked = any
-        # (like.account.accountId == userAccountId\
-        # for like in post_model.postLikes)
-        # if post_model.postLikes else False
-        return cls(
-            post_id=post_model.postId,
-            title=post_model.title,
-            content=post_model.content,
-            date=post_model.date,
-            accountId=post_model.accountId,
-            isDeleted=post_model.isDeleted,
-            associated_labels=labels,
-            accountUsername=(post_model.account.name if post_model.account else None),
-            accountDisplayPicture=(
-                post_model.account.profilePicUrl if post_model.account else None
-            ),
-            # likes = len(post_model.postLikes) if post_model.postLikes else 0,
-            # # Count of likes from postLikes relationship
-            # List of account IDs who liked the post
-            likedBy=(
-                [like.accountId for like in post_model.postLikes]
-                if post_model.postLikes
-                else []
-            ),
-            # liked = liked
+    def from_PostModel(cls, m: PostModel, labels: List[Label]) -> "Post":
+        post = cls(
+            m.postId,
+            m.title,
+            m.content,
+            m.date,
+            m.accountId,
+            m.isDeleted,
+            labels,
+            [Comment.from_CommentModel(c) for c in getattr(m, "comments", [])],
+            [
+                Violation.from_violationModel(v)
+                for v in getattr(m, "postViolations", [])
+            ],
+            m.account.name if m.account else None,
+            m.account.profilePicUrl if m.account else None,
+            [like.accountId for like in getattr(m, "postLikes", [])],
         )
+        return post
 
     @classmethod
-    def fromDict(cls, data: Dict[str, Any], labels: list[Label]) -> "Post":
-        """Create Post entity from dictionary"""
+    def fromDict(cls, data: Dict[str, Any], labels: List[Label]) -> "Post":
         return cls(
-            # Default to 0 if not provided
-            post_id=data.get("id", 0),
-            title=data.get("title"),
-            content=data.get("content"),
-            # Default to current Singapore time if not provided
-            date=data.get("date", cls.getSingaporeTimezone()),
-            accountId=data.get("accountId"),
-            # Labels should be passed as a list of Label entities
-            associated_labels=labels,
-            isDeleted=data.get("is_deleted", 0),
+            data.get("id", 0),
+            data.get("title", ""),
+            data.get("content", ""),
+            data.get("date", cls.getSingaporeTimezone()),
+            data.get("accountId", 0),
+            data.get("is_deleted", 0),
+            labels,
+            [Comment.from_CommentModel(c) for c in data.get("comments", [])],
+            [],  # fill violations separately if needed
+            data.get("username"),
+            data.get("displayPicUrl"),
+            data.get("likedBy", []),
         )
 
     def toDict(self) -> Dict[str, Any]:
-        """Convert Post entity to dictionary for JSON serialization"""
         return {
-            "id": self.post_id,
-            "username": self.accountUsername,
+            "id": self.__post_id,
+            "username": self.__accountUsername,
             "date": (
-                self.date.isoformat() if isinstance(self.date, datetime) else self.date
+                self.__date.isoformat()
+                if isinstance(self.__date, datetime)
+                else self.__date
             ),
-            "labels": [label.toDict() for label in self.associated_labels],
-            "title": self.title,
-            "content": self.content,
-            # Convert comments to dicts
-            "comments": [comment.toDict() for comment in self.associated_comments],
-            # "likes": self.likes,  # Count of likes
-            # "liked": self.liked,  # Placeholder for liked status
-            "accountId": self.accountId,
-            "displayPicUrl": self.accountDisplayPicture,
-            "likedBy": self.likedBy,  # List of account IDs who liked the post
+            "labels": [lbl.toDict() for lbl in self.__associated_labels],
+            "title": self.__title,
+            "content": self.__content,
+            "comments": [c.toDict() for c in self.__associated_comments],
+            "accountId": self.__accountId,
+            "displayPicUrl": self.__accountDisplayPicture,
+            "likedBy": self.__likedBy,
         }
-
-    # ✅ Helper methods with type hints
-    def add_label(self, label: Label) -> None:
-        """Add a label to this post"""
-        if label not in self.associated_labels:
-            self.associated_labels.append(label)
-
-    def remove_label(self, label: Label) -> None:
-        """Remove a label from this post"""
-        if label in self.associated_labels:
-            self.associated_labels.remove(label)
-
-    def add_comment(self, comment_data: Dict[str, Any]) -> None:
-        """Add a comment to this post"""
-        self.associated_comments.append(comment_data)
-
-    def get_label_ids(self) -> List[int]:
-        """Get list of label IDs for this post"""
-        return [label.labelID for label in self.associated_labels]
-
-    def set_account_info(
-        self, username: str, display_pic_url: Optional[str] = None
-    ) -> None:
-        """Set account display information"""
-        self.accountUsername = username
-        self.accountDisplayPicture = display_pic_url
-
-    def addCommentToAssociatedComments(self, comment: Comment) -> None:
-        """Add a comment to the post"""
-        self.associated_comments.append(comment)
-
-    def populateComments(self, comments: List[CommentModel]) -> None:
-        """
-        Create the comment entities from the comment models
-        and set them to the post
-        """
-        for comment_model in comments:
-            comment_entity = Comment.from_CommentModel(comment_model)
-            # Add the comment entity to the post's comments list
-            self.addCommentToAssociatedComments(comment_entity)

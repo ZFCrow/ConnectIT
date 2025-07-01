@@ -1,26 +1,38 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Any
 from SQLModels.ViolationModel import ViolationModel
 
 
 @dataclass
 class Violation:
-    """Entity representing a violation in the system."""
+    # ─────────── Private, name-mangled fields ───────────
+    __violationId: int
+    __name: str
 
-    violationId: int
-    name: str
+    # ─────────── Public, read-only properties ───────────
+    @property
+    def violationId(self) -> int:
+        return self.__violationId
 
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    # ─────────── Internal mutation methods ───────────
+    def update_name(self, new_name: str) -> None:
+        """Change the violation’s description/name."""
+        self.__name = new_name
+
+    # ─────────── Converters ───────────
     @classmethod
-    def fromViolationModel(cls, violation_model: ViolationModel) -> "Violation":
+    def fromViolationModel(cls, m: ViolationModel) -> "Violation":
         """
         Create a Violation instance from a ViolationModel instance.
         """
-        return cls(
-            violationId=violation_model.violationId, name=violation_model.description
-        )
+        return cls(m.violationId, m.description)
 
     def toDict(self) -> Dict[str, Any]:
         """
         Convert the Violation instance to a dictionary.
         """
-        return {"violationId": self.violationId, "name": self.name}
+        return {"violationId": self.__violationId, "name": self.__name}

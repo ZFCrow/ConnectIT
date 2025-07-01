@@ -4,7 +4,7 @@ from Entity.Account import Account
 from Entity.User import User
 from Entity.Company import Company
 from Utils.UploadDocUtil import upload_to_path
-from Security import AuthUtils
+from Security import AuthUtils, FileEncUtils
 
 
 class AccountControl:
@@ -99,9 +99,15 @@ class AccountControl:
         resume_url = None
 
         if portfolioFile:
-            dest_name = f"portfolio/user_{account_id}.pdf"
+            # dest_name = f"portfolio/user_{account_id}.pdf"
+            # resume_url = upload_to_path(
+            #     portfolioFile, target_path=dest_name, public=True
+            # )
+            encrypted_file = FileEncUtils.encrypt_file_gcm(portfolioFile)
+            dest_name = f"portfolio/user_{account_id}.enc"
+
             resume_url = upload_to_path(
-                portfolioFile, target_path=dest_name, public=True
+                encrypted_file, target_path=dest_name, public=False
             )
 
         accountData["portfolioUrl"] = resume_url
