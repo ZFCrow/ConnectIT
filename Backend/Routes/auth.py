@@ -266,7 +266,8 @@ def login():
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role if isinstance(account.role, str) else account.role.value,
+            "role": account.role 
+            if isinstance(account.role, str) else account.role.value,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
@@ -508,4 +509,4 @@ def logout():
 
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     return JWTUtils.remove_auth_cookie(resp)
-    
+
