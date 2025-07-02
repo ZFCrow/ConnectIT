@@ -123,7 +123,7 @@ def create_app():
                 or request.args.get("accountId")
                 or (request.get_json()).get("accountId")
             )
-            user = f"accountId={account_id}"
+            # user = f"accountId={account_id}"
 
         SplunkLogging.send_log(
             {
