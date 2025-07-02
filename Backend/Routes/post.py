@@ -1,12 +1,21 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
 from Control.PostControl import PostControl
 import traceback
 from Security.ValidateInputs import validate_post
 from Security.Limiter import limiter, get_account_key
-
+from Security.JWTUtils import JWTUtils
 
 post_bp = Blueprint("post", __name__)
 
+def _authenticate():
+    token = JWTUtils.get_token_from_cookie()
+    if not token:
+        abort(401, description="Authentication required")
+    try:
+        claims = JWTUtils.decode_jwt_token(token)
+    except Exception:
+        abort(401, description="Invalid or expired token")
+    return claims
 
 @post_bp.route("/createPost", methods=["POST"])
 @limiter.limit("10 per hour", key_func=get_account_key)
@@ -134,6 +143,9 @@ def toggleLikes(post_id, account_id):
     """
     Toggle the like status of a post for a given account.
     """
+    claims = _authenticate()
+    if claims.get("sub") != account_id:
+        abort(403, description="Cannot like on behalf of another user")
     try:
 
         result = PostControl.toggleLikes(
