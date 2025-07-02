@@ -85,13 +85,14 @@ jobs:
                     docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 
             # Wait for your Flask API to respond
-            -   name: Wait for backend
-                run: |
-                    for i in $(seq 1 20); do
-                        curl --fail http://localhost:5000/ && break
-                        echo "Waiting for API..."
-                        sleep 1
-                    done
+            # wont work due to csrf
+            # -   name: Wait for backend
+            #     run: |
+            #         for i in $(seq 1 20); do
+            #             curl --fail http://localhost:5000/ && break
+            #             echo "Waiting for API..."
+            #             sleep 1
+            #         done
 
             # Wait for your front-end (if you run it in Docker too)
             -   name: Wait for frontend

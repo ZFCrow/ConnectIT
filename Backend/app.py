@@ -32,22 +32,10 @@ from Security import Limiter, SplunkUtils
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
 
-# app = Flask(__name__)
-# Limiter.limiter.init_app(app)
 
-
-# # allow all domains to access the API
-# app.register_blueprint(profile_bp)
-# app.register_blueprint(auth_bp)
-# app.register_blueprint(job_listing_bp)
-# app.register_blueprint(label_bp)
-# app.register_blueprint(violation_bp)
-# app.register_blueprint(comment_bp)
-# app.register_blueprint(post_bp)
 
 # #splunk
 SplunkLogging = SplunkUtils.SplunkLogger()
-
 
 # CORS(app)
 def create_app():
