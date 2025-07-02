@@ -32,6 +32,7 @@ jobs:
                     JWT_SECRET=${{ secrets.JWT_SECRET }}
                     HCAPTCHA_SECRET=${{ secrets.HCAPTCHA_SECRET }}
                     AES_GCM_KEY=${{ secrets.AES_GCM_KEY }}
+                    ENCRYPTED_TOTP_SECRET=${{ secrets.ENCRYPTED_TOTP_SECRET }}
                     EOF
 
             -   name: Create .env.dev from secrets
@@ -44,7 +45,7 @@ jobs:
                     SSH_PORT=${{ secrets.SSH_PORT }}
                     SSH_USER=${{ secrets.SSH_USER }}
                     PEM_FILE=${{ secrets.PEM_FILE }}
-                    ENCRYPTED_TOTP_SECRET=${{ secrets.ENCRYPTED_TOTP_SECRET }}
+                    
                     EOF
 
             -   name: Bring up containers
