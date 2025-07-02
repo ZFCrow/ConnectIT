@@ -129,7 +129,7 @@ def create_app():
             {
                 "event": "Rate Limit Success",
                 "function": f"{e.description}@{request.path}",
-                "User": user,
+                "User": account_id,
                 "ip": request.remote_addr,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
