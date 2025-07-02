@@ -489,7 +489,5 @@ def logout():
         }
     )
 
-    dest = "/login"
-    resp = JWTUtils.remove_auth_cookie(resp)
-    resp = make_response(redirect(dest, code=302))
-    return resp
+    resp = make_response(jsonify({"message": "Logged out"}), 200)
+    return JWTUtils.remove_auth_cookie(resp)
