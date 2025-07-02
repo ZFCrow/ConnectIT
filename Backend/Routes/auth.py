@@ -14,9 +14,8 @@ from Security.Limiter import (
     increment_failed_attempts,
     get_failed_attempts_count,
     reset_login_attempts,
-    ratelimit_logger,
 )
-from datetime import datetime, timezone
+from datetime import datetime
 import jwt
 
 auth_bp = Blueprint("auth", __name__)
@@ -129,13 +128,6 @@ def login():
     captcha_token = payload.get("captchaToken")
 
     if is_locked(email):
-        timestamp = datetime.now(timezone.utc).isoformat()
-        ratelimit_logger.warning(
-            f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-            f"route={request.path} | method={request.method} | "
-            f"limit=lockout after 5 failed logins | email={email}"
-        )
-
         SplunkLogging.send_log(
             {
                 "event": "Login Failed",
@@ -231,13 +223,6 @@ def login():
         count = increment_failed_attempts(email)
 
         if count > 5:
-            timestamp = datetime.now(timezone.utc).isoformat()
-            ratelimit_logger.warning(
-                f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-                f"route={request.path} | method={request.method} | "
-                f"limit=lockout after 5 failed logins | email={email}"
-            )
-
             SplunkLogging.send_log(
                 {
                     "event": "Login Failed",

@@ -42,7 +42,7 @@ def verify_2fa():
 
     result, status_code = TwoFactorAuth.validate2FA(code, secret)
 
-    if result:
+    if result.get("verified"):
 
         SplunkLogging.send_log(
             {

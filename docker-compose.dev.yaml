@@ -26,8 +26,6 @@ services:
       - .env.dev 
     volumes:
       - ~/.ssh/ICT2216-student12.pem:/run/ssh/key.pem:ro
-      - ./logs:/var/log
-      
 
 
           

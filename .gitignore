@@ -9,6 +9,5 @@ sql_data_prod
 docker-compose.dev.yaml
 /sql_data
 connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json
-/logs
 images/
 /tests/__pycache__/

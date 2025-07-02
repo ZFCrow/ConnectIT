@@ -7,6 +7,7 @@ from Security.JWTUtils import JWTUtils
 
 post_bp = Blueprint("post", __name__)
 
+
 def _authenticate():
     token = JWTUtils.get_token_from_cookie()
     if not token:
@@ -16,6 +17,7 @@ def _authenticate():
     except Exception:
         abort(401, description="Invalid or expired token")
     return claims
+
 
 @post_bp.route("/createPost", methods=["POST"])
 @limiter.limit("10 per hour", key_func=get_account_key)

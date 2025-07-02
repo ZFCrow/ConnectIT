@@ -16,7 +16,6 @@ from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from flask_limiter.errors import RateLimitExceeded
 import os
-from datetime import datetime, timezone
 
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
@@ -126,14 +125,6 @@ def create_app():
             )
             user = f"accountId={account_id}"
 
-        timestamp = datetime.now(timezone.utc).isoformat()
-
-        message = (
-            f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
-            f"route={request.path} | method={request.method} | "
-            f"limit={e.description} | {user}"
-        )
-
         SplunkLogging.send_log(
             {
                 "event": "Rate Limit Success",
@@ -145,7 +136,6 @@ def create_app():
                 "path": request.path,
             }
         )
-        Limiter.ratelimit_logger.warning(message)
 
         return (
             jsonify(
