@@ -83,6 +83,11 @@ jobs:
                         sleep 1
                     done
 
+            -   name: Print backend logs
+                run: docker logs <backend-container-name>
+            -   name: Print frontend logs
+                run: docker logs <frontend-container-name>
+
             -   name: Fix permissions on web/
                 run: sudo chown -R $USER:$USER ./web
 
@@ -109,7 +114,7 @@ jobs:
                 with:
                     name: playwright-screenshots
                     path: web/test-results/screenshots
-                    
+
             -   name: Tear down
                 if: always()
                 run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down
