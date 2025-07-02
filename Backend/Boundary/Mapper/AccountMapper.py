@@ -223,7 +223,7 @@ class AccountMapper:
         """
         with db_context.session_scope() as session:
             companies = session.query(CompanyModel).all()
-            return [Company.from_model(company) for company in companies]
+            return [Company.from_CompanyModel(company) for company in companies]
 
     @staticmethod
     def setCompanyVerified(company_id: int, verified: int):

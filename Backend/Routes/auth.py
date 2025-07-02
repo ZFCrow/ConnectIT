@@ -272,13 +272,15 @@ def login():
         return jsonify({"message": "Incorrect credentials"}), 401
 
     if account:
+        print(f"Login successful for {email} in {duration_ms} ms")
+        print (f"Account details: {account}")
         reset_login_attempts(email)
         base_data = {
             "accountId": account.accountId,
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role,
+            "role": account.role.value,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,

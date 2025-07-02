@@ -20,7 +20,6 @@ class AccountModel(Base):
 
     # Just the primary key for FK reference
     accountId = Column(Integer, primary_key=True, autoincrement=True)
-    profilePicUrl = Column(String(255), nullable=True)
 
     name = Column(String(45), nullable=False)
     email = Column(String(45), nullable=False)
@@ -55,4 +54,4 @@ class AccountModel(Base):
         }
 
     def __repr__(self):
-        return f"<Account(accountID={self.accountID})>"
+        return f"<Account(accountId={self.accountID})>"

@@ -50,7 +50,6 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-
   const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
 
   const callCreateToken = async (account: AccountData) => {
@@ -95,6 +94,8 @@ export function LoginForm() {
       setShowCaptcha(false);
 
       let parsed;
+      console.log("LoginForm - handleSubmit - data:", data);
+
       switch (data.role) {
         case Role.User:
           parsed = UserSchema.parse(data);

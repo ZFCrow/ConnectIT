@@ -1,76 +1,59 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from Entity.Account import Account
-from SQLModels.UserModel import UserModel
 from typing import Optional
 
 
+from SQLModels.UserModel import UserModel
+
 @dataclass
 class User(Account):
-    __userId: int
-    __bio: Optional[str] = None
-    __portfolioUrl: Optional[str] = None
+    _userId: int = None
+    _bio: Optional[str] = None
+    _portfolioUrl: Optional[str] = None
 
+    # Properties
     @property
-    def userId(self):
-        return self.__userId
-    
+    def userId(self) -> int: return self._userId
     @property
-    def bio(self):
-        return self.__bio
-    
+    def bio(self) -> Optional[str]: return self._bio
     @property
-    def portfolioUrl(self):
-        return self.__portfolioUrl
+    def portfolioUrl(self) -> Optional[str]: return self._portfolioUrl
 
-    def setAccountInfo(
-        self,
-        name: Optional[str] = None,
-        passwordHash: Optional[str] = None,
-        profilePicUrl: Optional[str] = None,
-        bio: Optional[str] = None,
-        portfolioUrl: Optional[str] = None
-    ) -> None:
-        super().setAccountInfo(name, passwordHash, profilePicUrl)
-
-        if bio is not None:
-            self.__bio = bio
-        if portfolioUrl is not None:
-            self.__portfolioUrl = portfolioUrl
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "User":
-        base = Account.from_dict(data)
-        return cls(
-            **base.to_constructor_dict(),
-            userId=data.get("userId", 0),
-            bio=data.get("bio", ""),
-            portfolioUrl=data.get("portfolioUrl", "")
-        )
-
-    @classmethod
-    def from_UserModel(cls, m: UserModel) -> "User":
-        acc = m.account
-        return cls(
-            acc.accountId,
-            acc.name,
-            acc.email,
-            acc.passwordHash,
-            acc.profilePicUrl,
-            acc.role,
-            acc.isDisabled,
-            acc.twoFaEnabled,
-            acc.twoFaSecret,
-            acc.sessionId,
-            m.userId,
-            m.bio,
-            m.portfolioUrl
-        )
-
-    def to_dict(self):
+    # Serialisation
+    def to_dict(self) -> dict:
         base = super().to_dict()
         base.update({
-            "userId": self.__userId,
-            "bio": self.__bio,
-            "portfolioUrl": self.__portfolioUrl
+            "userId": self.userId,
+            "bio": self.bio,
+            "portfolioUrl": self.portfolioUrl,
         })
         return base
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        acc = Account.from_dict(data)
+        return cls(
+            **acc.to_constructor_dict(),
+            _userId       = data.get("userId", 0),
+            _bio          = data.get("bio"),
+            _portfolioUrl = data.get("portfolioUrl"),
+        )
+
+    @classmethod
+    def from_UserModel(cls, model: UserModel):
+        acc = model.account
+        return cls(
+            _accountId    = acc.accountId,
+            _name         = acc.name,
+            _email        = acc.email,
+            _passwordHash = acc.passwordHash,
+            _role         = acc.role.value,
+            _isDisabled   = bool(acc.isDisabled),
+            _twoFaEnabled = bool(acc.twoFaEnabled),
+            _profilePicUrl= acc.profilePicUrl or None,
+            _twoFaSecret  = acc.twoFaSecret or None,
+            _sessionId    = getattr(acc, "sessionId", None),
+            _userId       = model.userId,
+            _bio          = model.bio or None,
+            _portfolioUrl = model.portfolioUrl or None,
+        )

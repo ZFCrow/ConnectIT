@@ -3,122 +3,69 @@ from Entity.Account import Account
 from dataclasses import asdict
 from enum import Enum
 from typing import Optional
-from SQLModels.CompanyModel import CompanyModel
-
+from SQLModels.CompanyModel import CompanyModel  # local import to avoid tool ordering issues
 
 @dataclass
 class Company(Account):
-    __companyId: int
-    __companyDocUrl: str
-    __verified: int = 0
-    __description: Optional[str] = None
-    __location: Optional[str] = None
+    _companyId: int = None
+    _companyDocUrl: str = None
+    _verified: bool = False
+    _description: Optional[str] = None
+    _location: Optional[str] = None
 
+    # Properties
     @property
-    def companyId(self) -> int:
-        return self.__companyId
-    
+    def companyId(self) -> int: return self._companyId
     @property
-    def description(self) -> Optional[str]:
-        return self.__description
-    
+    def companyDocUrl(self) -> Optional[str]: return self._companyDocUrl
     @property
-    def location(self) -> Optional[str]:
-        return self.__location
-    
+    def verified(self) -> bool: return self._verified
     @property
-    def companyDocUrl(self):
-        return self.__companyDocUrl
-    
+    def description(self) -> Optional[str]: return self._description
     @property
-    def verified(self):
-        return self.__verified
+    def location(self) -> Optional[str]: return self._location
 
-    def setAccountInfo(
-        self,
-        name: Optional[str] = None,
-        passwordHash: Optional[str] = None,
-        profilePicUrl: Optional[str] = None,
-        description: Optional[str] = None,
-        location: Optional[str] = None
-    ) -> None:
-        # Call the base Account method
-        super().setAccountInfo(name, passwordHash, profilePicUrl)
-
-        # Set Company-specific fields
-        if description is not None:
-            self.__description = description
-        if location is not None:
-            self.__location = location
-
-    @classmethod
-    def from_dict(cls, data):
-        base = Account.from_dict(data)
-        return cls(
-            **base.to_constructor_dict(),
-            companyId=data.get("companyId", 0),
-            companyDocUrl=data.get("companyDocUrl", ""),
-            description=data.get("description", ""),
-            location=data.get("location", ""),
-            verified=data.get("verified", 0)
-        )
-
-    @classmethod
-    def from_CompanyModel(cls, model: CompanyModel) -> "Company":
-        acc = model.account  # This is the joined AccountModel
-        return cls(
-            model.companyId,
-            model.companyDocUrl,
-            model.description,
-            model.location,
-            model.verified,
-            acc.accountId,
-            acc.name,
-            acc.email,
-            acc.passwordHash,
-            acc.profilePicUrl,
-            acc.role,
-            acc.isDisabled,
-            acc.twoFaEnabled,
-            acc.twoFaSecret,
-            acc.sessionId
-        )
-
+    # Serialisation
     def to_dict(self) -> dict:
         base = super().to_dict()
         base.update({
             "companyId": self.companyId,
             "companyDocUrl": self.companyDocUrl,
+            "verified": self.verified,
             "description": self.description,
             "location": self.location,
-            "verified": self.verified,
         })
         return base
 
-    # def to_dict(self) -> dict:
-    #     """
-    #     Plain-Python,
-    #     JSON-ready representation of Company (incl. Account fields).
-    #     """
-    #     raw = asdict(self)
+    @classmethod
+    def from_dict(cls, data: dict):
+        acc = Account.from_dict(data)
+        return cls(
+            **acc.to_constructor_dict(),
+            _companyId     = data.get("companyId", 0),
+            _companyDocUrl = data.get("companyDocUrl"),
+            _verified      = bool(data.get("verified", False)),
+            _description   = data.get("description"),
+            _location      = data.get("location"),
+        )
 
-    #     # Convert any Enum values (e.g. role) to their `.value`
-    #     for key, val in raw.items():
-    #         if isinstance(val, Enum):
-    #             raw[key] = val.value
-
-    #     return {
-    #         "companyId": raw["companyId"],
-    #         "accountId": raw["accountId"],
-    #         "name": raw["name"],
-    #         "email": raw["email"],
-    #         "passwordHash": raw["passwordHash"],
-    #         "profilePicUrl": raw["profilePicUrl"],
-    #         "role": raw["role"],  # already value-str thanks to loop
-    #         "isDisabled": raw["isDisabled"],
-    #         "sessionId": raw["sessionId"],
-    #         "description": raw["description"],
-    #         "location": raw["location"],
-    #         "companyDocUrl": raw["companyDocUrl"],
-    #         "verified": raw["verified"],
-    #     }
+    @classmethod
+    def from_CompanyModel(cls, model: CompanyModel):
+        acc = model.account
+        return cls(
+            _accountId    = acc.accountId,
+            _name         = acc.name,
+            _email        = acc.email,
+            _passwordHash = acc.passwordHash,
+            _role         = acc.role.value,
+            _isDisabled   = bool(acc.isDisabled),
+            _twoFaEnabled = bool(acc.twoFaEnabled),
+            _profilePicUrl= acc.profilePicUrl or None,
+            _twoFaSecret  = acc.twoFaSecret or None,
+            _sessionId    = getattr(acc, "sessionId", None),
+            _companyId    = model.companyId,
+            _companyDocUrl= model.companyDocUrl or None,
+            _verified     = bool(model.verified),
+            _description  = model.description or None,
+            _location     = model.location or None,
+        )

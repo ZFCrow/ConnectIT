@@ -1,3 +1,4 @@
+from dataclasses import field, dataclass
 from datetime import datetime
 from typing import List, Optional
 from Entity.Company import Company
@@ -14,183 +15,139 @@ class WorkArrangement(Enum):
 class JobType(Enum):
     PartTime = "Part Time"
     FullTime = "Full Time"
-    Intership = "Internship"
+    Internship = "Internship"
     Contract = "Contract"
 
 
+
+@dataclass
 class JobListing:
-    def __init__(
-        self,
-        jobId: int,
-        title: str,
-        description: str,
-        applicationDeadline: datetime,
-        minSalary: int,
-        maxSalary: int,
-        jobType: JobType,
-        createdAt: datetime,
-        workArrangement: WorkArrangement,
-        fieldOfWork: str,
-        responsibilities: List[str],
-        experiencePreferred: int = 0,
-        numApplicants: int = 0,
-        isDeleted: bool = False,
-        company: Optional[Company] = None,
-        jobApplication: Optional[List[JobApplication]] = None,
-    ):
-        self.jobId = jobId
-        self.company = company
-        self.title = title
-        self.description = description
-        self.applicationDeadline = applicationDeadline
-        self.minSalary = minSalary
-        self.maxSalary = maxSalary
-        self.jobType = jobType
-        self.createdAt = createdAt
-        self.workArrangement = workArrangement
-        self.fieldOfWork = fieldOfWork
-        self.isDeleted = isDeleted
-        self.numApplicants = numApplicants
-        self.experiencePreferred = experiencePreferred
-        self.responsibilities = responsibilities
-        self.jobApplication = jobApplication if jobApplication is not None else []
+    # ――― Core fields (all private, single underscore) ――― #
+    _jobId: int
+    _title: str
+    _description: str
+    _applicationDeadline: datetime
+    _minSalary: int
+    _maxSalary: int
+    _jobType: JobType
+    _createdAt: datetime
+    _workArrangement: WorkArrangement
+    _fieldOfWork: str
 
-    # Getters & Setters
-    def getJobId(self) -> int:
-        return self.jobId
+    # ――― Optional / mutable collections ――― #
+    _responsibilities: List[str] = field(default_factory=list)
+    _experiencePreferred: int = 0
+    _numApplicants: int = 0
+    _isDeleted: bool = False
+    _company: Optional[Company] = None
+    _jobApplication: List[JobApplication] = field(default_factory=list)
 
-    def setJobId(self, jobId: int) -> None:
-        self.jobId = jobId
+    # ――― Read‑only property accessors ――― #
+    @property
+    def jobId(self) -> int:
+        return self._jobId
 
-    def getCompanyId(self) -> int:
-        return self.companyId
+    @property
+    def title(self) -> str:
+        return self._title
 
-    def setCompanyId(self, companyId: int) -> None:
-        self.companyId = companyId
+    @property
+    def description(self) -> str:
+        return self._description
 
-    def getTitle(self) -> str:
-        return self.title
+    @property
+    def applicationDeadline(self) -> datetime:
+        return self._applicationDeadline
 
-    def setTitle(self, title: str) -> None:
-        self.title = title
+    @property
+    def minSalary(self) -> int:
+        return self._minSalary
 
-    def getDescription(self) -> str:
-        return self.description
+    @property
+    def maxSalary(self) -> int:
+        return self._maxSalary
 
-    def setDescription(self, desc: str) -> None:
-        self.description = desc
+    @property
+    def jobType(self) -> JobType:
+        return self._jobType
 
-    def getDeadline(self) -> datetime:
-        return self.applicationDeadline
+    @property
+    def createdAt(self) -> datetime:
+        return self._createdAt
 
-    def setDeadline(self, deadline: datetime) -> None:
-        self.applicationDeadline = deadline
+    @property
+    def workArrangement(self) -> WorkArrangement:
+        return self._workArrangement
 
-    def getMinSalary(self) -> int:
-        return self.minSalary
+    @property
+    def fieldOfWork(self) -> str:
+        return self._fieldOfWork
 
-    def setMinSalary(self, min_: int) -> None:
-        self.minSalary = min_
+    @property
+    def responsibilities(self) -> List[str]:
+        return self._responsibilities
 
-    def getMaxSalary(self) -> int:
-        return self.maxSalary
+    @property
+    def experiencePreferred(self) -> int:
+        return self._experiencePreferred
 
-    def setMaxSalary(self, max_: int) -> None:
-        self.maxSalary = max_
+    @property
+    def numApplicants(self) -> int:
+        return self._numApplicants
 
-    def getType(self) -> str:  # Could be enum
-        return self.jobType
+    @property
+    def isDeleted(self) -> bool:
+        return self._isDeleted
 
-    def setType(self, jobType: str) -> None:
-        self.jobType = jobType
+    @property
+    def company(self) -> Optional[Company]:
+        return self._company
 
-    def getCreatedAt(self) -> datetime:
-        return self.createdAt
+    @property
+    def jobApplication(self) -> List[JobApplication]:
+        return self._jobApplication
 
-    def setCreatedAt(self, createdAt: datetime) -> None:
-        self.createdAt = createdAt
-
-    def getArrangement(self) -> str:  # WorkArrangement
-        return str(self.workArrangement)
-
-    def setArrangement(self, arrangement: WorkArrangement) -> None:
-        self.workArrangement = arrangement
-
-    # def getFieldOfWork(self) -> Field:
-    #     return self.fieldOfWork
-
-    # def setFieldOfWork(self, field: Field) -> None:
-    #     self.fieldOfWork = field
-
-    def getScope(self) -> str:
-        return self.jobScope
-
-    def setScope(self, scope: str) -> None:
-        self.jobScope = scope
-
-    def getResponsibilities(self) -> str:
-        return self.responsibilities
-
-    def setResponsibilities(self, resp: str) -> None:
-        self.responsibilities = resp
-
-    def getJobApplication(self) -> List[JobApplication]:
-        return self.jobApplication
-
-    def addJobApplication(self, userID: int) -> None:
-        self.jobApplication.append(JobApplication(userID))
-
+    # ――― Convenience factories ――― #
     @classmethod
-    def from_dict(cls, data: dict):
-        """
-        Create a JobListing instance from a dictionary,
-        handling Enums and Optionals.
-        """
-        # Parse enums from string (case-insensitive, forgiving)
-        job_type_value = data.get("jobType") or data.get("job_type") or "Full Time"
-        job_type = JobType(job_type_value)
+    def from_dict(cls, data: dict) -> "JobListing":
+        """Create a JobListing instance from a plain dict, handling enum & date conversions."""
 
-        work_arrangement_value = (
-            data.get("workArrangement") or data.get("work_arrangement") or "Onsite"
-        )
-        work_arrangement = WorkArrangement(work_arrangement_value)
+        # Parse enums (case‑insensitive, default values provided)
+        job_type_str = (data.get("jobType") or data.get("job_type") or "Full Time").replace(" ", "")
+        job_type = JobType[job_type_str]
 
-        # Parse datetimes (expecting ISO strings)
-        deadline = data.get("applicationDeadline") or data.get("application_deadline")
-        created_at = data.get("createdAt") or data.get("created_at")
-        application_deadline = (
-            datetime.fromisoformat(deadline) if isinstance(deadline, str) else deadline
-        )
-        created_at = (
-            datetime.fromisoformat(created_at)
-            if isinstance(created_at, str)
-            else created_at
-        )
+        work_arr_str = (data.get("workArrangement") or data.get("work_arrangement") or "Onsite").replace(" ", "")
+        work_arrangement = WorkArrangement[work_arr_str]
 
+        # Parse dates (ISO 8601 expected when given as str)
+        def _parse_dt(raw):
+            return datetime.fromisoformat(raw) if isinstance(raw, str) else raw
+
+        application_deadline = _parse_dt(data.get("applicationDeadline") or data.get("application_deadline"))
+        created_at = _parse_dt(data.get("createdAt") or data.get("created_at"))
+
+        # Build the instance
         return cls(
-            jobId=data.get("jobId") or data.get("job_id"),
-            title=data.get("title"),
-            description=data.get("description"),
-            applicationDeadline=application_deadline,
-            minSalary=data.get("minSalary") or data.get("min_salary"),
-            maxSalary=data.get("maxSalary") or data.get("max_salary"),
-            jobType=JobType(job_type),
-            createdAt=created_at,
-            workArrangement=WorkArrangement(work_arrangement),
-            fieldOfWork=(
-                data.get("fieldOfWork") or data.get("field_of_work") or "Other"
-            ),
-            responsibilities=data.get("responsibilities", []),
-            isDeleted=data.get("isDeleted") or data.get("is_deleted", False),
-            company=data.get("company"),
-            jobApplication=(data.get("jobApplication") or data.get("job_application")),
-            experiencePreferred=(
-                data.get("experiencePreferred") or data.get("experience_preferred", 0)
-            ),
-            numApplicants=(data.get("numApplicants") or data.get("num_applicants", 0)),
+            _jobId=data.get("jobId") or data.get("job_id"),
+            _title=data.get("title"),
+            _description=data.get("description"),
+            _applicationDeadline=application_deadline,
+            _minSalary=data.get("minSalary") or data.get("min_salary"),
+            _maxSalary=data.get("maxSalary") or data.get("max_salary"),
+            _jobType=job_type,
+            _createdAt=created_at,
+            _workArrangement=work_arrangement,
+            _fieldOfWork=data.get("fieldOfWork") or data.get("field_of_work") or "Other",
+            _responsibilities=data.get("responsibilities", []),
+            _isDeleted=data.get("isDeleted") or data.get("is_deleted", False),
+            _company=data.get("company"),
+            _experiencePreferred=data.get("experiencePreferred") or data.get("experience_preferred", 0),
+            _numApplicants=data.get("numApplicants") or data.get("num_applicants", 0),
+            _jobApplication=data.get("jobApplication") or data.get("job_application") or [],
         )
 
     def to_dict(self) -> dict:
+        """Serialise to JSON‑serialisable dict suitable for REST responses or storage."""
         return {
             "jobId": self.jobId,
             "title": self.title,
@@ -198,52 +155,38 @@ class JobListing:
             "applicationDeadline": self.applicationDeadline.isoformat(),
             "minSalary": self.minSalary,
             "maxSalary": self.maxSalary,
-            "jobType": self.jobType.value,  # Enum → str
+            "jobType": self.jobType.value,
             "createdAt": self.createdAt.isoformat(),
             "workArrangement": self.workArrangement.value,
             "fieldOfWork": self.fieldOfWork,
             "responsibilities": list(self.responsibilities),
             "isDeleted": self.isDeleted,
-            "company": (self.company.to_dict() if self.company else None),
+            "company": self.company.to_dict() if self.company else None,
             "experiencePreferred": self.experiencePreferred,
             "numApplicants": self.numApplicants,
-            "jobApplication": (
-                [app.to_dict() for app in self.jobApplication]
-                if self.jobApplication
-                else []
-            ),
+            "jobApplication": [app.to_dict() for app in self.jobApplication],
         }
 
+    
     @classmethod
-    def from_JobListingModel(cls, orm_obj, numApplicants=0) -> "JobListing":
+    def from_JobListingModel(cls, orm_obj, *, numApplicants: int = 0) -> "JobListing":
+        from Entity.Company import Company  # local import avoids circulars
+
         return cls(
-            jobId=orm_obj.jobId,
-            title=orm_obj.title,
-            description=orm_obj.description,
-            applicationDeadline=orm_obj.applicationDeadline,
-            minSalary=orm_obj.minSalary,
-            maxSalary=orm_obj.maxSalary,
-            jobType=orm_obj.jobType,
-            createdAt=orm_obj.createdAt,
-            # Enum
-            workArrangement=orm_obj.workArrangement,
-            fieldOfWork=orm_obj.fieldOfWork.description,
-            responsibilities=[
-                r.responsibility
-                for r in orm_obj.responsibilities
-                if r.responsibility is not None
-            ],
-            isDeleted=orm_obj.isDeleted,
-            company=Company.from_model(orm_obj.company),
-            jobApplication=(
-                [JobApplication.from_model(a) for a in orm_obj.jobApplication]
-                if orm_obj.jobApplication
-                else []
-            ),
-            experiencePreferred=(
-                orm_obj.experiencePreferred
-                if orm_obj.experiencePreferred is not None
-                else 0
-            ),
-            numApplicants=numApplicants,
+            _jobId=orm_obj.jobId,
+            _title=orm_obj.title,
+            _description=orm_obj.description,
+            _applicationDeadline=orm_obj.applicationDeadline,
+            _minSalary=orm_obj.minSalary,
+            _maxSalary=orm_obj.maxSalary,
+            _jobType= orm_obj.jobType,               
+            _createdAt=orm_obj.createdAt,
+            _workArrangement=orm_obj.workArrangement,
+            _fieldOfWork=getattr(orm_obj.fieldOfWork, "description", orm_obj.fieldOfWork),
+            _responsibilities=[r.responsibility for r in orm_obj.responsibilities if r.responsibility],
+            _isDeleted=orm_obj.isDeleted,
+            _company=Company.from_CompanyModel(orm_obj.company) if orm_obj.company else None,
+            _experiencePreferred=orm_obj.experiencePreferred or 0,
+            _numApplicants=numApplicants,
+            _jobApplication=[JobApplication.from_model(a) for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
         )

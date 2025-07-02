@@ -40,7 +40,7 @@ class AccountControl:
         email = accountData.get("email", "")
 
         account = AccountMapper.getAccountByEmail(email)
-
+        print(type(account.role), account.role)
         password = accountData.get("password", "")
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)

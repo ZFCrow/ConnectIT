@@ -1,123 +1,89 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from SQLModels import AccountModel
 from typing import Dict, Any, Optional
 
 
 @dataclass
 class Account:
-    __accountId: int
-    __name: str
-    __email: str
-    __passwordHash: str
-    __role: str
-    __isDisabled: bool = False
-    __twoFaEnabled: bool = False
-    __profilePicUrl: Optional[str] = None
-    __twoFaSecret: Optional[str] = None
-    __sessionId: Optional[str] = None
+    _accountId: int
+    _name: str
+    _email: str
+    _passwordHash: str
+    _role: str  # plain string – DB enum already cast to str
+    _isDisabled: bool = False
+    _twoFaEnabled: bool = False
+    _profilePicUrl: Optional[str] = None
+    _twoFaSecret: Optional[str] = None
+    _sessionId: Optional[str] = None
 
+    # ----------------- Properties ----------------- #
     @property
-    def accountId(self) -> int:
-        return self.__accountId
-    
+    def accountId(self) -> int: return self._accountId
     @property
-    def name(self) -> str:
-        return self.__name
-    
+    def name(self) -> str: return self._name
     @property
-    def email(self) -> str:
-        return self.__email
-    
+    def email(self) -> str: return self._email
     @property
-    def passwordHash(self) -> str:
-        return self.__passwordHash
-    
+    def passwordHash(self) -> str: return self._passwordHash
     @property
-    def profilePicUrl(self) -> str:
-        return self.__profilePicUrl
-    
+    def role(self) -> str: return self._role
     @property
-    def role(self) -> str:
-        return self.__role
-    
+    def isDisabled(self) -> bool: return self._isDisabled
     @property
-    def isDisabled(self) -> bool:
-        return self.__isDisabled
-    
+    def twoFaEnabled(self) -> bool: return self._twoFaEnabled
     @property
-    def twoFaEnabled(self) -> bool:
-        return self.__twoFaEnabled
-    
+    def profilePicUrl(self) -> Optional[str]: return self._profilePicUrl
     @property
-    def twoFaSecret(self) -> str:
-        return self.__twoFaSecret
-    
+    def twoFaSecret(self) -> Optional[str]: return self._twoFaSecret
     @property
-    def sessionId(self) -> str:
-        return self.__sessionId
-    
-    def setAccountId(self, id: int) -> None:
-        self.__accountId = id
+    def sessionId(self) -> Optional[str]: return self._sessionId
 
-    def setTwoFa(self, enabled: bool, secret: str) -> None:
-        self.__twoFaEnabled = enabled
-        self.__twoFaSecret = secret
-
-    def setAccountInfo(
-            self, name: Optional[str] = None,
-            passwordHash: Optional[str] = None,
-            profilePicUrl: Optional[str] = None) -> None:
-        if name is not None:
-            self.__name = name
-        if passwordHash is not None:
-            self.__passwordHash = passwordHash
-        if profilePicUrl is not None:
-            self.__profilePicUrl = profilePicUrl
-    
-    @classmethod
-    def from_AccountModel(cls, m: AccountModel) -> "Account":
-        return cls(
-            m.accountId,
-            m.name,
-            m.email,
-            m.passwordHash,
-            m.role,
-            m.isDisabled,
-            m.twoFaEnabled,
-            m.profilePicUrl if m.profilePicUrl else None,
-            m.twoFaSecret if m.twoFaSecret else None,
-            getattr(m, "sessionId", None)
-        )
-    
-    def to_dict(self) -> Dict[str, Any]:
+    # ----------------- Serialisation helpers ----------------- #
+    def to_dict(self) -> dict:
         return {
-            "accountId": self.__accountId,
-            "name": self.__name,
-            "email": self.__email,
-            "passwordHash": self.__passwordHash,
-            "profilePicUrl": self.__profilePicUrl,
-            "role": self.__role,
-            "isDisabled": self.__isDisabled,
-            "twoFaEnabled": self.__twoFaEnabled,
-            "twoFaSecret": self.__twoFaSecret,
-            "sessionId": self.__sessionId
+            "accountId": self.accountId,
+            "name": self.name,
+            "email": self.email,
+            "passwordHash": self.passwordHash,
+            "profilePicUrl": self.profilePicUrl,
+            "role": self.role,
+            "isDisabled": self.isDisabled,
+            "twoFaEnabled": self.twoFaEnabled,
+            "twoFaSecret": self.twoFaSecret,
+            "sessionId": self.sessionId,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Account":
+    def from_AccountModel(cls, m):
         return cls(
-            data.get("accountId", 0),
-            data.get("name", ""),
-            data.get("email", ""),
-            data.get("passwordHash", ""),
-            data.get("role", ""),
-            data.get("isDisabled", False),
-            data.get("twoFaEnabled", False),
-            data.get("profilePicUrl", ""),
-            data.get("twoFaSecret", ""),
-            data.get("sessionId", "")
+            _accountId      = m.accountId,
+            _name           = m.name,
+            _email          = m.email,
+            _passwordHash   = m.passwordHash,
+            _role           = getattr(m, "role", ""),
+            _isDisabled     = bool(getattr(m, "isDisabled", 0)),
+            _twoFaEnabled   = bool(getattr(m, "twoFaEnabled", 0)),
+            _profilePicUrl  = m.profilePicUrl or None,
+            _twoFaSecret    = m.twoFaSecret   or None,
+            _sessionId      = getattr(m, "sessionId", None),
         )
-    
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            _accountId    = data.get("accountId", 0),
+            _name         = data.get("name", ""),
+            _email        = data.get("email", ""),
+            _passwordHash = data.get("passwordHash", ""),
+            _role         = data.get("role", "User"),
+            _isDisabled   = bool(data.get("isDisabled", False)),
+            _twoFaEnabled = bool(data.get("twoFaEnabled", False)),
+            _profilePicUrl= data.get("profilePicUrl"),
+            _twoFaSecret  = data.get("twoFaSecret"),
+            _sessionId    = data.get("sessionId"),
+        )
+
     def to_constructor_dict(self) -> Dict[str, Any]:
         return {
             "accountId": self.accountId,
@@ -129,5 +95,5 @@ class Account:
             "twoFaEnabled": self.twoFaEnabled,
             "profilePicUrl": self.profilePicUrl,
             "twoFaSecret": self.twoFaSecret,
-            "sessionId": self.sessionId
+            "sessionId": self.sessionId,
         }
