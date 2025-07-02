@@ -210,7 +210,7 @@ export function LoginForm() {
         />
       )}
       {step === "verify" && (
-        <Verify2FAForm secret={user.twoFaSecret} onSuccess={handle2FASuccess} />
+        <Verify2FAForm accountId={user.accountId} secret={user.twoFaSecret} onSuccess={handle2FASuccess} />
       )}
       <ApplicationToaster />{" "}
     </div>

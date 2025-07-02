@@ -13,11 +13,12 @@ import axios from "@/utility/axiosConfig";
 import toast from "react-hot-toast";
 
 type Props = {
+  accountId: number;
   secret: string;
   onSuccess: () => void;
 };
 
-export function Verify2FAForm({ secret, onSuccess }: Props) {
+export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<string | null>(null);
 
@@ -28,7 +29,7 @@ export function Verify2FAForm({ secret, onSuccess }: Props) {
     }
 
     try {
-      const res = await axios.post("/api/2fa-verify", { code, secret });
+      const res = await axios.post("/api/2fa-verify", { accountId, code, secret });
       if (res.data.verified) {
         toast.success("2FA Verified");
         onSuccess();

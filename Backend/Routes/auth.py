@@ -127,7 +127,6 @@ def login():
     payload = request.get_json() or {}
     email = payload.get("email")
     captcha_token = payload.get("captchaToken")
-    print("DOES IT EVEN COME HERE")
 
     if is_locked(email):
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -148,8 +147,6 @@ def login():
                 "path": request.path,
             }
         )
-
-        print("LOGIN: SPLUNK LOG SEND HERE")
 
         return jsonify({"error": "Account locked due to too many failed attempts"}), 403
 

@@ -114,24 +114,24 @@ def create_app():
             user = ""
         elif request.path == "/addJob":
             company_id = (request.get_json()).get("company_id")
-            user = f" | companyId={company_id}"
+            user = f"companyId={company_id}"
         elif request.path == "/applyJob":
             user_id = request.form.get("userId") or request.get_json().get("userId")
-            user = f" | userId={user_id}"
+            user = f"userId={user_id}"
         else:
             account_id = (
                 request.form.get("accountId")
                 or request.args.get("accountId")
                 or (request.get_json()).get("accountId")
             )
-            user = f" | accountId={account_id}"
+            user = f"accountId={account_id}"
 
         timestamp = datetime.now(timezone.utc).isoformat()
 
         message = (
             f"RATE_LIMIT | time={timestamp} | ip={request.remote_addr} | "
             f"route={request.path} | method={request.method} | "
-            f"limit={e.description}{user}"
+            f"limit={e.description} | {user}"
         )
 
         SplunkLogging.send_log(

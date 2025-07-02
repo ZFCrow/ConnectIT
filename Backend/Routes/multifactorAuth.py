@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from Security import TwoFactorAuth
 from Security import SplunkUtils
-
+from Security.Limiter import limiter, get_account_key
 
 multi_factor_auth_bp = Blueprint("multi_factor_auth", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
@@ -34,9 +34,11 @@ def generate_2fa():
 
 # Route for 2FA code verification
 @multi_factor_auth_bp.route("/2fa-verify", methods=["POST"])
+@limiter.limit("5 per 10 minutes", key_func=get_account_key)
 def verify_2fa():
     code = request.json.get("code")
     secret = request.json.get("secret")
+    accountId = request.json.get("accountId")
 
     result, status_code = TwoFactorAuth.validate2FA(code, secret)
 
@@ -45,7 +47,7 @@ def verify_2fa():
         SplunkLogging.send_log(
             {
                 "event": "Login Success",
-                "user": "xxx",
+                "user": f"accountId={accountId}",
                 "ip": request.remote_addr,
                 "user_agent": str(request.user_agent),
                 "method": request.method,

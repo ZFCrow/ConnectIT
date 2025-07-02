@@ -44,7 +44,7 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
     }
 
     try {
-      const res = await axios.post("/api/2fa-verify", { code, secret });
+      const res = await axios.post("/api/2fa-verify", { accountId, code, secret });
       if (res.data.verified) {
         toast.success("2FA Verified");
 
