@@ -67,7 +67,6 @@ def get_company_key():
     company_id = data.get("company_id")
     if company_id:
         return company_id
-    #return (request.get_json()).get("company_id")
 
 
 # get user ID
