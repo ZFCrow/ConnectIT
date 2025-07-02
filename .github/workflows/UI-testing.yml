@@ -47,7 +47,20 @@ jobs:
                     PEM_FILE=${{ secrets.PEM_FILE }}
                     
                     EOF
-
+            -   name: Inspect workspace after env creation
+                run: |
+                    echo "📂 Current working directory: $(pwd)"
+                    echo "🗂️  Files at repo root:"
+                    ls -al
+                    echo ""
+                    echo "🗂️  Does .env exist?"
+                    [ -f .env ] && echo "✅ .env found" || echo "❌ .env missing"
+                    echo "🗂️  Does .env.dev exist?"
+                    [ -f .env.dev ] && echo "✅ .env.dev found" || echo "❌ .env.dev missing"
+                    echo ""
+                    echo "🗂️  Contents of web/ directory:"
+                    ls -al web
+                    
             -   name: Bring up containers
                 run: |
                     docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
