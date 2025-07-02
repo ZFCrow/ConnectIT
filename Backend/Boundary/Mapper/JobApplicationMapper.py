@@ -142,7 +142,7 @@ class JobApplicationMapper:
                 if applications
                 else []
             )
-  
+
     @staticmethod
     def getApplicationById(applicationId: int):
         with db_context.session_scope() as session:
@@ -154,4 +154,3 @@ class JobApplicationMapper:
             if not row:
                 return None
             return {"jobId": row[0]}
-        

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response, abort, redirect
+from flask import Blueprint, request, jsonify, make_response, abort
 from Control.AccountControl import AccountControl
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
@@ -508,3 +508,4 @@ def logout():
 
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     return JWTUtils.remove_auth_cookie(resp)
+    
