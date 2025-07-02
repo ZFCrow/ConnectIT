@@ -63,7 +63,11 @@ def get_account_key():
 
 # get company ID
 def get_company_key():
-    return (request.get_json()).get("company_id")
+    data = request.get_json(silent=True) or {}
+    company_id = data.get("company_id")
+    if company_id:
+        return company_id
+    #return (request.get_json()).get("company_id")
 
 
 # get user ID

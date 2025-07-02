@@ -18,6 +18,9 @@ class Account:
     # ----------------- Properties ----------------- #
     @property
     def accountId(self) -> int: return self._accountId
+    @accountId.setter
+    def accountId(self, value: int): self._accountId = value
+    def setAccountId(self, value: int): self._accountId = value
     @property
     def name(self) -> str: return self._name
     @property
