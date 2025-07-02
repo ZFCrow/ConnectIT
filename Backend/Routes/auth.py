@@ -266,7 +266,7 @@ def login():
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role 
+            "role": account.role
             if isinstance(account.role, str) else account.role.value,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,

@@ -69,9 +69,9 @@ def create_app():
             response.set_cookie(
                 "csrf_token",
                 token,
-                httponly=False,  # so client JS can read it
-                secure=True,  # change to True in prod over HTTPS
-                samesite="Strict",  # same-site for your SPA
+                httponly=True, 
+                secure=True,
+                samesite="Strict",
                 path="/",
             )
         except Exception as e:
@@ -116,20 +116,20 @@ def create_app():
             user = f"companyId={company_id}"
         elif request.path == "/applyJob":
             user_id = request.form.get("userId") or request.get_json().get("userId")
-            # user = f"userId={user_id}"
+            user = f"userId={user_id}"
         else:
             account_id = (
                 request.form.get("accountId")
                 or request.args.get("accountId")
                 or (request.get_json()).get("accountId")
             )
-            # user = f"accountId={account_id}"
+            user = f"accountId={account_id}"
 
         SplunkLogging.send_log(
             {
                 "event": "Rate Limit Success",
                 "function": f"{e.description}@{request.path}",
-                "User": account_id,
+                "User": user,
                 "ip": request.remote_addr,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
