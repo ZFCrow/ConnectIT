@@ -1,52 +1,84 @@
+
+# .github/workflows/UI-testing.yml
 name: E2E with Docker Compose
 
 on:
   push:
   pull_request:
 
+
 jobs:
-  e2e:
-    runs-on: ubuntu-latest
+    e2e:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+            -   name: Set up Docker Compose
+                uses: docker/setup-buildx-action@v2
+    
+            -   name: Create .env from secrets
+                run: |
+                    cat <<-EOF > .env
+                    FLASK_RUN_HOST=${{ secrets.FLASK_RUN_HOST }}
+                    FLASK_RUN_PORT=${{ secrets.FLASK_RUN_PORT }}
+                    FLASK_SECRET=${{ secrets.FLASK_SECRET }}
+                    VITE_HCAPTCHA_SITEKEY=${{ secrets.VITE_HCAPTCHA_SITEKEY }}
+                    MYSQL_ROOT_PASSWORD_DEV=${{ secrets.MYSQL_ROOT_PASSWORD_DEV }}
+                    MYSQL_DATABASE_DEV=${{ secrets.MYSQL_DATABASE_DEV }}
+                    MYSQL_USER_DEV=${{ secrets.MYSQL_USER_DEV }}
+                    MYSQL_PASSWORD_DEV=${{ secrets.MYSQL_PASSWORD_DEV }}
+                    FERNET_KEY=${{ secrets.FERNET_KEY }}
+                    JWT_SECRET=${{ secrets.JWT_SECRET }}
+                    HCAPTCHA_SECRET=${{ secrets.HCAPTCHA_SECRET }}
+                    AES_GCM_KEY=${{ secrets.AES_GCM_KEY }}
+                    EOF
 
-      - name: Set up Docker Compose
-        uses: docker/setup-buildx-action@v2
+            -   name: Create .env.dev from secrets
+                run: |
+                    cat <<-EOF > .env.dev
+                    MYSQL_REMOTE_PORT=${{ secrets.MYSQL_REMOTE_PORT }}
+                    FLASK_DEBUG_DEV=${{ secrets.FLASK_DEBUG_DEV }}
+                    USE_SSH_TUNNEL_DEV=${{ secrets.USE_SSH_TUNNEL_DEV }}
+                    SSH_HOST=${{ secrets.SSH_HOST }}
+                    SSH_PORT=${{ secrets.SSH_PORT }}
+                    SSH_USER=${{ secrets.SSH_USER }}
+                    PEM_FILE=${{ secrets.PEM_FILE }}
+                    ENCRYPTED_TOTP_SECRET=${{ secrets.ENCRYPTED_TOTP_SECRET }}
+                    EOF
 
-      - name: Bring up containers
-        run: |
-          docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+            -   name: Bring up containers
+                run: |
+                    docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 
-      # Wait for your Flask API to respond
-      - name: Wait for backend
-        run: |
-          for i in $(seq 1 20); do
-            curl --fail http://localhost:5000/ && break
-            echo "Waiting for API..."
-            sleep 1
-          done
+            # Wait for your Flask API to respond
+            -   name: Wait for backend
+                run: |
+                    for i in $(seq 1 20); do
+                        curl --fail http://localhost:5000/ && break
+                        echo "Waiting for API..."
+                        sleep 1
+                    done
 
-      # Wait for your front-end (if you run it in Docker too)
-      - name: Wait for frontend
-        run: |
-          for i in $(seq 1 20); do
-            curl --fail http://localhost:5173/ && break
-            echo "Waiting for frontend..."
-            sleep 1
-          done
+            # Wait for your front-end (if you run it in Docker too)
+            -   name: Wait for frontend
+                run: |
+                    for i in $(seq 1 20); do
+                        curl --fail http://localhost:5173/ && break
+                        echo "Waiting for frontend..."
+                        sleep 1
+                    done
 
-      - name: Install Playwright deps
-        working-directory: web
-        run: |
-          npm ci
-          npx playwright install --with-deps
+            -   name: Install Playwright deps
+                working-directory: web
+                run: |
+                    npm ci
+                    npx playwright install --with-deps
 
-      - name: Run E2E tests
-        working-directory: web
-        run: npx playwright test --config=playwright.config.ts
+            -   name: Run E2E tests
+                working-directory: web
+                run: npx playwright test --config=playwright.config.ts
 
-      - name: Tear down
-        if: always()
-        run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down
+            -   name: Tear down
+                if: always()
+                run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down
