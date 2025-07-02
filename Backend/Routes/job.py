@@ -11,6 +11,7 @@ from Security import SplunkUtils
 job_listing_bp = Blueprint("job_listing", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
 
+
 def _authenticate():
     """
     Pulls and validates the JWT from the session_token cookie.
@@ -23,6 +24,7 @@ def _authenticate():
         return JWTUtils.decode_jwt_token(token)
     except Exception:
         abort(401, "Invalid or expired token")
+
 
 # GET all job listings
 @job_listing_bp.route("/joblistings", methods=["GET"])
@@ -115,7 +117,7 @@ def deleteJobListing(jobId):
     """
     Deletes a job listing by its jobId.
     """
-    claims     = _authenticate()
+    claims = _authenticate()
     company_id = claims.get("companyId")
     if company_id is None:
         abort(403, "Only company users may delete job listings")
