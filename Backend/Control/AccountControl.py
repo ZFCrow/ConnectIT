@@ -40,7 +40,7 @@ class AccountControl:
         email = accountData.get("email", "")
 
         account = AccountMapper.getAccountByEmail(email)
-
+        print(type(account.role), account.role)
         password = accountData.get("password", "")
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
@@ -147,6 +147,15 @@ class AccountControl:
             return False
 
         return AccountMapper.setTwoFa(accountId, secret, enabled)
+
+    @staticmethod
+    def setSessionId(accountId: int, data: dict) -> bool:
+        sessionId = data.get("sessionId", None)
+
+        if not sessionId:
+            return False
+
+        return AccountMapper.setSessionId(accountId, sessionId)
 
     @staticmethod
     def getAllCompanies():

@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
+from typing import Optional
 
 
 class Status(Enum):
@@ -8,108 +10,87 @@ class Status(Enum):
     REJECTED = "Rejected"
 
 
+@dataclass
 class JobApplication:
-    def __init__(
-        self,
-        applicationId: int,
-        jobId: int,
-        userId: int,
-        name: str,
-        email: str,
-        bio: str,
-        status: Status,
-        appliedAt: datetime,
-        resumeURL: str,
-        profilePicUrl: str = None,
-        accountId: int = None,
-    ):
-        self.applicationId = applicationId
-        self.jobId = jobId
-        self.userId = userId
-        self.email = email
-        self.bio = bio
-        self.name = name
-        self.status = status
-        self.appliedAt = appliedAt
-        self.resumeURL = resumeURL
-        # Optional, for user profile picture
-        self.profilePicUrl = profilePicUrl
-        # Optional, for user account ID
-        self.accountId = accountId
+    _applicationId: int
+    _jobId: int
+    _userId: int
+    _name: str
+    _email: str
+    _bio: str
+    _status: Status
+    _appliedAt: datetime
+    _resumeURL: str
+    _profilePicUrl: Optional[str] = None
+    _accountId: Optional[int] = None
 
-    def getApplicationId(self) -> int:
-        return self.applicationId
+    # Properties (read-only)
+    @property
+    def applicationId(self) -> int:  # noqa: N802
+        return self._applicationId
 
-    def setApplicationId(self, id: int) -> None:
-        self.applicationId = id
+    @property
+    def jobId(self) -> int:
+        return self._jobId
 
-    def getJobId(self) -> int:
-        return self.jobId
+    @property
+    def userId(self) -> int:
+        return self._userId
 
-    def setJobId(self, id: int) -> None:
-        self.jobId = id
+    @property
+    def name(self) -> str:
+        return self._name
 
-    def getUserId(self) -> int:
-        return self.userId
+    @property
+    def email(self) -> str:
+        return self._email
 
-    def setUserId(self, id: int) -> None:
-        self.userId = id
+    @property
+    def bio(self) -> str:
+        return self._bio
 
-    def getStatus(self) -> Status:
-        return self.status
+    @property
+    def status(self) -> Status:
+        return self._status
 
-    def setStatus(self, status: Status) -> None:
-        self.status = status
+    @property
+    def appliedAt(self) -> datetime:
+        return self._appliedAt
 
-    def getAppliedAt(self) -> datetime:
-        return self.appliedAt
+    @property
+    def resumeURL(self) -> str:
+        return self._resumeURL
 
-    def setAppliedAt(self, applied: datetime) -> None:
-        self.appliedAt = applied
+    @property
+    def profilePicUrl(self) -> Optional[str]:
+        return self._profilePicUrl
 
-    def getResumeURL(self) -> str:
-        return self.resumeURL
+    @property
+    def accountId(self) -> Optional[int]:
+        return self._accountId
 
-    def setResumeURL(self, url: str) -> None:
-        self.resumeURL = url
-
-    def getProfilePicUrl(self) -> str:
-        return self.profilePicUrl
-
-    def setProfilePicUrl(self, url: str) -> None:
-        self.profilePicUrl = url
-
-    def getAccountId(self) -> int:
-        return self.accountId
-
-    def setAccountId(self, id: int) -> None:
-        self.accountId = id
-
+    # ――― Serialisation helpers ――― #
+    @classmethod
     def from_dict(cls, raw: dict) -> "JobApplication":
-        """
-        Converts a dictionary to a JobApplication object.
-        :param raw: Dictionary containing job application data.
-        :return: JobApplication object.
-        """
+        """Create from a raw dict (e.g. JSON payload)."""
         return cls(
-            applicationId=raw["applicationId"],
-            jobId=raw["jobId"],
-            userId=raw["userId"],
-            name=raw["name"],
-            email=raw["email"],
-            bio=raw["bio"],
-            status=Status(raw["status"]),
-            appliedAt=raw["appliedAt"],
-            resumeURL=raw["resumeURL"],
-            profilePicUrl=raw.get("profilePicUrl", None),  # Optional
-            accountId=raw.get("accountId", None),  # Optional
+            _applicationId=raw["applicationId"],
+            _jobId=raw["jobId"],
+            _userId=raw["userId"],
+            _name=raw["name"],
+            _email=raw["email"],
+            _bio=raw["bio"],
+            _status=Status(raw["status"]),
+            _appliedAt=raw["appliedAt"]
+            if isinstance(raw["appliedAt"], datetime)
+            else datetime.fromisoformat(raw["appliedAt"]),
+            _resumeURL=raw["resumeURL"],
+            _profilePicUrl=raw.get("profilePicUrl"),
+            _accountId=raw.get("accountId"),
         )
 
     def to_dict(self) -> dict:
-        """
-        Converts the JobApplication object to a dictionary.
-        :return: Dictionary representation of the JobApplication.
-        """
+        """Serialise to a JSON-ready dict."""
         return {
             "applicationId": self.applicationId,
             "jobId": self.jobId,
@@ -117,39 +98,28 @@ class JobApplication:
             "name": self.name,
             "email": self.email,
             "bio": self.bio,
-            "status": self.status.value,  # Convert Enum to string
-            # Convert datetime to ISO string
+            "status": self.status.value,
             "appliedAt": self.appliedAt.isoformat(),
             "resumeURL": self.resumeURL,
-            "profilePicUrl": self.profilePicUrl,  # Optional
-            "accountId": self.accountId,  # Optional
+            "profilePicUrl": self.profilePicUrl,
+            "accountId": self.accountId,
         }
 
     @classmethod
     def from_model(cls, model) -> "JobApplication":
-        """
-        Converts a SQLAlchemy model to a JobApplication object.
-        :param model: SQLAlchemy model instance.
-        :return: JobApplication object.
-        """
+        """Adapter from ORM/SQLAlchemy model to domain class."""
         return cls(
-            applicationId=model.applicationId,
-            jobId=model.jobId,
-            userId=model.userId,
-            name=model.user.account.name,
-            email=model.user.account.email,
-            bio=model.user.bio,
-            status=model.status,
-            appliedAt=model.appliedAt,
-            resumeURL=model.resumeURL,
-            accountId=(
-                model.user.account.accountId
-                if model.user and model.user.account
-                else None
-            ),
-            profilePicUrl=(
-                model.user.account.profilePicUrl
-                if model.user and model.user.account
-                else None
-            ),
+            _applicationId=model.applicationId,
+            _jobId=model.jobId,
+            _userId=model.userId,
+            _name=model.user.account.name,
+            _email=model.user.account.email,
+            _bio=model.user.bio,
+            _status=model.status,
+            _appliedAt=model.appliedAt,
+            _resumeURL=model.resumeURL,
+            _accountId=(model.user.account.accountId
+                        if model.user and model.user.account else None),
+            _profilePicUrl=(model.user.account.profilePicUrl
+                            if model.user and model.user.account else None),
         )

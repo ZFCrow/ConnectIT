@@ -28,22 +28,19 @@ class AccountMapper:
             if not account:
                 return None
 
-            account_data = account.to_dict()
+            account_data = Account.from_AccountModel(account)
 
+            # Role-specific conversion
             if account.role == Role.User:
                 if account.user:
-                    user_data = account.user.to_dict()
-                    user_data.update(account_data)
-                    return User.from_dict(user_data)
+                    return User.from_UserModel(account.user)
 
             elif account.role == Role.Company:
                 if account.company:
-                    company_data = account.company.to_dict()
-                    company_data.update(account_data)
-                    return Company.from_dict(company_data)
+                    return Company.from_CompanyModel(account.company)
 
             elif account.role == Role.Admin:
-                return Account.from_dict(account_data)
+                return account_data  # Already an Account entity
 
     @staticmethod
     def getAccountByEmail(email) -> Optional[Account]:
@@ -60,22 +57,19 @@ class AccountMapper:
             if not account:
                 return None
 
-            account_data = account.to_dict()
+            account_data = Account.from_AccountModel(account)
 
+            # Role-specific conversion
             if account.role == Role.User:
                 if account.user:
-                    user_data = account.user.to_dict()
-                    user_data.update(account_data)
-                    return User.from_dict(user_data)
+                    return User.from_UserModel(account.user)
 
             elif account.role == Role.Company:
                 if account.company:
-                    company_data = account.company.to_dict()
-                    company_data.update(account_data)
-                    return Company.from_dict(company_data)
+                    return Company.from_CompanyModel(account.company)
 
             elif account.role == Role.Admin:
-                return Account.from_dict(account_data)
+                return account_data  # Already an Account entity
 
     @staticmethod
     def createAccount(account: Account) -> bool:
@@ -90,7 +84,7 @@ class AccountMapper:
                 session.add(accountModel)
                 session.flush()
 
-                account.accountId = accountModel.accountId
+                account.setAccountId(accountModel.accountId)
 
                 if account.role == Role.User.value:
                     userModel = UserModel(accountId=accountModel.accountId)
@@ -222,6 +216,26 @@ class AccountMapper:
             return False
 
     @staticmethod
+    def setSessionId(acc_id: int, session_id: str):
+        try:
+            with db_context.session_scope() as session:
+                account = (
+                    session.query(AccountModel).filter_by(accountId=acc_id).first()
+                )
+                if not account:
+                    return False
+
+                account.sessionId = session_id
+
+                session.commit()
+                return True
+
+        except Exception as e:
+            print(f"Error updating account: {e}")
+            traceback.print_exc()
+            return False
+
+    @staticmethod
     def getAllCompanies() -> list["CompanyModel"]:
         """
         Retrieves all companies.
@@ -229,7 +243,7 @@ class AccountMapper:
         """
         with db_context.session_scope() as session:
             companies = session.query(CompanyModel).all()
-            return [Company.from_model(company) for company in companies]
+            return [Company.from_CompanyModel(company) for company in companies]
 
     @staticmethod
     def setCompanyVerified(company_id: int, verified: int):

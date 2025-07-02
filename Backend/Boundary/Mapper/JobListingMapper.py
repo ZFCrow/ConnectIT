@@ -120,7 +120,7 @@ class JobListingMapper:
 
             # Each result is (JobListingModel, numApplicants)
             return [
-                JobListing.from_JobListingModel(orm, numApplicants)
+                JobListing.from_JobListingModel(orm, numApplicants=numApplicants)
                 for orm, numApplicants in orm_results
             ]
 

@@ -12,6 +12,7 @@ export type Account = {
   profilePicUrl?: string;
   twoFaEnabled: boolean; 
   twoFaSecret?: string | null; 
+  sessionId?: string | null;
 };
 
 /* 🔹 Common Account Schema */
@@ -24,6 +25,7 @@ export const AccountSchema = z.object({
   isDisabled: z.boolean(),
   twoFaEnabled: z.boolean(),
   twoFaSecret: z.string().nullable().optional(),
+  sessionId: z.string().nullable().optional(),
   profilePicUrl: z.string().url().nullable().optional(),
 });
 

@@ -50,12 +50,11 @@ export function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-
   const HCAPTCHA_SITEKEY = import.meta.env.VITE_HCAPTCHA_SITEKEY;
 
   const callCreateToken = async (account: AccountData) => {
     try {
-      await axios.post("/api/create_token", account, { withCredentials: true });
+      // await axios.post("/api/create_token", account, { withCredentials: true });
 
       login(account.accountId, account.role, account.name, {
         userId: (account as User).userId,
@@ -95,6 +94,8 @@ export function LoginForm() {
       setShowCaptcha(false);
 
       let parsed;
+      console.log("LoginForm - handleSubmit - data:", data);
+
       switch (data.role) {
         case Role.User:
           parsed = UserSchema.parse(data);
@@ -110,11 +111,12 @@ export function LoginForm() {
       }
       setUser(parsed);
 
-      if (parsed.twoFaEnabled) {
-        setStep("verify");
-      } else {
-        setStep("generate");
-      }
+      // if (parsed.twoFaEnabled) {
+      //   setStep("verify");
+      // } else {
+      //   setStep("generate");
+      // }
+      await callCreateToken(user);
     } catch (err: any) {
       console.error("Login failed", err);
       const msg = err.response?.data?.error || err.response?.data?.message;

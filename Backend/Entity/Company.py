@@ -1,71 +1,70 @@
 from dataclasses import dataclass
 from Entity.Account import Account
-from dataclasses import asdict
-from enum import Enum
+from typing import Optional
+from SQLModels.CompanyModel import CompanyModel
 
 
 @dataclass
 class Company(Account):
-    companyId: int
-    description: str
-    location: str
-    companyDocUrl: str
-    verified: int
+    _companyId: int = None
+    _companyDocUrl: str = None
+    _verified: int = 0
+    _description: Optional[str] = None
+    _location: Optional[str] = None
 
-    @classmethod
-    def from_dict(cls, data):
-        base = Account.from_dict(data)
-        return cls(
-            **vars(base),
-            companyId=data.get("companyId", 0),
-            description=data.get("description", ""),
-            location=data.get("location", ""),
-            companyDocUrl=data.get("companyDocUrl", ""),
-            verified=data.get("verified", 0)
-        )
+    # Properties
+    @property
+    def companyId(self) -> int: return self._companyId
+    @property
+    def companyDocUrl(self) -> Optional[str]: return self._companyDocUrl
+    @property
+    def verified(self) -> int: return self._verified
+    @property
+    def description(self) -> Optional[str]: return self._description
+    @property
+    def location(self) -> Optional[str]: return self._location
 
-    @classmethod
-    def from_model(cls, model):
-        return cls(
-            companyId=model.companyId,
-            accountId=model.accountId,
-            name=model.account.name,
-            email=model.account.email,
-            passwordHash=model.account.passwordHash,
-            profilePicUrl=model.account.profilePicUrl,
-            role=model.account.role,
-            isDisabled=model.account.isDisabled,
-            twoFaEnabled=model.account.twoFaEnabled,
-            twoFaSecret=model.account.twoFaSecret,
-            description=model.description,
-            location=model.location,
-            companyDocUrl=model.companyDocUrl,
-            verified=model.verified,
-        )
-
+    # Serialisation
     def to_dict(self) -> dict:
-        """
-        Plain-Python,
-        JSON-ready representation of Company (incl. Account fields).
-        """
-        raw = asdict(self)
+        base = super().to_dict()
+        base.update({
+            "companyId": self.companyId,
+            "companyDocUrl": self.companyDocUrl,
+            "verified": self.verified,
+            "description": self.description,
+            "location": self.location,
+        })
+        return base
 
-        # Convert any Enum values (e.g. role) to their `.value`
-        for key, val in raw.items():
-            if isinstance(val, Enum):
-                raw[key] = val.value
+    @classmethod
+    def from_dict(cls, data: dict):
+        acc = Account.from_dict(data)
+        return cls(
+            **acc.to_constructor_dict(),
+            _companyId=data.get("companyId", 0),
+            _companyDocUrl=data.get("companyDocUrl"),
+            _verified=data.get("verified", 0),
+            _description=data.get("description"),
+            _location=data.get("location"),
+        )
 
-        return {
-            "companyId": raw["companyId"],
-            "accountId": raw["accountId"],
-            "name": raw["name"],
-            "email": raw["email"],
-            "passwordHash": raw["passwordHash"],
-            "profilePicUrl": raw["profilePicUrl"],
-            "role": raw["role"],  # already value-str thanks to loop
-            "isDisabled": raw["isDisabled"],
-            "description": raw["description"],
-            "location": raw["location"],
-            "companyDocUrl": raw["companyDocUrl"],
-            "verified": raw["verified"],
-        }
+    @classmethod
+    def from_CompanyModel(cls, model: CompanyModel):
+        acc = model.account
+        return cls(
+            _accountId=acc.accountId,
+            _name=acc.name,
+            _email=acc.email,
+            _passwordHash=acc.passwordHash,
+            _role=acc.role.value,
+            _isDisabled=bool(acc.isDisabled),
+            _twoFaEnabled=bool(acc.twoFaEnabled),
+            _profilePicUrl=acc.profilePicUrl or None,
+            _twoFaSecret=acc.twoFaSecret or None,
+            _sessionId=getattr(acc, "sessionId", None),
+            _companyId=model.companyId,
+            _companyDocUrl=model.companyDocUrl or None,
+            _verified=model.verified,
+            _description=model.description or None,
+            _location=model.location or None,
+        )
