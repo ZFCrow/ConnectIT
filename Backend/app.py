@@ -69,7 +69,7 @@ def create_app():
             response.set_cookie(
                 "csrf_token",
                 token,
-                httponly=True,
+                httponly=False,
                 secure=True,
                 samesite="Strict",
                 path="/",
