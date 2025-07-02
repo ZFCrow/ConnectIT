@@ -509,4 +509,3 @@ def logout():
 
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     return JWTUtils.remove_auth_cookie(resp)
-

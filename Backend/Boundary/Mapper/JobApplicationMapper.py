@@ -154,4 +154,3 @@ class JobApplicationMapper:
             if not row:
                 return None
             return {"jobId": row[0]}
-
