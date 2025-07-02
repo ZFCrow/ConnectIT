@@ -184,6 +184,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
               id="minSalary"
               type="number"
               step={100}
+              min={0}
               value={form.minSalary === 0 ? "" : form.minSalary}
               onChange={(e) =>
                 change("minSalary", e.target.value === "" ? 0 : +e.target.value)
@@ -202,6 +203,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
               id="maxSalary"
               type="number"
               step={100}
+              min={0}
               value={form.maxSalary === 0 ? "" : form.maxSalary}
               onChange={(e) =>
                 change("maxSalary", e.target.value === "" ? 0 : +e.target.value)
