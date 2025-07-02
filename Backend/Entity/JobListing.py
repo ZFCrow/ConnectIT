@@ -19,7 +19,6 @@ class JobType(Enum):
     Contract = "Contract"
 
 
-
 @dataclass
 class JobListing:
     # ――― Core fields (all private, single underscore) ――― #
@@ -110,20 +109,28 @@ class JobListing:
     # ――― Convenience factories ――― #
     @classmethod
     def from_dict(cls, data: dict) -> "JobListing":
-        """Create a JobListing instance from a plain dict, handling enum & date conversions."""
+        """
+        Create a JobListing instance from a plain dict, 
+        handling enum & date conversions.
+        """
 
         # Parse enums (case‑insensitive, default values provided)
-        job_type_str = (data.get("jobType") or data.get("job_type") or "Full Time").replace(" ", "")
+        job_type_str = (data.get("jobType")
+                        or data.get("job_type")
+                        or "Full Time").replace(" ", "")
         job_type = JobType[job_type_str]
 
-        work_arr_str = (data.get("workArrangement") or data.get("work_arrangement") or "Onsite").replace(" ", "")
+        work_arr_str = (data.get("workArrangement")
+                        or data.get("work_arrangement")
+                        or "Onsite").replace(" ", "")
         work_arrangement = WorkArrangement[work_arr_str]
 
         # Parse dates (ISO 8601 expected when given as str)
         def _parse_dt(raw):
             return datetime.fromisoformat(raw) if isinstance(raw, str) else raw
 
-        application_deadline = _parse_dt(data.get("applicationDeadline") or data.get("application_deadline"))
+        application_deadline = _parse_dt(data.get("applicationDeadline")
+                                         or data.get("application_deadline"))
         created_at = _parse_dt(data.get("createdAt") or data.get("created_at"))
 
         # Build the instance
@@ -137,17 +144,24 @@ class JobListing:
             _jobType=job_type,
             _createdAt=created_at,
             _workArrangement=work_arrangement,
-            _fieldOfWork=data.get("fieldOfWork") or data.get("field_of_work") or "Other",
+            _fieldOfWork=data.get("fieldOfWork")
+            or data.get("field_of_work")
+            or "Other",
             _responsibilities=data.get("responsibilities", []),
             _isDeleted=data.get("isDeleted") or data.get("is_deleted", False),
             _company=data.get("company"),
-            _experiencePreferred=data.get("experiencePreferred") or data.get("experience_preferred", 0),
+            _experiencePreferred=data.get("experiencePreferred")
+            or data.get("experience_preferred", 0),
             _numApplicants=data.get("numApplicants") or data.get("num_applicants", 0),
-            _jobApplication=data.get("jobApplication") or data.get("job_application") or [],
+            _jobApplication=data.get("jobApplication")
+            or data.get("job_application")
+            or [],
         )
 
     def to_dict(self) -> dict:
-        """Serialise to JSON‑serialisable dict suitable for REST responses or storage."""
+        """
+        Serialise to JSON‑serialisable dict suitable for REST responses or storage.
+        """
         return {
             "jobId": self.jobId,
             "title": self.title,
@@ -167,7 +181,6 @@ class JobListing:
             "jobApplication": [app.to_dict() for app in self.jobApplication],
         }
 
-    
     @classmethod
     def from_JobListingModel(cls, orm_obj, *, numApplicants: int = 0) -> "JobListing":
         from Entity.Company import Company  # local import avoids circulars
@@ -179,14 +192,20 @@ class JobListing:
             _applicationDeadline=orm_obj.applicationDeadline,
             _minSalary=orm_obj.minSalary,
             _maxSalary=orm_obj.maxSalary,
-            _jobType= orm_obj.jobType,               
+            _jobType=orm_obj.jobType,           
             _createdAt=orm_obj.createdAt,
             _workArrangement=orm_obj.workArrangement,
-            _fieldOfWork=getattr(orm_obj.fieldOfWork, "description", orm_obj.fieldOfWork),
-            _responsibilities=[r.responsibility for r in orm_obj.responsibilities if r.responsibility],
+            _fieldOfWork=getattr(orm_obj.fieldOfWork, "description",
+                                 orm_obj.fieldOfWork),
+            _responsibilities=[r.responsibility
+                               for r in orm_obj.responsibilities
+                               if r.responsibility],
             _isDeleted=orm_obj.isDeleted,
-            _company=Company.from_CompanyModel(orm_obj.company) if orm_obj.company else None,
+            _company=Company.from_CompanyModel(orm_obj.company)
+            if orm_obj.company else None,
             _experiencePreferred=orm_obj.experiencePreferred or 0,
             _numApplicants=numApplicants,
-            _jobApplication=[JobApplication.from_model(a) for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
+            _jobApplication=[
+                JobApplication.from_model(a)
+                for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
         )

@@ -26,7 +26,7 @@ class JobApplication:
 
     # Properties (read-only)
     @property
-    def applicationId(self) -> int:  # noqa: N802 (keeping camelCase for API compatibility)
+    def applicationId(self) -> int:  # noqa: N802
         return self._applicationId
 
     @property
@@ -118,6 +118,8 @@ class JobApplication:
             _status=model.status,
             _appliedAt=model.appliedAt,
             _resumeURL=model.resumeURL,
-            _accountId=(model.user.account.accountId if model.user and model.user.account else None),
-            _profilePicUrl=(model.user.account.profilePicUrl if model.user and model.user.account else None),
+            _accountId=(model.user.account.accountId
+                        if model.user and model.user.account else None),
+            _profilePicUrl=(model.user.account.profilePicUrl
+                            if model.user and model.user.account else None),
         )
