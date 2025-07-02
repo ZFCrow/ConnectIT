@@ -216,6 +216,26 @@ class AccountMapper:
             return False
 
     @staticmethod
+    def setSessionId(acc_id: int, session_id: str):
+        try:
+            with db_context.session_scope() as session:
+                account = (
+                    session.query(AccountModel).filter_by(accountId=acc_id).first()
+                )
+                if not account:
+                    return False
+
+                account.sessionId = session_id
+
+                session.commit()
+                return True
+
+        except Exception as e:
+            print(f"Error updating account: {e}")
+            traceback.print_exc()
+            return False
+
+    @staticmethod
     def getAllCompanies() -> list["CompanyModel"]:
         """
         Retrieves all companies.

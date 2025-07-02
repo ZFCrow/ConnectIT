@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from Entity.Account import Account
 from typing import Optional
-
-
 from SQLModels.UserModel import UserModel
+
 
 @dataclass
 class User(Account):
@@ -34,26 +33,26 @@ class User(Account):
         acc = Account.from_dict(data)
         return cls(
             **acc.to_constructor_dict(),
-            _userId       = data.get("userId", 0),
-            _bio          = data.get("bio"),
-            _portfolioUrl = data.get("portfolioUrl"),
+            _userId=data.get("userId", 0),
+            _bio=data.get("bio"),
+            _portfolioUrl=data.get("portfolioUrl"),
         )
 
     @classmethod
     def from_UserModel(cls, model: UserModel):
         acc = model.account
         return cls(
-            _accountId    = acc.accountId,
-            _name         = acc.name,
-            _email        = acc.email,
-            _passwordHash = acc.passwordHash,
-            _role         = acc.role.value,
-            _isDisabled   = bool(acc.isDisabled),
-            _twoFaEnabled = bool(acc.twoFaEnabled),
-            _profilePicUrl= acc.profilePicUrl or None,
-            _twoFaSecret  = acc.twoFaSecret or None,
-            _sessionId    = getattr(acc, "sessionId", None),
-            _userId       = model.userId,
-            _bio          = model.bio or None,
-            _portfolioUrl = model.portfolioUrl or None,
+            _accountId=acc.accountId,
+            _name=acc.name,
+            _email=acc.email,
+            _passwordHash=acc.passwordHash,
+            _role=acc.role.value,
+            _isDisabled=bool(acc.isDisabled),
+            _twoFaEnabled=bool(acc.twoFaEnabled),
+            _profilePicUrl=acc.profilePicUrl or None,
+            _twoFaSecret=acc.twoFaSecret or None,
+            _sessionId=getattr(acc, "sessionId", None),
+            _userId=model.userId,
+            _bio=model.bio or None,
+            _portfolioUrl=model.portfolioUrl or None,
         )

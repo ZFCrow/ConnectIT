@@ -66,7 +66,7 @@ const JobCard: React.FC<Props> = ({
     applyJob(job.jobId, userId, file);
     // Optionally close the modal here or on success
   };
-  const { userId } = useAuth(); // Get userId from context/auth
+  const { accountId, userId } = useAuth(); // Get userId from context/auth
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteJob, loading } = useDeleteJob(() => {
     setDeleteOpen(false);
@@ -216,7 +216,7 @@ const JobCard: React.FC<Props> = ({
       </div>
       {/* Buttons Column */}
       <div className="justify-self-end self-center flex flex-col items-stretch space-y-2 w-full max-w-[140px]">
-        {userType === Role.Company && (
+        {userType === Role.Company && accountId === job.company.accountId && (
           <>
             {/* <button
               onClick={() => navigate(`/company/jobForm/${job.jobId}`)}

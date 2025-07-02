@@ -1,6 +1,4 @@
-from dataclasses import dataclass, field
-from enum import Enum
-from SQLModels import AccountModel
+from dataclasses import dataclass
 from typing import Dict, Any, Optional
 
 
@@ -57,43 +55,43 @@ class Account:
     @classmethod
     def from_AccountModel(cls, m):
         return cls(
-            _accountId      = m.accountId,
-            _name           = m.name,
-            _email          = m.email,
-            _passwordHash   = m.passwordHash,
-            _role           = getattr(m, "role", ""),
-            _isDisabled     = bool(getattr(m, "isDisabled", 0)),
-            _twoFaEnabled   = bool(getattr(m, "twoFaEnabled", 0)),
-            _profilePicUrl  = m.profilePicUrl or None,
-            _twoFaSecret    = m.twoFaSecret   or None,
-            _sessionId      = getattr(m, "sessionId", None),
+            _accountId=m.accountId,
+            _name=m.name,
+            _email=m.email,
+            _passwordHash=m.passwordHash,
+            _role=getattr(m, "role", ""),
+            _isDisabled=bool(getattr(m, "isDisabled", 0)),
+            _twoFaEnabled=bool(getattr(m, "twoFaEnabled", 0)),
+            _profilePicUrl=m.profilePicUrl or None,
+            _twoFaSecret=m.twoFaSecret or None,
+            _sessionId=getattr(m, "sessionId", None),
         )
 
     @classmethod
     def from_dict(cls, data: dict):
         return cls(
-            _accountId    = data.get("accountId", 0),
-            _name         = data.get("name", ""),
-            _email        = data.get("email", ""),
-            _passwordHash = data.get("passwordHash", ""),
-            _role         = data.get("role", "User"),
-            _isDisabled   = bool(data.get("isDisabled", False)),
-            _twoFaEnabled = bool(data.get("twoFaEnabled", False)),
-            _profilePicUrl= data.get("profilePicUrl"),
-            _twoFaSecret  = data.get("twoFaSecret"),
-            _sessionId    = data.get("sessionId"),
+            _accountId=data.get("accountId", 0),
+            _name=data.get("name", ""),
+            _email=data.get("email", ""),
+            _passwordHash=data.get("passwordHash", ""),
+            _role=data.get("role", "User"),
+            _isDisabled=bool(data.get("isDisabled", False)),
+            _twoFaEnabled=bool(data.get("twoFaEnabled", False)),
+            _profilePicUrl=data.get("profilePicUrl"),
+            _twoFaSecret=data.get("twoFaSecret"),
+            _sessionId=data.get("sessionId"),
         )
 
     def to_constructor_dict(self) -> Dict[str, Any]:
         return {
-            "accountId": self.accountId,
-            "name": self.name,
-            "email": self.email,
-            "passwordHash": self.passwordHash,
-            "role": self.role,
-            "isDisabled": self.isDisabled,
-            "twoFaEnabled": self.twoFaEnabled,
-            "profilePicUrl": self.profilePicUrl,
-            "twoFaSecret": self.twoFaSecret,
-            "sessionId": self.sessionId,
+            "_accountId": self.accountId,
+            "_name": self.name,
+            "_email": self.email,
+            "_passwordHash": self.passwordHash,
+            "_role": self.role,
+            "_isDisabled": self.isDisabled,
+            "_twoFaEnabled": self.twoFaEnabled,
+            "_profilePicUrl": self.profilePicUrl,
+            "_twoFaSecret": self.twoFaSecret,
+            "_sessionId": self.sessionId,
         }

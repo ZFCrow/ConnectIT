@@ -273,14 +273,14 @@ def login():
 
     if account:
         print(f"Login successful for {email} in {duration_ms} ms")
-        print (f"Account details: {account}")
+        print(f"Account details: {account}")
         reset_login_attempts(email)
         base_data = {
             "accountId": account.accountId,
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role.value,
+            "role": account.role,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
@@ -497,6 +497,21 @@ def me():
         ),
         200,
     )
+
+
+@auth_bp.route("/setSession", methods=["POST"])
+def setSession():
+    payload = request.get_json()
+    if payload["accountId"] is None:
+        return jsonify({"error": "No account Id"}), 401
+
+    success = AccountControl.setSessionId(payload["accountId"], payload)
+
+    if success:
+        return jsonify({"message": "Session id updated successfully!"}), 201
+
+    else:
+        return jsonify({"error": "Failed to update session id"}), 500
 
 
 @auth_bp.route("/refresh", methods=["POST"])
