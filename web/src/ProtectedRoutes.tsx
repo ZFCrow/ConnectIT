@@ -23,16 +23,13 @@ const ProtectedRoutes = () => {
 
   // if role undefined , bring them to login
 
-
-
   if (role === null) {
     //console.log("Role is undefined, redirecting to login...");
     return <Navigate to="/login" replace />;
   }
   if (role === Role.Company && !verified) {
-    
     //console.log("Company not verified, redirecting to company verification..., verified:", verified );
-    return <Navigate to="/pendingApproval" replace />;
+    return <PendingApprovalPage />;
   }
 
   return (
