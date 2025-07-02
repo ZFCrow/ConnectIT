@@ -481,7 +481,7 @@ def logout():
     SplunkLogging.send_log(
         {
             "event": "Logout Success",
-            "user": user_id,
+            "user_id": user_id,
             "ip": request.remote_addr,
             "user_agent": str(request.user_agent),
             "method": request.method,
@@ -490,6 +490,6 @@ def logout():
     )
 
     dest = "/login"
-    resp = make_response(redirect(dest, code=302))
     resp = JWTUtils.remove_auth_cookie(resp)
+    resp = make_response(redirect(dest, code=302))
     return resp
