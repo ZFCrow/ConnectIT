@@ -40,13 +40,13 @@ class AccountControl:
         email = accountData.get("email", "")
 
         account = AccountMapper.getAccountByEmail(email)
-        print(type(account.role), account.role)
-        password = accountData.get("password", "")
+        if account:
+            password = accountData.get("password", "")
 
-        auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+            auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
-        if not auth:
-            return None
+            if not auth:
+                return None
 
         return account
 

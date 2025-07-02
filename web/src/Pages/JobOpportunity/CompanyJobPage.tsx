@@ -60,7 +60,7 @@ const CompanyJobsPage: React.FC = () => {
       }
     }
     fetchData();
-  }, []);
+  }, [companyId]);
   // applicants in this company
   // const applicants: Applicant[] = sampleApplicants.filter((applicant) =>
   //   jobListings.some((job) => job.jobId === applicant.jobId)
