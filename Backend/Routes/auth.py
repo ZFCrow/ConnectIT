@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response, abort
+from flask import Blueprint, request, jsonify, make_response, abort, redirect
 from Control.AccountControl import AccountControl
 from SQLModels.AccountModel import Role
 from Security.ValidateInputs import validate_register, validate_login
@@ -470,18 +470,18 @@ def refresh():
 def logout():
     # Attempt to pull email/ID from the cookie for your audit log
     raw = JWTUtils.get_token_from_cookie()
-    user_email = None
+    user_id = None
     try:
         claims = JWTUtils.decode_jwt_token(raw)
-        user_email = claims.get("name") or claims.get("sub")
+        user_id = claims.get("sub")
     except (AttributeError, KeyError) as e:
         auth_bp.logger.warning(f"Could not extract user email from claims: {e}")
-        user_email = None
+        user_id = None
 
     SplunkLogging.send_log(
         {
             "event": "Logout Success",
-            "user": user_email,
+            "user": user_id,
             "ip": request.remote_addr,
             "user_agent": str(request.user_agent),
             "method": request.method,
@@ -489,7 +489,7 @@ def logout():
         }
     )
 
-    # This must match the cookie name you used \
-    # in set_auth_cookie (default: "session_token")
-    resp = make_response(jsonify({"message": "Logged out"}), 200)
-    return JWTUtils.remove_auth_cookie(resp)
+    dest = "/login"
+    resp = make_response(redirect(dest, code=302))
+    resp = JWTUtils.remove_auth_cookie(resp)
+    return resp
