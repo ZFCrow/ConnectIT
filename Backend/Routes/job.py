@@ -1,6 +1,7 @@
 # job_listing_routes.py
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, abort
+from Security.JWTUtils import JWTUtils
 from Control.JobApplicationControl import JobApplicationControl
 from Control.JobListingControl import JobListingControl
 from Security.Limiter import limiter, get_company_key
@@ -9,6 +10,20 @@ from Security import SplunkUtils
 
 job_listing_bp = Blueprint("job_listing", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
+
+
+def _authenticate():
+    """
+    Pulls and validates the JWT from the session_token cookie.
+    Aborts 401 if missing/invalid.
+    """
+    token = JWTUtils.get_token_from_cookie()
+    if not token:
+        abort(401, "Authentication required")
+    try:
+        return JWTUtils.decode_jwt_token(token)
+    except Exception:
+        abort(401, "Invalid or expired token")
 
 
 # GET all job listings
@@ -102,6 +117,19 @@ def deleteJobListing(jobId):
     """
     Deletes a job listing by its jobId.
     """
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+    if company_id is None:
+        abort(403, "Only company users may delete job listings")
+
+    job = JobListingControl.getJobDetails(jobId)  # returns a JobListing entity
+    if not job:
+        abort(404, "Job listing not found")
+
+
+    if job.company.companyId != company_id:
+        abort(403, "Cannot delete job listing for another company")
+
     success = JobListingControl.deleteJob(jobId)
 
     if success:

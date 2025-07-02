@@ -93,3 +93,11 @@ class JobApplicationControl:
         """
         print(f"Retrieving latest applied job for user with userId: {userId}")
         return JobApplicationMapper.getLatestAppliedJobs(userId)
+    
+    @staticmethod
+    def getApplicationById(applicationId: int):
+        """
+        Business‐logic wrapper for fetching one application.
+        """
+        print(f"Retrieving application with applicationId: {applicationId}")
+        return JobApplicationMapper.getApplicationById(applicationId)

@@ -2,6 +2,8 @@
 
 from flask import Blueprint, request, jsonify, abort, send_file
 from Control.JobApplicationControl import JobApplicationControl
+from Control.JobListingControl import JobListingControl
+from Security.JWTUtils import JWTUtils
 from Security.Limiter import limiter, get_user_key
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security import SplunkUtils
@@ -13,6 +15,14 @@ import re
 job_application_bp = Blueprint("job_application", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
 
+def _authenticate():
+    token = JWTUtils.get_token_from_cookie()
+    if not token:
+        abort(401, description="Authentication required")
+    try:
+        return JWTUtils.decode_jwt_token(token)
+    except Exception:
+        abort(401, description="Invalid or expired token")
 
 @job_application_bp.route("/applyJob", methods=["POST"])
 @limiter.limit("5 per hour", key_func=get_user_key)
@@ -125,6 +135,23 @@ def approveApplication(applicationId):
     """
     Approves a job application by applicationId.
     """
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+    if company_id is None:
+        abort(403, "Only company users may approve applications")
+
+    app_data = JobApplicationControl.getApplicationById(applicationId)
+    if not app_data:
+        abort(404)
+    job_id = app_data["jobId"]
+
+    job = JobListingControl.getJobDetails(job_id)
+    if not job:
+        abort(404, "Associated job not found")
+
+    if job.company.companyId != company_id:
+        abort(403, "Cannot approve an application for another company")
+
     success = JobApplicationControl.approveApplication(applicationId)
     if success:
 
@@ -161,6 +188,23 @@ def rejectApplication(applicationId):
     """
     Rejects a job application by applicationId.
     """
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+    if company_id is None:
+        abort(403, "Only company users may approve applications")
+
+    app_data = JobApplicationControl.getApplicationById(applicationId)
+    if not app_data:
+        abort(404)
+    job_id = app_data["jobId"]
+
+    job = JobListingControl.getJobDetails(job_id)
+    if not job:
+        abort(404, "Associated job not found")
+
+    if job.company.companyId != company_id:
+        abort(403, "Cannot approve an application for another company")
+
     success = JobApplicationControl.rejectApplication(applicationId)
 
     if success:
@@ -200,6 +244,10 @@ def getApplicantsByCompanyId(companyId):
     """
     Retrieves all job applications submitted to jobs by this company.
     """
+    claims = _authenticate()
+    my_cid = claims.get("companyId")
+    if my_cid is None or my_cid != companyId:
+        abort(403, "Cannot view applications for another company")
     applicants = JobApplicationControl.getApplicationsByCompanyId(companyId)
 
     return (
@@ -231,6 +279,10 @@ def get_latest_applied_job(userId):
 
 @job_application_bp.route("/resume/view", methods=["GET"])
 def view_resume():
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+    if company_id is None:
+        abort(403, "Only company users may view resumes")
     gs_uri = request.args.get("uri")
     if not gs_uri or not gs_uri.startswith("gs://"):
         abort(400, description="Missing or invalid URI")
