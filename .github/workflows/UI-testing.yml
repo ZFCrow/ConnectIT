@@ -1,6 +1,6 @@
 
 # .github/workflows/UI-testing.yml
-name: E2E with Docker Compose
+name: UI TEST with Playwright
 
 on:
   push:
@@ -68,6 +68,9 @@ jobs:
                         echo "Waiting for frontend..."
                         sleep 1
                     done
+
+            -   name: Fix permissions on web/
+                run: sudo chown -R $USER:$USER ./web
 
             -   name: Install Playwright deps
                 working-directory: web
