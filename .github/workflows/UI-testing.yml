@@ -60,7 +60,7 @@ jobs:
                     echo ""
                     echo "🗂️  Contents of web/ directory:"
                     ls -al web
-                    
+
             -   name: Bring up containers
                 run: |
                     docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
@@ -103,6 +103,13 @@ jobs:
                     name: playwright-report
                     path: web/playwright-report
 
+            -   name: Upload Playwright screenshots
+                if: always()
+                uses: actions/upload-artifact@v4
+                with:
+                    name: playwright-screenshots
+                    path: web/test-results/screenshots
+                    
             -   name: Tear down
                 if: always()
                 run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down

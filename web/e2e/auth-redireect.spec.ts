@@ -11,7 +11,36 @@ dotenv.config({
 test('unauthenticated user is redirected to login page', async ({ page }) => {
 
     // try to access a protected route 
-    await page.goto('http://localhost:5173/')
+    await page.goto('/')
+    
+
+
+    // Inject a banner at the top showing the current URL
+    await page.evaluate(() => {
+        const banner = document.createElement('div');
+        banner.textContent = window.location.href;
+        Object.assign(banner.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100%',
+        padding: '4px 8px',
+        background: 'rgba(0,0,0,0.7)',
+        color: 'white',
+        fontSize: '12px',
+        zIndex: '9999',
+        textAlign: 'center',
+        });
+        document.body.appendChild(banner);
+    });
+
+    // Give the browser a moment to render the banner
+    await page.waitForTimeout(100);
+    // 2) Take a screenshot of whatever is currently rendered
+    await page.screenshot({
+        path: 'test-results/screenshots/unauthenticated-home-before-redirect.png',
+        fullPage: true
+    });
 
     // assert redirection to login page 
     await expect(page).toHaveURL('http://localhost:5173/login')
