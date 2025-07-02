@@ -11,8 +11,8 @@ import MyJobsPage from "./Pages/JobOpportunity/SavedJob";
 import CompanyJobsPage from "./Pages/JobOpportunity/CompanyJobPage";
 import CreateEditJobPage from "./Pages/JobOpportunity/CreateEditJobPage";
 import CompanyVerificationPage from "./Pages/CompanyVerificationPage";
-import { useNavigate } from "react-router-dom";
 import PendingApprovalPage from "./Pages/PendingApprovalPage";
+import RoleGuard from "./RoleGuard";
 
 const ProtectedRoutes = () => {
   const { role, isLoading, verified } = useAuth();
@@ -41,17 +41,46 @@ const ProtectedRoutes = () => {
       <Route path="/profile/edit" element={<EditProfilePage />} />
       <Route path="/jobListing" element={<JobListingPage />} />
       <Route path="/jobDetails/:jobId" element={<JobDetailPage />} />
-      <Route path="/myJobs" element={<MyJobsPage />} />
+      <Route
+        path="/myJobs"
+        element={
+          <RoleGuard allowed={[Role.User]}>
+            <MyJobsPage />
+          </RoleGuard>
+        }
+      />
       <Route
         path="/company/recruitmentDashboard"
-        element={<CompanyJobsPage />}
+        element={
+          <RoleGuard allowed={[Role.Company]}>
+            <CompanyJobsPage />
+          </RoleGuard>
+        }
       />
-      <Route path="/company/jobForm/:jobId?" element={<CreateEditJobPage />} />
+      <Route
+        path="/company/jobForm/:jobId?"
+        element={
+          <RoleGuard allowed={[Role.Company]}>
+            <CreateEditJobPage />
+          </RoleGuard>
+        }
+      />
       <Route
         path="/companyVerification"
-        element={<CompanyVerificationPage />}
+        element={
+          <RoleGuard allowed={[Role.Admin]}>
+            <CompanyVerificationPage />
+          </RoleGuard>
+        }
       />
-      <Route path="/pendingApproval" element={<PendingApprovalPage />} />
+      <Route
+        path="/pendingApproval"
+        element={
+          <RoleGuard allowed={[Role.Company]}>
+            <PendingApprovalPage />
+          </RoleGuard>
+        }
+      />
     </Routes>
   );
 };

@@ -136,20 +136,22 @@ const JobListingPage: React.FC = () => {
     <div className="w-4/5 mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Job Opportunities Board</h1>
-        <Link
-          to="/myJobs"
-          className="
+        {role !== Role.Admin && (
+          <Link
+            to="/myJobs"
+            className="
             inline-flex items-center gap-2
             text-xl font-medium text-blue-500
             hover:text-blue-600 transition
           "
-        >
-          <Bookmark className="w-6 h-6" />
-          <span>Saved</span>
-          <span className="mx-1 text-2xl">/</span>
-          <CheckCircle className="w-6 h-6" />
-          <span>Applied Jobs</span>
-        </Link>
+          >
+            <Bookmark className="w-6 h-6" />
+            <span>Saved</span>
+            <span className="mx-1 text-2xl">/</span>
+            <CheckCircle className="w-6 h-6" />
+            <span>Applied Jobs</span>
+          </Link>
+        )}
       </div>
       {/* Search
       <input
