@@ -47,6 +47,16 @@ jobs:
                     PEM_FILE=${{ secrets.PEM_FILE }}
                     
                     EOF
+
+            -   name: Create firebase json file from secrets
+                run: |
+                    cat <<-EOF > connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json
+                    ${{
+                        secrets.FIREBASE_SECRET_JSON
+                    }}
+                    
+                    EOF
+
             -   name: Inspect workspace after env creation
                 run: |
                     echo "📂 Current working directory: $(pwd)"
@@ -68,7 +78,8 @@ jobs:
                     echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ICT2216-student12.pem
                     chmod 600 ~/.ssh/ICT2216-student12.pem
 
-                    
+
+
             -   name: Bring up containers
                 run: |
                     docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
