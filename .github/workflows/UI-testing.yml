@@ -84,9 +84,9 @@ jobs:
                     done
 
             -   name: Print backend logs
-                run: docker logs <backend-container-name>
+                run: sudo docker logs backend
             -   name: Print frontend logs
-                run: docker logs <frontend-container-name>
+                run: sudo docker logs web
 
             -   name: Fix permissions on web/
                 run: sudo chown -R $USER:$USER ./web
