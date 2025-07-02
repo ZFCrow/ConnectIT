@@ -83,6 +83,13 @@ jobs:
                 working-directory: web
                 run: npx playwright test --config=playwright.config.ts
 
+            -   name: Upload Playwright HTML report
+                if: always()
+                uses: actions/upload-artifact@v3
+                with:
+                    name: playwright-report
+                    path: web/playwright-report
+
             -   name: Tear down
                 if: always()
                 run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down
