@@ -110,7 +110,7 @@ class JobListing:
     @classmethod
     def from_dict(cls, data: dict) -> "JobListing":
         """
-        Create a JobListing instance from a plain dict, 
+        Create a JobListing instance from a plain dict,
         handling enum & date conversions.
         """
 
@@ -192,7 +192,7 @@ class JobListing:
             _applicationDeadline=orm_obj.applicationDeadline,
             _minSalary=orm_obj.minSalary,
             _maxSalary=orm_obj.maxSalary,
-            _jobType=orm_obj.jobType,           
+            _jobType=orm_obj.jobType,
             _createdAt=orm_obj.createdAt,
             _workArrangement=orm_obj.workArrangement,
             _fieldOfWork=getattr(orm_obj.fieldOfWork, "description",
