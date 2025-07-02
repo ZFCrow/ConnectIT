@@ -24,10 +24,10 @@ jobs:
                     FLASK_RUN_PORT=${{ secrets.FLASK_RUN_PORT }}
                     FLASK_SECRET=${{ secrets.FLASK_SECRET }}
                     VITE_HCAPTCHA_SITEKEY=${{ secrets.VITE_HCAPTCHA_SITEKEY }}
-                    MYSQL_ROOT_PASSWORD_DEV=${{ secrets.MYSQL_ROOT_PASSWORD_DEV }}
-                    MYSQL_DATABASE_DEV=${{ secrets.MYSQL_DATABASE_DEV }}
-                    MYSQL_USER_DEV=${{ secrets.MYSQL_USER_DEV }}
-                    MYSQL_PASSWORD_DEV=${{ secrets.MYSQL_PASSWORD_DEV }}
+                    MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD_DEV }}
+                    MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE_DEV }}
+                    MYSQL_USER=${{ secrets.MYSQL_USER_DEV }}
+                    MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD_DEV }}
                     FERNET_KEY=${{ secrets.FERNET_KEY }}
                     JWT_SECRET=${{ secrets.JWT_SECRET }}
                     HCAPTCHA_SECRET=${{ secrets.HCAPTCHA_SECRET }}
@@ -39,7 +39,7 @@ jobs:
                 run: |
                     cat <<-EOF > .env.dev
                     MYSQL_REMOTE_PORT=${{ secrets.MYSQL_REMOTE_PORT }}
-                    FLASK_DEBUG_DEV=${{ secrets.FLASK_DEBUG_DEV }}
+                    FLASK_DEBUG=${{ secrets.FLASK_DEBUG_DEV }}
                     USE_SSH_TUNNEL=${{ secrets.USE_SSH_TUNNEL_DEV }}
                     SSH_HOST=${{ secrets.SSH_HOST }}
                     SSH_PORT=${{ secrets.SSH_PORT }}
@@ -61,6 +61,14 @@ jobs:
                     echo "🗂️  Contents of web/ directory:"
                     ls -al web
 
+
+            -   name: Install SSH key
+                run: |
+                    mkdir -p ~/.ssh
+                    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/ICT2216-student12.pem
+                    chmod 600 ~/.ssh/ICT2216-student12.pem
+
+                    
             -   name: Bring up containers
                 run: |
                     docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
