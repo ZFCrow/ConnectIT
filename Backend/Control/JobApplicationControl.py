@@ -93,7 +93,7 @@ class JobApplicationControl:
         """
         print(f"Retrieving latest applied job for user with userId: {userId}")
         return JobApplicationMapper.getLatestAppliedJobs(userId)
-    
+
     @staticmethod
     def getApplicationById(applicationId: int):
         """

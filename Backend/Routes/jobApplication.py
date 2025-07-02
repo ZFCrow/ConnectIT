@@ -15,6 +15,7 @@ import re
 job_application_bp = Blueprint("job_application", __name__)
 SplunkLogging = SplunkUtils.SplunkLogger()
 
+
 def _authenticate():
     token = JWTUtils.get_token_from_cookie()
     if not token:
@@ -23,6 +24,7 @@ def _authenticate():
         return JWTUtils.decode_jwt_token(token)
     except Exception:
         abort(401, description="Invalid or expired token")
+
 
 @job_application_bp.route("/applyJob", methods=["POST"])
 @limiter.limit("5 per hour", key_func=get_user_key)
@@ -93,7 +95,6 @@ def applyJob():
                 "path": request.path,
             }
         )
-
         return jsonify({"error": "User ID is required"}), 400
 
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
