@@ -129,7 +129,7 @@ const CreatePostbar: FC<CreatePostbarProps> = ({
                 </div>
 
                 <DialogFooter>
-                  <Button type="submit" onClick={handlePostSubmit}>
+                  <Button data-testid="submit-post" type="submit" onClick={handlePostSubmit}>
                     Post
                   </Button>
                 </DialogFooter>

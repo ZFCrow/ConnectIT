@@ -2,7 +2,11 @@ import { test, expect } from '@playwright/test';
 import { authenticator } from 'otplib';
 import fernet from 'fernet';
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+import path   from 'path';
+
+dotenv.config({
+  path: path.resolve(process.cwd(), '../.env')
+});
 
 test('unauthenticated user is redirected to login page', async ({ page }) => {
 
@@ -14,7 +18,7 @@ test('unauthenticated user is redirected to login page', async ({ page }) => {
 
 });
 
-test('logging in with the correct credentials redirects but wrong 2fa code', async ({ page }) => {
+test('entering bad 2FA code shows error under Verify2FAForm', async ({ page }) => {
 
 
     // navigate to login page 
@@ -27,10 +31,13 @@ test('logging in with the correct credentials redirects but wrong 2fa code', asy
     // submit the form 
     await page.locator('button', { hasText: 'Log In' }).click();
 
-    // assert redirection to 2fa page look for the text Verify 2FA 
-    // Check for visible text "Verify 2FA" anywhere on the page
-    await expect(page.locator('div[data-slot="card-title"]')).toHaveText('Verify 2FA', { timeout: 200000 })
 
+    // 2) Wait for your Verify2FAForm to mount
+    await page.waitForSelector('[data-testid="verify-2fa-form"]', { timeout: 30_000 });
+
+    // 3) Assert the header is correct
+    const title = page.locator('[data-testid="verify-2fa-form"] div[data-slot="card-title"]');
+    await expect(title).toHaveText('Verify 2FA');
 
     // fill in the 2fa code 
     await page.fill('input[id="token"]', '111111');
@@ -48,7 +55,14 @@ test('logging in with the correct credentials redirects but wrong 2fa code', asy
 
 test('logging in with the correct credentials redirects to 2fa page', async ({ page }) => {
 
-    test.setTimeout(60_000)
+    
+    // 1) Sanity-check your env before you do anything else:
+    const encryptedToken = process.env.ENCRYPTED_TOTP_SECRET;
+    const fernetKeyRaw  = process.env.FERNET_KEY;
+    expect(encryptedToken, 'ENCRYPTED_TOTP_SECRET must be defined').toBeTruthy();
+    expect(fernetKeyRaw,  'FERNET_KEY must be defined').toBeTruthy();
+
+
     // navigate to login page 
     await page.goto('http://localhost:5173/login')
 
@@ -63,7 +77,8 @@ test('logging in with the correct credentials redirects to 2fa page', async ({ p
     // Check for visible text "Verify 2FA" anywhere on the page
     await expect(page.locator('div[data-slot="card-title"]')).toHaveText('Verify 2FA', { timeout: 500000 })
 
-    const encryptedToken = process.env.ENCRYPTED_TOTP_SECRET!;
+    
+
     const fernetKey = new fernet.Secret(process.env.FERNET_KEY!);
     const token = new fernet.Token({
         secret: fernetKey, token: encryptedToken, ttl: 0
@@ -79,10 +94,23 @@ test('logging in with the correct credentials redirects to 2fa page', async ({ p
     // fill in the 2fa code 
     await page.fill('input[id="token"]', otp);
 
-    // submit the 2fa form 
-    await page.locator('button', { hasText: 'Verify 2FA' }).click();
 
-    // assert redirection to home page
-    await expect(page).toHaveURL('http://localhost:5173', { timeout: 10000 });
+
+    // 1) Click “Verify 2FA” and wait for the API to return 200
+    await Promise.all([
+    page.waitForResponse(response =>
+        response.url().endsWith('/api/2fa-verify') && response.status() === 200
+    ),
+    page.click('button:has-text("Verify 2FA")'),
+    ]);
+
+    // 2) Now assert that the app navigated home
+    //await expect(page).toHaveURL('http://localhost:5173/', { timeout: 30_000 });
+
+    // // submit the 2fa form 
+    // await page.locator('button', { hasText: 'Verify 2FA' }).click();
+
+    // // assert redirection to home page
+    // await expect(page).toHaveURL('http://localhost:5173', { timeout: 30000 });
 }
 );

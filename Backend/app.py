@@ -156,7 +156,7 @@ app = create_app()
 
 @app.route("/")
 def index():
-    return jsonify({"message": "Welcome to the API!"})
+    return jsonify({"message": "Welcome to the API!"}, 200)
 
 
 if __name__ == "__main__":

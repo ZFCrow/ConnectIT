@@ -1,0 +1,52 @@
+name: E2E with Docker Compose
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v2
+
+      - name: Bring up containers
+        run: |
+          docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+
+      # Wait for your Flask API to respond
+      - name: Wait for backend
+        run: |
+          for i in $(seq 1 20); do
+            curl --fail http://localhost:5000/ && break
+            echo "Waiting for API..."
+            sleep 1
+          done
+
+      # Wait for your front-end (if you run it in Docker too)
+      - name: Wait for frontend
+        run: |
+          for i in $(seq 1 20); do
+            curl --fail http://localhost:5173/ && break
+            echo "Waiting for frontend..."
+            sleep 1
+          done
+
+      - name: Install Playwright deps
+        working-directory: web
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run E2E tests
+        working-directory: web
+        run: npx playwright test --config=playwright.config.ts
+
+      - name: Tear down
+        if: always()
+        run: docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down
