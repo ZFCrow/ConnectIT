@@ -17,7 +17,7 @@ jobs:
 
       - name: Bring up containers
         run: |
-          docker compose -f docker compose.yaml -f docker compose.dev.yaml up -d
+          docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 
       # Wait for your Flask API to respond
       - name: Wait for backend
@@ -49,4 +49,4 @@ jobs:
 
       - name: Tear down
         if: always()
-        run: docker compose -f docker compose.yaml -f docker compose.dev.yaml down
+        run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down
