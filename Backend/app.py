@@ -12,7 +12,7 @@
 # if dev_env.exists():
 #     load_dotenv(dev_env, override=True)
 
-from flask import Flask, jsonify, request, abort, make_response
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from flask_limiter.errors import RateLimitExceeded
 import os
@@ -31,7 +31,7 @@ from Routes.jobApplication import job_application_bp
 from Security import Limiter, SplunkUtils
 
 from flask_wtf import CSRFProtect
-from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
+from flask_wtf.csrf import validate_csrf, CSRFError
 
 
 # #splunk
