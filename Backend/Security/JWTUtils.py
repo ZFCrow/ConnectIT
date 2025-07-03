@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from flask import request
 import uuid
 
+
 class JWTUtils:
     SECRET_KEY = os.getenv("JWT_SECRET")
     ALGORITHM = "HS512"

@@ -17,7 +17,6 @@ from Security.Limiter import (
 )
 from datetime import datetime
 import jwt
-import time
 import uuid
 
 auth_bp = Blueprint("auth", __name__)
@@ -275,7 +274,7 @@ def login():
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
             "twoFaSecret": account.twoFaSecret,
-            "jti":new_jti
+            "jti": new_jti
         }
 
         optional_keys = [
