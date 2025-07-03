@@ -12,10 +12,11 @@
 # if dev_env.exists():
 #     load_dotenv(dev_env, override=True)
 
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, make_response
 from flask_cors import CORS
 from flask_limiter.errors import RateLimitExceeded
 import os
+import jwt
 
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
@@ -29,10 +30,11 @@ from Routes.csrf import csrf_bp
 from Routes.multifactorAuth import multi_factor_auth_bp
 from Routes.jobApplication import job_application_bp
 from Security import Limiter, SplunkUtils
+from Security.JWTUtils import JWTUtils
 
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import validate_csrf, CSRFError
-
+from Control.AccountControl import AccountControl
 
 # #splunk
 SplunkLogging = SplunkUtils.SplunkLogger()
@@ -50,10 +52,39 @@ def create_app():
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
     CSRFProtect(app)
 
+    @app.before_request
+    def enforce_single_session():
+        # Skip token creation & public routes
+        if request.endpoint in ("auth.create_token", "auth.login", "csrf.get_csrf_token", None):
+            return
+
+        token = request.cookies.get("session_token")
+        if not token:
+            return
+
+        # Helper to clear cookie + abort
+        def _invalid_session(message):
+            resp = make_response(jsonify({"error": message}), 401)
+            return JWTUtils.remove_auth_cookie(resp)
+            
+
+        # Decode and validate token
+        try:
+            payload = JWTUtils.decode_jwt_token(token)
+        except jwt.PyJWTError:
+            return _invalid_session("Invalid or expired token")
+
+        account_id = payload.get("sub")
+        jti        = payload.get("jti")
+
+        account = AccountControl.getAccountById(account_id)
+        if jti != account.sessionId:
+            return _invalid_session("Session invalidated; please log in again")
+
     # Validate CSRF on all modifying requests (POST, "GET" ,PUT, DELETE)
     @app.before_request
     def verify_csrf_token():
-        if request.method in ("GET", "POST", "PUT", "DELETE"):
+        if request.method in ("POST", "PUT", "DELETE"):
             # Skip OPTIONS or if you've explicitly exempted routes
             token = request.cookies.get("csrf_token") or request.headers.get(
                 "X-CSRFToken"

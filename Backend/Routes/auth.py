@@ -17,6 +17,8 @@ from Security.Limiter import (
 )
 from datetime import datetime
 import jwt
+import time
+import uuid
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -261,6 +263,7 @@ def login():
         print(f"Login successful for {email} in {duration_ms} ms")
         print(f"Account details: {account}")
         reset_login_attempts(email)
+        new_jti = str(uuid.uuid4())
         base_data = {
             "accountId": account.accountId,
             "name": account.name,
@@ -272,6 +275,7 @@ def login():
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
             "twoFaSecret": account.twoFaSecret,
+            "jti":new_jti
         }
 
         optional_keys = [
@@ -303,7 +307,6 @@ def create_token():
     user_id = data.get("userId")
     company_id = data.get("companyId")
     is_verified = data.get("verified")
-
     if not account_id or not user_role or not name:
 
         SplunkLogging.send_log(
@@ -318,7 +321,7 @@ def create_token():
         )
 
         return jsonify({"error": "Missing token creation data"}), 400
-
+    new_jti = str(uuid.uuid4())
     token = JWTUtils.generate_jwt_token(
         account_id,
         user_role,
@@ -327,6 +330,7 @@ def create_token():
         user_id,
         company_id,
         is_verified=is_verified,
+        jti=new_jti
     )
     if not token:
 
@@ -342,7 +346,9 @@ def create_token():
         )
 
         return jsonify({"error": "Token generation failed"}), 500
-
+    success = AccountControl.setSessionId(account_id, {"sessionId": new_jti})
+    if not success:
+        return jsonify({"error": "Could not bind session"}), 500
     resp = make_response(jsonify({"message": "Token created"}), 200)
     resp = JWTUtils.set_auth_cookie(resp, token)
 

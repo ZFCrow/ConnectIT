@@ -2,7 +2,7 @@ import jwt
 import os
 from datetime import datetime, timedelta, timezone
 from flask import request
-
+import uuid
 
 class JWTUtils:
     SECRET_KEY = os.getenv("JWT_SECRET")
@@ -19,10 +19,14 @@ class JWTUtils:
         company_id: int | None = None,
         is_verified: bool | None = None,
         orig_iat: datetime | None = None,
+        jti: str | None = None,
     ) -> str:
         now = datetime.now(timezone.utc)
         if orig_iat is None:
             orig_iat = now
+
+        if jti is None:
+            jti = str(uuid.uuid4())
 
         payload = {
             "sub": str(account_id),
@@ -34,6 +38,7 @@ class JWTUtils:
             "verified": is_verified,
             "iat": now,
             "exp": now + JWTUtils.EXPIRATION,
+            "jti": jti,
             "origIat": orig_iat.isoformat(),
         }
         return jwt.encode(payload, JWTUtils.SECRET_KEY, algorithm=JWTUtils.ALGORITHM)

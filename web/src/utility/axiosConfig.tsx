@@ -37,4 +37,24 @@ axios.interceptors.request.use(
   (err) => Promise.reject(err)
 );
 
+axios.interceptors.response.use(
+  response => response,
+  async (error) => {
+    const status = error?.response?.status;
+    const msg    = error?.response?.data?.error;
+
+    // adjust to your exact message/code
+    if (status === 401 && msg === "Session invalidated; please log in again") {
+      // clear any app state here
+      // e.g. store.dispatch(logoutAction());
+
+      // redirect user to login
+      window.location.href = "/login";
+      return Promise.resolve();  // swallow the error if you like
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default axios;
