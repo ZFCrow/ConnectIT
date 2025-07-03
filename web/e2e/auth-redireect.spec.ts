@@ -118,7 +118,7 @@ test('logging in with the correct credentials redirects to 2fa page', async ({ p
     // Generate OTP using base32 secret
     const otp = authenticator.generate(decryptedSecret);
 
-    console.log('Generated OTP:', otp);
+   
 
     // fill in the 2fa code 
     await page.fill('input[id="token"]', otp);

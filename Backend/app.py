@@ -33,9 +33,9 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import generate_csrf, validate_csrf, CSRFError
 
 
-
 # #splunk
 SplunkLogging = SplunkUtils.SplunkLogger()
+
 
 # CORS(app)
 def create_app():

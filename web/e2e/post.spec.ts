@@ -45,7 +45,7 @@ test('creating a post', async ({ page }) => {
     // Generate OTP using base32 secret
     const otp = authenticator.generate(decryptedSecret);
 
-    console.log('Generated OTP:', otp);
+
 
     // fill in the 2fa code 
     await page.fill('input[id="token"]', otp);
