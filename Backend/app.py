@@ -84,17 +84,22 @@ def create_app():
     # Validate CSRF on all modifying requests (POST, "GET" ,PUT, DELETE)
     @app.before_request
     def verify_csrf_token():
-        if request.method in ("POST", "PUT", "DELETE"):
-            # Skip OPTIONS or if you've explicitly exempted routes
-            token = request.cookies.get("csrf_token") or request.headers.get(
-                "X-CSRFToken"
+        # now also checking GET…
+        if request.method in ("GET", "POST", "PUT", "DELETE"):
+            # don’t protect the token-issuer endpoint
+            if request.endpoint == "csrf.get_csrf_token":
+                return
+
+            token = (
+                request.headers.get("X-CSRFToken")
+                or request.cookies.get("csrf_token")
             )
             if not token:
-                abort(400, description="Missing CSRF token")
+                abort(400, "Missing CSRF token")
             try:
                 validate_csrf(token)
             except CSRFError as e:
-                abort(400, description=f"CSRF validation failed: {e}")
+                abort(400, f"CSRF validation failed: {e}")
 
     # Register your blueprints
     app.register_blueprint(profile_bp)
