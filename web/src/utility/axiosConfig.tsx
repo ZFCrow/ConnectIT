@@ -1,25 +1,40 @@
-// src/axiosConfig.ts
-import axios, { AxiosHeaders, type InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosHeaders, type InternalAxiosRequestConfig, type AxiosResponse } from "axios";
+export type { AxiosResponse };
 
-// re-export the AxiosResponse interface for consumers
-export type { AxiosResponse } from "axios";
-
-// always send cookies
 axios.defaults.withCredentials = true;
 
-// on every request…
-axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  // pull the csrf_token cookie
-  const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
-  const csrf = match ? match[1] : "";
+/**
+ * Fetches a fresh CSRF token from the server and sets it on the default headers.
+ * Call this once before making any POST/PUT/DELETE requests.
+ */
+export async function initCsrf() {
+  try {
+    const { data } = await axios.get<{ csrfToken: string }>("/api/csrf-token");
+    axios.defaults.headers.common["X-CSRFToken"] = data.csrfToken;
+  } catch (err) {
+    console.error("Failed to initialize CSRF token:", err);
+  }
+}
 
-  // wrap any existing headers into an AxiosHeaders instance
-  const headers = new AxiosHeaders(config.headers || {});
-  headers.set("X-CSRFToken", csrf);
+// initialize CSRF token immediately
+initCsrf();
 
-  // re-assign back onto config
-  config.headers = headers;
-  return config;
-}, (err) => Promise.reject(err));
+// on every request, ensure the CSRF header is set
+axios.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const headers = new AxiosHeaders(config.headers || {});
+    // If we don't already have the CSRF header (e.g., token refreshed), try fallback from cookie
+    if (!headers.has("X-CSRFToken")) {
+      const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+      const csrf = match ? match[1] : "";
+      if (csrf) {
+        headers.set("X-CSRFToken", csrf);
+      }
+    }
+    config.headers = headers;
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
 
 export default axios;
