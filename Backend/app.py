@@ -55,7 +55,7 @@ def create_app():
     @app.before_request
     def enforce_single_session():
         # Skip token creation & public routes
-        if request.endpoint in ("auth.create_token", 
+        if request.endpoint in ("auth.create_token",
                                 "auth.login", "csrf.get_csrf_token", None):
             return
 
@@ -67,7 +67,7 @@ def create_app():
         def _invalid_session(message):
             resp = make_response(jsonify({"error": message}), 401)
             return JWTUtils.remove_auth_cookie(resp)
-     
+
         # Decode and validate token
         try:
             payload = JWTUtils.decode_jwt_token(token)
