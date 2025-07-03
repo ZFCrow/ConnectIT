@@ -53,7 +53,7 @@ def create_app():
     # Validate CSRF on all modifying requests (POST, "GET" ,PUT, DELETE)
     @app.before_request
     def verify_csrf_token():
-        if request.method in ("POST", "PUT", "DELETE"):
+        if request.method in ("GET", "POST", "PUT", "DELETE"):
             # Skip OPTIONS or if you've explicitly exempted routes
             token = request.cookies.get("csrf_token") or request.headers.get(
                 "X-CSRFToken"
