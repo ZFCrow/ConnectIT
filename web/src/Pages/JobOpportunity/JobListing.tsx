@@ -47,7 +47,6 @@ const JobListingPage: React.FC = () => {
               appliedIds = appliedRes.data ?? [];
             }
             const res = await axios.get("/api/joblistings");
-            // console.log("Job listings response:", res.data);
             const jobs = Array.isArray(res.data)
               ? res.data
                   .map((item) => {
