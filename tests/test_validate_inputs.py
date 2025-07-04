@@ -1,5 +1,16 @@
 import pytest
-from Backend.Security.ValidateInputs import *
+from Backend.Security.ValidateInputs import (
+    required_fields,
+    sanitize_fields,
+    sanitize_input,
+    validate_email,
+    validate_comment,
+    validate_login,
+    validate_register,
+    validate_profile,
+    validate_post,
+    validate_job_listing
+)
 
 
 def test_required_fields_missing():
@@ -7,22 +18,26 @@ def test_required_fields_missing():
     required = ["name", "email", "password"]
     assert required_fields(data, required) == ["email", "password"]
 
+
 def test_required_fields_none():
     data = {"email": None, "name": "Alice"}
     required = ["name", "email"]
     assert required_fields(data, required) == ["email"]
 
+
 def test_required_fields_complete():
     data = {"name": "Alice", "email": "a@example.com", "password": "x"}
     required = ["name", "email", "password"]
     assert required_fields(data, required) == []
-    
+
+
 def test_sanitize_input_removes_html():
     dirty = "<script>alert('hack')</script>Hello"
     clean = sanitize_input(dirty)
     assert "<script>" not in clean
     assert "<" not in clean and ">" not in clean  # rough fallback
     assert "Hello" in clean
+
 
 def test_sanitize_fields_mutates_in_place():
     data = {
@@ -34,11 +49,13 @@ def test_sanitize_fields_mutates_in_place():
     assert "<script>" not in data['bio']
     assert "<" not in data['bio'] and ">" not in data['bio']  # rough fallback
 
+
 def test_sanitize_fields_skips_non_strings():
     data = {"name": "<b>Bob</b>", "age": 30}
     sanitize_fields(data, ["name", "age"])
     assert data["name"] == "Bob"
     assert data["age"] == 30
+
 
 @pytest.mark.parametrize("email,expected", [
     ("test@example.com", True),
@@ -49,9 +66,9 @@ def test_sanitize_fields_skips_non_strings():
     ("", False),
     ("plainaddress", False),
 ])
-
 def test_validate_email(email, expected):
     assert validate_email(email) == expected
+
 
 @pytest.mark.parametrize(
     "data,expected_keys",
@@ -59,15 +76,18 @@ def test_validate_email(email, expected):
         ({}, ["missing"]),
         ({"email": "a@b.com"}, ["missing"]),
         ({"name": "John", "email": "a@b.com", "password": "short"}, ["password"]),
-        ({"name": "John", "email": "a@b.com", "password": "x" * 65}, ["password"]),  # too long
-        ({"name": "John", "email": "invalid-email", "password": "goodpass123"}, ["email"]),
+        ({"name": "John", "email": "a@b.com", "password": "x" * 65}, ["password"]),
+        ({"name": "John", "email": "invalid-email", "password": "goodpass123"},
+         ["email"]),
         ({"name": "John", "email": "a@b.com", "password": "goodpass123"}, []),
     ]
 )
 def test_validate_register(data, expected_keys, monkeypatch):
-    monkeypatch.setattr("Backend.Security.ValidateInputs.is_common_password", lambda x: False)
+    monkeypatch.setattr("Backend.Security.ValidateInputs.is_common_password",
+                        lambda x: False)
     result = validate_register(data)
     assert sorted(result.keys()) == sorted(expected_keys)
+
 
 @pytest.mark.parametrize(
     "data,expected_keys",
@@ -81,17 +101,18 @@ def test_validate_register(data, expected_keys, monkeypatch):
         ({"email": "not-an-email", "password": "goodpass123"}, ["email"]),
 
         # --- Password length issues ---
-        ({"email": "user@example.com", "password": "short"}, ["password"]),  # too short
-        ({"email": "user@example.com", "password": "x" * 65}, ["password"]),  # too long
+        ({"email": "user@example.com", "password": "short"}, ["password"]),
+        ({"email": "user@example.com", "password": "x" * 65}, ["password"]),
 
         # --- All valid ---
         ({"email": "user@example.com", "password": "goodpass123"}, []),
-        ({"email": "  user@example.com  ", "password": "   goodpass123   "}, []),  # sanitized
+        ({"email": "  user@example.com  ", "password": "   goodpass123   "}, []),
     ],
 )
 def test_validate_login(data, expected_keys):
     result = validate_login(data)
     assert sorted(result.keys()) == sorted(expected_keys)
+
 
 @pytest.mark.parametrize(
     "data,expected_keys",
@@ -144,42 +165,150 @@ def test_validate_comment(data, expected_keys):
         ({"title": "Title"}, ["missing"]),
         ({"title": "Title", "description": "Desc"}, ["missing"]),
         ({"title": "Title", "description": "Desc", "minSalary": 1000}, ["missing"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 1000, "maxSalary": 2000}, ["missing"]),
+        (
+            {"title": "Title", "description": "Desc", "minSalary": 1000,
+             "maxSalary": 2000},
+            ["missing"],
+        ),
 
         # --- Title validation ---
-        ({"title": "", "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0}, ["title"]),
-        ({"title": "x" * 101, "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0}, ["title"]),
+        (
+            {
+                "title": "", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+            },
+            ["title"],
+        ),
+        (
+            {
+                "title": "x" * 101, "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+            },
+            ["title"],
+        ),
 
         # --- Description validation ---
-        ({"title": "Title", "description": "", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0}, ["description"]),
-        ({"title": "Title", "description": "x" * 1001, "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0}, ["description"]),
+        (
+            {
+                "title": "Title", "description": "",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+            },
+            ["description"],
+        ),
+        (
+            {
+                "title": "Title", "description": "x" * 1001,
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+            },
+            ["description"],
+        ),
 
-        # --- Responsibilities not list ---
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0,
-          "responsibilities": "notalist"}, ["responsibilities"]),
+        # --- Responsibilities not a list ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "responsibilities": "notalist"
+            },
+            ["responsibilities"],
+        ),
 
-        # --- Responsibilities invalid entries ---
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0,
-          "responsibilities": [123]}, ["responsibilities[0]"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0,
-          "responsibilities": ["", "Valid"]}, ["responsibilities[0]"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0,
-          "responsibilities": ["x" * 501]}, ["responsibilities[0]"]),
+        # --- Responsibilities with invalid entries ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "responsibilities": [123]
+            },
+            ["responsibilities[0]"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "responsibilities": ["", "Valid"]
+            },
+            ["responsibilities[0]"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "responsibilities": ["x" * 501]
+            },
+            ["responsibilities[0]"],
+        ),
 
-        # --- Salary validations ---
-        ({"title": "Title", "description": "Desc", "minSalary": -1, "maxSalary": 1000, "experiencePreferred": 0}, ["salary"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 1000, "maxSalary": -1, "experiencePreferred": 0}, ["salary"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 2000, "maxSalary": 1000, "experiencePreferred": 0}, ["salary"]),
-        ({"title": "Title", "description": "Desc", "minSalary": "abc", "maxSalary": 1000, "experiencePreferred": 0}, ["salary"]),
+        # --- Salary validation ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": -1, "maxSalary": 1000, "experiencePreferred": 0
+            },
+            ["salary"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": -1, "experiencePreferred": 0
+            },
+            ["salary"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 2000, "maxSalary": 1000, "experiencePreferred": 0
+            },
+            ["salary"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": "abc", "maxSalary": 1000, "experiencePreferred": 0
+            },
+            ["salary"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 0, "maxSalary": 0, "experiencePreferred": 0
+            },
+            ["salary"],
+        ),
 
-        # --- Experience validations ---
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 1000, "experiencePreferred": -1}, ["experience"]),
-        ({"title": "Title", "description": "Desc", "minSalary": 0, "maxSalary": 1000, "experiencePreferred": "abc"}, ["experience"]),
+        # --- Experience validation ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": -1
+            },
+            ["experience"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": "abc"
+            },
+            ["experience"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 46
+            },
+            ["experience"],
+        ),
 
         # --- All valid ---
-        ({"title": "Valid Title", "description": "Valid description", "minSalary": 0, "maxSalary": 1000, "experiencePreferred": 5,
-          "responsibilities": ["Manage projects", "Write code"]}, []),
-    ],
+        (
+            {
+                "title": "Valid Title", "description": "Valid description",
+                "minSalary": 1000, "maxSalary": 5000, "experiencePreferred": 5,
+                "responsibilities": ["Manage projects", "Write code"]
+            },
+            [],
+        ),
+    ]
 )
 def test_validate_job_listing(data, expected_keys):
     result = validate_job_listing(data)
@@ -190,20 +319,25 @@ def test_validate_job_listing(data, expected_keys):
     "data,expected_keys",
     [
         # --- Bio length ---
-        ({"bio": "x" * 1001, "name": "Name", "location": "Loc", "description": "Desc"}, ["bio"]),
+        ({"bio": "x" * 1001, "name": "Name", "location": "Loc", "description": "Desc"},
+         ["bio"]),
 
         # --- Name empty or too long ---
         ({"bio": "", "name": "", "location": "Loc", "description": "Desc"}, ["name"]),
-        ({"bio": "", "name": "x" * 41, "location": "Loc", "description": "Desc"}, ["name"]),
+        ({"bio": "", "name": "x" * 41, "location": "Loc", "description": "Desc"},
+         ["name"]),
 
         # --- Location too long ---
-        ({"bio": "", "name": "Name", "location": "x" * 251, "description": "Desc"}, ["location"]),
+        ({"bio": "", "name": "Name", "location": "x" * 251, "description": "Desc"},
+         ["location"]),
 
         # --- Description too long ---
-        ({"bio": "", "name": "Name", "location": "Loc", "description": "x" * 1001}, ["description"]),
+        ({"bio": "", "name": "Name", "location": "Loc", "description": "x" * 1001},
+         ["description"]),
 
         # --- All valid ---
-        ({"bio": "Short bio", "name": "Valid Name", "location": "Somewhere", "description": "Desc"}, []),
+        ({"bio": "Short bio", "name": "Valid Name", "location": "Somewhere",
+         "description": "Desc"}, []),
     ],
 )
 def test_validate_profile(data, expected_keys):
