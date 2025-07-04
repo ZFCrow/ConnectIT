@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import type { ReactNode } from "react";
 import axios from "@/utility/axiosConfig";
+import { set } from "zod";
 export const Role = {
   User: "User",
   Admin: "Admin",
@@ -86,7 +87,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         } 
       } catch (err) {
         console.error("[AuthProvider] Auth check failed:", err);
-      } 
+      } finally {
+        if (isMounted) setIsLoading(false);
+    }
     }
 
     bootstrapAuth();
