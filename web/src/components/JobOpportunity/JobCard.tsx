@@ -41,8 +41,6 @@ const JobCard: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const { accountId, userId } = useAuth(); // Get userId from context/auth
-  console.log("JobCard userId:", userId);
-  console.log("JobCard accountId:", accountId);
   const posted = new Date(job.createdAt).toLocaleDateString(
     dateLocale,
     dateFormatOptions
