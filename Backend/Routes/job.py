@@ -119,7 +119,7 @@ def deleteJobListing(jobId):
     """
     claims = _authenticate()
     company_id = claims.get("companyId")
-    is_admin = claims.get("role") == "admin"
+    is_admin = claims.get("role") == "Admin"
     if company_id and not is_admin:
         abort(403, "Only company users may delete job listings")
 
