@@ -43,7 +43,8 @@ def get_user(account_id):
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role,
+            "role": account.role if isinstance(account.role, str)
+            else account.role.value,
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,
@@ -82,7 +83,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-#@limiter.limit("1 per hour", key_func=get_account_key)
+@limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")

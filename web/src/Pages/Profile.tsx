@@ -232,7 +232,6 @@ const ProfilePage = () => {
               <div className="pt-6">
                 <Tabs
                   tabs={[
-                    "Posts",
                     ...(user.role === Role.Company ? ["Job Listings"] : []),
                   ]}
                   activeTab={activeTab}

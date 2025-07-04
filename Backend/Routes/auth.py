@@ -263,6 +263,8 @@ def login():
         return jsonify({"message": "Incorrect credentials"}), 401
 
     if account:
+        if account.isDisabled:
+            return jsonify({"message": "Account is disabled"}), 403
         print(f"Login successful for {email} in {duration_ms} ms")
         print(f"Account details: {account}")
         reset_login_attempts(email)
