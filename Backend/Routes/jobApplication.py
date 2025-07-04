@@ -33,7 +33,7 @@ def applyJob():
     Applies for a job listing.
     """
     claims = _authenticate()
-    token_user = claims.get("sub")
+    token_user = claims.get("userId")
    # determine content type
     if request.content_type.startswith("multipart/form-data"):
         userId = request.form.get("userId", type=int)
