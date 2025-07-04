@@ -68,7 +68,6 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
     const fetchFields = async () => {
       try {
         const res = await axios.get("/api/getFieldOfWork");
-        // console.log("fieldOptions API result:", res.data);
 
         setFieldOptions(res.data);
       } catch (e) {
