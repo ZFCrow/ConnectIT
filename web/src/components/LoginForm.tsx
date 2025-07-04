@@ -93,7 +93,6 @@ export function LoginForm() {
       setShowCaptcha(false);
 
       let parsed;
-      console.log("LoginForm - handleSubmit - data:", data);
 
       switch (data.role) {
         case Role.User:
@@ -120,9 +119,6 @@ export function LoginForm() {
       const msg = err.response?.data?.error || err.response?.data?.message;
       toast.error(msg || "Login error");
 
-      // Debugging: Log response from backend
-      // console.log("Login catch block - Backend response data:",
-      //   err?.response?.data ?? {});
 
       if (err.response?.data?.showCaptcha) {
         setShowCaptcha(true);
