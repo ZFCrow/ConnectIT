@@ -95,7 +95,15 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        add_header Content-Security-Policy "default-src 'self';" always;
+        add_header Content-Security-Policy "
+            default-src 'self';
+            script-src 'self' https://hcaptcha.com https://*.hcaptcha.com;
+            frame-src https://hcaptcha.com https://*.hcaptcha.com;
+            style-src 'self' 'unsafe-inline' https://hcaptcha.com https://*.hcaptcha.com;
+            img-src 'self' data: https://hcaptcha.com https://*.hcaptcha.com;
+            connect-src 'self' https://hcaptcha.com https://*.hcaptcha.com;
+            font-src 'self' https://hcaptcha.com https://*.hcaptcha.com;
+            " always;
         add_header X-Frame-Options "DENY" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header Referrer-Policy "no-referrer-when-downgrade" always;
