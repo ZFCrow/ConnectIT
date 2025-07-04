@@ -20,7 +20,6 @@ type Props = {
 
 export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
   const [code, setCode] = useState("");
-  const [status, setStatus] = useState<string | null>(null);
 
   const handleVerify = async () => {
     if (!secret) {
@@ -29,59 +28,62 @@ export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
     }
 
     try {
-      const res = await axios.post("/api/2fa-verify", { accountId, code, secret });
+      const res = await axios.post("/api/2fa-verify", {
+        accountId,
+        code,
+        secret,
+      });
       if (res.data.verified) {
         toast.success("2FA Verified");
         onSuccess();
       } else {
-        setStatus("Invalid code");
+        toast.error("Invalid 2FA code");
       }
-    } catch {
-      setStatus("Verification failed");
+    } catch (err: any) {
+      const msg = err.response?.data?.error;
+      toast.error(msg || "Verification Failed");
     }
   };
 
   return (
     <div data-testid="verify-2fa-form">
       <Card className="w-full max-w-md">
-            <CardHeader>
-              <CardTitle className="text-2xl">Verify 2FA</CardTitle>
-            </CardHeader>
+        <CardHeader>
+          <CardTitle className="text-2xl">Verify 2FA</CardTitle>
+        </CardHeader>
 
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Enter the 6-digit code from Google Authenticator.
-              </p>
-              <div className="space-y-1">
-                <Label htmlFor="token">Code</Label>
-                <Input
-                  id="token"
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="Enter 6-digit code"
-                  className="dark:bg-gray-800 dark:border-gray-600"
-                  value={code}
-                  onChange={(e) =>
-                    setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-                  }
-                  required
-                />
-              </div>
-              {status && <p className="text-red-500 text-sm">{status}</p>}
-            </CardContent>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Enter the 6-digit code from Google Authenticator.
+          </p>
+          <div className="space-y-1">
+            <Label htmlFor="token">Code</Label>
+            <Input
+              id="token"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="Enter 6-digit code"
+              className="dark:bg-gray-800 dark:border-gray-600"
+              value={code}
+              onChange={(e) =>
+                setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+              }
+              required
+            />
+          </div>
+        </CardContent>
 
-            <CardFooter>
-              <Button
-                className="w-full"
-                onClick={handleVerify}
-                disabled={code.length !== 6}
-              >
-                Verify 2FA
-              </Button>
-            </CardFooter>
-          </Card>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={handleVerify}
+            disabled={code.length !== 6}
+          >
+            Verify 2FA
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
-   
   );
 }
