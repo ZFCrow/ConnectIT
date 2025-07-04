@@ -31,7 +31,7 @@ def register():
     payload = request.form.to_dict()
     errors = validate_register(payload)
 
-    if payload["role"] != "User" or payload["role"] != "Company":
+    if payload["role"] not in ["User", "Company"]:
         return jsonify({"error": "Failed to create account"}), 500
 
     if errors:
