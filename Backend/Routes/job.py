@@ -126,7 +126,7 @@ def deleteJobListing(jobId):
     job = JobListingControl.getJobDetails(jobId)  # returns a JobListing entity
     if not job:
         abort(404, "Job listing not found")
-    if job.company.companyId != company_id:
+    if not is_admin and job.company.companyId != company_id:
         abort(403, "Cannot delete job listing for another company")
     success = JobListingControl.deleteJob(jobId)
 
