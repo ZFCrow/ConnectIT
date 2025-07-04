@@ -119,10 +119,13 @@ def deleteJobListing(jobId):
     """
     claims = _authenticate()
     company_id = claims.get("companyId")
-    is_admin = claims.get("role") == "Admin"
-    if company_id and not is_admin:
-        abort(403, "Only company users may delete job listings")
+    role       = claims.get("role")
+    is_admin   = (role == "Admin")
+    is_company = (role == "Company")
 
+    # only Company users or Admins may proceed
+    if not is_admin and not is_company:
+        abort(403, "Only company users or admins may delete job listings")
     job = JobListingControl.getJobDetails(jobId)  # returns a JobListing entity
     if not job:
         abort(404, "Job listing not found")
