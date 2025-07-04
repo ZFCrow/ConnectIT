@@ -30,8 +30,6 @@ const Navbar = () => {
   const { accountId, role, logout } = useAuth();
   const navigate = useNavigate();
 
-  // console.log("Navbar rendered with role:", role);
-  // console.log("Navbar rendered with accountId:", accountId);
 
   return (
     <nav
