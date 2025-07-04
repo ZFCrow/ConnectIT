@@ -30,17 +30,15 @@ def create_qrcode(email: str):
 
 def validate2FA(code: str, encrypted_secret: str):
     if not encrypted_secret:
-        return {"verified": False, "error": "No secret provided"}, 400
+        return {"verified": False, "error": "Verification failed"}, 400
 
     if not re.fullmatch(r"\d{6}", code):
         return {"verified": False, "error": "Invalid code format"}, 400
 
-    try:
-        secret = fernet.decrypt(encrypted_secret.encode()).decode()
-    except Exception:
-        return {"verified": False, "error": "Decryption failed"}, 400
+    secret = fernet.decrypt(encrypted_secret.encode()).decode()
     totp = pyotp.TOTP(secret)
+
     if totp.verify(code):
         return {"verified": True}, 200
     else:
-        return {"verified": False}, 401
+        return {"verified": False, "error": "Verification failed"}, 401

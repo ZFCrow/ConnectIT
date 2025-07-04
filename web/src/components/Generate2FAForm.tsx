@@ -22,7 +22,6 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [secret, setSecret] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!email) return;
@@ -57,13 +56,14 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
 
           onSuccess();
         } catch (error) {
-          console.error("Failed to save 2FA:", error);
+          toast.error("Failed to save 2FA");
         }
       } else {
-        setStatus("Invalid code");
+        toast.error("Invalid 2FA code");
       }
-    } catch {
-      setStatus("Verification failed");
+    } catch (err: any) {
+      const msg = err.response?.data?.error;
+      toast.error(msg || "Verification Failed");
     }
   };
 
@@ -109,7 +109,6 @@ export function Generate2FAForm({ email, accountId, onSuccess }: Props) {
             required
           />
         </div>
-        {status && <p className="text-red-500 text-sm">{status}</p>}
       </CardContent>
 
       <CardFooter>

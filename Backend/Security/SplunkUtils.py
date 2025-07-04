@@ -6,10 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 class SplunkLogger:
     def __init__(self):
-
         self.hec_url = os.getenv("SPLUNK_HEC_URL")
         self.token = os.getenv("SPLUNK_HEC_TOKEN")
         self.source = os.getenv("SPLUNK_SOURCE", "flask")
@@ -17,8 +15,13 @@ class SplunkLogger:
         self.hostname = socket.gethostname()
         self.debug = os.getenv("SPLUNK_DEBUG", "False").lower() == "true"
 
-    def send_log(self, event_data):
+    def get_real_ip(self, request):
+        xff = request.headers.get('X-Forwarded-For')
+        if xff:
+            return xff.split(',')[0].strip()
+        return request.remote_addr
 
+    def send_log(self, event_data):
         headers = {
             "Authorization": f"Splunk {self.token}",
             "Content-Type": "application/json",
@@ -32,13 +35,10 @@ class SplunkLogger:
         }
 
         try:
-
             response = requests.post(
                 self.hec_url,
                 data=json.dumps(payload),
                 headers=headers,
-                # Since traffic are not leaving the docker,
-                # there isn't a need to verify the SSL.
                 verify=False,
                 timeout=60,
             )
