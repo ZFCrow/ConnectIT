@@ -281,7 +281,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                                         `}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      //console.log("Liked!");
                       //setHasLiked(!hasLiked); // Toggle liked state
                       toggleLikePost({ postId: id }); // Call the like function
                     }}
@@ -298,7 +297,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                     className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      console.log("comment clicked!");
                     }}
                   >
                     <MessageSquare className="mr-1 h-4 w-4" />
