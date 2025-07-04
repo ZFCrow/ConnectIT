@@ -118,7 +118,7 @@ def deleteJobListing(jobId):
     Deletes a job listing by its jobId.
     """
     claims = _authenticate()
-    company_id = claims.get("companyId")
+    company_id = claims.get("companyId") or claims.get("role") == "admin"
     if company_id is None:
         abort(403, "Only company users may delete job listings")
 
