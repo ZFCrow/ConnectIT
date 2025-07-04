@@ -12,11 +12,11 @@ class User(Account):
 
     # Properties
     @property
-    def userId(self) -> int: return self._userId
+    def userId(self) -> int: return self.__userId
     @property
-    def bio(self) -> Optional[str]: return self._bio
+    def bio(self) -> Optional[str]: return self.__bio
     @property
-    def portfolioUrl(self) -> Optional[str]: return self._portfolioUrl
+    def portfolioUrl(self) -> Optional[str]: return self.__portfolioUrl
 
     # Serialisation
     def to_dict(self) -> dict:
@@ -33,9 +33,9 @@ class User(Account):
         acc = Account.from_dict(data)
         return cls(
             **acc.to_constructor_dict(),
-            __userId=data.get("userId", 0),
-            __bio=data.get("bio"),
-            __portfolioUrl=data.get("portfolioUrl"),
+            _User__userId=data.get("userId", 0),
+            _User__bio=data.get("bio"),
+            _User__portfolioUrl=data.get("portfolioUrl"),
         )
 
     @classmethod

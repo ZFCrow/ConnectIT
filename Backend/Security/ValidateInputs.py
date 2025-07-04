@@ -185,6 +185,8 @@ def validate_job_listing(data: dict) -> dict:
             errors["salary"] = "Salaries must be non-negative"
         elif min_salary > max_salary:
             errors["salary"] = "Minimum salary cannot exceed maximum salary"
+        elif (max_salary - min_salary) > 500:
+            errors["salary"] = "Salary range must not exceed 500"
 
     except ValueError:
         errors["salary"] = "Invalid salary format"

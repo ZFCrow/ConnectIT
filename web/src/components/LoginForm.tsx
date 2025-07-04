@@ -55,7 +55,6 @@ export function LoginForm() {
   const callCreateToken = async (account: AccountData) => {
     try {
       await axios.post("/api/create_token", account, { withCredentials: true });
-
       login(account.accountId, account.role, account.name, {
         userId: (account as User).userId,
         companyId: (account as Company).companyId,
@@ -116,7 +115,6 @@ export function LoginForm() {
       } else {
         setStep("generate");
       }
-
     } catch (err: any) {
       console.error("Login failed", err);
       const msg = err.response?.data?.error || err.response?.data?.message;
@@ -212,9 +210,11 @@ export function LoginForm() {
         />
       )}
       {step === "verify" && (
-   
-          <Verify2FAForm accountId={user.accountId} secret={user.twoFaSecret} onSuccess={handle2FASuccess} />
-      
+        <Verify2FAForm
+          accountId={user.accountId}
+          secret={user.twoFaSecret}
+          onSuccess={handle2FASuccess}
+        />
       )}
       <ApplicationToaster />{" "}
     </div>

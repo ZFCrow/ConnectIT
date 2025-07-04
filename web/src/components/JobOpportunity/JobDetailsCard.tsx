@@ -130,9 +130,8 @@ const JobDetailsCard: React.FC<Props> = ({
                 >
                   {userType === Role.User ? (
                     job.isBookmarked ? (
-                      (
-                        // console.log("Job is bookmarked:", job.isBookmarked),
-                      (<BookmarkCheck className="w-6 h-6 text-green-500" />))
+                      // console.log("Job is bookmarked:", job.isBookmarked),
+                      <BookmarkCheck className="w-6 h-6 text-green-500" />
                     ) : (
                       <Bookmark className="w-6 h-6 text-gray-400 hover:text-white hover:bg-zinc-800 rounded-full transition" />
                     )
@@ -211,10 +210,12 @@ const JobDetailsCard: React.FC<Props> = ({
             <b className="text-gray-400 mr-1">Company:</b>
             {job.company.name}
           </Link>
-          <span>
-            <b className="text-gray-400">Location: </b>
-            {job.company.location}
-          </span>
+          {job.company.location && (
+            <span>
+              <b className="text-gray-400">Location: </b>
+              {job.company.location}
+            </span>
+          )}
           <span>
             <b className="text-gray-400">Type:</b> {job.jobType}
           </span>
