@@ -82,7 +82,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-@limiter.limit("1 per hour", key_func=get_account_key)
+#@limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
