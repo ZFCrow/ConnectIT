@@ -6,9 +6,9 @@ from SQLModels.UserModel import UserModel
 
 @dataclass
 class User(Account):
-    _userId: int = None
-    _bio: Optional[str] = None
-    _portfolioUrl: Optional[str] = None
+    __userId: int = None
+    __bio: Optional[str] = None
+    __portfolioUrl: Optional[str] = None
 
     # Properties
     @property
@@ -33,26 +33,26 @@ class User(Account):
         acc = Account.from_dict(data)
         return cls(
             **acc.to_constructor_dict(),
-            _userId=data.get("userId", 0),
-            _bio=data.get("bio"),
-            _portfolioUrl=data.get("portfolioUrl"),
+            __userId=data.get("userId", 0),
+            __bio=data.get("bio"),
+            __portfolioUrl=data.get("portfolioUrl"),
         )
 
     @classmethod
     def from_UserModel(cls, model: UserModel):
         acc = model.account
         return cls(
-            _accountId=acc.accountId,
-            _name=acc.name,
-            _email=acc.email,
-            _passwordHash=acc.passwordHash,
-            _role=acc.role.value,
-            _isDisabled=bool(acc.isDisabled),
-            _twoFaEnabled=bool(acc.twoFaEnabled),
-            _profilePicUrl=acc.profilePicUrl or None,
-            _twoFaSecret=acc.twoFaSecret or None,
-            _sessionId=getattr(acc, "sessionId", None),
-            _userId=model.userId,
-            _bio=model.bio or None,
-            _portfolioUrl=model.portfolioUrl or None,
+            _Account__accountId=acc.accountId,
+            _Account__name=acc.name,
+            _Account__email=acc.email,
+            _Account__passwordHash=acc.passwordHash,
+            _Account__role=acc.role.value,
+            _Account__isDisabled=bool(acc.isDisabled),
+            _Account__twoFaEnabled=bool(acc.twoFaEnabled),
+            _Account__profilePicUrl=acc.profilePicUrl or None,
+            _Account__twoFaSecret=acc.twoFaSecret or None,
+            _Account__sessionId=getattr(acc, "sessionId", None),
+            _User__userId=model.userId,
+            _User__bio=model.bio or None,
+            _User__portfolioUrl=model.portfolioUrl or None,
         )

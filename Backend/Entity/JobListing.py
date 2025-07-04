@@ -22,89 +22,89 @@ class JobType(Enum):
 @dataclass
 class JobListing:
     # ――― Core fields (all private, single underscore) ――― #
-    _jobId: int
-    _title: str
-    _description: str
-    _applicationDeadline: datetime
-    _minSalary: int
-    _maxSalary: int
-    _jobType: JobType
-    _createdAt: datetime
-    _workArrangement: WorkArrangement
-    _fieldOfWork: str
+    __jobId: int
+    __title: str
+    __description: str
+    __applicationDeadline: datetime
+    __minSalary: int
+    __maxSalary: int
+    __jobType: JobType
+    __createdAt: datetime
+    __workArrangement: WorkArrangement
+    __fieldOfWork: str
 
     # ――― Optional / mutable collections ――― #
-    _responsibilities: List[str] = field(default_factory=list)
-    _experiencePreferred: int = 0
-    _numApplicants: int = 0
-    _isDeleted: bool = False
-    _company: Optional[Company] = None
-    _jobApplication: List[JobApplication] = field(default_factory=list)
+    __responsibilities: List[str] = field(default_factory=list)
+    __experiencePreferred: int = 0
+    __numApplicants: int = 0
+    __isDeleted: bool = False
+    __company: Optional[Company] = None
+    __jobApplication: List[JobApplication] = field(default_factory=list)
 
     # ――― Read‑only property accessors ――― #
     @property
     def jobId(self) -> int:
-        return self._jobId
+        return self.__jobId
 
     @property
     def title(self) -> str:
-        return self._title
+        return self.__title
 
     @property
     def description(self) -> str:
-        return self._description
+        return self.__description
 
     @property
     def applicationDeadline(self) -> datetime:
-        return self._applicationDeadline
+        return self.__applicationDeadline
 
     @property
     def minSalary(self) -> int:
-        return self._minSalary
+        return self.__minSalary
 
     @property
     def maxSalary(self) -> int:
-        return self._maxSalary
+        return self.__maxSalary
 
     @property
     def jobType(self) -> JobType:
-        return self._jobType
+        return self.__jobType
 
     @property
     def createdAt(self) -> datetime:
-        return self._createdAt
+        return self.__createdAt
 
     @property
     def workArrangement(self) -> WorkArrangement:
-        return self._workArrangement
+        return self.__workArrangement
 
     @property
     def fieldOfWork(self) -> str:
-        return self._fieldOfWork
+        return self.__fieldOfWork
 
     @property
     def responsibilities(self) -> List[str]:
-        return self._responsibilities
+        return self.__responsibilities
 
     @property
     def experiencePreferred(self) -> int:
-        return self._experiencePreferred
+        return self.__experiencePreferred
 
     @property
     def numApplicants(self) -> int:
-        return self._numApplicants
+        return self.__numApplicants
 
     @property
     def isDeleted(self) -> bool:
-        return self._isDeleted
+        return self.__isDeleted
 
     @property
     def company(self) -> Optional[Company]:
-        return self._company
+        return self.__company
 
     @property
     def jobApplication(self) -> List[JobApplication]:
-        return self._jobApplication
+        return self.__jobApplication
 
     # ――― Convenience factories ――― #
     @classmethod
@@ -135,25 +135,27 @@ class JobListing:
 
         # Build the instance
         return cls(
-            _jobId=data.get("jobId") or data.get("job_id"),
-            _title=data.get("title"),
-            _description=data.get("description"),
-            _applicationDeadline=application_deadline,
-            _minSalary=data.get("minSalary") or data.get("min_salary"),
-            _maxSalary=data.get("maxSalary") or data.get("max_salary"),
-            _jobType=job_type,
-            _createdAt=created_at,
-            _workArrangement=work_arrangement,
-            _fieldOfWork=data.get("fieldOfWork")
+            _JobListing__jobId=data.get("jobId") or data.get("job_id"),
+            _JobListing__title=data.get("title"),
+            _JobListing__description=data.get("description"),
+            _JobListing__applicationDeadline=application_deadline,
+            _JobListing__minSalary=data.get("minSalary") or data.get("min_salary"),
+            _JobListing__maxSalary=data.get("maxSalary") or data.get("max_salary"),
+            _JobListing__jobType=job_type,
+            _JobListing__createdAt=created_at,
+            _JobListing__workArrangement=work_arrangement,
+            _JobListing__fieldOfWork=data.get("fieldOfWork")
             or data.get("field_of_work")
             or "Other",
-            _responsibilities=data.get("responsibilities", []),
-            _isDeleted=data.get("isDeleted") or data.get("is_deleted", False),
-            _company=data.get("company"),
-            _experiencePreferred=data.get("experiencePreferred")
+            _JobListing__responsibilities=data.get("responsibilities", []),
+            _JobListing__isDeleted=data.get("isDeleted") or data.get(
+                "is_deleted", False),
+            _JobListing__company=data.get("company"),
+            _JobListing__experiencePreferred=data.get("experiencePreferred")
             or data.get("experience_preferred", 0),
-            _numApplicants=data.get("numApplicants") or data.get("num_applicants", 0),
-            _jobApplication=data.get("jobApplication")
+            _JobListing__numApplicants=data.get("numApplicants") or data.get(
+                "num_applicants", 0),
+            _JobListing__jobApplication=data.get("jobApplication")
             or data.get("job_application")
             or [],
         )
@@ -186,26 +188,26 @@ class JobListing:
         from Entity.Company import Company  # local import avoids circulars
 
         return cls(
-            _jobId=orm_obj.jobId,
-            _title=orm_obj.title,
-            _description=orm_obj.description,
-            _applicationDeadline=orm_obj.applicationDeadline,
-            _minSalary=orm_obj.minSalary,
-            _maxSalary=orm_obj.maxSalary,
-            _jobType=orm_obj.jobType,
-            _createdAt=orm_obj.createdAt,
-            _workArrangement=orm_obj.workArrangement,
-            _fieldOfWork=getattr(orm_obj.fieldOfWork, "description",
-                                 orm_obj.fieldOfWork),
-            _responsibilities=[r.responsibility
-                               for r in orm_obj.responsibilities
-                               if r.responsibility],
-            _isDeleted=orm_obj.isDeleted,
-            _company=Company.from_CompanyModel(orm_obj.company)
+            _JobListing__jobId=orm_obj.jobId,
+            _JobListing__title=orm_obj.title,
+            _JobListing__description=orm_obj.description,
+            _JobListing__applicationDeadline=orm_obj.applicationDeadline,
+            _JobListing__minSalary=orm_obj.minSalary,
+            _JobListing__maxSalary=orm_obj.maxSalary,
+            _JobListing__jobType=orm_obj.jobType,
+            _JobListing__createdAt=orm_obj.createdAt,
+            _JobListing__workArrangement=orm_obj.workArrangement,
+            _JobListing__fieldOfWork=getattr(orm_obj.fieldOfWork, "description",
+                                             orm_obj.fieldOfWork),
+            _JobListing__responsibilities=[r.responsibility
+                                           for r in orm_obj.responsibilities
+                                           if r.responsibility],
+            _JobListing__isDeleted=orm_obj.isDeleted,
+            _JobListing__company=Company.from_CompanyModel(orm_obj.company)
             if orm_obj.company else None,
-            _experiencePreferred=orm_obj.experiencePreferred or 0,
-            _numApplicants=numApplicants,
-            _jobApplication=[
+            _JobListing__experiencePreferred=orm_obj.experiencePreferred or 0,
+            _JobListing__numApplicants=numApplicants,
+            _JobListing__jobApplication=[
                 JobApplication.from_model(a)
                 for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
         )

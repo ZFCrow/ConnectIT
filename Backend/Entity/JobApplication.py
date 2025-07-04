@@ -12,81 +12,81 @@ class Status(Enum):
 
 @dataclass
 class JobApplication:
-    _applicationId: int
-    _jobId: int
-    _userId: int
-    _name: str
-    _email: str
-    _bio: str
-    _status: Status
-    _appliedAt: datetime
-    _resumeURL: str
-    _profilePicUrl: Optional[str] = None
-    _accountId: Optional[int] = None
+    __applicationId: int
+    __jobId: int
+    __userId: int
+    __name: str
+    __email: str
+    __bio: str
+    __status: Status
+    __appliedAt: datetime
+    __resumeURL: str
+    __profilePicUrl: Optional[str] = None
+    __accountId: Optional[int] = None
 
     # Properties (read-only)
     @property
     def applicationId(self) -> int:  # noqa: N802
-        return self._applicationId
+        return self.__applicationId
 
     @property
     def jobId(self) -> int:
-        return self._jobId
+        return self.__jobId
 
     @property
     def userId(self) -> int:
-        return self._userId
+        return self.__userId
 
     @property
     def name(self) -> str:
-        return self._name
+        return self.__name
 
     @property
     def email(self) -> str:
-        return self._email
+        return self.__email
 
     @property
     def bio(self) -> str:
-        return self._bio
+        return self.__bio
 
     @property
     def status(self) -> Status:
-        return self._status
+        return self.__status
 
     @property
     def appliedAt(self) -> datetime:
-        return self._appliedAt
+        return self.__appliedAt
 
     @property
     def resumeURL(self) -> str:
-        return self._resumeURL
+        return self.__resumeURL
 
     @property
     def profilePicUrl(self) -> Optional[str]:
-        return self._profilePicUrl
+        return self.__profilePicUrl
 
     @property
     def accountId(self) -> Optional[int]:
-        return self._accountId
+        return self.__accountId
 
     # ――― Serialisation helpers ――― #
     @classmethod
     def from_dict(cls, raw: dict) -> "JobApplication":
         """Create from a raw dict (e.g. JSON payload)."""
         return cls(
-            _applicationId=raw["applicationId"],
-            _jobId=raw["jobId"],
-            _userId=raw["userId"],
-            _name=raw["name"],
-            _email=raw["email"],
-            _bio=raw["bio"],
-            _status=Status(raw["status"]),
-            _appliedAt=raw["appliedAt"]
+            _JobApplication__applicationId=raw["applicationId"],
+            _JobApplication__jobId=raw["jobId"],
+            _JobApplication__userId=raw["userId"],
+            _JobApplication__name=raw["name"],
+            _JobApplication__email=raw["email"],
+            _JobApplication__bio=raw["bio"],
+            _JobApplication__status=Status(raw["status"]),
+            _JobApplication__appliedAt=raw["appliedAt"]
             if isinstance(raw["appliedAt"], datetime)
             else datetime.fromisoformat(raw["appliedAt"]),
-            _resumeURL=raw["resumeURL"],
-            _profilePicUrl=raw.get("profilePicUrl"),
-            _accountId=raw.get("accountId"),
+            _JobApplication__resumeURL=raw["resumeURL"],
+            _JobApplication__profilePicUrl=raw.get("profilePicUrl"),
+            _JobApplication__accountId=raw.get("accountId"),
         )
 
     def to_dict(self) -> dict:
@@ -109,17 +109,19 @@ class JobApplication:
     def from_model(cls, model) -> "JobApplication":
         """Adapter from ORM/SQLAlchemy model to domain class."""
         return cls(
-            _applicationId=model.applicationId,
-            _jobId=model.jobId,
-            _userId=model.userId,
-            _name=model.user.account.name,
-            _email=model.user.account.email,
-            _bio=model.user.bio,
-            _status=model.status,
-            _appliedAt=model.appliedAt,
-            _resumeURL=model.resumeURL,
-            _accountId=(model.user.account.accountId
-                        if model.user and model.user.account else None),
-            _profilePicUrl=(model.user.account.profilePicUrl
-                            if model.user and model.user.account else None),
+            _JobApplication__applicationId=model.applicationId,
+            _JobApplication__jobId=model.jobId,
+            _JobApplication__userId=model.userId,
+            _JobApplication__name=model.user.account.name,
+            _JobApplication__email=model.user.account.email,
+            _JobApplication__bio=model.user.bio,
+            _JobApplication__status=model.status,
+            _JobApplication__appliedAt=model.appliedAt,
+            _JobApplication__resumeURL=model.resumeURL,
+            _JobApplication__accountId=(model.user.account.accountId
+                                        if model.user and model.user.account else None),
+            _JobApplication__profilePicUrl=(model.user.account.profilePicUrl
+                                            if model.user
+                                            and
+                                            model.user.account else None),
         )

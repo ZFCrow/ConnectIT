@@ -6,23 +6,23 @@ from SQLModels.CompanyModel import CompanyModel
 
 @dataclass
 class Company(Account):
-    _companyId: int = None
-    _companyDocUrl: str = None
-    _verified: int = 0
-    _description: Optional[str] = None
-    _location: Optional[str] = None
+    __companyId: int = None
+    __companyDocUrl: str = None
+    __verified: int = 0
+    __description: Optional[str] = None
+    __location: Optional[str] = None
 
     # Properties
     @property
-    def companyId(self) -> int: return self._companyId
+    def companyId(self) -> int: return self.__companyId
     @property
-    def companyDocUrl(self) -> Optional[str]: return self._companyDocUrl
+    def companyDocUrl(self) -> Optional[str]: return self.__companyDocUrl
     @property
-    def verified(self) -> int: return self._verified
+    def verified(self) -> int: return self.__verified
     @property
-    def description(self) -> Optional[str]: return self._description
+    def description(self) -> Optional[str]: return self.__description
     @property
-    def location(self) -> Optional[str]: return self._location
+    def location(self) -> Optional[str]: return self.__location
 
     # Serialisation
     def to_dict(self) -> dict:
@@ -41,30 +41,31 @@ class Company(Account):
         acc = Account.from_dict(data)
         return cls(
             **acc.to_constructor_dict(),
-            _companyId=data.get("companyId", 0),
-            _companyDocUrl=data.get("companyDocUrl"),
-            _verified=data.get("verified", 0),
-            _description=data.get("description"),
-            _location=data.get("location"),
+            _Company__companyId=data.get("companyId", 0),
+            _Company__companyDocUrl=data.get("companyDocUrl"),
+            _Company__verified=data.get("verified", 0),
+            _Company__description=data.get("description"),
+            _Company__location=data.get("location"),
         )
 
     @classmethod
     def from_CompanyModel(cls, model: CompanyModel):
         acc = model.account
         return cls(
-            _accountId=acc.accountId,
-            _name=acc.name,
-            _email=acc.email,
-            _passwordHash=acc.passwordHash,
-            _role=acc.role.value,
-            _isDisabled=bool(acc.isDisabled),
-            _twoFaEnabled=bool(acc.twoFaEnabled),
-            _profilePicUrl=acc.profilePicUrl or None,
-            _twoFaSecret=acc.twoFaSecret or None,
-            _sessionId=getattr(acc, "sessionId", None),
-            _companyId=model.companyId,
-            _companyDocUrl=model.companyDocUrl or None,
-            _verified=model.verified,
-            _description=model.description or None,
-            _location=model.location or None,
+            _Account__accountId=acc.accountId,
+            _Account__name=acc.name,
+            _Account__email=acc.email,
+            _Account__passwordHash=acc.passwordHash,
+            _Account__role=acc.role.value,
+            _Account__isDisabled=bool(acc.isDisabled),
+            _Account__twoFaEnabled=bool(acc.twoFaEnabled),
+            _Account__profilePicUrl=acc.profilePicUrl or None,
+            _Account__twoFaSecret=acc.twoFaSecret or None,
+            _Account__sessionId=getattr(acc, "sessionId", None),
+
+            _Company__companyId=model.companyId,
+            _Company__companyDocUrl=model.companyDocUrl or None,
+            _Company__verified=model.verified,
+            _Company__description=model.description or None,
+            _Company__location=model.location or None,
         )
