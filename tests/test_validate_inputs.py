@@ -160,6 +160,85 @@ def test_validate_comment(data, expected_keys):
 @pytest.mark.parametrize(
     "data,expected_keys",
     [
+        # --- Missing fields ---
+        ({}, ["missing"]),
+        ({"title": "Title"}, ["missing"]),
+        ({"title": "Title", "description": "Desc"}, ["missing"]),
+        ({"title": "Title", "description": "Desc", "minSalary": 1000}, ["missing"]),
+        (
+            {"title": "Title", "description": "Desc", "minSalary": 1000,
+             "maxSalary": 1500},
+            ["missing"],
+        ),
+
+        # --- Title validation ---
+        (
+            {
+                "title": "", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
+            },
+            ["title"],
+        ),
+        (
+            {
+                "title": "x" * 101, "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
+            },
+            ["title"],
+        ),
+
+        # --- Description validation ---
+        (
+            {
+                "title": "Title", "description": "",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
+            },
+            ["description"],
+        ),
+        (
+            {
+                "title": "Title", "description": "x" * 1001,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
+            },
+            ["description"],
+        ),
+
+        # --- Responsibilities not a list ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
+                "responsibilities": "notalist"
+            },
+            ["responsibilities"],
+        ),
+
+        # --- Responsibilities with invalid entries ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
+                "responsibilities": [123]
+            },
+            ["responsibilities[0]"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
+                "responsibilities": ["", "Valid"]
+            },
+            ["responsibilities[0]"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
+                "responsibilities": ["x" * 501]
+            },
+            ["responsibilities[0]"],
+        ),
+
         # --- Salary validation ---
         (
             {
@@ -211,6 +290,39 @@ def test_validate_comment(data, expected_keys):
                 "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
             },
             [],  # Valid range: 500
+        ),
+
+        # --- Experience validation ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": -1
+            },
+            ["experience"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": "abc"
+            },
+            ["experience"],
+        ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 46
+            },
+            ["experience"],
+        ),
+
+        # --- All valid ---
+        (
+            {
+                "title": "Valid Title", "description": "Valid description",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 5,
+                "responsibilities": ["Manage projects", "Write code"]
+            },
+            [],
         ),
     ]
 )
