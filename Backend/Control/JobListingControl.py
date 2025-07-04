@@ -20,6 +20,8 @@ class JobListingControl:
         job_data: dict containing job details.
         """
         jobListing: JobListing = JobListing.from_dict(job_data)
+        print (f"Creating job listing from data: {job_data}")
+        print (f"Job listing created: {jobListing.to_dict()}")
         company_id = job_data.get("company_id")
         sucess = JobListingMapper.addJob(jobListing, company_id)
         print(f"Adding job listing: {job_data}")

@@ -271,14 +271,17 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
         </legend>
         <div className="space-y-3">
           {form.responsibilities.map((r, i) => (
-            <div key={i} className="flex gap-2">
+            <div key={i} className="flex items-center gap-2">
               <input
+                type="text"
                 value={r}
                 onChange={(e) => {
                   const list = [...form.responsibilities];
-                  list.splice(i, 1, e.target.value);
+                  list[i] = e.target.value;
                   setResponsibilities(list);
                 }}
+                className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-gray-100 focus:ring-2 focus:ring-blue-500"
+                placeholder={`Responsibility ${i + 1}`}
               />
               <button
                 type="button"
@@ -288,6 +291,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
                   );
                   setResponsibilities(list);
                 }}
+                className="flex-shrink-0 px-3 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition"
               >
                 Remove
               </button>
@@ -297,7 +301,7 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
         <button
           type="button"
           onClick={() => setResponsibilities([...form.responsibilities, ""])}
-          className="w-full border border-dashed border-zinc-600 rounded-lg px-3 py-2 text-gray-400 hover:text-gray-300 focus:outline-none"
+          className="w-full border-dashed border-2 border-zinc-600 rounded-lg px-3 py-2 text-gray-400 hover:text-gray-300 transition"
         >
           + Add Responsibility
         </button>

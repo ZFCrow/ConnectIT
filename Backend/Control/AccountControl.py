@@ -32,8 +32,8 @@ class AccountControl:
         account = Account.from_dict(accountData)
         if accountData["role"] == Role.Company.value:
             account = Company.from_dict(accountData)
-
-        return AccountMapper.createAccount(account)
+        success, errorMsg = AccountMapper.createAccount(account)
+        return success, errorMsg
 
     @staticmethod
     def authenticateAccount(accountData: dict) -> Account:

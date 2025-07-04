@@ -95,6 +95,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           value={minSalary}
           onChange={(e) => onMinSalaryChange(e.target.value)}
           placeholder="Min"
+          min={0}
+          step={100}
           className="w-1/2 p-2 bg-zinc-800 border border-zinc-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition"
         />
         <input
@@ -102,6 +104,8 @@ const FilterSection: React.FC<FilterSectionProps> = ({
           value={maxSalary}
           onChange={(e) => onMaxSalaryChange(e.target.value)}
           placeholder="Max"
+          min={0}
+          step={100}
           className="w-1/2 p-2 bg-zinc-800 border border-zinc-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition"
         />
       </div>

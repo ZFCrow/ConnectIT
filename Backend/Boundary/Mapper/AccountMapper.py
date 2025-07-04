@@ -75,6 +75,11 @@ class AccountMapper:
     def createAccount(account: Account) -> bool:
         try:
             with db_context.session_scope() as session:
+                # Check if email already exists
+                existing_account = session.query(AccountModel).filter_by(email=account.email).first()
+                if existing_account:
+                    raise ValueError(f"Email {account.email} already exists")
+
                 accountModel = AccountModel(
                     name=account.name,
                     email=account.email,
@@ -103,12 +108,12 @@ class AccountMapper:
                     session.add(companyModel)
 
                 session.commit()
-                return True
+                return True,None
 
         except Exception as e:
             print(f"Error creating account: {e}")
             traceback.print_exc()
-            return False
+            return False, str(e)
 
     @staticmethod
     def updateAccount(account: Account) -> bool:

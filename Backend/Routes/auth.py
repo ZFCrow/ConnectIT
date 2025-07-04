@@ -86,7 +86,7 @@ def register():
 
         payload["companyDoc"] = companyDoc
 
-    success = AccountControl.createAccount(payload)
+    success,errorMsg = AccountControl.createAccount(payload)
 
     if success:
 
@@ -117,7 +117,8 @@ def register():
                 "path": request.path,
             }
         )
-
+        if (errorMsg):
+            return jsonify({"error": errorMsg}), 500
         return jsonify({"error": "Failed to create account"}), 500
 
 

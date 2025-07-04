@@ -53,13 +53,13 @@ def getCompanyJobListings(company_id):
     print(f"Company job listings: {[listing.to_dict() for listing in listings]}")
     return jsonify([listing.to_dict() for listing in listings]), 200
 
+# @limiter.limit("15 per hour", key_func=get_company_key)
 
 # POST new job listing
 @job_listing_bp.route("/addJob", methods=["POST"])
-@limiter.limit("15 per hour", key_func=get_company_key)
 def createJobListing():
     job_data = request.get_json()
-    print("JOB DATA: ", job_data)
+    print("JOB DATA: ", job_data, flush=True)
 
     errors = validate_job_listing(job_data)
     if errors:
@@ -77,7 +77,7 @@ def createJobListing():
         )
 
         return jsonify({"error": errors}), 400
-
+    print ("Job Data:" ,job_data)
     success = JobListingControl.addJobListing(
         job_data=job_data
     )  # implement this in your control

@@ -6,6 +6,7 @@ import axios from "@/utility/axiosConfig";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { isNumberObject } from "util/types";
 
 const CreateEditJobPage: React.FC = () => {
   const { jobId } = useParams<{ jobId?: string }>();
@@ -16,8 +17,9 @@ const CreateEditJobPage: React.FC = () => {
 
   const handleSubmitPage = async (job: JobListing) => {
     // Construct backend payload to match backend keys and values
+
     const payload = {
-      company_id: companyId, //TODO: Replace with auth/context
+      company_id: companyId,
       title: job.title,
       description: job.description,
       applicationDeadline: job.applicationDeadline,
@@ -46,13 +48,14 @@ const CreateEditJobPage: React.FC = () => {
 
       if (errors && typeof errors === "object") {
         /* errors → { title: "Title cannot be empty", description: "Description …" } */
-
+        console.error("Validation errors:", errors);
         Object.entries(errors).forEach(([field, message]) => {
           if (typeof message === "string") {
             toast.error(message, { id: `job-${field}` }); // id keeps one toast per field
           }
         });
       } else {
+        console.error("Error response:", err?.response);
         toast.error(
           typeof errors === "string"
             ? errors
