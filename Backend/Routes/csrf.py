@@ -13,7 +13,7 @@ def get_csrf_token():
         token,
         httponly=True,
         secure=True,
-        samesite="None",
+        samesite="Strict",
         path="/",
     )
     return resp
