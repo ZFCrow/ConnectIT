@@ -86,7 +86,7 @@ def register():
 
         payload["companyDoc"] = companyDoc
 
-    success,errorMsg = AccountControl.createAccount(payload)
+    success, errorMsg = AccountControl.createAccount(payload)
 
     if success:
 
