@@ -58,7 +58,12 @@ def getCompanyJobListings(company_id):
 @limiter.limit("15 per hour", key_func=get_company_key)
 @job_listing_bp.route("/addJob", methods=["POST"])
 def createJobListing():
-    job_data = request.get_json()
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+
+    job_data = request.get_json() or {}
+    # enforce that job belongs to token's company
+    job_data["company_id"] = company_id
     errors = validate_job_listing(job_data)
     if errors:
 
@@ -154,11 +159,6 @@ def deleteJobListing(jobId):
             }
         )
         return jsonify({"error": "Failed to delete job listing"}), 200
-    # return (
-    #    jsonify({"message": "Job listing deleted successfully!"})
-    #    if success
-    #    else jsonify({"error": "Failed to delete job listing"})
-    # ), 200
 
 
 @job_listing_bp.route("/getFieldOfWork", methods=["GET"])
@@ -183,12 +183,15 @@ def addBookmark():
     """
     Adds a job to the user's bookmarks.
     """
-    userId = request.json.get("userId")
-    jobId = request.json.get("jobId")
-    if not userId or not jobId:
-        return jsonify({"error": "User ID and Job ID are required"}), 400
+    claims = _authenticate()
+    user_id = claims.get("userId")
 
-    success = JobListingControl.addBookmark(userId, jobId)
+    data = request.get_json() or {}
+    jobId = data.get("jobId")
+    if not jobId:
+        return jsonify({"error": "Job ID is required"}), 400
+
+    success = JobListingControl.addBookmark(user_id, jobId)
     return (
         jsonify({"message": "Job bookmarked successfully!"})
         if success
@@ -201,6 +204,10 @@ def removeBookmark(userId, jobId):
     """
     Removes a job from the user's bookmarks.
     """
+    claims = _authenticate()
+    auth_user = claims.get("userId")
+    if userId != auth_user:
+        abort(403, "Forbidden: cannot remove another user's bookmark")
 
     if not userId or not jobId:
         return jsonify({"error": "User ID and Job ID are required"}), 400
@@ -272,9 +279,3 @@ def setViolation(jobId, violationId):
         )
 
         return jsonify({"error": "Failed to set violation"}), 500
-
-    # return (
-    #    jsonify({"message": "Violation set successfully!"})
-    #    if success
-    #    else jsonify({"error": "Failed to set violation"})
-    # ), 200
