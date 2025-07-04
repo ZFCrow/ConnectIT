@@ -73,7 +73,7 @@ def get_user(account_id):
                 "event": "Profile Access Failed",
                 "reason": "Account not found",
                 "accountId": account_id,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -108,7 +108,7 @@ def save_profile():
                 "event": "Profile Update Failed",
                 "reason": "Validation error - input fields",
                 "accountId": updated_data.get("accountId"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -128,7 +128,7 @@ def save_profile():
                     "event": "Profile Update Failed",
                     "reason": "Validation error - PDF",
                     "accountId": updated_data.get("accountId"),
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -148,7 +148,7 @@ def save_profile():
                     "event": "Profile Update Failed",
                     "reason": "Validation error - Profile picture",
                     "accountId": updated_data.get("accountId"),
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -166,9 +166,9 @@ def save_profile():
 
         SplunkLogging.send_log(
             {
-                "event": "Profile update success",
+                "event": "Profile Update Success",
                 "accountId": updated_data.get("accountId"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -180,10 +180,10 @@ def save_profile():
 
         SplunkLogging.send_log(
             {
-                "event": "Profile Update failed",
+                "event": "Profile Update Failed",
                 "reason": "Failed to save profile",
                 "accountId": updated_data.get("accountId"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -208,9 +208,9 @@ def disable(account_id):
 
         SplunkLogging.send_log(
             {
-                "event": "Account Disabled success",
+                "event": "Account Disabled Success",
                 "accountId": account_id,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -225,10 +225,10 @@ def disable(account_id):
 
         SplunkLogging.send_log(
             {
-                "event": "Account Disable failed",
+                "event": "Account Disable Failed",
                 "reason": "Failed to disable account",
                 "accountId": account_id,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

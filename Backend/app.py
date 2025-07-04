@@ -137,14 +137,13 @@ def create_app():
                 or request.args.get("accountId")
                 or (request.get_json()).get("accountId")
             )
-            user = f"accountId={account_id}"
 
         SplunkLogging.send_log(
             {
                 "event": "Rate Limit Success",
                 "function": f"{e.description}@{request.path}",
-                "User": user,
-                "ip": request.remote_addr,
+                "UserID": account_id,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

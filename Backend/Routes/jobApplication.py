@@ -32,12 +32,13 @@ def applyJob():
     """
     Applies for a job listing.
     """
+    claims = _authenticate()
+    userId = claims.get("sub")
     # ── 1️⃣  Figure out which content type we got ───────────────────────
     if request.content_type.startswith("multipart/form-data"):
         # sent from <input type="file">  →  request.form & request.files
-        userId = request.form.get("userId", type=int)
         jobId = request.form.get("jobId", type=int)
-        resumeFile = request.files.get("resume")  # None if not provided
+        resumeFile = request.files.get("resume")
         if resumeFile:
             try:
                 enforce_pdf_limits(resumeFile)
@@ -51,7 +52,7 @@ def applyJob():
                         "error": str(e),
                         "userId": userId,
                         "jobId": jobId,
-                        "ip": request.remote_addr,
+                        "ip": SplunkLogging.get_real_ip(request),
                         "user_agent": str(request.user_agent),
                         "method": request.method,
                         "path": request.path,
@@ -60,12 +61,11 @@ def applyJob():
 
                 return jsonify({"error": str(e)}), 400
     else:
-        # application/json
         payload = request.get_json(silent=True) or {}
-        userId = payload.get("userId")
         jobId = payload.get("jobId")
         resumeFile = None
 
+    # Validate jobId
     if not jobId:
 
         SplunkLogging.send_log(
@@ -73,7 +73,7 @@ def applyJob():
                 "event": "Job Application Failed",
                 "reason": "Job ID missing",
                 "userId": userId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -89,7 +89,7 @@ def applyJob():
                 "event": "Job Application Failed",
                 "reason": "User ID missing",
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -97,6 +97,7 @@ def applyJob():
         )
         return jsonify({"error": "User ID is required"}), 400
 
+    # Perform application
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
     if success:
 
@@ -105,7 +106,7 @@ def applyJob():
                 "event": "Job Applied Success",
                 "userId": userId,
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -121,7 +122,7 @@ def applyJob():
                 "reason": "Internal error",
                 "userId": userId,
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -160,7 +161,7 @@ def approveApplication(applicationId):
             {
                 "event": "Approve Application Success",
                 "applicationId": applicationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -174,7 +175,7 @@ def approveApplication(applicationId):
             {
                 "event": "Approve Application Failed",
                 "applicationId": applicationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -211,9 +212,9 @@ def rejectApplication(applicationId):
     if success:
         SplunkLogging.send_log(
             {
-                "event": "Reject Application success",
+                "event": "Reject Application Success",
                 "applicationId": applicationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -225,7 +226,7 @@ def rejectApplication(applicationId):
             {
                 "event": "Reject Application Failed",
                 "applicationId": applicationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

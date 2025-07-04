@@ -64,10 +64,10 @@ def createJobListing():
 
         SplunkLogging.send_log(
             {
-                "event": "Job Creation Failed",
+                "event": "Create Job Listing Failed",
                 "reason": "Validation error",
                 "errors": errors,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -82,10 +82,10 @@ def createJobListing():
 
         SplunkLogging.send_log(
             {
-                "event": "Job Listing Created",
+                "event": "Create Job Listing Success",
                 "jobTitle": job_data.get("title"),
                 "companyId": job_data.get("company_id"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -97,9 +97,9 @@ def createJobListing():
 
         SplunkLogging.send_log(
             {
-                "event": "Job Creation Failed",
+                "event": "Create Job Listing Failed",
                 "reason": "Server error",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -133,9 +133,9 @@ def deleteJobListing(jobId):
     if success:
         SplunkLogging.send_log(
             {
-                "event": "Job Listing Delete Success",
+                "event": "Delete Job Listing Success",
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -145,9 +145,9 @@ def deleteJobListing(jobId):
     else:
         SplunkLogging.send_log(
             {
-                "event": "Job listing delete Fail",
+                "event": "Delete Job Listing Fail",
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -249,7 +249,7 @@ def setViolation(jobId, violationId):
                 "event": "Set Violation Success",
                 "JobId": jobId,
                 "violationId": violationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -264,7 +264,7 @@ def setViolation(jobId, violationId):
                 "event": "Set Violation Failed",
                 "JobId": jobId,
                 "violationId": violationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
