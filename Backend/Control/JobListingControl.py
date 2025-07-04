@@ -22,7 +22,6 @@ class JobListingControl:
         jobListing: JobListing = JobListing.from_dict(job_data)
         company_id = job_data.get("company_id")
         sucess = JobListingMapper.addJob(jobListing, company_id)
-        print(f"Adding job listing: {job_data}")
         if sucess:
             return True
         else:

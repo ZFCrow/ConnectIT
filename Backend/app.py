@@ -51,9 +51,9 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
     app.config.update({
-    "SESSION_COOKIE_HTTPONLY": True,
-    "SESSION_COOKIE_SECURE":   True,
-    "SESSION_COOKIE_SAMESITE": "Strict",
+        "SESSION_COOKIE_HTTPONLY": True,
+        "SESSION_COOKIE_SECURE":   True,
+        "SESSION_COOKIE_SAMESITE": "Strict",
     })
     CSRFProtect(app)
 

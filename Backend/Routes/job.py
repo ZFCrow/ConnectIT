@@ -55,12 +55,10 @@ def getCompanyJobListings(company_id):
 
 
 # POST new job listing
-@job_listing_bp.route("/addJob", methods=["POST"])
 @limiter.limit("15 per hour", key_func=get_company_key)
+@job_listing_bp.route("/addJob", methods=["POST"])
 def createJobListing():
     job_data = request.get_json()
-    print("JOB DATA: ", job_data)
-
     errors = validate_job_listing(job_data)
     if errors:
 
@@ -77,7 +75,6 @@ def createJobListing():
         )
 
         return jsonify({"error": errors}), 400
-
     success = JobListingControl.addJobListing(
         job_data=job_data
     )  # implement this in your control
