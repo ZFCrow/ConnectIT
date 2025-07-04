@@ -50,6 +50,11 @@ def create_app():
     SplunkUtils.SplunkLogger()
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
+    app.config.update({
+    "SESSION_COOKIE_HTTPONLY": True,
+    "SESSION_COOKIE_SECURE":   True,
+    "SESSION_COOKIE_SAMESITE": "Strict",
+    })
     CSRFProtect(app)
 
     @app.before_request
