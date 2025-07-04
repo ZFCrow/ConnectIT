@@ -25,30 +25,28 @@ def createPost():
     """
     Create a new post in the database.
     """
-    try:
-        data = request.get_json()  # Get the JSON data from the request
-        if not data or "accountId" not in data or "postData" not in data:
-            return jsonify({"error": "Missing required fields"}), 400
-        accountId = data["accountId"]
-        postData = data["postData"]
-        print(f"in app.py: accountId: {accountId}, postData: {postData}")
+    claims = _authenticate()
+    user_id = claims.get("sub")
 
-        postData["accountId"] = accountId
+    try:
+        data = request.get_json()
+        if not data or "postData" not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        postData = data["postData"]
+        # enforce that accountId matches token
+        postData["accountId"] = user_id
 
         errors = validate_post(postData)
         if errors:
             return jsonify({"error": errors}), 400
 
-        postData["accountId"] = accountId
-        post, success = PostControl.createPost(
-            postData
-        )  # Use the control layer to create the post
-
+        post, success = PostControl.createPost(postData)
         if success:
-            # return jsonify({"message": "Post created successfully!"}), 201
             return jsonify(post.toDict()), 201
         else:
             return jsonify({"error": "Failed to create post"}), 500
+
     except Exception as e:
         print(f"Error creating post: {e}")
         traceback.print_exc()
@@ -60,37 +58,34 @@ def delete_post(post_id):
     """
     Delete a post by its ID.
     """
-    data = request.get_json()  # Get the JSON data from the request
-    # should have violations and the accountId in the data
-    if not data or "accountId" not in data:
-        return jsonify({"error": "Missing required fields"}), 400
+    claims = _authenticate()
+    user_id = claims.get("sub")
 
-    accountId = data["accountId"]
+    try:
+        # verify post exists
+        post_entity = PostControl.retrievePostById(post_id)
+        if not post_entity:
+            return jsonify({"error": "Post not found"}), 404
 
-    data = data.get(
-        "data", {}
-    )  # Get the data field if it exists, else default to an empty dictionary
-    violations = data.get(
-        "violations", []
-    )  # Get the violations if they exist, else default to an empty list
+        # verify ownership
+        if post_entity.accountId != user_id:
+            abort(403, description="Forbidden: cannot delete another user's post")
 
-    success = PostControl.deletePost(
-        post_id, violations=violations
-    )  # Use the control layer to delete the post by its ID
-    if success:
-        return (
-            jsonify(
-                {
-                    "message": f"Post with ID \
-                        {post_id} deleted successfully! \
-                            with account {accountId} and \
-                                violations {violations}"
-                }
-            ),
-            200,
-        )
-    else:
-        return jsonify({"error": f"Failed to delete post with ID {post_id}"}), 500
+        data = request.get_json() or {}
+        violations = data.get("data", {}).get("violations", [])
+
+        success = PostControl.deletePost(post_id, violations=violations)
+        if success:
+            return jsonify({"message": f"Post {post_id} deleted successfully with account {accountId} and \
+                                violations {violations}"}), 200
+        else:
+            return jsonify({"error": f"Failed to delete post {post_id}"}), 500
+
+    except Exception as e:
+        print(f"Error deleting post: {e}")
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 
 
 @post_bp.route("/posts/paginated", methods=["GET"])
