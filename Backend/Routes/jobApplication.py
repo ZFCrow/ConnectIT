@@ -32,12 +32,13 @@ def applyJob():
     """
     Applies for a job listing.
     """
+    claims = _authenticate()
+    userId = claims.get("sub")
     # ── 1️⃣  Figure out which content type we got ───────────────────────
     if request.content_type.startswith("multipart/form-data"):
         # sent from <input type="file">  →  request.form & request.files
-        userId = request.form.get("userId", type=int)
         jobId = request.form.get("jobId", type=int)
-        resumeFile = request.files.get("resume")  # None if not provided
+        resumeFile = request.files.get("resume")
         if resumeFile:
             try:
                 enforce_pdf_limits(resumeFile)
@@ -60,12 +61,11 @@ def applyJob():
 
                 return jsonify({"error": str(e)}), 400
     else:
-        # application/json
         payload = request.get_json(silent=True) or {}
-        userId = payload.get("userId")
         jobId = payload.get("jobId")
         resumeFile = None
 
+    # Validate jobId
     if not jobId:
 
         SplunkLogging.send_log(
@@ -97,6 +97,7 @@ def applyJob():
         )
         return jsonify({"error": "User ID is required"}), 400
 
+    # Perform application
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
     if success:
 
