@@ -144,7 +144,7 @@ def create_app():
                 "event": "Rate Limit Success",
                 "function": f"{e.description}@{request.path}",
                 "User": user,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

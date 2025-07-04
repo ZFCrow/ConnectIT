@@ -59,7 +59,7 @@ def verify_2fa():
             {
                 "event": "Login Failed",
                 "reason": "Failed 2FA validation",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

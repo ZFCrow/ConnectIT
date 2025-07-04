@@ -41,7 +41,7 @@ def register():
                 "event": "Register attempt failed",
                 "reason": "Validation Errors",
                 "errors": errors,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -59,7 +59,7 @@ def register():
                     "event": "Register Attempt Failed",
                     "reason": "Verification Errors",
                     "errors": "Verification document required",
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -78,7 +78,7 @@ def register():
                     "event": "Register Attempt Failed",
                     "reason": "Invalid PDF upload",
                     "error": str(ve),
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -95,10 +95,10 @@ def register():
 
         SplunkLogging.send_log(
             {
-                "event": "Registration Successful",
+                "event": "Registration Success",
                 "email": payload.get("email"),
                 "role": payload.get("role"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -114,7 +114,7 @@ def register():
             {
                 "event": "Registration Failed",
                 "reason": "Internal server error",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -138,7 +138,7 @@ def login():
                 "event": "Login Failed",
                 "reason": "Account locked due to rate limit",
                 "email": email,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -159,7 +159,7 @@ def login():
                     "event": "Login Attempt Failed",
                     "reason": "CAPTCHA required but token missing",
                     "email": email,
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -180,9 +180,6 @@ def login():
         # If CAPTCHA token is provided, verify it
         captcha_result = verify_hcaptcha(captcha_token)
         if not captcha_result["success"]:
-            # If CAPTCHA verification fails,
-            # increment failed attempts and return error
-            # Failed CAPTCHA counts as a failed attempt
             increment_failed_attempts(email)
             SplunkLogging.send_log(
                 {
@@ -192,7 +189,7 @@ def login():
                         "error-codes"
                     ),
                     "email": email,
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -212,7 +209,7 @@ def login():
                 "event": "Login Attempt Failed",
                 "reason": "Validation Errors",
                 "errors": errors,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -233,7 +230,7 @@ def login():
                     "event": "Login Failed",
                     "email": payload.get("email"),
                     "reason": "Account locked",
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "duration_ms": round((time.time() - start_time) * 1000, 2),
                 }
@@ -254,7 +251,7 @@ def login():
                 "event": "Login Failed",
                 "reason": "Invalid credentials",
                 "email": email,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "duration_ms": duration_ms,
             }
@@ -360,7 +357,7 @@ def create_token():
             "event": "Token Created Succes",
             "accountId": account_id,
             "role": user_role,
-            "ip": request.remote_addr,
+            "ip": SplunkLogging.get_real_ip(request),
             "user_agent": str(request.user_agent),
             "method": request.method,
             "path": request.path,
@@ -379,7 +376,7 @@ def save2fa():
             {
                 "event": "Save 2FA Failed",
                 "reason": "No account ID provided",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -396,7 +393,7 @@ def save2fa():
             {
                 "event": "2FA Updated Successfully",
                 "accountId": payload["accountId"],
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -411,7 +408,7 @@ def save2fa():
                 "event": "Save 2FA Failed",
                 "reason": "Database update failed",
                 "accountId": payload["accountId"],
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -509,7 +506,7 @@ def logout():
         {
             "event": "Logout Success",
             "user_id": user_id,
-            "ip": request.remote_addr,
+            "ip": SplunkLogging.get_real_ip(request),
             "user_agent": str(request.user_agent),
             "method": request.method,
             "path": request.path,
