@@ -47,3 +47,17 @@ class CommentMapper:
                 return True
             else:
                 return False
+
+    @staticmethod
+    def getCommentById(commentId: int) -> Comment | None:
+        """
+        Fetch a comment by its ID.
+        """
+        with db_context.session_scope() as session:
+            cm = (
+                session
+                .query(CommentModel)
+                .filter(CommentModel.commentId == commentId)
+                .first()
+            )
+            return Comment.from_CommentModel(cm) if cm else None
