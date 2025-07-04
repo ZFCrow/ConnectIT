@@ -353,7 +353,7 @@ def create_token():
 
     SplunkLogging.send_log(
         {
-            "event": "Token Created Successfully",
+            "event": "Token Created Succes",
             "accountId": account_id,
             "role": user_role,
             "ip": request.remote_addr,
