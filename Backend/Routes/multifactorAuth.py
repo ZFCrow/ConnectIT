@@ -47,7 +47,7 @@ def verify_2fa():
         SplunkLogging.send_log(
             {
                 "event": "Login Success",
-                "user": f"accountId={accountId}",
+                "AccountId": accountId,
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
@@ -59,6 +59,7 @@ def verify_2fa():
             {
                 "event": "Login Failed",
                 "reason": "Failed 2FA validation",
+                "AccountId": accountId,
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,

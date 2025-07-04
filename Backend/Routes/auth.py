@@ -313,7 +313,7 @@ def create_token():
             {
                 "event": "Token Creation Failed",
                 "reason": "Missing token creation data",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -338,7 +338,7 @@ def create_token():
             {
                 "event": "Token Creation Failed",
                 "reason": "Token generation failed",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -505,7 +505,7 @@ def logout():
     SplunkLogging.send_log(
         {
             "event": "Logout Success",
-            "user_id": user_id,
+            "AccountId": user_id,
             "ip": SplunkLogging.get_real_ip(request),
             "user_agent": str(request.user_agent),
             "method": request.method,
