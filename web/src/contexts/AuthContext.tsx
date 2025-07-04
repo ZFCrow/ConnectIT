@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
   const ttlId = setTimeout(() => {
     endSession();
-  }, 1440 * 60 * 1000); // 30 minutes
+  }, 1440 * 60 * 1000); // 24 Hours
 
   return () => clearTimeout(ttlId);
 }, []);

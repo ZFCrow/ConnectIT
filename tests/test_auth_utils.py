@@ -1,5 +1,8 @@
-import pytest
-from Backend.Security.AuthUtils import *
+from Backend.Security.AuthUtils import (
+    hash_password,
+    verify_hash_password
+)
+
 
 def test_hash_password_produces_different_output():
     password = "MySecurePassword123"
@@ -8,11 +11,13 @@ def test_hash_password_produces_different_output():
     assert isinstance(hashed, str)
     assert hashed != password  # ensure it's actually hashed
 
+
 def test_verify_hash_password_success():
     password = "MySecurePassword123"
     hashed = hash_password(password)
 
     assert verify_hash_password(password, hashed) is True
+
 
 def test_verify_hash_password_failure():
     password = "CorrectPassword"

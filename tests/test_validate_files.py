@@ -2,11 +2,19 @@ import io
 import pytest
 from werkzeug.datastructures import FileStorage
 from PIL import Image
-from Backend.Security.ValidateFiles import *
+from pypdf import PdfWriter
+from Backend.Security.ValidateFiles import (
+    enforce_image_limits,
+    enforce_pdf_limits,
+    Max_Image_Size,
+    Max_PDF_Size,
+    sanitize_pdf
+)
 
 
 def create_fake_pdf(content: bytes = b"%PDF-1.4\n1 0 obj", filename="doc.pdf"):
-    return FileStorage(stream=io.BytesIO(content), filename=filename, content_type='application/pdf')
+    return FileStorage(stream=io.BytesIO(content), filename=filename,
+                       content_type='application/pdf')
 
 
 def create_fake_image(format="PNG", size=(100, 100)) -> FileStorage:
@@ -48,10 +56,25 @@ def test_pdf_double_extension_rejected():
 
 
 def test_sanitize_pdf_returns_filestorage():
-    pdf = create_fake_pdf()
-    cleaned = sanitize_pdf(pdf)
-    assert isinstance(cleaned, FileStorage)
-    assert cleaned.filename == "doc.pdf"
+    # Create a simple valid PDF in memory
+    writer = PdfWriter()
+    writer.add_blank_page(width=72, height=72)
+
+    fake_pdf = io.BytesIO()
+    writer.write(fake_pdf)
+    fake_pdf.seek(0)
+
+    file = FileStorage(
+        stream=fake_pdf,
+        filename="test.pdf",
+        content_type="application/pdf"
+    )
+
+    result = sanitize_pdf(file)
+
+    assert isinstance(result, FileStorage)
+    assert result.filename == "test.pdf"
+    assert result.content_type == "application/pdf"
 
 
 # ------------------ IMAGE VALIDATION TESTS ------------------
@@ -90,29 +113,8 @@ def test_image_disallowed_format():
         enforce_image_limits(file)
 
 
-def test_sanitize_pdf_returns_filestorage():
-    # Create a simple valid PDF in memory
-    writer = PdfWriter()
-    writer.add_blank_page(width=72, height=72)
-
-    fake_pdf = io.BytesIO()
-    writer.write(fake_pdf)
-    fake_pdf.seek(0)
-
-    file = FileStorage(
-        stream=fake_pdf,
-        filename="test.pdf",
-        content_type="application/pdf"
-    )
-
-    result = sanitize_pdf(file)
-
-    assert isinstance(result, FileStorage)
-    assert result.filename == "test.pdf"
-    assert result.content_type == "application/pdf"
-
-
 def test_invalid_image_rejected():
-    fake = FileStorage(stream=io.BytesIO(b"not an image"), filename="bad.png", content_type="image/png")
+    fake = FileStorage(stream=io.BytesIO(b"not an image"),
+                       filename="bad.png", content_type="image/png")
     with pytest.raises(ValueError, match="Invalid image"):
         enforce_image_limits(fake)
