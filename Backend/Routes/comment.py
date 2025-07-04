@@ -38,6 +38,9 @@ def addComment(post_id):
 
         comment_data = data["comment"]
 
+        if comment_data.get("accountId") and comment_data["accountId"] != user_id:
+            abort(403, description="Forbidden: cannot comment as another user")
+
         # Enforce that accountId matches the token
         comment_data["accountId"] = user_id
         comment_data["postId"] = post_id
