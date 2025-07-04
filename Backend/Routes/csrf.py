@@ -11,9 +11,9 @@ def get_csrf_token():
     resp.set_cookie(
         "csrf_token",
         token,
-        httponly=True,
+        httponly=False,
         secure=True,
-        samesite="None",
+        samesite="Strict",
         path="/",
     )
     return resp
