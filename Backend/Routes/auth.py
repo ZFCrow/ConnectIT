@@ -31,6 +31,9 @@ def register():
     payload = request.form.to_dict()
     errors = validate_register(payload)
 
+    if payload["role"] != "User" or "Company":
+        return jsonify({"error": "Failed to create account"}), 500
+    
     if errors:
 
         SplunkLogging.send_log(
