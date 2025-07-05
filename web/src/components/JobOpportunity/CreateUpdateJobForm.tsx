@@ -70,6 +70,9 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
         const res = await axios.get("/api/getFieldOfWork");
 
         setFieldOptions(res.data);
+        if (res.data.length > 0) {
+          setFieldOfWork(res.data[0]);
+        }
       } catch (e) {
         setFieldOptions([]);
       }
