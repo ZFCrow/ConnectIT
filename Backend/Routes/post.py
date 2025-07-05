@@ -33,12 +33,11 @@ def createPost():
         if not data or "postData" not in data:
             return jsonify({"error": "Missing required fields"}), 400
 
-        postData = data["postData"]
-
-        # 401 if they try to forge someone else's accountId
-        client_account = postData["accountId"]
+        client_account = data.get("accountId")
         if client_account is not None and client_account != user_id:
             abort(401, description="Unauthorized: accountId does not match token")
+
+        postData = data.get("postData", {})
 
         # Enforce correct accountId
         postData["accountId"] = user_id
