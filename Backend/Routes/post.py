@@ -26,7 +26,7 @@ def createPost():
     Create a new post in the database.
     """
     claims = _authenticate()
-    user_id = claims.get("sub")
+    user_id = claims.get("accountId")
 
     try:
         data = request.get_json()
