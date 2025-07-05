@@ -123,6 +123,8 @@ def create_app():
 
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
+        data = request.get_json() if request.is_json else {}
+
         if request.path == "/register":
             user = ""
         elif request.path == "/addJob":
