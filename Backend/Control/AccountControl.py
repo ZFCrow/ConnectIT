@@ -5,12 +5,12 @@ from Entity.User import User
 from Entity.Company import Company
 from Utils.UploadDocUtil import upload_to_path
 from Security import AuthUtils
-from Services.AuthService import AuthService 
-from Security.ValidateInputs import validate_login 
-from flask import request
+from Services.AuthService import AuthService
+from Security.ValidateInputs import validate_login
+
 
 class AccountControl:
-    authService = AuthService() 
+    authService = AuthService()
 
     def __init__(self):
         pass
@@ -46,11 +46,7 @@ class AccountControl:
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
-        
         return account if auth else None
-    
-
-
 
     @staticmethod
     def authenticateAccount(accountData: dict,
@@ -64,35 +60,30 @@ class AccountControl:
             email=email,
             metaData=metaData
         )
-        if isLocked: 
+        if isLocked:
             return {
                 "error": "Account is locked due to too many failed login attempts.",
                 "status": 403,
-                "account": None, 
-            } 
-        
-        # verifyCaptcha() - AuthService? 
-        data = AccountControl.authService.verifyCaptcha(email, token, request)
-        
-        if data.get("error", None) != None: 
-            return data 
-        
+                "account": None,
+            }
 
+        # verifyCaptcha() - AuthService?
+        data = AccountControl.authService.verifyCaptcha(email, token, metaData)
+        if data.get("error", None) is not None:
+            return data
         # no error so we continue
-
         # validate Login
-        errors = validate_login(accountData) 
-        if errors: 
+        errors = validate_login(accountData)
+        if errors:
             AccountControl.authService.sendLog(
                 {
                     "event": "Login Attempt Failed",
                     "reason": "Validation Errors",
-                    "errors": errors, 
-                    "ip": metaData["remote_addr"], 
+                    "errors": errors,
+                    "ip": metaData["remote_addr"],
                     "user_agent": metaData["user_agent"],
-                    "method": metaData["method"], 
-                    "path": metaData["path"], 
-                
+                    "method": metaData["method"],
+                    "path": metaData["path"],
                 }
             )
 
@@ -102,7 +93,7 @@ class AccountControl:
 
         auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
-        data = AccountControl.authService.login(account, email, request)
+        data = AccountControl.authService.login(account, email, metaData)
         return account if auth else None
 
     @staticmethod
