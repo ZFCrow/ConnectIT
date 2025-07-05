@@ -56,10 +56,11 @@ def createPost():
 @post_bp.route("/post/<int:post_id>", methods=["POST"])
 def delete_post(post_id):
     """
-    Delete a post by its ID.
+    Delete a post by its ID; only the owner, Company, or Admin may delete.
     """
     claims = _authenticate()
     user_id = claims.get("sub")
+    role = claims.get("role")
 
     try:
         # verify post exists
@@ -67,17 +68,16 @@ def delete_post(post_id):
         if not post_entity:
             return jsonify({"error": "Post not found"}), 404
 
-        # verify ownership
-        if post_entity.accountId != user_id:
-            abort(403, description="Forbidden: cannot delete another user's post")
+        # verify ownership or elevated role
+        if post_entity.accountId != user_id and role not in ("Admin", "Company"):
+            abort(403, description="Forbidden: cannot delete this post")
 
         data = request.get_json() or {}
         violations = data.get("data", {}).get("violations", [])
 
         success = PostControl.deletePost(post_id, violations=violations)
         if success:
-            return jsonify({"message": f"Post {post_id} deleted successfully with account {accountId} and \
-                                violations {violations}"}), 200
+            return jsonify({"message": f"Post {post_id} deleted successfully"}), 200
         else:
             return jsonify({"error": f"Failed to delete post {post_id}"}), 500
 
