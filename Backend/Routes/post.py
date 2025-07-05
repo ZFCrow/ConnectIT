@@ -34,9 +34,14 @@ def createPost():
             return jsonify({"error": "Missing required fields"}), 400
 
         postData = data["postData"]
+
         # 401 if they try to forge someone else's accountId
-        if postData["accountId"] is not None and postData["accountId"] != user_id:
+        client_account = postData["accountId"]
+        if client_account is not None and client_account != user_id:
             abort(401, description="Unauthorized: accountId does not match token")
+
+        # Enforce correct accountId
+        postData["accountId"] = user_id
 
         errors = validate_post(postData)
         if errors:
@@ -86,7 +91,6 @@ def delete_post(post_id):
         print(f"Error deleting post: {e}")
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
-
 
 
 @post_bp.route("/posts/paginated", methods=["GET"])
