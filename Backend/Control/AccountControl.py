@@ -1,3 +1,9 @@
+import time
+import uuid
+
+from flask import jsonify
+from Security.Limiter import reset_login_attempts
+from Services.AuthService import AuthService
 from Boundary.Mapper.AccountMapper import AccountMapper
 from SQLModels.AccountModel import Role
 from Entity.Account import Account
@@ -36,19 +42,92 @@ class AccountControl:
         return success, errorMsg
 
     @staticmethod
-    def authenticateAccount(accountData: dict) -> Account:
-        email = accountData.get("email", "")
+    def authenticateAccount(payload: dict) -> Account:
+        start_time = time.time()  # Start timer
 
+        email = payload.get("email")
+        captcha_token = payload.get("captchaToken")
+
+        isLocked, msg = AuthService.checkIsLocked(email)
+        if isLocked:
+            return jsonify({"error": msg}), 403
+
+        # Verify CAPTCHA if required
+        captchaMsg = AuthService.handleCaptchaForLogin(
+            email, captcha_token
+        )
+        if captchaMsg is not None:
+            return jsonify(
+                {
+                    "message": captchaMsg,
+                    "showCaptcha": True,
+                }
+            ), 400
+
+        validationErrors = AuthService.validateLogin(payload)
+        if validationErrors:
+            return jsonify({"error": validationErrors}), 400
         account = AccountMapper.getAccountByEmail(email)
+
+        duration_ms = round((time.time() - start_time) * 1000, 2)
+        if not account:
+            attemptMsg, errorCode = AuthService.incrementFailedAttempts(
+                email, start_time, duration_ms
+                )
+            if attemptMsg:
+                return jsonify({"message": attemptMsg}), errorCode
+
         if account:
-            password = accountData.get("password", "")
+            if account.isDisabled:
+                return jsonify({"message": "Account is disabled"}), 403
+
+            password = payload.get("password", "")
 
             auth = AuthUtils.verify_hash_password(password, account.passwordHash)
 
             if not auth:
-                return None
+                attemptMsg, errorCode = AuthService.incrementFailedAttempts(
+                    email, payload, start_time, duration_ms
+                    )
+                if attemptMsg:
+                    return jsonify({"message": attemptMsg}), errorCode
+            new_jti = str(uuid.uuid4())
+            base_data = {
+                "accountId": account.accountId,
+                "name": account.name,
+                "email": account.email,
+                "passwordHash": account.passwordHash,
+                "role": account.role
+                if isinstance(account.role, str) else account.role.value,
+                "isDisabled": account.isDisabled,
+                "profilePicUrl": account.profilePicUrl,
+                "twoFaEnabled": account.twoFaEnabled,
+                "twoFaSecret": account.twoFaSecret,
+                "jti": new_jti
+            }
 
-        return account
+            optional_keys = [
+                "bio",
+                "portfolioUrl",
+                "description",
+                "location",
+                "verified",
+                "companyId",
+                "userId",
+                "companyDocUrl",
+            ]
+            optional_data = {
+                key: getattr(
+                    account, key
+                    ) for key in optional_keys if hasattr(
+                        account, key
+                        )
+            }
+
+            merged = {**base_data, **optional_data}
+            reset_login_attempts(email)
+
+            return jsonify(merged), 200
 
     @staticmethod
     def getAccountById(accountId: int) -> Account:
