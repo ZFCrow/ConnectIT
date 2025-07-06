@@ -1,12 +1,10 @@
 # .github/workflows/deploy.yml 
-
-
 name: Deploy to Production 
 
 on: 
   workflow_dispatch: {} # Allows manual triggering of the workflow
   workflow_run:
-    workflows:  ["UI TEST with Playwright"]
+    workflows:  ["UI TEST"]
     types:
       - completed 
 

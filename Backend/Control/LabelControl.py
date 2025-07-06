@@ -3,9 +3,9 @@ from Entity.Label import Label
 
 class LabelControl:
 
+
     def __init__(self):
         pass
-
 
     @staticmethod
     def retrieveAllLabels() -> list[Label]:

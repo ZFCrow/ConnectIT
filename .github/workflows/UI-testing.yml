@@ -1,6 +1,5 @@
-
 # .github/workflows/UI-testing.yml
-name: UI TEST with Playwright
+name: UI TEST
 
 on:
 #   push:
