@@ -132,7 +132,7 @@ const Navbar = () => {
                     text="Logout"
                     onClick={() => {
                       logout();
-                      navigate("/");
+                      navigate("/login");
                     }}
                   />
                 </DropdownMenuItem>
