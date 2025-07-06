@@ -130,6 +130,5 @@ volumes:
   splunk_etc: {} # Volume for Splunk Configurations persistence
   redis-data:
 
-# testing scp ! 
 
 
