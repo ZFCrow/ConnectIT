@@ -13,6 +13,7 @@ interface ConfirmModalProps {
   description?: string;
   confirmText?: string;
   cancelText?: string;
+  loading: boolean;
 }
 
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -23,6 +24,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   description = "This action cannot be undone.",
   confirmText = "Yes",
   cancelText = "Cancel",
+  loading = false
 }) => {
   const [password, setPassword] = useState("");
 
@@ -59,24 +61,52 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
 
           {/* Actions */}
+          {loading ? (
+          <div className="flex items-center justify-center py-4">
+            <svg
+              className="animate-spin h-8 w-8 text-red-500 mr-3"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
+            </svg>
+            <span className="text-gray-400 text-lg">Deleting…</span>
+          </div>
+        ) : (
           <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={onClose}
               className="px-4 py-2 rounded-md bg-zinc-700 hover:bg-zinc-600 text-gray-100"
+              disabled={loading}
             >
               {cancelText}
             </button>
             <button
               onClick={handleSubmit}
               className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white"
+              disabled={loading}
             >
               {confirmText}
             </button>
           </div>
+        )}
         </Dialog.Panel>
       </div>
     </Dialog>

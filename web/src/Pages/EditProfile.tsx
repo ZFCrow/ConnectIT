@@ -33,6 +33,7 @@ const EditProfilePage = () => {
   const { accountId } = useAuth();
   const [user, setUser] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saveLoading, setSaveLoad] = useState(false);
 
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
@@ -112,7 +113,9 @@ const EditProfilePage = () => {
     formData.append("profilePic", profilePic);
 
     try {
-      const response = await axios.post("/api/profile/save", formData);
+      setSaveLoad(true);
+      await axios.post("/api/profile/save", formData);
+      setSaveLoad(false);
       navigate(`/profile/${accountId}`);
     } catch (err: any) {
       const message =
@@ -226,12 +229,39 @@ const EditProfilePage = () => {
               </EditProfileGroup>
 
               <EditProfileActions>
-                <Link to={`/profile/${user.accountId}`}>
-                  <Button variant="outline" type="button">
-                    Cancel
-                  </Button>
-                </Link>
-                <Button type="submit">Save Changes</Button>
+                {saveLoading ? (
+                  <div className="flex items-center justify-center py-2">
+                    <svg
+                      className="animate-spin h-6 w-6 text-gray-500"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <span className="text-gray-400 text-lg">Saving…</span>
+                  </div>
+                ) : (
+                  <>
+                    <Link to={`/profile/${user.accountId}`}>
+                      <Button variant="outline" type="button" disabled={saveLoading}>
+                        Cancel
+                      </Button>
+                    </Link>
+                    <Button type="submit" disabled={saveLoading}>Save Changes</Button>
+                  </>
+                )}
               </EditProfileActions>
             </EditProfile>
           </EditProfileCard>
