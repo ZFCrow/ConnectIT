@@ -43,7 +43,7 @@ test('unauthenticated user is redirected to login page', async ({ page }) => {
     });
 
     // assert redirection to login page 
-    await expect(page).toHaveURL('http://localhost:5173/login')
+    await expect(page).toHaveURL('http://localhost:3300/login')
 
 });
 
@@ -93,7 +93,7 @@ test('logging in with the correct credentials redirects to 2fa page', async ({ p
 
 
     // navigate to login page 
-    await page.goto('http://localhost:5173/login')
+    await page.goto('http://localhost:3300/login')
 
     // fill in the login form 
     await page.fill('input[id="email"]', 'jake123@gmail.com')

@@ -20,7 +20,7 @@ test('creating a post', async ({ page }) => {
 
 
     // navigate to login page 
-    await page.goto('http://localhost:5173/login')
+    await page.goto('http://localhost:3300/login')
 
     // fill in the login form 
     await page.fill('input[id="email"]', 'jake123@gmail.com')

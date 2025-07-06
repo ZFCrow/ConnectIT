@@ -154,7 +154,7 @@ jobs:
                     scp -o StrictHostKeyChecking=no \
                     docker-compose.prod.yml \
                     nginx-startup.sh \
-                    "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT3/"
+                    "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT2/"
 
 
             # Generate .env files on EC2 
@@ -162,7 +162,7 @@ jobs:
                 run: |
                     ssh -p "${{ secrets.SSH_PORT }}" -o StrictHostKeyChecking=no "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" <<EOF
                     # ─── .env ─────────────────────────────────────
-                    cat > /home/$SSH_USER/ConnectIT3/.env <<E1
+                    cat > /home/$SSH_USER/ConnectIT2/.env <<E1
                     FLASK_RUN_HOST=$FLASK_RUN_HOST
                     FLASK_RUN_PORT=$FLASK_RUN_PORT
                     FLASK_SECRET=$FLASK_SECRET 
@@ -178,12 +178,12 @@ jobs:
                     E1
 
                     # ─── connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json ───────────(Commented out)──────────────────────
-                    cat > /home/$SSH_USER/ConnectIT3/connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json <<E2
+                    cat > /home/$SSH_USER/ConnectIT2/connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json <<E2
                     $FIREBASE_SECRET_JSON
                     E2
 
                     # ─── .env.prod ────────────────────────────────
-                    cat > /home/$SSH_USER/ConnectIT3/.env.prod <<E3
+                    cat > /home/$SSH_USER/ConnectIT2/.env.prod <<E3
                     MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD_PROD
                     MYSQL_DATABASE=$MYSQL_DATABASE_PROD
                     MYSQL_USER=$MYSQL_USER_PROD
@@ -201,6 +201,20 @@ jobs:
                     SPLUNK_IP_WHITELIST=$SPLUNK_IP_WHITELIST 
                     E3
                     EOF
+
+            # docker up 
+            -   name: Compose up on EC2 
+                run: |
+                    ssh -t -p "${{ secrets.SSH_PORT }}" -o StrictHostKeyChecking=no "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" <<-EOF
+                        cd /home/$SSH_USER/ConnectIT2
+
+                        sudo docker system prune --all --volumes --force
+                        sudo docker builder prune --all --force
+
+                        sudo docker compose -f docker-compose.prod.yml pull 
+                        sudo docker compose -f docker-compose.prod.yml up -d
+                        
+                    EOF 
         
 #   deploy: 
 #     runs-on: ubuntu-latest 
