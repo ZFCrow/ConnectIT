@@ -50,7 +50,30 @@ jobs:
         -   name: Create build .env
             run: |
                 cat > .env <<-EOF
+                FLASK_RUN_HOST=${{ secrets.FLASK_RUN_HOST }} 
+                FLASK_RUN_PORT=${{ secrets.FLASK_RUN_PORT }} 
+                FLASK_SECRET=${{ secrets.FLASK_SECRET }} 
                 VITE_HCAPTCHA_SITEKEY=${{ secrets.VITE_HCAPTCHA_SITEKEY }}
+                MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD_DEV }} 
+                MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE_DEV }} 
+                MYSQL_USER=${{ secrets.MYSQL_USER_DEV }} 
+                MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD_DEV }} 
+                FERNET_KEY=${{ secrets.FERNET_KEY }} 
+                JWT_SECRET=${{ secrets.JWT_SECRET }} 
+                HCAPTCHA_SECRET=${{ secrets.HCAPTCHA_SECRET }} 
+                AES_GCM_KEY=${{ secrets.AES_GCM_KEY }} 
+                EOF
+
+        -   name: Create build .env.dev
+            run: |
+                cat > .env <<-EOF
+                MYSQL_REMOTE_PORT=${{ secrets.MYSQL_REMOTE_PORT }} 
+                FLASK_DEBUG_DEV=${{ secrets.FLASK_DEBUG_DEV }} 
+                USE_SSH_TUNNEL_DEV=${{ secrets.USE_SSH_TUNNEL_DEV }} 
+                SSH_HOST=${{ secrets.SSH_HOST }} 
+                SSH_PORT=${{ secrets.SSH_PORT }} 
+                SSH_USER=${{ secrets.SSH_USER }} 
+                PEM_FILE=${{ secrets.PEM_FILE }} 
                 EOF
 
         -   name: Build & push via Compose 
