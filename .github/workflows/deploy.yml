@@ -6,7 +6,7 @@ on:
   workflow_run:
     workflows:  ["UI TEST"]
     types:
-      - completed 
+    - completed 
 
 #   push: 
 #     branches: [main] # Trigger on push to main branch
