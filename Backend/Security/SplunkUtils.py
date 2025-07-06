@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class SplunkLogger:
     def __init__(self):
         self.hec_url = os.getenv("SPLUNK_HEC_URL")

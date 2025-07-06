@@ -22,6 +22,7 @@ def _authenticate():
         abort(401, description="Invalid or expired token")
     return claims
 
+
 @comment_bp.route("/comment/<post_id>", methods=["POST"])
 @limiter.limit("15 per hour", key_func=get_account_key)
 def addComment(post_id):
@@ -79,7 +80,8 @@ def deleteComment(comment_id):
 
         success = CommentControl.deleteComment(comment_id)
         if success:
-            return jsonify({"message": f"Comment {comment_id} deleted successfully"}), 200
+            return jsonify({"message": f"Comment {comment_id} \
+                            deleted successfully"}), 200
         else:
             return jsonify({"error": f"Failed to delete comment {comment_id}"}), 500
 

@@ -62,7 +62,10 @@ def createJobListing():
     company_id = claims.get("companyId")
 
     job_data = request.get_json() or {}
-    # enforce that job belongs to token's company
+    # 401 if client tries to forge another company’s ID
+    if job_data.get("company_id") is not None and job_data["company_id"] != company_id:
+        abort(401, description="Unauthorized: company_id does not match token")
+
     job_data["company_id"] = company_id
     errors = validate_job_listing(job_data)
     if errors:

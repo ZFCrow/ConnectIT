@@ -34,7 +34,7 @@ def applyJob():
     """
     claims = _authenticate()
     token_user = claims.get("userId")
-   # determine content type
+    # determine content type
     if request.content_type.startswith("multipart/form-data"):
         userId = request.form.get("userId", type=int)
         jobId = request.form.get("jobId", type=int)
