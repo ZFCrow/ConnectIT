@@ -82,7 +82,7 @@ jobs:
 
             -   name: Bring up containers
                 run: |
-                    docker compose up -d
+                    docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 
             # Wait for your Flask API to respond
             # wont work due to csrf
@@ -106,7 +106,7 @@ jobs:
             -   name: Print backend logs
                 run: sudo docker logs backend
             -   name: Print frontend logs
-                run: sudo docker logs web-prod
+                run: sudo docker logs web
 
             -   name: Fix permissions on web/
                 run: sudo chown -R $USER:$USER ./web
@@ -137,4 +137,4 @@ jobs:
 
             -   name: Tear down
                 if: always()
-                run: docker compose down
+                run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down

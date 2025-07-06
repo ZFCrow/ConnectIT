@@ -131,7 +131,7 @@ jobs:
 
             -   name: Checkout code 
                 uses: actions/checkout@v4
-                
+
             -   name: start SSH agent 
                 uses: webfactory/ssh-agent@v0.5.4
                 with:
@@ -152,7 +152,7 @@ jobs:
             # Generate .env files on EC2 
             -   name: Generate .env files on EC2
                 run: |
-                    ssh -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" <<EOF
+                    ssh -p "${{ secrets.SSH_PORT }}" -o StrictHostKeyChecking=no "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" <<EOF
                     # ─── .env ─────────────────────────────────────
                     cat > /home/$SSH_USER/ConnectIT3/.env <<E1
                     FLASK_RUN_HOST=$FLASK_RUN_HOST
