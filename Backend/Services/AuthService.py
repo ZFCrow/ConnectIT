@@ -1,10 +1,12 @@
+from Security import AuthUtils
 from Security.ValidateInputs import validate_login
 from Security.ValidateCaptcha import verify_hcaptcha
 from Security import SplunkUtils
 from Security.Limiter import (
     get_failed_attempts_count,
     increment_failed_attempts,
-    is_locked
+    is_locked,
+    reset_login_attempts
 )
 from flask import request
 SplunkLogging = SplunkUtils.SplunkLogger()
@@ -88,7 +90,6 @@ class AuthService:
     @staticmethod
     def incrementFailedAttempts(
             email: str,
-            start_time: float,
             duration_ms: float
             ):
         count = increment_failed_attempts(email)
@@ -109,3 +110,14 @@ class AuthService:
             duration_ms=duration_ms,
         )
         return "Incorrect credentials", 401
+
+    @staticmethod
+    def verify_hash_password(password: str, hashPassword: str):
+        """
+        Verify if the provided password matches the stored hash.
+        """
+        return AuthUtils.verify_hash_password(password, hashPassword)
+
+    @staticmethod
+    def resetLoginAttempts(email: str):
+        reset_login_attempts(email)

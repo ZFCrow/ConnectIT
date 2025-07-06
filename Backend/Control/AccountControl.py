@@ -2,7 +2,6 @@ import time
 import uuid
 
 from flask import jsonify
-from Security.Limiter import reset_login_attempts
 from Services.AuthService import AuthService
 from Boundary.Mapper.AccountMapper import AccountMapper
 from SQLModels.AccountModel import Role
@@ -72,7 +71,7 @@ class AccountControl:
         duration_ms = round((time.time() - start_time) * 1000, 2)
         if not account:
             attemptMsg, errorCode = AuthService.incrementFailedAttempts(
-                email, start_time, duration_ms
+                email, duration_ms
                 )
             if attemptMsg:
                 return jsonify({"message": attemptMsg}), errorCode
@@ -83,11 +82,11 @@ class AccountControl:
 
             password = payload.get("password", "")
 
-            auth = AuthUtils.verify_hash_password(password, account.passwordHash)
+            auth = AuthService.verify_hash_password(password, account.passwordHash)
 
             if not auth:
                 attemptMsg, errorCode = AuthService.incrementFailedAttempts(
-                    email, payload, start_time, duration_ms
+                    email, duration_ms
                     )
                 if attemptMsg:
                     return jsonify({"message": attemptMsg}), errorCode
@@ -125,7 +124,7 @@ class AccountControl:
             }
 
             merged = {**base_data, **optional_data}
-            reset_login_attempts(email)
+            AuthService.resetLoginAttempts(email)
 
             return jsonify(merged), 200
 
