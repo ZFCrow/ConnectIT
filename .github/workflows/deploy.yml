@@ -108,7 +108,7 @@ jobs:
             JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
             HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
             AES_GCM_KEY: ${{secrets.AES_GCM_KEY}}
-            
+        
             #.env.prod , some keys added a _PROD as it shares the same name as development keys
             MYSQL_ROOT_PASSWORD_PROD: ${{ secrets.MYSQL_ROOT_PASSWORD_PROD }} # Set your MySQL root password for production
             MYSQL_DATABASE_PROD: ${{ secrets.MYSQL_DATABASE_PROD }} # Set your MySQL database name for production
@@ -127,6 +127,13 @@ jobs:
             # FIREBASE secrets 
             FIREBASE_SECRET_JSON: ${{ secrets.FIREBASE_SECRET_JSON }}
 
+
+            # SSH 
+            SSH_HOST: ${{ secrets.SSH_HOST }} # Set your SSH host 
+            SSH_PORT: ${{ secrets.SSH_PORT }} # Set your SSH port 
+            SSH_USER: ${{ secrets.SSH_USER }} # Set your SSH user 
+            EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }} # Your SSH private key stored in GitHub Secrets 
+
         steps: 
 
             -   name: Checkout code 
@@ -139,7 +146,7 @@ jobs:
 
             -   name: Add EC2 to known hosts 
                 run: | 
-                    ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 
+                    ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 
 
 
             -   name: Copy prod compose & nginx script
@@ -147,7 +154,8 @@ jobs:
                     scp -o StrictHostKeyChecking=no \
                     docker-compose.prod.yml \
                     nginx-startup.sh \
-                    ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT3/
+                    "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/${{ secrets.SSH_USER }}/ConnectIT3/"
+
 
             # Generate .env files on EC2 
             -   name: Generate .env files on EC2
