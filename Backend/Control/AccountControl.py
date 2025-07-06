@@ -72,7 +72,7 @@ class AccountControl:
         duration_ms = round((time.time() - start_time) * 1000, 2)
         if not account:
             attemptMsg, errorCode = AuthService.incrementFailedAttempts(
-                email, start_time, duration_ms
+                email, duration_ms
                 )
             if attemptMsg:
                 return jsonify({"message": attemptMsg}), errorCode

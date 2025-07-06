@@ -88,7 +88,6 @@ class AuthService:
     @staticmethod
     def incrementFailedAttempts(
             email: str,
-            start_time: float,
             duration_ms: float
             ):
         count = increment_failed_attempts(email)
