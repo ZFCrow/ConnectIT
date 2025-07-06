@@ -1,8 +1,8 @@
 from Boundary.TableDataGateway.LabelGateway import LabelGateway
 from Entity.Label import Label
 
-class LabelControl:
 
+class LabelControl:
 
     def __init__(self):
         pass
