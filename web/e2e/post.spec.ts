@@ -64,6 +64,7 @@ test('creating a post', async ({ page }) => {
     
     // 2️⃣ If it's 429, end the test here (and count it as a pass)
     if (verifyResponse.status() === 429) {
+        console.log('Rate limit reached, skipping post creation test.'); 
         return;
     }
 

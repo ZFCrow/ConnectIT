@@ -1,5 +1,5 @@
 from Boundary.TableDataGateway.LabelGateway import LabelGateway
-
+from Entity.Label import Label 
 
 class LabelControl:
 
@@ -7,7 +7,7 @@ class LabelControl:
         pass
 
     @staticmethod
-    def retrieveAllLabels() -> list:
+    def retrieveAllLabels() -> list[Label]:
         """
         Retrieve all labels from the database.
         """
