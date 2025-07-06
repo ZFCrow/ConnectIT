@@ -42,6 +42,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<AccountData | null>(null);
   const [jobListings, setJobListings] = useState<JobListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [disableLoading, setDisableLoading] = useState(false);
 
   const { accountId, logout } = useAuth();
 
@@ -113,11 +114,13 @@ const ProfilePage = () => {
   }, [viewId]);
 
   const handleConfirmDisable = async (password: string) => {
+    setDisableLoading(true);
     try {
-      const response = await axios.post(`/api/profile/disable/${accountId}`, {
+      await axios.post(`/api/profile/disable/${accountId}`, {
         password,
       });
-      // Redirect to home page and logout?
+      setShowDeleteModal(false);
+      setDisableLoading(false);
       logout();
       navigate("/");
     } catch (err) {
@@ -274,12 +277,12 @@ const ProfilePage = () => {
               onClose={() => setShowDeleteModal(false)}
               onConfirm={(password) => {
                 handleConfirmDisable(password);
-                setShowDeleteModal(false);
               }}
               title="Delete your account?"
               description="This action cannot be undone and will permanently remove your account."
               confirmText="Delete"
               cancelText="Cancel"
+              loading={disableLoading}
             />
           </Profile>
         </>
