@@ -36,6 +36,15 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import validate_csrf, CSRFError
 from Control.AccountControl import AccountControl
 
+
+import logging 
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+
 # #splunk
 SplunkLogging = SplunkUtils.SplunkLogger()
 

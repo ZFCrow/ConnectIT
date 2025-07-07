@@ -25,6 +25,7 @@ services:
       - sql-prod
     environment:
       - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
       - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
     volumes:

@@ -4,7 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --kill-others-on-fail \"npm run dev:vite\" \"npm run dev:flask\" \"npm run redis\"",
+    "dev:vite": "vite",               
+    "dev:flask": "cd ../backend && flask run",      
+    "redis": "cd.. && docker compose up redis", 
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -56,6 +59,7 @@
     "@typescript-eslint/parser": "^8.35.0",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
     "eslint": "^9.30.0",
     "eslint-plugin-no-unsanitized": "^4.1.2",
     "eslint-plugin-react": "^7.37.5",

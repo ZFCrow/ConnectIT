@@ -31,8 +31,10 @@ services:
       - redis
     environment:
       - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
       - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
       - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
+
     volumes:
       - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
       - ~/.ssh/ICT2216-student12.pem:/run/ssh/key.pem:ro
