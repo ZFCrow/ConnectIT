@@ -8,7 +8,7 @@ ASCII_PRINTABLE = re.compile(r"^[\x20-\x7E]+$")
 
 
 def required_fields(data: dict, fields: list[str]) -> list[str]:
-    return [f for f in fields if not data.get(f)]
+    return [f for f in fields if f not in data or data[f] is None]
 
 
 def sanitize_input(val: str) -> str:
@@ -227,8 +227,17 @@ def validate_profile(data: dict) -> dict:
     if len(description) > 1000:
         errors["description"] = "Description must not exceed 1000 characters"
 
-    if "password" in data:
-        pwd = data["password"]
+    if data.get("newPassword") or data.get("confirmNew"):
+        if not data.get("password"):
+            errors["password"] = "Current password is required to change password."
+            return errors
+        else:
+            new_pwd = data.get("newPassword", "")
+            confirm_new = data.get("confirmNew", "")
+        if new_pwd != confirm_new:
+            errors["password"] = "New password and confirmation password do not match."
+        else:
+            pwd = new_pwd
         if not ASCII_PRINTABLE.fullmatch(pwd):
             errors["password"] = "Password must contain only printable ASCII characters."
         elif len(pwd) < 8:
