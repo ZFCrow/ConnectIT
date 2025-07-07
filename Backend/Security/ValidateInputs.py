@@ -228,23 +228,21 @@ def validate_profile(data: dict) -> dict:
         errors["description"] = "Description must not exceed 1000 characters"
 
     if data.get("newPassword") or data.get("confirmNew"):
-        if not data.get("password"):
+        old = data.get("password", "").strip()
+        new = data.get("newPassword", "")
+        conf = data.get("confirmNew", "")
+        if not old:
             errors["password"] = "Current password is required to change password."
-            return errors
+        elif new != conf:
+            errors["confirmNew"] = "New password and confirmation do not match."
         else:
-            new_pwd = data.get("newPassword", "")
-            confirm_new = data.get("confirmNew", "")
-        if new_pwd != confirm_new:
-            errors["password"] = "New password and confirmation password do not match."
-        else:
-            pwd = new_pwd
-        if not ASCII_PRINTABLE.fullmatch(pwd):
-            errors["password"] = "Password must contain only printable ASCII characters."
-        elif len(pwd) < 8:
-            errors["password"] = "Password must be at least 8 characters long."
-        elif len(pwd) > 64:
-            errors["password"] = "Password must not exceed 64 characters."
-        elif is_common_password(pwd):
-            errors["password"] = "Password is too common."
+            if not ASCII_PRINTABLE.fullmatch(new):
+                errors["newPassword"] = "Password must contain only printable ASCII characters."
+            elif len(new) < 8:
+                errors["newPassword"] = "Password must be at least 8 characters long."
+            elif len(new) > 64:
+                errors["newPassword"] = "Password must not exceed 64 characters."
+            elif is_common_password(new):
+                errors["newPassword"] = "Password is too common."
 
     return errors
