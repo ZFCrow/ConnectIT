@@ -22,7 +22,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -39,15 +39,13 @@ import { useNavigate } from "react-router-dom";
 
 import { Role, useAuth } from "@/contexts/AuthContext";
 
-import type { Post } from "@/type/Post";
+
 import type { ValidColor } from "@/type/Label";
 import { usePostContext } from "@/contexts/PostContext";
-import { number } from "zod";
 import { ApplicationToaster } from "@/components/CustomToaster";
 import toast from "react-hot-toast";
 
 type PostcardProps = {
-  //post: Post; // The post object containing all necessary data
   postId: number;
   detailMode?: boolean; // ✅ optional, with default = false
 };
@@ -58,22 +56,15 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     setPostToDelete,
     hidePost: handleHide,
     deleteComment: handleDeleteComment,
-    allPosts,
     toggleLike: toggleLikePost,
     createComment,
     useIndividualPost
   } = usePostContext(); // Get the delete and hide functions from context
 
-  // using postID to find the specific post in the context
-  //const postData: Post = allPosts.find((p) => p.id === postId); // Find the post by ID
 
-    const {
-    post: postData,
-    isLoading,
-    error,
-    refetch,
-  } = useIndividualPost(postId);
-  
+
+  const {post: postData} = useIndividualPost(postId);
+
   
   // destructure the post object to get the necessary data
   const {
@@ -88,6 +79,13 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     accountId: postAccountId, // account ID of the post owner
     displayPicUrl: authorDisplayPicUrl, 
   } = postData;
+
+  
+  
+  const [visibleCommentsCount, setVisibleCommentsCount] = useState(5);
+  const visibleComments = comments.slice(0, visibleCommentsCount); 
+  const canLoadMore = visibleCommentsCount < comments.length; 
+
 
   const colorMap: Record<ValidColor, string> = {
     red: "border-red-500 text-red-500 hover:bg-red-500 hover:text-white",
@@ -125,7 +123,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
 
   const handlePostClick = () => {
     navigate(`/post/${id}`, {
-      //state : {id},
     });
   };
 
@@ -134,11 +131,12 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
     if (commentContent.trim() === '') return;
     
     try {
+      setCommentContent(""); // Clear input
       await createComment({
         postId: id,
         content: commentContent,
       });
-      setCommentContent(""); // Clear input
+      
      
     } catch (err) {
       const message =
@@ -281,7 +279,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                                         `}
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      //console.log("Liked!");
                       //setHasLiked(!hasLiked); // Toggle liked state
                       toggleLikePost({ postId: id }); // Call the like function
                     }}
@@ -298,7 +295,6 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                     className="flex items-center transition-all duration-150 hover:bg-accent hover:scale-105"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the card click
-                      console.log("comment clicked!");
                     }}
                   >
                     <MessageSquare className="mr-1 h-4 w-4" />
@@ -309,7 +305,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
             </div>
 
             <CollapsibleContent className="space-y-3 pt-2">
-              {comments.map((c, i) => (
+              {visibleComments.map((c, i) => (
                 <div
                   key={i}
                   className="flex space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg group align-items"
@@ -317,7 +313,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                   
-                      src={c.displayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
+                      src={c.displayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
                     />
                     <AvatarFallback className="text-xs">
                       {c.username}
@@ -342,7 +338,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm mt-1 text-gray-700 dark:text-gray-300">
+                    <p className="text-sm mt-1 text-gray-700 dark:text-gray-300 break-words break-all">
                       {c.content}
                     </p>
                   </div>
@@ -368,8 +364,24 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                       </Button>
                     )}
                 </div>
-              ))}
+              ))
+              }
 
+                {canLoadMore && (
+                  <div className="flex justify-center mt-2">
+                    <Button
+                      variant="link"
+                      className="mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation(); // prevent card click
+                        setVisibleCommentsCount((count) => count + 5); // load 5 more comments
+                      }}
+                    >
+                      Load More Comments
+                    </Button>
+                  </div>
+
+                )}
               {/* optional add-comment UI */}
 
               {role !== Role.Admin && (

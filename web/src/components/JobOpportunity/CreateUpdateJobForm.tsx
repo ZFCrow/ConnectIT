@@ -10,10 +10,11 @@ import axios from "@/utility/axiosConfig";
 // Static lists
 const jobTypes = JobTypeEnum.options;
 const arrangements = WorkArrangementEnum.options;
-
+const deadline = new Date();
+deadline.setDate(deadline.getDate() + 30); // Default to 30 days from now
 // Default empty job
 const defaultJob = (): JobListing => ({
-  jobId: Date.now(),
+  jobId: null,
   title: "",
   fieldOfWork: "",
   description: "",
@@ -22,7 +23,7 @@ const defaultJob = (): JobListing => ({
   minSalary: 0,
   maxSalary: 0,
   createdAt: new Date().toISOString(),
-  applicationDeadline: new Date().toISOString(),
+  applicationDeadline: deadline.toISOString(),
   responsibilities: [""],
   experiencePreferred: 0,
   jobApplication: [],
@@ -67,9 +68,11 @@ export function JobForm({ onSubmit, onCancel }: JobFormProps) {
     const fetchFields = async () => {
       try {
         const res = await axios.get("/api/getFieldOfWork");
-        // console.log("fieldOptions API result:", res.data);
 
         setFieldOptions(res.data);
+        if (res.data.length > 0) {
+          setFieldOfWork(res.data[0]);
+        }
       } catch (e) {
         setFieldOptions([]);
       }

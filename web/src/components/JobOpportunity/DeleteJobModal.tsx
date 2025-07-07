@@ -28,7 +28,6 @@ const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
   }, [open]);
 
   if (!open) return null;
-  // console.log("Violation options:", violationOptions);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -50,9 +49,7 @@ const DeleteJobModal: React.FC<DeleteJobModalProps> = ({
             <select
               value={selectedViolationId}
               onChange={(e) => {
-                // console.log("Selected violation ID:", e.target.value);
                 setSelectedViolationId(e.target.value);
-                // console.log("Selected violation ID state:",selectedViolationId);
               }}
               disabled={loading}
               className="w-full px-3 py-2 border border-zinc-700 rounded-lg bg-zinc-800 text-gray-200"

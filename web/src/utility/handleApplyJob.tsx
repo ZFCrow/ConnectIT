@@ -22,7 +22,6 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
       formData.append("userId", String(userId));
       formData.append("resume", file); // 👈 backend should expect "resume"
       data = formData;
-      headers = {};
       if (file) {
         const isPdf =
           file.type === "application/pdf" ||
@@ -35,7 +34,7 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
       }
       //   if (file) formData.append("resume", file);
 
-      await axios.post("/api/applyJob", data, { headers });
+      await axios.post("/api/applyJob", data);
 
       toast.success(
         "Your application is in!\nThe company may contact you soon! Best of luck 🍀"
@@ -43,8 +42,7 @@ export function useApplyJob(opts: ApplyJobOptions = {}) {
       opts.onSuccess?.();
     } catch (err) {
       const message =
-        err.response?.data?.error ||
-        "Failed to apply for job. Try again!";
+        err.response?.data?.error || "Failed to apply for job. Try again!";
 
       toast.error(message);
       console.error("Error applying for job:", err.response.data);

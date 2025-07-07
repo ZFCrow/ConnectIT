@@ -58,16 +58,24 @@ def getCompanyJobListings(company_id):
 @limiter.limit("15 per hour", key_func=get_company_key)
 @job_listing_bp.route("/addJob", methods=["POST"])
 def createJobListing():
-    job_data = request.get_json()
+    claims = _authenticate()
+    company_id = claims.get("companyId")
+
+    job_data = request.get_json() or {}
+    # 401 if client tries to forge another company’s ID
+    if job_data.get("company_id") is not None and job_data["company_id"] != company_id:
+        abort(401, description="Unauthorized: company_id does not match token")
+
+    job_data["company_id"] = company_id
     errors = validate_job_listing(job_data)
     if errors:
 
         SplunkLogging.send_log(
             {
-                "event": "Job Creation Failed",
+                "event": "Create Job Listing Failed",
                 "reason": "Validation error",
                 "errors": errors,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -82,10 +90,10 @@ def createJobListing():
 
         SplunkLogging.send_log(
             {
-                "event": "Job Listing Created",
+                "event": "Create Job Listing Success",
                 "jobTitle": job_data.get("title"),
                 "companyId": job_data.get("company_id"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -97,9 +105,9 @@ def createJobListing():
 
         SplunkLogging.send_log(
             {
-                "event": "Job Creation Failed",
+                "event": "Create Job Listing Failed",
                 "reason": "Server error",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -117,8 +125,8 @@ def deleteJobListing(jobId):
     claims = _authenticate()
     company_id = claims.get("companyId")
     role = claims.get("role")
-    is_admin = (role == "Admin")
-    is_company = (role == "Company")
+    is_admin = role == "Admin"
+    is_company = role == "Company"
 
     # only Company users or Admins may proceed
     if not is_admin and not is_company:
@@ -133,9 +141,9 @@ def deleteJobListing(jobId):
     if success:
         SplunkLogging.send_log(
             {
-                "event": "Job Listing Delete Success",
+                "event": "Delete Job Listing Success",
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -145,20 +153,15 @@ def deleteJobListing(jobId):
     else:
         SplunkLogging.send_log(
             {
-                "event": "Job listing delete Fail",
+                "event": "Delete Job Listing Fail",
                 "jobId": jobId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
             }
         )
         return jsonify({"error": "Failed to delete job listing"}), 200
-    # return (
-    #    jsonify({"message": "Job listing deleted successfully!"})
-    #    if success
-    #    else jsonify({"error": "Failed to delete job listing"})
-    # ), 200
 
 
 @job_listing_bp.route("/getFieldOfWork", methods=["GET"])
@@ -183,12 +186,15 @@ def addBookmark():
     """
     Adds a job to the user's bookmarks.
     """
-    userId = request.json.get("userId")
-    jobId = request.json.get("jobId")
-    if not userId or not jobId:
-        return jsonify({"error": "User ID and Job ID are required"}), 400
+    claims = _authenticate()
+    user_id = claims.get("userId")
 
-    success = JobListingControl.addBookmark(userId, jobId)
+    data = request.get_json() or {}
+    jobId = data.get("jobId")
+    if not jobId:
+        return jsonify({"error": "Job ID is required"}), 400
+
+    success = JobListingControl.addBookmark(user_id, jobId)
     return (
         jsonify({"message": "Job bookmarked successfully!"})
         if success
@@ -201,6 +207,10 @@ def removeBookmark(userId, jobId):
     """
     Removes a job from the user's bookmarks.
     """
+    claims = _authenticate()
+    auth_user = claims.get("userId")
+    if userId != auth_user:
+        abort(403, "Forbidden: cannot remove another user's bookmark")
 
     if not userId or not jobId:
         return jsonify({"error": "User ID and Job ID are required"}), 400
@@ -249,7 +259,7 @@ def setViolation(jobId, violationId):
                 "event": "Set Violation Success",
                 "JobId": jobId,
                 "violationId": violationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -264,7 +274,7 @@ def setViolation(jobId, violationId):
                 "event": "Set Violation Failed",
                 "JobId": jobId,
                 "violationId": violationId,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -272,9 +282,3 @@ def setViolation(jobId, violationId):
         )
 
         return jsonify({"error": "Failed to set violation"}), 500
-
-    # return (
-    #    jsonify({"message": "Violation set successfully!"})
-    #    if success
-    #    else jsonify({"error": "Failed to set violation"})
-    # ), 200

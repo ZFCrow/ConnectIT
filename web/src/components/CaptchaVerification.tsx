@@ -38,7 +38,6 @@ export const useCaptchaVerification = () => {
     }
 
     try {
-      console.log("Sending CAPTCHA token to backend for verification...");
       const response = await api.post("/verify-captcha", { token });
 
       if (response.data.success) {

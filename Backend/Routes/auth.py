@@ -1,19 +1,13 @@
 from flask import Blueprint, request, jsonify, make_response, abort
 from Control.AccountControl import AccountControl
 from SQLModels.AccountModel import Role
-from Security.ValidateInputs import validate_register, validate_login
+from Security.ValidateInputs import validate_register
 from Security.ValidateFiles import enforce_pdf_limits, sanitize_pdf
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
-from Security.ValidateCaptcha import verify_hcaptcha
-import time
 from Security.Limiter import (
     limiter,
     get_register_key,
-    is_locked,
-    increment_failed_attempts,
-    get_failed_attempts_count,
-    reset_login_attempts,
 )
 from datetime import datetime
 import jwt
@@ -41,7 +35,7 @@ def register():
                 "event": "Register attempt failed",
                 "reason": "Validation Errors",
                 "errors": errors,
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -59,7 +53,7 @@ def register():
                     "event": "Register Attempt Failed",
                     "reason": "Verification Errors",
                     "errors": "Verification document required",
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -78,7 +72,7 @@ def register():
                     "event": "Register Attempt Failed",
                     "reason": "Invalid PDF upload",
                     "error": str(ve),
-                    "ip": request.remote_addr,
+                    "ip": SplunkLogging.get_real_ip(request),
                     "user_agent": str(request.user_agent),
                     "method": request.method,
                     "path": request.path,
@@ -95,10 +89,10 @@ def register():
 
         SplunkLogging.send_log(
             {
-                "event": "Registration Successful",
+                "event": "Registration Success",
                 "email": payload.get("email"),
                 "role": payload.get("role"),
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -114,190 +108,22 @@ def register():
             {
                 "event": "Registration Failed",
                 "reason": "Internal server error",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
             }
         )
-        if (errorMsg):
+        if errorMsg:
             return jsonify({"error": errorMsg}), 500
         return jsonify({"error": "Failed to create account"}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    start_time = time.time()  # Start timer
     payload = request.get_json() or {}
-    email = payload.get("email")
-    captcha_token = payload.get("captchaToken")
 
-    if is_locked(email):
-        SplunkLogging.send_log(
-            {
-                "event": "Login Failed",
-                "reason": "Account locked due to rate limit",
-                "email": email,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
-
-        return jsonify({"error": "Account locked due to too many failed attempts"}), 403
-
-    current_failed_attempts = get_failed_attempts_count(email)
-    CAPTCHA_THRESHOLD = 3
-
-    if current_failed_attempts >= CAPTCHA_THRESHOLD:
-        if not captcha_token:
-            # If CAPTCHA is required but not provided,
-            # signal frontend to show it
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Attempt Failed",
-                    "reason": "CAPTCHA required but token missing",
-                    "email": email,
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                }
-            )
-            # Return a response that tells the frontend to display the CAPTCHA
-            return (
-                jsonify(
-                    {
-                        "message": "Please complete the Captcha \
-                 below",
-                        "showCaptcha": True,
-                    }
-                ),
-                400,
-            )
-
-        # If CAPTCHA token is provided, verify it
-        captcha_result = verify_hcaptcha(captcha_token)
-        if not captcha_result["success"]:
-            # If CAPTCHA verification fails,
-            # increment failed attempts and return error
-            # Failed CAPTCHA counts as a failed attempt
-            increment_failed_attempts(email)
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Attempt Failed",
-                    "reason": "HCaptcha verification failed",
-                    "hcaptcha_errors": captcha_result.get("data", {}).get(
-                        "error-codes"
-                    ),
-                    "email": email,
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                }
-            )
-            # Also tell frontend to show CAPTCHA again if verification failed
-            return (
-                jsonify({"error": "CAPTCHA verification failed.", "showCaptcha": True}),
-                400,
-            )
-
-    errors = validate_login(payload)
-    if errors:
-
-        SplunkLogging.send_log(
-            {
-                "event": "Login Attempt Failed",
-                "reason": "Validation Errors",
-                "errors": errors,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
-
-        return jsonify({"error": errors}), 400
-
-    account = AccountControl.authenticateAccount(payload)
-    duration_ms = round((time.time() - start_time) * 1000, 2)  # Duration in ms
-
-    if not account:
-        count = increment_failed_attempts(email)
-
-        if count > 5:
-            SplunkLogging.send_log(
-                {
-                    "event": "Login Failed",
-                    "email": payload.get("email"),
-                    "reason": "Account locked",
-                    "ip": request.remote_addr,
-                    "user_agent": str(request.user_agent),
-                    "duration_ms": round((time.time() - start_time) * 1000, 2),
-                }
-            )
-
-            return (
-                jsonify(
-                    {
-                        "error": "Account locked due to \
-                         too many failed attempts"
-                    }
-                ),
-                403,
-            )
-
-        SplunkLogging.send_log(
-            {
-                "event": "Login Failed",
-                "reason": "Invalid credentials",
-                "email": email,
-                "ip": request.remote_addr,
-                "user_agent": str(request.user_agent),
-                "duration_ms": duration_ms,
-            }
-        )
-
-        return jsonify({"message": "Incorrect credentials"}), 401
-
-    if account:
-        print(f"Login successful for {email} in {duration_ms} ms")
-        print(f"Account details: {account}")
-        reset_login_attempts(email)
-        new_jti = str(uuid.uuid4())
-        base_data = {
-            "accountId": account.accountId,
-            "name": account.name,
-            "email": account.email,
-            "passwordHash": account.passwordHash,
-            "role": account.role
-            if isinstance(account.role, str) else account.role.value,
-            "isDisabled": account.isDisabled,
-            "profilePicUrl": account.profilePicUrl,
-            "twoFaEnabled": account.twoFaEnabled,
-            "twoFaSecret": account.twoFaSecret,
-            "jti": new_jti
-        }
-
-        optional_keys = [
-            "bio",
-            "portfolioUrl",
-            "description",
-            "location",
-            "verified",
-            "companyId",
-            "userId",
-            "companyDocUrl",
-        ]
-        optional_data = {
-            key: getattr(account, key) for key in optional_keys if hasattr(account, key)
-        }
-
-        merged = {**base_data, **optional_data}
-
-        return jsonify(merged), 200
+    return AccountControl.authenticateAccount(payload)
 
 
 @auth_bp.route("/create_token", methods=["POST"])
@@ -316,7 +142,7 @@ def create_token():
             {
                 "event": "Token Creation Failed",
                 "reason": "Missing token creation data",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -333,7 +159,7 @@ def create_token():
         user_id,
         company_id,
         is_verified=is_verified,
-        jti=new_jti
+        jti=new_jti,
     )
     if not token:
 
@@ -341,7 +167,7 @@ def create_token():
             {
                 "event": "Token Creation Failed",
                 "reason": "Token generation failed",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -357,10 +183,10 @@ def create_token():
 
     SplunkLogging.send_log(
         {
-            "event": "Token Created Succes",
+            "event": "Token Created Success",
             "accountId": account_id,
             "role": user_role,
-            "ip": request.remote_addr,
+            "ip": SplunkLogging.get_real_ip(request),
             "user_agent": str(request.user_agent),
             "method": request.method,
             "path": request.path,
@@ -379,7 +205,7 @@ def save2fa():
             {
                 "event": "Save 2FA Failed",
                 "reason": "No account ID provided",
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -396,7 +222,7 @@ def save2fa():
             {
                 "event": "2FA Updated Successfully",
                 "accountId": payload["accountId"],
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -411,7 +237,7 @@ def save2fa():
                 "event": "Save 2FA Failed",
                 "reason": "Database update failed",
                 "accountId": payload["accountId"],
-                "ip": request.remote_addr,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -508,8 +334,8 @@ def logout():
     SplunkLogging.send_log(
         {
             "event": "Logout Success",
-            "user_id": user_id,
-            "ip": request.remote_addr,
+            "AccountId": user_id,
+            "ip": SplunkLogging.get_real_ip(request),
             "user_agent": str(request.user_agent),
             "method": request.method,
             "path": request.path,

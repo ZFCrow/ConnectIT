@@ -40,6 +40,7 @@ const JobCard: React.FC<Props> = ({
   violationOptions,
 }) => {
   const navigate = useNavigate();
+  const { accountId, userId } = useAuth(); // Get userId from context/auth
   const posted = new Date(job.createdAt).toLocaleDateString(
     dateLocale,
     dateFormatOptions
@@ -66,7 +67,6 @@ const JobCard: React.FC<Props> = ({
     applyJob(job.jobId, userId, file);
     // Optionally close the modal here or on success
   };
-  const { accountId, userId } = useAuth(); // Get userId from context/auth
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteJob, loading } = useDeleteJob(() => {
     setDeleteOpen(false);

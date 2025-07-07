@@ -20,7 +20,7 @@ test('creating a post', async ({ page }) => {
 
 
     // navigate to login page 
-    await page.goto('http://localhost:5173/login')
+    await page.goto('http://localhost:3300/login')
 
     // fill in the login form 
     await page.fill('input[id="email"]', 'jake123@gmail.com')
@@ -64,7 +64,7 @@ test('creating a post', async ({ page }) => {
     
     // 2️⃣ If it's 429, end the test here (and count it as a pass)
     if (verifyResponse.status() === 429) {
-        console.log('Got 429 on 2FA verify — ending test early as PASS.');
+        console.log('Rate limit reached, skipping post creation test.'); 
         return;
     }
 

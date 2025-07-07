@@ -8,6 +8,8 @@ from typing import Optional, List, Dict, Any
 from sshtunnel import SSHTunnelForwarder
 from pathlib import Path
 import logging
+
+
 Base = declarative_base()
 
 
@@ -28,22 +30,26 @@ class DatabaseContext:
     def initialize(self) -> bool:
         """Initialize database connection - equivalent to EF's OnConfiguring"""
         if self._is_initialized:
-            print("→ Database context already initialized")
+            # print("→ Database context already initialized")
+            logging.info("→ Database context already initialized")
             return True
 
         try:
-            print("→ Initializing Database Context...")
+            # print("→ Initializing Database Context...")
+            logging.info("→ Initializing Database Context...")
             self._setup_connection()
             self._create_engine()
             self._test_connection()
             self._is_initialized = True
-            print("→ Database Context initialized successfully!")
+            # print("→ Database Context initialized successfully!")
+            logging.info("→ Database Context initialized successfully!")
             return True
 
         except Exception as e:
-            print(f"→ Database Context initialization failed: {e}")
+            # print(f"→ Database Context initialization failed: {e}")
+            logging.error(f"→ Database Context initialization failed: {e}")
             if self.ssh_tunnel:
-                print(
+                logging.info(
                     f"→ SSH tunnel remains active on localhost:\
                       {self.ssh_tunnel.local_bind_port}"
                 )
@@ -71,7 +77,7 @@ class DatabaseContext:
             remote_bind_address=(remote_host, remote_port),
         )
         tunnel.start()
-        print(
+        logging.info(
             f"→ SSH tunnel open: localhost:{tunnel.local_bind_port} \
               → {remote_host}:{remote_port}"
         )
@@ -82,7 +88,7 @@ class DatabaseContext:
         use_ssh = os.environ.get("USE_SSH_TUNNEL", "False") in ("1", "true", "yes")
 
         if use_ssh:
-            print("→ Setting up SSH tunnel connection...")
+            logging.info("→ Setting up SSH tunnel connection...")
             self.ssh_tunnel = self.create_ssh_tunnel()
             self.connection_info = {
                 "host": "127.0.0.1",
@@ -91,22 +97,25 @@ class DatabaseContext:
                 "remote_host": os.getenv("SSH_HOST"),
                 "remote_port": os.getenv("MYSQL_REMOTE_PORT"),
             }
-            print(
+            logging.info(
                 f"→ SSH tunnel active: localhost:\
-                  {self.connection_info['port']} → \
+                    {self.connection_info['port']} → \
                     {self.connection_info['remote_host']}:\
                         {self.connection_info['remote_port']}"
             )
         else:
-            print("→ Setting up direct connection...")
+            logging.info("→ Setting up direct connection...")
             self.connection_info = {
                 "host": os.getenv("MYSQL_CONTAINER_NAME"),
                 "port": int(os.getenv("MYSQL_CONTAINER_PORT")),
                 "connection_type": "Direct",
             }
-            print(
-                f"→ Direct connection: {self.connection_info['host']}:\
-                  {self.connection_info['port']}"
+            # print(
+            #     f"→ Direct connection: {self.connection_info['host']}:\
+            #       {self.connection_info['port']}"
+            # )
+            logging.info(
+                f"→ Direct connection: {self.connection_info['host']}:{self.connection_info['port']}"
             )
 
     def _create_engine(self):
@@ -122,12 +131,16 @@ class DatabaseContext:
             f"@{self.connection_info['host']}:{self.connection_info['port']}/{db_credentials['database']}"  # noqa: E501
         )
 
-        print(
+        # print(
+        #     f"→ Creating engine: mysql+pymysql://{db_credentials['user']}\
+        #       :***@{self.connection_info['host']}:{self.connection_info['port']}/\
+        #         {db_credentials['database']}"
+        # )
+        logging.info(
             f"→ Creating engine: mysql+pymysql://{db_credentials['user']}\
-              :***@{self.connection_info['host']}:{self.connection_info['port']}/\
-                {db_credentials['database']}"
+                :***@{self.connection_info['host']}:{self.connection_info['port']}/\
+                    {db_credentials['database']}"
         )
-
         self.engine = create_engine(
             connection_string,
             echo=False,
@@ -138,17 +151,18 @@ class DatabaseContext:
         self.SessionLocal = sessionmaker(
             autocommit=False, autoflush=False, bind=self.engine
         )
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
     def _test_connection(self):
         """Test database connection"""
         with self.engine.connect() as connection:
-            print("→ Testing database connection...")
+            logging.info("→ Testing database connection...")
 
             # Test basic connectivity
             result = connection.execute(text("SELECT 1 AS test"))
             test_result = result.fetchone()
-            print(f"→ Connection test successful: {test_result}")
+            # print(f"→ Connection test successful: {test_result}")
+            logging.info(f"→ Connection test successful: {test_result}")
 
     def get_session(self):
         """Get a database session - equivalent to EF's DbContext"""
@@ -184,10 +198,12 @@ class DatabaseContext:
             raise RuntimeError("Database context not initialized.")
 
         try:
-            print("→ Registering models...")
+            # print("→ Registering models...")
+            logging.info("→ Registering models...")
             self._register_models()
 
-            print("→ Checking for missing tables...")
+            # print("→ Checking for missing tables...")
+            logging.info("→ Checking for missing tables...")
             existing = set(self.get_tables())
             all_models = set(Base.metadata.tables.keys())
             missing = all_models - existing
@@ -196,7 +212,8 @@ class DatabaseContext:
                 print("✓ All tables already exist — nothing to create.")
                 return False
 
-            print(f"→ Creating missing tables: {missing}")
+            # print(f"→ Creating missing tables: {missing}")
+            logging.info(f"→ Creating missing tables: {missing}")
             Base.metadata.create_all(bind=self.engine)
             print("✅ Database schema created successfully!")
             return True
@@ -211,7 +228,8 @@ class DatabaseContext:
         try:
             # Add other models as you create them
             registered_models = [cls.__name__ for cls in Base.__subclasses__()]
-            print(f"→ Models registered: {registered_models}")
+            # print(f"→ Models registered: {registered_models}")
+            logging.info(f"→ Models registered: {registered_models}")
 
         except ImportError as e:
             print(f"✗ Failed to import models: {e}")
@@ -239,7 +257,7 @@ class DatabaseContext:
                     )
                 return columns
         except Exception as e:
-            print(f"→ Failed to describe table {table_name}: {e}")
+            logging.error(f"→ Failed to describe table {table_name}: {e}")
             return None
 
     def get_tables(self) -> List[str]:
@@ -275,19 +293,19 @@ class DatabaseContext:
 
     def dispose(self):
         """Dispose of resources - equivalent to EF's Dispose()"""
-        print("→ Disposing Database Context...")
+        logging.info("→ Disposing Database Context...")
 
         if self.engine:
             self.engine.dispose()
-            print("→ Database engine disposed")
+            logging.info("→ Database engine disposed")
 
         if self.ssh_tunnel:
             self.ssh_tunnel.stop()
-            print("→ SSH tunnel closed")
+            logging.info("→ SSH tunnel closed")
             self.ssh_tunnel = None
 
         self._is_initialized = False
-        print("→ Database Context disposed")
+        logging.info("→ Database Context disposed")
 
     def __enter__(self):
         """Context manager entry"""

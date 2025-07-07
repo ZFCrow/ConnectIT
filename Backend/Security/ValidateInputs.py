@@ -175,16 +175,16 @@ def validate_job_listing(data: dict) -> dict:
     try:
         min_salary = int(data.get("minSalary", 0))
         max_salary = int(data.get("maxSalary", 0))
-        if (
-            min_salary == 0 or max_salary == 0
-            ) or (
-                min_salary is None or max_salary is None
-                ):
+        if (min_salary == 0 or max_salary == 0) or (
+            min_salary is None or max_salary is None
+        ):
             errors["salary"] = "Minimum and maximum salary must be greater than 0"
         elif min_salary < 0 or max_salary < 0:
             errors["salary"] = "Salaries must be non-negative"
         elif min_salary > max_salary:
             errors["salary"] = "Minimum salary cannot exceed maximum salary"
+        elif (max_salary - min_salary) > 500:
+            errors["salary"] = "Salary range must not exceed 500"
 
     except ValueError:
         errors["salary"] = "Invalid salary format"
@@ -192,9 +192,9 @@ def validate_job_listing(data: dict) -> dict:
     try:
         years_of_experience = int(data.get("experiencePreferred", 0))
         if years_of_experience > 45:
-            errors["experience"] = ("Years of experience cannot exceed 45")
+            errors["experience"] = "Years of experience cannot exceed 45"
         if years_of_experience < 0:
-            errors["experience"] = ("Years of experience must be non-negative")
+            errors["experience"] = "Years of experience must be non-negative"
     except ValueError:
         errors["experience"] = "Invalid years of experience format"
 

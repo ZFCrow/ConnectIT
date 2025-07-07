@@ -10,7 +10,6 @@ export const useViolationManager = () => {
       const fetchViolations = useCallback(async () => {
     try {
       const response = await api.get("/violations");
-      //console.log("Fetched violations:", response.data);
       setAllViolations(response.data);
     } catch (error) {
       console.error("Error fetching violations:", error);

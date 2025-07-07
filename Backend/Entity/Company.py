@@ -14,26 +14,37 @@ class Company(Account):
 
     # Properties
     @property
-    def companyId(self) -> int: return self.__companyId
+    def companyId(self) -> int:
+        return self.__companyId
+
     @property
-    def companyDocUrl(self) -> Optional[str]: return self.__companyDocUrl
+    def companyDocUrl(self) -> Optional[str]:
+        return self.__companyDocUrl
+
     @property
-    def verified(self) -> int: return self.__verified
+    def verified(self) -> int:
+        return self.__verified
+
     @property
-    def description(self) -> Optional[str]: return self.__description
+    def description(self) -> Optional[str]:
+        return self.__description
+
     @property
-    def location(self) -> Optional[str]: return self.__location
+    def location(self) -> Optional[str]:
+        return self.__location
 
     # Serialisation
     def to_dict(self) -> dict:
         base = super().to_dict()
-        base.update({
-            "companyId": self.companyId,
-            "companyDocUrl": self.companyDocUrl,
-            "verified": self.verified,
-            "description": self.description,
-            "location": self.location,
-        })
+        base.update(
+            {
+                "companyId": self.companyId,
+                "companyDocUrl": self.companyDocUrl,
+                "verified": self.verified,
+                "description": self.description,
+                "location": self.location,
+            }
+        )
         return base
 
     @classmethod
@@ -62,7 +73,6 @@ class Company(Account):
             _Account__profilePicUrl=acc.profilePicUrl or None,
             _Account__twoFaSecret=acc.twoFaSecret or None,
             _Account__sessionId=getattr(acc, "sessionId", None),
-
             _Company__companyId=model.companyId,
             _Company__companyDocUrl=model.companyDocUrl or None,
             _Company__verified=model.verified,

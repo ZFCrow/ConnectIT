@@ -50,7 +50,7 @@ class AccountModel(Base):
             "isDisabled": self.isDisabled,
             "twoFaEnabled": self.twoFaEnabled,
             "twoFaSecret": self.twoFaSecret,
-            "sessionId": self.sessionId
+            "sessionId": self.sessionId,
         }
 
     def __repr__(self):

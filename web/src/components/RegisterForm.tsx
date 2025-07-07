@@ -84,8 +84,6 @@ export function RegisterForm() {
       } else {
         toast.error(message);
       }
-      // toast.error("Error during registration, please try again.");
-      // console.log("Registration failed:", err);
     }
   };
 

@@ -45,10 +45,8 @@ const CompanyJobsPage: React.FC = () => {
               .filter(Boolean)
           : [];
         setJobListings(jobs as JobListing[]);
-        // console.log("Applications:", appsRes);
 
         const applications = JobApplicationSchema.array().parse(appsRes.data);
-        // console.log("Applications:", applications);
         setJobApplications(applications);
       } catch (err) {
         console.error(

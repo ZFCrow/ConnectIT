@@ -47,6 +47,7 @@ export function LoginForm() {
   const [user, setUser] = useState<AccountData | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [showCaptcha, setShowCaptcha] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -55,7 +56,6 @@ export function LoginForm() {
   const callCreateToken = async (account: AccountData) => {
     try {
       await axios.post("/api/create_token", account, { withCredentials: true });
-
       login(account.accountId, account.role, account.name, {
         userId: (account as User).userId,
         companyId: (account as Company).companyId,
@@ -83,6 +83,7 @@ export function LoginForm() {
     }
 
     try {
+      setLoading(true);
       const response = await axios.post("/api/login", {
         email,
         password,
@@ -94,7 +95,6 @@ export function LoginForm() {
       setShowCaptcha(false);
 
       let parsed;
-      console.log("LoginForm - handleSubmit - data:", data);
 
       switch (data.role) {
         case Role.User:
@@ -116,15 +116,11 @@ export function LoginForm() {
       } else {
         setStep("generate");
       }
-
     } catch (err: any) {
       console.error("Login failed", err);
       const msg = err.response?.data?.error || err.response?.data?.message;
       toast.error(msg || "Login error");
 
-      // Debugging: Log response from backend
-      // console.log("Login catch block - Backend response data:",
-      //   err?.response?.data ?? {});
 
       if (err.response?.data?.showCaptcha) {
         setShowCaptcha(true);
@@ -133,12 +129,15 @@ export function LoginForm() {
         setShowCaptcha(false);
         setCaptchaToken(null);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handle2FASuccess = async () => {
     if (user) {
       await callCreateToken(user);
+      setLoading(false);
     }
   };
 
@@ -147,7 +146,7 @@ export function LoginForm() {
       {step === "login" && (
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Log In</CardTitle>
+            <CardTitle className="text-2xl">Lock In</CardTitle>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -199,7 +198,32 @@ export function LoginForm() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Log In</Button>
+              {loading ? (
+                <div className="flex items-center justify-center py-4">
+                  <svg
+                    className="animate-spin h-8 w-8 text-red-500 mr-3"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  <span className="text-gray-400 text-lg">Loading…</span>
+                </div>
+              ) : (
+                  <Button className="w-full" disabled={loading}>Log In</Button>
+              )}
             </CardFooter>
           </form>
         </Card>
@@ -209,12 +233,18 @@ export function LoginForm() {
           email={email}
           accountId={user.accountId}
           onSuccess={handle2FASuccess}
+          onStartLoading={() => setLoading(true)}
+          loading={loading}
         />
       )}
       {step === "verify" && (
-   
-          <Verify2FAForm accountId={user.accountId} secret={user.twoFaSecret} onSuccess={handle2FASuccess} />
-      
+        <Verify2FAForm
+          accountId={user.accountId}
+          secret={user.twoFaSecret}
+          onSuccess={handle2FASuccess}
+          onStartLoading={() => setLoading(true)}
+          loading={loading}
+        />
       )}
       <ApplicationToaster />{" "}
     </div>

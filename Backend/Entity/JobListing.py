@@ -115,22 +115,23 @@ class JobListing:
         """
 
         # Parse enums (case‑insensitive, default values provided)
-        job_type_str = (data.get("jobType")
-                        or data.get("job_type")
-                        or "Full Time").replace(" ", "")
+        job_type_str = (
+            data.get("jobType") or data.get("job_type") or "Full Time"
+        ).replace(" ", "")
         job_type = JobType[job_type_str]
 
-        work_arr_str = (data.get("workArrangement")
-                        or data.get("work_arrangement")
-                        or "Onsite").replace(" ", "")
+        work_arr_str = (
+            data.get("workArrangement") or data.get("work_arrangement") or "Onsite"
+        ).replace(" ", "")
         work_arrangement = WorkArrangement[work_arr_str]
 
         # Parse dates (ISO 8601 expected when given as str)
         def _parse_dt(raw):
             return datetime.fromisoformat(raw) if isinstance(raw, str) else raw
 
-        application_deadline = _parse_dt(data.get("applicationDeadline")
-                                         or data.get("application_deadline"))
+        application_deadline = _parse_dt(
+            data.get("applicationDeadline") or data.get("application_deadline")
+        )
         created_at = _parse_dt(data.get("createdAt") or data.get("created_at"))
 
         # Build the instance
@@ -148,13 +149,13 @@ class JobListing:
             or data.get("field_of_work")
             or "Other",
             _JobListing__responsibilities=data.get("responsibilities", []),
-            _JobListing__isDeleted=data.get("isDeleted") or data.get(
-                "is_deleted", False),
+            _JobListing__isDeleted=data.get("isDeleted")
+            or data.get("is_deleted", False),
             _JobListing__company=data.get("company"),
             _JobListing__experiencePreferred=data.get("experiencePreferred")
             or data.get("experience_preferred", 0),
-            _JobListing__numApplicants=data.get("numApplicants") or data.get(
-                "num_applicants", 0),
+            _JobListing__numApplicants=data.get("numApplicants")
+            or data.get("num_applicants", 0),
             _JobListing__jobApplication=data.get("jobApplication")
             or data.get("job_application")
             or [],
@@ -197,17 +198,21 @@ class JobListing:
             _JobListing__jobType=orm_obj.jobType,
             _JobListing__createdAt=orm_obj.createdAt,
             _JobListing__workArrangement=orm_obj.workArrangement,
-            _JobListing__fieldOfWork=getattr(orm_obj.fieldOfWork, "description",
-                                             orm_obj.fieldOfWork),
-            _JobListing__responsibilities=[r.responsibility
-                                           for r in orm_obj.responsibilities
-                                           if r.responsibility],
+            _JobListing__fieldOfWork=getattr(
+                orm_obj.fieldOfWork, "description", orm_obj.fieldOfWork
+            ),
+            _JobListing__responsibilities=[
+                r.responsibility for r in orm_obj.responsibilities if r.responsibility
+            ],
             _JobListing__isDeleted=orm_obj.isDeleted,
-            _JobListing__company=Company.from_CompanyModel(orm_obj.company)
-            if orm_obj.company else None,
+            _JobListing__company=(
+                Company.from_CompanyModel(orm_obj.company) if orm_obj.company else None
+            ),
             _JobListing__experiencePreferred=orm_obj.experiencePreferred or 0,
             _JobListing__numApplicants=numApplicants,
-            _JobListing__jobApplication=[
-                JobApplication.from_model(a)
-                for a in orm_obj.jobApplication] if orm_obj.jobApplication else [],
+            _JobListing__jobApplication=(
+                [JobApplication.from_model(a) for a in orm_obj.jobApplication]
+                if orm_obj.jobApplication
+                else []
+            ),
         )

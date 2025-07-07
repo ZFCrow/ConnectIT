@@ -496,40 +496,6 @@ const usePostManager = () => {
         gcTime: 5 * 60 * 1000,    // 5 minutes in cache 
     })
 
-    
-
-    // // ✅ Console log when data changes
-    // useEffect(() => {
-    //     if (recentAppliedJobs) {
-    //         console.log('📋 Recent Applied Jobs:', recentAppliedJobs);
-    //         console.log('📊 Number of applications:', recentAppliedJobs.length);
-            
-    //         // Log individual jobs
-    //         recentAppliedJobs.forEach((job, index) => {
-    //             console.log(`Job ${index + 1}:`, job);
-    //         });
-    //     }
-    //     if (recentPostedJobs) {
-    //         console.log('📋 Recent Posted Jobs:', recentPostedJobs);
-    //         console.log('📊 Number of posted jobs:', recentPostedJobs.length);
-        
-    //     }
-    //     if (userId){ 
-    //         console.log(`User ${userId} has ${recentAppliedJobs?.length ?? 0} recent applied jobs.`);
-    //     }
-
-    //     if (accountId) {
-    //         console.log(`Account ${accountId} has ${recentInteractions?.length ?? 0} recent interactions.`);
-    //     }
-
-    //     if (companyId) {
-    //         console.log(`Company ${companyId} has ${recentPostedJobs?.length ?? 0} recent posted jobs.`);
-    //     }
-
-    
-    // }, [accountId, userId, recentInteractions, recentAppliedJobs]);
-
-
 
     // ✅ Return everything the component needs
     return {

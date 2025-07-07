@@ -1,14 +1,11 @@
+
 # .github/workflows/UI-testing.yml
-name: UI TEST
+name: UI TEST with Playwright
 
 on:
-#   push:
-#   pull_request:
-    workflow_dispatch: {}  # Allows manual triggering of the workflow
-    workflow_run:
-        workflows: ["Unit Testing"]
-        types:
-        - completed
+  push:
+  pull_request:
+
 
 jobs:
     e2e:
@@ -85,7 +82,17 @@ jobs:
 
             -   name: Bring up containers
                 run: |
-                    docker compose up -d
+                    docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+
+            # Wait for your Flask API to respond
+            # wont work due to csrf
+            # -   name: Wait for backend
+            #     run: |
+            #         for i in $(seq 1 20); do
+            #             curl --fail http://localhost:5000/ && break
+            #             echo "Waiting for API..."
+            #             sleep 1
+            #         done
 
             # Wait for your front-end (if you run it in Docker too)
             -   name: Wait for frontend
@@ -99,7 +106,7 @@ jobs:
             -   name: Print backend logs
                 run: sudo docker logs backend
             -   name: Print frontend logs
-                run: sudo docker logs web-prod
+                run: sudo docker logs web
 
             -   name: Fix permissions on web/
                 run: sudo chown -R $USER:$USER ./web
@@ -130,4 +137,4 @@ jobs:
 
             -   name: Tear down
                 if: always()
-                run: docker compose down
+                run: docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down

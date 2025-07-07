@@ -1,0 +1,135 @@
+services: 
+  web: 
+    image: zfcrow/connectit:web-latest
+    container_name: web-prod 
+    ports:
+      - "3300:3300" 
+    env_file: 
+      - .env
+    depends_on: 
+      - backend 
+    restart: unless-stopped
+
+
+
+  backend:
+    image: zfcrow/connectit:backend-latest
+    container_name: backend
+    ports: 
+      - "5000:5000"    
+    env_file:
+      - .env
+      - .env.prod
+    depends_on:
+      - redis
+      - sql-prod
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/firebase_key.json
+      - SPLUNK_HEC_URL=https://splunk:8088/services/collector/event
+    volumes:
+      - ./connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json:/app/firebase_key.json:ro
+
+
+
+  sql-dev:
+    image: mysql:8.0
+    container_name: sql-dev
+    env_file:
+      - .env   
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./sql_data_dev:/var/lib/mysql
+
+  sql-prod:
+    image: mysql:8.0
+    container_name: sql-prod
+    env_file:
+      - .env.prod
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./sql_data_prod:/var/lib/mysql
+
+
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  reverse-proxy:
+    image: nginx:alpine
+    container_name: reverse-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-startup.sh:/nginx-startup.sh
+      - ./ssl:/etc/nginx/ssl  # Mount entire ssl directory
+      - ./certbot-www:/var/www/certbot # this is for the cert bot to do the challenge 
+    depends_on:
+      - web
+    restart: unless-stopped
+    command : ["/bin/sh", "/nginx-startup.sh"]
+
+
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    profiles: ["ssl"]
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./certbot-www:/var/www/certbot
+    entrypoint:
+      - sh
+      - -c
+      - |
+        certbot certonly \
+          --webroot -w /var/www/certbot \
+          --email cheahzhengfeng@gmail.com \
+          --agree-tos --no-eff-email \
+          --rsa-key-size 4096 \
+          --expand \
+          --force-renewal \
+          -d connectitweb.site -d www.connectitweb.site -d splunk.connectitweb.site
+
+  splunk:
+      image: splunk/splunk:9.1.2
+      container_name: splunk
+      env_file:
+      - .env.prod
+      environment:
+        - SPLUNK_START_ARGS=--accept-license
+        - SPLUNK_ENABLE_LISTEN=8088
+        - SPLUNK_HEC_URL=https://splunk.connectitweb.site:443/services/collector
+        - SPLUNK_HTTP_ENABLESSL=false
+      volumes:
+        - splunk_data:/opt/splunk/var/lib/splunk # Persistent storage for Splunk data
+        - splunk_etc:/opt/splunk/etc # Persistent storage for Splunk configurations
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8000/en-US/account/login || exit 1"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+      ulimits:
+        nofile:
+          soft: 65536
+          hard: 65536
+
+
+volumes:
+  splunk_data: {} # Volume for Splunk data persistence
+  splunk_etc: {} # Volume for Splunk Configurations persistence
+  redis-data:
+
+
+

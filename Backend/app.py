@@ -36,6 +36,15 @@ from flask_wtf import CSRFProtect
 from flask_wtf.csrf import validate_csrf, CSRFError
 from Control.AccountControl import AccountControl
 
+
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
 # #splunk
 SplunkLogging = SplunkUtils.SplunkLogger()
 
@@ -50,18 +59,24 @@ def create_app():
     SplunkUtils.SplunkLogger()
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
-    app.config.update({
-        "SESSION_COOKIE_HTTPONLY": True,
-        "SESSION_COOKIE_SECURE":   True,
-        "SESSION_COOKIE_SAMESITE": "Strict",
-    })
+    app.config.update(
+        {
+            "SESSION_COOKIE_HTTPONLY": True,
+            "SESSION_COOKIE_SECURE": True,
+            "SESSION_COOKIE_SAMESITE": "Strict",
+        }
+    )
     CSRFProtect(app)
 
     @app.before_request
     def enforce_single_session():
         # Skip token creation & public routes
-        if request.endpoint in ("auth.create_token",
-                                "auth.login", "csrf.get_csrf_token", None):
+        if request.endpoint in (
+            "auth.create_token",
+            "auth.login",
+            "csrf.get_csrf_token",
+            None,
+        ):
             return
 
         token = request.cookies.get("session_token")
@@ -95,9 +110,8 @@ def create_app():
             if request.endpoint == "csrf.get_csrf_token":
                 return
 
-            token = (
-                request.headers.get("X-CSRFToken")
-                or request.cookies.get("csrf_token")
+            token = request.headers.get("X-CSRFToken") or request.cookies.get(
+                "csrf_token"
             )
             if not token:
                 abort(400, "Missing CSRF token")
@@ -137,14 +151,13 @@ def create_app():
                 or request.args.get("accountId")
                 or (request.get_json()).get("accountId")
             )
-            user = f"accountId={account_id}"
 
         SplunkLogging.send_log(
             {
                 "event": "Rate Limit Success",
                 "function": f"{e.description}@{request.path}",
-                "User": user,
-                "ip": request.remote_addr,
+                "UserID": account_id,
+                "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

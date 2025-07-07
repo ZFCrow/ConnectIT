@@ -25,3 +25,10 @@ class CommentControl:
         """
         print(f"Comment control: Deleting comment with ID {commentId}.")
         return CommentMapper.deleteComment(commentId)
+
+    @staticmethod
+    def getCommentById(commentId: int) -> Comment | None:
+        """
+        Retrieve a comment entity by its ID.
+        """
+        return CommentMapper.getCommentById(commentId)

@@ -17,28 +17,51 @@ class Account:
 
     # ----------------- Properties ----------------- #
     @property
-    def accountId(self) -> int: return self.__accountId
+    def accountId(self) -> int:
+        return self.__accountId
+
     @accountId.setter
-    def accountId(self, value: int): self.__accountId = value
-    def setAccountId(self, value: int): self.__accountId = value
+    def accountId(self, value: int):
+        self.__accountId = value
+
+    def setAccountId(self, value: int):
+        self.__accountId = value
+
     @property
-    def name(self) -> str: return self.__name
+    def name(self) -> str:
+        return self.__name
+
     @property
-    def email(self) -> str: return self.__email
+    def email(self) -> str:
+        return self.__email
+
     @property
-    def passwordHash(self) -> str: return self.__passwordHash
+    def passwordHash(self) -> str:
+        return self.__passwordHash
+
     @property
-    def role(self) -> str: return self.__role
+    def role(self) -> str:
+        return self.__role
+
     @property
-    def isDisabled(self) -> bool: return self.__isDisabled
+    def isDisabled(self) -> bool:
+        return self.__isDisabled
+
     @property
-    def twoFaEnabled(self) -> bool: return self.__twoFaEnabled
+    def twoFaEnabled(self) -> bool:
+        return self.__twoFaEnabled
+
     @property
-    def profilePicUrl(self) -> Optional[str]: return self.__profilePicUrl
+    def profilePicUrl(self) -> Optional[str]:
+        return self.__profilePicUrl
+
     @property
-    def twoFaSecret(self) -> Optional[str]: return self.__twoFaSecret
+    def twoFaSecret(self) -> Optional[str]:
+        return self.__twoFaSecret
+
     @property
-    def sessionId(self) -> Optional[str]: return self.__sessionId
+    def sessionId(self) -> Optional[str]:
+        return self.__sessionId
 
     # ----------------- Serialisation helpers ----------------- #
     def to_dict(self) -> dict:
@@ -87,14 +110,14 @@ class Account:
 
     def to_constructor_dict(self) -> Dict[str, Any]:
         return {
-            "_accountId": self.accountId,
-            "_name": self.name,
-            "_email": self.email,
-            "_passwordHash": self.passwordHash,
-            "_role": self.role,
-            "_isDisabled": self.isDisabled,
-            "_twoFaEnabled": self.twoFaEnabled,
-            "_profilePicUrl": self.profilePicUrl,
-            "_twoFaSecret": self.twoFaSecret,
-            "_sessionId": self.sessionId,
+            "_Account__accountId": self.accountId,
+            "_Account__name": self.name,
+            "_Account__email": self.email,
+            "_Account__passwordHash": self.passwordHash,
+            "_Account__role": self.role,
+            "_Account__isDisabled": self.isDisabled,
+            "_Account__twoFaEnabled": self.twoFaEnabled,
+            "_Account__profilePicUrl": self.profilePicUrl,
+            "_Account__twoFaSecret": self.twoFaSecret,
+            "_Account__sessionId": self.sessionId,
         }

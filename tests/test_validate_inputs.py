@@ -167,7 +167,7 @@ def test_validate_comment(data, expected_keys):
         ({"title": "Title", "description": "Desc", "minSalary": 1000}, ["missing"]),
         (
             {"title": "Title", "description": "Desc", "minSalary": 1000,
-             "maxSalary": 2000},
+             "maxSalary": 1500},
             ["missing"],
         ),
 
@@ -175,14 +175,14 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
             },
             ["title"],
         ),
         (
             {
                 "title": "x" * 101, "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
             },
             ["title"],
         ),
@@ -191,14 +191,14 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Title", "description": "",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
             },
             ["description"],
         ),
         (
             {
                 "title": "Title", "description": "x" * 1001,
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
             },
             ["description"],
         ),
@@ -207,7 +207,7 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
                 "responsibilities": "notalist"
             },
             ["responsibilities"],
@@ -217,7 +217,7 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
                 "responsibilities": [123]
             },
             ["responsibilities[0]"],
@@ -225,7 +225,7 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
                 "responsibilities": ["", "Valid"]
             },
             ["responsibilities[0]"],
@@ -233,7 +233,7 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 0,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0,
                 "responsibilities": ["x" * 501]
             },
             ["responsibilities[0]"],
@@ -275,26 +275,42 @@ def test_validate_comment(data, expected_keys):
             },
             ["salary"],
         ),
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1600, "experiencePreferred": 0
+            },
+            ["salary"],  # range is 600, which exceeds 500
+        ),
+
+        # --- Valid salary (should not return error) ---
+        (
+            {
+                "title": "Title", "description": "Desc",
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 0
+            },
+            [],  # Valid range: 500
+        ),
 
         # --- Experience validation ---
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": -1
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": -1
             },
             ["experience"],
         ),
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": "abc"
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": "abc"
             },
             ["experience"],
         ),
         (
             {
                 "title": "Title", "description": "Desc",
-                "minSalary": 1000, "maxSalary": 2000, "experiencePreferred": 46
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 46
             },
             ["experience"],
         ),
@@ -303,7 +319,7 @@ def test_validate_comment(data, expected_keys):
         (
             {
                 "title": "Valid Title", "description": "Valid description",
-                "minSalary": 1000, "maxSalary": 5000, "experiencePreferred": 5,
+                "minSalary": 1000, "maxSalary": 1500, "experiencePreferred": 5,
                 "responsibilities": ["Manage projects", "Write code"]
             },
             [],

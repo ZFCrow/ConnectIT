@@ -1,11 +1,16 @@
 name: Static Code Analysis
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+
+  workflow_dispatch: {}  # Allows manual triggering of the workflow 
+  workflow_run:
+    workflows: ["OWASP Dependency Check"]
+    types:
+      - completed 
 # testing
 permissions:
   security-events: write
@@ -175,11 +180,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: reports/bandit-results.sarif
-      
-      # - name: Upload Flake8 SARIF
-      #   uses: github/codeql-action/upload-sarif@v3
-      #   with:
-      #     sarif_file: reports/flake8-results.sarif
+    
 
       - name: Check Flake8 SARIF non-empty
         id: flake8_sarif_check

@@ -15,10 +15,14 @@ import toast from "react-hot-toast";
 type Props = {
   accountId: number;
   secret: string;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void>;
+  onStartLoading?: () => void;
+  loading: boolean;
 };
 
-export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
+export function Verify2FAForm({ accountId, secret, onSuccess,
+  onStartLoading, loading
+ }: Props) {
   const [code, setCode] = useState("");
 
   const handleVerify = async () => {
@@ -26,7 +30,7 @@ export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
       toast.error("Secret is not available");
       return;
     }
-
+    onStartLoading?.();
     try {
       const res = await axios.post("/api/2fa-verify", {
         accountId,
@@ -75,13 +79,38 @@ export function Verify2FAForm({ accountId, secret, onSuccess }: Props) {
         </CardContent>
 
         <CardFooter>
-          <Button
-            className="w-full"
-            onClick={handleVerify}
-            disabled={code.length !== 6}
-          >
-            Verify 2FA
-          </Button>
+          {loading ? (
+            <div className="flex items-center justify-center py-4">
+              <svg
+                className="animate-spin h-8 w-8 text-red-500 mr-3"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              <span className="text-gray-400 text-lg">Loading…</span>
+            </div>
+          ) : (
+              <Button
+                className="w-full"
+                onClick={handleVerify}
+                disabled={code.length !== 6 || loading}
+              >
+                Verify 2FA
+              </Button>
+          )}
         </CardFooter>
       </Card>
     </div>
