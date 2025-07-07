@@ -108,7 +108,7 @@ def save_profile():
         SplunkLogging.send_log(
             {
                 "event": "Profile Update Failed",
-                "reason": "Validation error - input fields",
+                "reason": errors,
                 "accountId": updated_data.get("accountId"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
@@ -125,7 +125,7 @@ def save_profile():
        and updated_data["confirmNew"]):
 
         if not verify_hash_password(updated_data['password'], account.passwordHash):
-            return jsonify({"error": "Incorrect password"}), 400
+            return jsonify({"error": "Incorrect old password"}), 400
 
         if updated_data["newPassword"] != updated_data["confirmNew"]:
             return jsonify({"error": "Passwords do not match"}), 400
