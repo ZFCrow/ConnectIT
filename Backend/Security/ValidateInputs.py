@@ -4,10 +4,11 @@ import os
 
 EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 BLEACH_KWARGS = dict(tags=[], attributes={}, strip=True)
+ASCII_PRINTABLE = re.compile(r"^[\x20-\x7E]+$")
 
 
 def required_fields(data: dict, fields: list[str]) -> list[str]:
-    return [f for f in fields if f not in data or data[f] is None]
+    return [f for f in fields if not data.get(f)]
 
 
 def sanitize_input(val: str) -> str:
@@ -74,6 +75,8 @@ def validate_register(data: dict) -> dict:
         errors["email"] = "Invalid email format."
 
     pwd = data.get("password", "")
+    if not ASCII_PRINTABLE.fullmatch(pwd):
+        errors["password"] = "Password must contain only printable ASCII characters."
     if len(pwd) < 8:
         errors["password"] = "Password must be at least 8 characters long."  # nosec
     elif len(pwd) > 64:
@@ -223,5 +226,16 @@ def validate_profile(data: dict) -> dict:
 
     if len(description) > 1000:
         errors["description"] = "Description must not exceed 1000 characters"
+
+    if "password" in data:
+        pwd = data["password"]
+        if not ASCII_PRINTABLE.fullmatch(pwd):
+            errors["password"] = "Password must contain only printable ASCII characters."
+        elif len(pwd) < 8:
+            errors["password"] = "Password must be at least 8 characters long."
+        elif len(pwd) > 64:
+            errors["password"] = "Password must not exceed 64 characters."
+        elif is_common_password(pwd):
+            errors["password"] = "Password is too common."
 
     return errors
