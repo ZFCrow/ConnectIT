@@ -47,8 +47,9 @@ def validate_login(data: dict) -> dict:
 
 def load_bad_passwords() -> set:
     try:
-        file_path = os.path.join(os.path.dirname(__file__), "xato-net-10-million-passwords-10000.txt")
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        file_path = os.path.join(os.path.dirname(__file__), "10k-most-common.txt")
+        with open(file_path, "r", encoding="utf-8", 
+                  errors="ignore") as f:
             return set(line.strip().lower() for line in f if line.strip())
     except FileNotFoundError:
         print("Warning: Blocklist file not found.")
@@ -237,7 +238,8 @@ def validate_profile(data: dict) -> dict:
             errors["confirmNew"] = "New password and confirmation do not match."
         else:
             if not ASCII_PRINTABLE.fullmatch(new):
-                errors["newPassword"] = "Password must contain only printable ASCII characters."
+                errors["newPassword"] = "Password must contain only " \
+                "printable ASCII characters."
             elif len(new) < 8:
                 errors["newPassword"] = "Password must be at least 8 characters long."
             elif len(new) > 64:

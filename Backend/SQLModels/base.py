@@ -115,7 +115,8 @@ class DatabaseContext:
             #       {self.connection_info['port']}"
             # )
             logging.info(
-                f"→ Direct connection: {self.connection_info['host']}:{self.connection_info['port']}"
+                f"→ Direct connection: {self.connection_info['host']}\
+                :{self.connection_info['port']}"
             )
 
     def _create_engine(self):
