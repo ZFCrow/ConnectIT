@@ -112,10 +112,9 @@ const EditProfilePage = () => {
     formData.append("portfolioFile", portfolioFile);
     formData.append("profilePic", profilePic);
 
+    setSaveLoad(true);
     try {
-      setSaveLoad(true);
       await axios.post("/api/profile/save", formData);
-      setSaveLoad(false);
       navigate(`/profile/${accountId}`);
     } catch (err: any) {
         const apiErr = err.response?.data?.error;
@@ -128,7 +127,9 @@ const EditProfilePage = () => {
             : "Failed to save profile, please try again.";
         }
         toast.error(message);
-}
+    } finally {
+      setSaveLoad(false);
+    }
   };
 
   if (!user && !loading) {
