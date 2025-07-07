@@ -46,7 +46,7 @@ def validate_login(data: dict) -> dict:
 
 def load_bad_passwords() -> set:
     try:
-        file_path = os.path.join(os.path.dirname(__file__), "10k-most-common.txt")
+        file_path = os.path.join(os.path.dirname(__file__), "xato-net-10-million-passwords-10000.txt")
         with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             return set(line.strip().lower() for line in f if line.strip())
     except FileNotFoundError:
