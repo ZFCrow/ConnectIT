@@ -20,7 +20,9 @@ def get_register_key():
 
 
 # /login
-r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, decode_responses=True)
+r = redis.Redis(
+    host=os.getenv("REDIS_HOST", "localhost"), port=6379, decode_responses=True
+)
 
 
 def get_failed_attempts_count(email: str) -> int:

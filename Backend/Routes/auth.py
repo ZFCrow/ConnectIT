@@ -114,7 +114,7 @@ def register():
                 "path": request.path,
             }
         )
-        if (errorMsg):
+        if errorMsg:
             return jsonify({"error": errorMsg}), 500
         return jsonify({"error": "Failed to create account"}), 500
 
@@ -159,7 +159,7 @@ def create_token():
         user_id,
         company_id,
         is_verified=is_verified,
-        jti=new_jti
+        jti=new_jti,
     )
     if not token:
 

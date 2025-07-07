@@ -44,17 +44,19 @@ def applyJob():
                 enforce_pdf_limits(resumeFile)
                 resumeFile = sanitize_pdf(resumeFile)
             except ValueError as e:
-                SplunkLogging.send_log({
-                    "event": "Job Application Failed",
-                    "reason": "Invalid PDF upload",
-                    "error": str(e),
-                    "userId": userId,
-                    "jobId": jobId,
-                    "ip": SplunkLogging.get_real_ip(request),
-                    "user_agent": str(request.user_agent),
-                    "method": request.method,
-                    "path": request.path,
-                })
+                SplunkLogging.send_log(
+                    {
+                        "event": "Job Application Failed",
+                        "reason": "Invalid PDF upload",
+                        "error": str(e),
+                        "userId": userId,
+                        "jobId": jobId,
+                        "ip": SplunkLogging.get_real_ip(request),
+                        "user_agent": str(request.user_agent),
+                        "method": request.method,
+                        "path": request.path,
+                    }
+                )
                 return jsonify({"error": str(e)}), 400
     else:
         payload = request.get_json(silent=True) or {}
@@ -67,41 +69,47 @@ def applyJob():
         abort(403, description="Forbidden: userId does not match token")
 
     if not jobId:
-        SplunkLogging.send_log({
-            "event": "Job Application Failed",
-            "reason": "Job ID missing",
-            "userId": userId,
-            "ip": SplunkLogging.get_real_ip(request),
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path,
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Job Application Failed",
+                "reason": "Job ID missing",
+                "userId": userId,
+                "ip": SplunkLogging.get_real_ip(request),
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
         return jsonify({"error": "Job ID is required"}), 400
 
     # perform application
     success = JobApplicationControl.applyJob(jobId, userId, resumeFile)
     if success:
-        SplunkLogging.send_log({
-            "event": "Job Applied Success",
-            "userId": userId,
-            "jobId": jobId,
-            "ip": SplunkLogging.get_real_ip(request),
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path,
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Job Applied Success",
+                "userId": userId,
+                "jobId": jobId,
+                "ip": SplunkLogging.get_real_ip(request),
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
         return jsonify({"message": "Application submitted successfully!"}), 201
     else:
-        SplunkLogging.send_log({
-            "event": "Job Application Failed",
-            "reason": "Internal error",
-            "userId": userId,
-            "jobId": jobId,
-            "ip": SplunkLogging.get_real_ip(request),
-            "user_agent": str(request.user_agent),
-            "method": request.method,
-            "path": request.path,
-        })
+        SplunkLogging.send_log(
+            {
+                "event": "Job Application Failed",
+                "reason": "Internal error",
+                "userId": userId,
+                "jobId": jobId,
+                "ip": SplunkLogging.get_real_ip(request),
+                "user_agent": str(request.user_agent),
+                "method": request.method,
+                "path": request.path,
+            }
+        )
         return jsonify({"error": "Failed to apply for job"}), 500
 
 

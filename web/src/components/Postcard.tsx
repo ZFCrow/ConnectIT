@@ -313,7 +313,7 @@ const Postcard: FC<PostcardProps> = ({ postId, detailMode }) => {
                   <Avatar className="h-8 w-8">
                     <AvatarImage
                   
-                      src={c.displayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${username}`}
+                      src={c.displayPicUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${c.username}`}
                     />
                     <AvatarFallback className="text-xs">
                       {c.username}

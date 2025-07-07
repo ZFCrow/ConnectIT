@@ -76,12 +76,19 @@ def deleteComment(comment_id):
 
         # Verify ownership
         if comment_entity.accountId != user_id:
-            return jsonify({"error": "Forbidden: cannot delete others\' comments"}), 403
+            return jsonify({"error": "Forbidden: cannot delete others' comments"}), 403
 
         success = CommentControl.deleteComment(comment_id)
         if success:
-            return jsonify({"message": f"Comment {comment_id} \
-                            deleted successfully"}), 200
+            return (
+                jsonify(
+                    {
+                        "message": f"Comment {comment_id} \
+                            deleted successfully"
+                    }
+                ),
+                200,
+            )
         else:
             return jsonify({"error": f"Failed to delete comment {comment_id}"}), 500
 

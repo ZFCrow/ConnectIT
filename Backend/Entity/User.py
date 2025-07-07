@@ -12,20 +12,27 @@ class User(Account):
 
     # Properties
     @property
-    def userId(self) -> int: return self.__userId
+    def userId(self) -> int:
+        return self.__userId
+
     @property
-    def bio(self) -> Optional[str]: return self.__bio
+    def bio(self) -> Optional[str]:
+        return self.__bio
+
     @property
-    def portfolioUrl(self) -> Optional[str]: return self.__portfolioUrl
+    def portfolioUrl(self) -> Optional[str]:
+        return self.__portfolioUrl
 
     # Serialisation
     def to_dict(self) -> dict:
         base = super().to_dict()
-        base.update({
-            "userId": self.userId,
-            "bio": self.bio,
-            "portfolioUrl": self.portfolioUrl,
-        })
+        base.update(
+            {
+                "userId": self.userId,
+                "bio": self.bio,
+                "portfolioUrl": self.portfolioUrl,
+            }
+        )
         return base
 
     @classmethod

@@ -17,9 +17,9 @@ class SplunkLogger:
         self.debug = os.getenv("SPLUNK_DEBUG", "False").lower() == "true"
 
     def get_real_ip(self, request):
-        xff = request.headers.get('X-Forwarded-For')
+        xff = request.headers.get("X-Forwarded-For")
         if xff:
-            return xff.split(',')[0].strip()
+            return xff.split(",")[0].strip()
         return request.remote_addr
 
     def send_log(self, event_data):

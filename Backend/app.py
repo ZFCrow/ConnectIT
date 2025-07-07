@@ -37,12 +37,12 @@ from flask_wtf.csrf import validate_csrf, CSRFError
 from Control.AccountControl import AccountControl
 
 
-import logging 
+import logging
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 
 # #splunk
@@ -59,18 +59,24 @@ def create_app():
     SplunkUtils.SplunkLogger()
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET")
-    app.config.update({
-        "SESSION_COOKIE_HTTPONLY": True,
-        "SESSION_COOKIE_SECURE":   True,
-        "SESSION_COOKIE_SAMESITE": "Strict",
-    })
+    app.config.update(
+        {
+            "SESSION_COOKIE_HTTPONLY": True,
+            "SESSION_COOKIE_SECURE": True,
+            "SESSION_COOKIE_SAMESITE": "Strict",
+        }
+    )
     CSRFProtect(app)
 
     @app.before_request
     def enforce_single_session():
         # Skip token creation & public routes
-        if request.endpoint in ("auth.create_token",
-                                "auth.login", "csrf.get_csrf_token", None):
+        if request.endpoint in (
+            "auth.create_token",
+            "auth.login",
+            "csrf.get_csrf_token",
+            None,
+        ):
             return
 
         token = request.cookies.get("session_token")
@@ -104,9 +110,8 @@ def create_app():
             if request.endpoint == "csrf.get_csrf_token":
                 return
 
-            token = (
-                request.headers.get("X-CSRFToken")
-                or request.cookies.get("csrf_token")
+            token = request.headers.get("X-CSRFToken") or request.cookies.get(
+                "csrf_token"
             )
             if not token:
                 abort(400, "Missing CSRF token")

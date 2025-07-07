@@ -148,8 +148,8 @@ class JobApplicationMapper:
         with db_context.session_scope() as session:
             row = (
                 session.query(JobApplicationModel.jobId)
-                       .filter_by(applicationId=applicationId)
-                       .first()
+                .filter_by(applicationId=applicationId)
+                .first()
             )
             if not row:
                 return None

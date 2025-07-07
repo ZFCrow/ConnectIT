@@ -6,9 +6,10 @@ from Security.Limiter import (
     get_failed_attempts_count,
     increment_failed_attempts,
     is_locked,
-    reset_login_attempts
+    reset_login_attempts,
 )
 from flask import request
+
 SplunkLogging = SplunkUtils.SplunkLogger()
 CAPTCHA_THRESHOLD = 3
 MAX_FAILED_LOGIN = 5
@@ -40,7 +41,7 @@ class AuthService:
                 "Login Failed",
                 reason="Account locked due to rate limit",
                 email=email,
-            )   
+            )
             return True, "Account locked due to too many failed attempts"
 
         return False, None
@@ -88,10 +89,7 @@ class AuthService:
             return errors
 
     @staticmethod
-    def incrementFailedAttempts(
-            email: str,
-            duration_ms: float
-            ):
+    def incrementFailedAttempts(email: str, duration_ms: float):
         count = increment_failed_attempts(email)
 
         if count > MAX_FAILED_LOGIN:

@@ -81,9 +81,11 @@ class JobApplication:
             _JobApplication__email=raw["email"],
             _JobApplication__bio=raw["bio"],
             _JobApplication__status=Status(raw["status"]),
-            _JobApplication__appliedAt=raw["appliedAt"]
-            if isinstance(raw["appliedAt"], datetime)
-            else datetime.fromisoformat(raw["appliedAt"]),
+            _JobApplication__appliedAt=(
+                raw["appliedAt"]
+                if isinstance(raw["appliedAt"], datetime)
+                else datetime.fromisoformat(raw["appliedAt"])
+            ),
             _JobApplication__resumeURL=raw["resumeURL"],
             _JobApplication__profilePicUrl=raw.get("profilePicUrl"),
             _JobApplication__accountId=raw.get("accountId"),
@@ -118,10 +120,14 @@ class JobApplication:
             _JobApplication__status=model.status,
             _JobApplication__appliedAt=model.appliedAt,
             _JobApplication__resumeURL=model.resumeURL,
-            _JobApplication__accountId=(model.user.account.accountId
-                                        if model.user and model.user.account else None),
-            _JobApplication__profilePicUrl=(model.user.account.profilePicUrl
-                                            if model.user
-                                            and
-                                            model.user.account else None),
+            _JobApplication__accountId=(
+                model.user.account.accountId
+                if model.user and model.user.account
+                else None
+            ),
+            _JobApplication__profilePicUrl=(
+                model.user.account.profilePicUrl
+                if model.user and model.user.account
+                else None
+            ),
         )

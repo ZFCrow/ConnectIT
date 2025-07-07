@@ -17,28 +17,51 @@ class Account:
 
     # ----------------- Properties ----------------- #
     @property
-    def accountId(self) -> int: return self.__accountId
+    def accountId(self) -> int:
+        return self.__accountId
+
     @accountId.setter
-    def accountId(self, value: int): self.__accountId = value
-    def setAccountId(self, value: int): self.__accountId = value
+    def accountId(self, value: int):
+        self.__accountId = value
+
+    def setAccountId(self, value: int):
+        self.__accountId = value
+
     @property
-    def name(self) -> str: return self.__name
+    def name(self) -> str:
+        return self.__name
+
     @property
-    def email(self) -> str: return self.__email
+    def email(self) -> str:
+        return self.__email
+
     @property
-    def passwordHash(self) -> str: return self.__passwordHash
+    def passwordHash(self) -> str:
+        return self.__passwordHash
+
     @property
-    def role(self) -> str: return self.__role
+    def role(self) -> str:
+        return self.__role
+
     @property
-    def isDisabled(self) -> bool: return self.__isDisabled
+    def isDisabled(self) -> bool:
+        return self.__isDisabled
+
     @property
-    def twoFaEnabled(self) -> bool: return self.__twoFaEnabled
+    def twoFaEnabled(self) -> bool:
+        return self.__twoFaEnabled
+
     @property
-    def profilePicUrl(self) -> Optional[str]: return self.__profilePicUrl
+    def profilePicUrl(self) -> Optional[str]:
+        return self.__profilePicUrl
+
     @property
-    def twoFaSecret(self) -> Optional[str]: return self.__twoFaSecret
+    def twoFaSecret(self) -> Optional[str]:
+        return self.__twoFaSecret
+
     @property
-    def sessionId(self) -> Optional[str]: return self.__sessionId
+    def sessionId(self) -> Optional[str]:
+        return self.__sessionId
 
     # ----------------- Serialisation helpers ----------------- #
     def to_dict(self) -> dict:

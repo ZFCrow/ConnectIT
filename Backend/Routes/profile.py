@@ -43,8 +43,9 @@ def get_user(account_id):
             "name": account.name,
             "email": account.email,
             "passwordHash": account.passwordHash,
-            "role": account.role if isinstance(account.role, str)
-            else account.role.value,
+            "role": (
+                account.role if isinstance(account.role, str) else account.role.value
+            ),
             "isDisabled": account.isDisabled,
             "profilePicUrl": account.profilePicUrl,
             "twoFaEnabled": account.twoFaEnabled,

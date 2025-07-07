@@ -55,8 +55,7 @@ class CommentMapper:
         """
         with db_context.session_scope() as session:
             cm = (
-                session
-                .query(CommentModel)
+                session.query(CommentModel)
                 .filter(CommentModel.commentId == commentId)
                 .first()
             )

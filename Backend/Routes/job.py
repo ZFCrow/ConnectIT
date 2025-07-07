@@ -125,8 +125,8 @@ def deleteJobListing(jobId):
     claims = _authenticate()
     company_id = claims.get("companyId")
     role = claims.get("role")
-    is_admin = (role == "Admin")
-    is_company = (role == "Company")
+    is_admin = role == "Admin"
+    is_company = role == "Company"
 
     # only Company users or Admins may proceed
     if not is_admin and not is_company:

@@ -76,11 +76,9 @@ class AccountMapper:
         try:
             with db_context.session_scope() as session:
                 # Check if email already exists
-                existing_account = session.query(
-                    AccountModel
-                    ).filter_by(
-                        email=account.email
-                        ).first()
+                existing_account = (
+                    session.query(AccountModel).filter_by(email=account.email).first()
+                )
                 if existing_account:
                     raise ValueError(f"Email {account.email} already exists")
 
@@ -103,7 +101,7 @@ class AccountMapper:
                     new_url = rename_file(
                         "companyDocument/company_temp.enc",
                         f"companyDocument/company_{account.accountId}.enc",
-                        public=False
+                        public=False,
                     )
                     print("New", new_url)
                     companyModel = CompanyModel(

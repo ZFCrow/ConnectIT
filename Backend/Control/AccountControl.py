@@ -52,16 +52,17 @@ class AccountControl:
             return jsonify({"error": msg}), 403
 
         # Verify CAPTCHA if required
-        captchaMsg = AuthService.handleCaptchaForLogin(
-            email, captcha_token
-        )
+        captchaMsg = AuthService.handleCaptchaForLogin(email, captcha_token)
         if captchaMsg is not None:
-            return jsonify(
-                {
-                    "message": captchaMsg,
-                    "showCaptcha": True,
-                }
-            ), 400
+            return (
+                jsonify(
+                    {
+                        "message": captchaMsg,
+                        "showCaptcha": True,
+                    }
+                ),
+                400,
+            )
 
         validationErrors = AuthService.validateLogin(payload)
         if validationErrors:
@@ -72,7 +73,7 @@ class AccountControl:
         if not account:
             attemptMsg, errorCode = AuthService.incrementFailedAttempts(
                 email, duration_ms
-                )
+            )
             if attemptMsg:
                 return jsonify({"message": attemptMsg}), errorCode
 
@@ -87,7 +88,7 @@ class AccountControl:
             if not auth:
                 attemptMsg, errorCode = AuthService.incrementFailedAttempts(
                     email, duration_ms
-                    )
+                )
                 if attemptMsg:
                     return jsonify({"message": attemptMsg}), errorCode
             new_jti = str(uuid.uuid4())
@@ -96,13 +97,16 @@ class AccountControl:
                 "name": account.name,
                 "email": account.email,
                 "passwordHash": account.passwordHash,
-                "role": account.role
-                if isinstance(account.role, str) else account.role.value,
+                "role": (
+                    account.role
+                    if isinstance(account.role, str)
+                    else account.role.value
+                ),
                 "isDisabled": account.isDisabled,
                 "profilePicUrl": account.profilePicUrl,
                 "twoFaEnabled": account.twoFaEnabled,
                 "twoFaSecret": account.twoFaSecret,
-                "jti": new_jti
+                "jti": new_jti,
             }
 
             optional_keys = [
@@ -116,11 +120,9 @@ class AccountControl:
                 "companyDocUrl",
             ]
             optional_data = {
-                key: getattr(
-                    account, key
-                    ) for key in optional_keys if hasattr(
-                        account, key
-                        )
+                key: getattr(account, key)
+                for key in optional_keys
+                if hasattr(account, key)
             }
 
             merged = {**base_data, **optional_data}
