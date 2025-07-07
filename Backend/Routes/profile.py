@@ -8,6 +8,7 @@ from Security.ValidateFiles import (
     sanitize_pdf,
 )
 from Security.ValidateInputs import validate_profile
+from Security.AuthUtils import verify_hash_password, hash_password
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
 from SQLModels.AccountModel import Role
@@ -84,7 +85,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-@limiter.limit("1 per hour", key_func=get_account_key)
+# @limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
@@ -119,24 +120,21 @@ def save_profile():
         return jsonify({"error": errors}), 400
 
     account = AccountControl.getAccountById(form_account_id)
-    old_pwd = updated_data.get("password", "")
-    if not account or not AccountControl.verifyPassword(old_pwd, account.passwordHash):
-        SplunkLogging.send_log(
-            {
-                "event": "Profile Update Failed",
-                "reason": "Invalid password",
-                "accountId": updated_data.get("accountId"),
-                "ip": SplunkLogging.get_real_ip(request),
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
-        return jsonify({"error": {"password": "Current password is incorrect"}}), 403
 
-    updated_data["password"] = updated_data["newPassword"]
-    updated_data.pop("newPassword", None)
-    updated_data.pop("confirmNew", None)
+    if (updated_data["password"] and updated_data["newPassword"]
+       and updated_data["confirmNew"]):
+
+        if not verify_hash_password(updated_data['password'], account.passwordHash):
+            return jsonify({"error": "Incorrect password"}), 400
+
+        if updated_data["newPassword"] != updated_data["confirmNew"]:
+            return jsonify({"error": "Passwords do not match"}), 400
+
+        updated_data["passwordHash"] = hash_password(updated_data["newPassword"])
+
+        updated_data.pop("password", None)
+        updated_data.pop("newPassword", None)
+        updated_data.pop("confirmNew", None)
 
     if portfolioFile:
         try:
