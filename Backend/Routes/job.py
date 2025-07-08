@@ -97,7 +97,6 @@ def createJobListing():
                 "companyId": job_data.get("company_id"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "role" : claims.get("role"),
-                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
