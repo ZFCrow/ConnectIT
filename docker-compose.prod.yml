@@ -155,8 +155,7 @@ services:
 volumes:
   splunk_data: {} # Volume for Splunk data persistence
   splunk_etc: {} # Volume for Splunk Configurations persistence
-  redis-data:
-
+  redis-data: {} 
   sonarqube_db_data: {} 
   sonarqube_data: {} 
   sonarqube_extensions: {} 
