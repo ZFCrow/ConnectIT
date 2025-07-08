@@ -12,26 +12,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java (Dependency-Check is a Java app)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Install project dependencies
         working-directory: web
         run: npm ci
 
-      - name: Dependency Check (Node project)
-        uses: dependency-check/Dependency-Check_Action@v1 # uses the newer inputs
-        with:
-          project: "ConnectIt" # Project name inside the report
-          path: "web" # Directory to scan (package.json / lockfile)
-          format: "HTML" # Report format(s) – comma-sep for multiple
-          out: "dependency-check-report" # Where to put the report(s)
-          args: > # Extra CLI flags
-            --nvdApiKey ${{ secrets.NVD_API_KEY }}
-            --disableYarn
+      - name: Download Dependency-Check CLI
+        run: |
+          curl -sSL -O https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
+          unzip -q dependency-check-12.1.0-release.zip -d ~/dc
+          echo "CLI ready"
 
-      # 4️⃣  Upload the HTML report as a build artifact
+      - name: Run Dependency-Check (Node project)
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          ~/dc/dependency-check/bin/dependency-check.sh \
+            --project "ConnectIt" \
+            --scan "web/package.json" "web/package-lock.json" \
+            --format HTML \
+            --out dependency-check-report \
+            --nvdApiKey "$NVD_API_KEY"
+
       - name: Upload Dependency-Check report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: dependency-check-report # matches the `out:` folder above
+          path: dependency-check-report/dependency-check-report.html
