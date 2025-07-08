@@ -76,6 +76,8 @@ def createJobListing():
                 "reason": "Validation error",
                 "errors": errors,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -94,6 +96,7 @@ def createJobListing():
                 "jobTitle": job_data.get("title"),
                 "companyId": job_data.get("company_id"),
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -108,6 +111,8 @@ def createJobListing():
                 "event": "Create Job Listing Failed",
                 "reason": "Server error",
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -144,6 +149,8 @@ def deleteJobListing(jobId):
                 "event": "Delete Job Listing Success",
                 "jobId": jobId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -156,6 +163,8 @@ def deleteJobListing(jobId):
                 "event": "Delete Job Listing Fail",
                 "jobId": jobId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -251,6 +260,10 @@ def setViolation(jobId, violationId):
     :param violationId: ID of the violation to set.
     :return: Success message or error.
     """
+    claims = _authenticate()
+    role = claims.get("role")
+    user_id = claims.get("userId")
+
     success = JobListingControl.setViolation(jobId, violationId)
 
     if success:
@@ -260,6 +273,8 @@ def setViolation(jobId, violationId):
                 "JobId": jobId,
                 "violationId": violationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role": role,
+                "userId":user_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -275,6 +290,8 @@ def setViolation(jobId, violationId):
                 "JobId": jobId,
                 "violationId": violationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role": role,
+                "userId":user_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,

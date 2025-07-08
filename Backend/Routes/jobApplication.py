@@ -29,9 +29,6 @@ def _authenticate():
 @job_application_bp.route("/applyJob", methods=["POST"])
 @limiter.limit("5 per hour", key_func=get_user_key)
 def applyJob():
-    """
-    Applies for a job listing.
-    """
     claims = _authenticate()
     token_user = claims.get("userId")
     # determine content type
@@ -50,6 +47,7 @@ def applyJob():
                         "reason": "Invalid PDF upload",
                         "error": str(e),
                         "userId": userId,
+                        "role" : claims.get("role"),
                         "jobId": jobId,
                         "ip": SplunkLogging.get_real_ip(request),
                         "user_agent": str(request.user_agent),
@@ -74,6 +72,7 @@ def applyJob():
                 "event": "Job Application Failed",
                 "reason": "Job ID missing",
                 "userId": userId,
+                "role" : claims.get("role"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
@@ -90,6 +89,7 @@ def applyJob():
                 "event": "Job Applied Success",
                 "userId": userId,
                 "jobId": jobId,
+                "role" : claims.get("role"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
@@ -104,6 +104,7 @@ def applyJob():
                 "reason": "Internal error",
                 "userId": userId,
                 "jobId": jobId,
+                "role" : claims.get("role"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
                 "method": request.method,
@@ -115,9 +116,6 @@ def applyJob():
 
 @job_application_bp.route("/approveApplication/<int:applicationId>", methods=["POST"])
 def approveApplication(applicationId):
-    """
-    Approves a job application by applicationId.
-    """
     claims = _authenticate()
     company_id = claims.get("companyId")
     if company_id is None:
@@ -143,6 +141,8 @@ def approveApplication(applicationId):
                 "event": "Approve Application Success",
                 "applicationId": applicationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -157,6 +157,8 @@ def approveApplication(applicationId):
                 "event": "Approve Application Failed",
                 "applicationId": applicationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -168,9 +170,6 @@ def approveApplication(applicationId):
 
 @job_application_bp.route("/rejectApplication/<int:applicationId>", methods=["DELETE"])
 def rejectApplication(applicationId):
-    """
-    Rejects a job application by applicationId.
-    """
     claims = _authenticate()
     company_id = claims.get("companyId")
     if company_id is None:
@@ -196,6 +195,8 @@ def rejectApplication(applicationId):
                 "event": "Reject Application Success",
                 "applicationId": applicationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
@@ -208,25 +209,18 @@ def rejectApplication(applicationId):
                 "event": "Reject Application Failed",
                 "applicationId": applicationId,
                 "ip": SplunkLogging.get_real_ip(request),
+                "role" : claims.get("role"),
+                "company_id": company_id,
                 "user_agent": str(request.user_agent),
                 "method": request.method,
                 "path": request.path,
             }
         )
         return jsonify({"error": "Failed to reject application"}), 500
-    # return (
-    #    jsonify({"message": "Application rejected successfully!"})
-    #    if success
-    #
-    #    else jsonify({"error": "Failed to reject application"})
-    # ), 200
 
 
 @job_application_bp.route("/getApplicantsByCompanyId/<int:companyId>", methods=["GET"])
 def getApplicantsByCompanyId(companyId):
-    """
-    Retrieves all job applications submitted to jobs by this company.
-    """
     claims = _authenticate()
     my_cid = claims.get("companyId")
     if my_cid is None or my_cid != companyId:
@@ -242,20 +236,12 @@ def getApplicantsByCompanyId(companyId):
 
 @job_application_bp.route("/getAppliedJobId/<int:userId>", methods=["GET"])
 def getAppliedJobs(userId):
-    """
-    Retrieves all applied job IDs for a user.
-    """
     applied_job_ids = JobApplicationControl.getAppliedJobIds(userId)
     return jsonify(applied_job_ids), 200
 
 
 @job_application_bp.route("/getLatestAppliedJob/<int:userId>", methods=["GET"])
 def get_latest_applied_job(userId):
-    """
-    Retrieves the latest job listing that the user has applied for.
-    :param userId: ID of the user.
-    :return: Latest job listing applied by the user.
-    """
     latest_job = JobApplicationControl.getLatestAppliedJobs(userId)
     return jsonify([job.to_dict() for job in latest_job]), 200
 
