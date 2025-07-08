@@ -19,7 +19,7 @@ jobs:
         uses: dependency-check/Dependency-Check_Action@main
         with:
           project: "ConnectIt" # Report header name
-          path: "." # Directory to scan
+          path: "./web" # Directory to scan
           format: "HTML" # Output format : HTML , XML , JSON
           out: "dependency-check-report" # Output file name
 
