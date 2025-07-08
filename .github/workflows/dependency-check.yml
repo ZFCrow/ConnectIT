@@ -1,5 +1,3 @@
-# .github/workflows/dependency-check.yml
-
 name: OWASP Dependency Check
 
 on:
@@ -15,17 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          project: "ConnectIt" # Report header name
-          path: "./web" # Directory to scan
-          format: "HTML" # Output format : HTML , XML , JSON
-          out: "dependency-check-report" # Output file name
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Install project dependencies
+        run: |
+          cd web
+          npm ci
+
+      - name: Download Dependency-Check CLI
+        run: |
+          curl -LO https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
+          unzip dependency-check-12.1.0-release.zip -d dependency-check
+
+      - name: Run Dependency-Check
+        run: |
+          ./dependency-check/dependency-check/bin/dependency-check.sh \
+            --project "ConnectIt" \
+            --scan ./web \
+            --format HTML \
+            --out ./dependency-check-report \
+            --enableRetireJS
 
       - name: Upload Dependency Check Report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: dependency-check-report # Path to the report file
-
+          path: dependency-check-report
