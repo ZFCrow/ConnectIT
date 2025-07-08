@@ -32,6 +32,8 @@ jobs:
           echo "CLI ready"
 
       - name: Run Dependency-Check (Node project)
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
           ~/dc/dependency-check/bin/dependency-check.sh \
             --project "ConnectIt" \
