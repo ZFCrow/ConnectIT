@@ -77,7 +77,8 @@ def validate_register(data: dict) -> dict:
 
     pwd = data.get("password", "")
     if not ASCII_PRINTABLE.fullmatch(pwd):
-        errors["password"] = "Password must contain only printable ASCII characters." # nosec
+        errors["password"] = "Password must contain only " \
+            "printable ASCII characters."  # nosec
     if len(pwd) < 8:
         errors["password"] = "Password must be at least 8 characters long."  # nosec
     elif len(pwd) > 64:
@@ -233,7 +234,8 @@ def validate_profile(data: dict) -> dict:
         new = data.get("newPassword", "")
         conf = data.get("confirmNew", "")
         if not old:
-            errors["password"] = "Current password is required to change password." # nosec
+            errors["password"] = "Current password is " \
+                "required to change password."  # nosec
         elif new != conf:
             errors["confirmNew"] = "New password and confirmation do not match."
         else:
