@@ -40,7 +40,6 @@ jobs:
             --scan "web/package.json" "web/package-lock.json" \
             --format HTML \
             --out dependency-check-report
-            --disableYarn
 
       - name: Upload Dependency-Check report
         uses: actions/upload-artifact@v4
