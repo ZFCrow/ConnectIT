@@ -32,6 +32,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
 
     location / {
         proxy_pass http://splunk:8000;
@@ -87,7 +88,8 @@ server {
     ssl_ciphers HIGH:!aNULL:!MD5;
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    
     location / {
         proxy_pass http://web:3300;
         proxy_set_header Host $host;
