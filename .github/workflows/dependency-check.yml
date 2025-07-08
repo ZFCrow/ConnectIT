@@ -12,38 +12,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # 1. Checkout your code
+      - uses: actions/checkout@v4
 
-      - name: Set up Java (Dependency-Check is a Java app)
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
+      # 2. Install Node dependencies (--if your project needs it)
       - name: Install project dependencies
         working-directory: web
         run: npm ci
 
-      - name: Download Dependency-Check CLI
-        run: |
-          curl -sSL -O https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
-          unzip -q dependency-check-12.1.0-release.zip -d ~/dc
-          echo "CLI ready"
-
-      - name: Run Dependency-Check (Node project)
+      # 3. Run OWASP Dependency-Check via the Marketplace Action
+      - name: Dependency Check (Node project)
+        uses: dependency-check/Dependency-Check_Action@1.1.0 # pin a tag
+        id: depcheck
         env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: |
-          ~/dc/dependency-check/bin/dependency-check.sh \
-            --project "ConnectIt" \
-            --scan "web/package.json" "web/package-lock.json" \
-            --format HTML \
-            --out dependency-check-report \
-            --nvdApiKey "$NVD_API_KEY"
+          # reset JAVA_HOME because setup-java isn’t needed with this Action image
+          JAVA_HOME: /opt/jdk
+        with:
+          project: "ConnectIt" # name in the report UI
+          path: "web" # directory (or '.' for whole repo)
+          format: "HTML" # you can add 'SARIF' too
+          out: "dependency-check-report"
+          args: >
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
 
+      # 4. Upload the HTML report as an artifact
       - name: Upload Dependency-Check report
         uses: actions/upload-artifact@v4
         with:
           name: dependency-check-report
-          path: dependency-check-report/dependency-check-report.html
+          path: dependency-check-report
