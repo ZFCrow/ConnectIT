@@ -27,8 +27,8 @@ jobs:
 
       - name: Download Dependency-Check CLI
         run: |
-          curl -sSL -O https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.3/dependency-check-12.1.3-release.zip
-          unzip -q dependency-check-12.1.3-release.zip -d ~/dc
+          curl -sSL -O https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
+          unzip -q dependency-check-12.1.0-release.zip -d ~/dc
           echo "CLI ready"
 
       - name: Run Dependency-Check (Node project)
