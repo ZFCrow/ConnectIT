@@ -112,17 +112,23 @@ const EditProfilePage = () => {
     formData.append("portfolioFile", portfolioFile);
     formData.append("profilePic", profilePic);
 
+    setSaveLoad(true);
     try {
-      setSaveLoad(true);
       await axios.post("/api/profile/save", formData);
-      setSaveLoad(false);
       navigate(`/profile/${accountId}`);
     } catch (err: any) {
-      const message =
-        err.response?.data?.error ||
-        "Failed to save profile, please try again.";
-
-      toast.error(message);
+        const apiErr = err.response?.data?.error;
+        let message: string;
+        if (apiErr && typeof apiErr === "object") {
+          message = Object.values(apiErr).join("; ");
+        } else {
+          message = typeof apiErr === "string"
+            ? apiErr
+            : "Failed to save profile, please try again.";
+        }
+        toast.error(message);
+    } finally {
+      setSaveLoad(false);
     }
   };
 
@@ -179,7 +185,7 @@ const EditProfilePage = () => {
                 <EditProfileField label="Confirm New Password">
                   <EditProfileInput
                     type="password"
-                    name="confirmPassword"
+                    name="confirmNew"
                     value={confirmNew}
                     onChange={(e) => setConfirm(e.target.value)}
                   />

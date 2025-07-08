@@ -8,6 +8,7 @@ from Security.ValidateFiles import (
     sanitize_pdf,
 )
 from Security.ValidateInputs import validate_profile
+from Security.AuthUtils import verify_hash_password, hash_password
 from Security.JWTUtils import JWTUtils
 from Security import SplunkUtils
 from SQLModels.AccountModel import Role
@@ -107,7 +108,7 @@ def save_profile():
         SplunkLogging.send_log(
             {
                 "event": "Profile Update Failed",
-                "reason": "Validation error - input fields",
+                "reason": errors,
                 "accountId": updated_data.get("accountId"),
                 "ip": SplunkLogging.get_real_ip(request),
                 "user_agent": str(request.user_agent),
@@ -117,6 +118,23 @@ def save_profile():
         )
 
         return jsonify({"error": errors}), 400
+
+    account = AccountControl.getAccountById(form_account_id)
+
+    if (updated_data["password"] and updated_data["newPassword"]
+       and updated_data["confirmNew"]):
+
+        if not verify_hash_password(updated_data['password'], account.passwordHash):
+            return jsonify({"error": "Incorrect old password"}), 400
+
+        if updated_data["newPassword"] != updated_data["confirmNew"]:
+            return jsonify({"error": "Passwords do not match"}), 400
+
+        updated_data["passwordHash"] = hash_password(updated_data["newPassword"])
+
+        updated_data.pop("password", None)
+        updated_data.pop("newPassword", None)
+        updated_data.pop("confirmNew", None)
 
     if portfolioFile:
         try:

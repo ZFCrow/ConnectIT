@@ -81,9 +81,8 @@ export function LoginForm() {
       toast.error("Please complete the CAPTCHA before logging in.");
       return;
     }
-
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post("/api/login", {
         email,
         password,

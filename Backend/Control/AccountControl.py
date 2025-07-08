@@ -136,36 +136,7 @@ class AccountControl:
 
     @staticmethod
     def updateAccount(accountData: dict) -> bool:
-        password = accountData.get("password", "")
-        newPass = accountData.get("newPassword", "")
-        confirmPass = accountData.get("confirmNew", "")
         account_id = accountData["accountId"]
-
-        # Get the existing account to access the stored hash/salt
-        target_acc = AccountMapper.getAccountById(account_id)
-
-        # Only if ALL password-related field are filled,
-        # validate and attempt update
-        # This abit weird, might need change
-        if password and newPass and confirmPass:
-            # Verify old password
-            if not AuthUtils.verify_hash_password(password, target_acc.passwordHash):
-                print("Old password is incorrect.")
-                return False
-
-            # Check new passwords match
-            if newPass != "" and confirmPass != "" and newPass != confirmPass:
-                print("New passwords do not match.")
-                return False
-
-            # Generate new hash and salt for the new password
-            new_hash = AuthUtils.hash_password(newPass)
-            accountData["passwordHash"] = new_hash
-
-        # Remove password fields that aren't used in database
-        accountData.pop("password", None)
-        accountData.pop("newPassword", None)
-        accountData.pop("confirmNew", None)
 
         profilePic = accountData.get("profilePic")
         profilePic_url = None

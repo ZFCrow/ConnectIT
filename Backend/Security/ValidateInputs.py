@@ -4,6 +4,7 @@ import os
 
 EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 BLEACH_KWARGS = dict(tags=[], attributes={}, strip=True)
+ASCII_PRINTABLE = re.compile(r"^[\x20-\x7E]+$")
 
 
 def required_fields(data: dict, fields: list[str]) -> list[str]:
@@ -46,8 +47,9 @@ def validate_login(data: dict) -> dict:
 
 def load_bad_passwords() -> set:
     try:
-        file_path = os.path.join(os.path.dirname(__file__), "xato-net-10-million-passwords-10000.txt")
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        file_path = os.path.join(os.path.dirname(__file__), "10k-most-common.txt")
+        with open(file_path, "r", encoding="utf-8",
+                  errors="ignore") as f:
             return set(line.strip().lower() for line in f if line.strip())
     except FileNotFoundError:
         print("Warning: Blocklist file not found.")
@@ -74,6 +76,8 @@ def validate_register(data: dict) -> dict:
         errors["email"] = "Invalid email format."
 
     pwd = data.get("password", "")
+    if not ASCII_PRINTABLE.fullmatch(pwd):
+        errors["password"] = "Password must contain only printable ASCII characters."
     if len(pwd) < 8:
         errors["password"] = "Password must be at least 8 characters long."  # nosec
     elif len(pwd) > 64:
@@ -223,5 +227,24 @@ def validate_profile(data: dict) -> dict:
 
     if len(description) > 1000:
         errors["description"] = "Description must not exceed 1000 characters"
+
+    if data.get("newPassword") or data.get("confirmNew"):
+        old = data.get("password", "").strip()
+        new = data.get("newPassword", "")
+        conf = data.get("confirmNew", "")
+        if not old:
+            errors["password"] = "Current password is required to change password."
+        elif new != conf:
+            errors["confirmNew"] = "New password and confirmation do not match."
+        else:
+            if not ASCII_PRINTABLE.fullmatch(new):
+                errors["newPassword"] = "Password must contain only " \
+                    "printable ASCII characters."
+            elif len(new) < 8:
+                errors["newPassword"] = "Password must be at least 8 characters long."
+            elif len(new) > 64:
+                errors["newPassword"] = "Password must not exceed 64 characters."
+            elif is_common_password(new):
+                errors["newPassword"] = "Password is too common."
 
     return errors
