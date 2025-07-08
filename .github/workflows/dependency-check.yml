@@ -37,7 +37,7 @@ jobs:
         run: |
           ~/dc/dependency-check/bin/dependency-check.sh \
             --project "ConnectIt" \
-            --scan "web/package.json" "web/package-lock.json" \
+            --scan web \
             --format HTML \
             --out dependency-check-report \
             --nvdApiKey "$NVD_API_KEY"
