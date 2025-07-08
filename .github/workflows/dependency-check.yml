@@ -39,7 +39,7 @@ jobs:
             --project "ConnectIt" \
             --scan "web/package.json" "web/package-lock.json" \
             --format HTML \
-            --out dependency-check-report
+            --out dependency-check-report \
             --nvdApiKey "$NVD_API_KEY"
 
       - name: Upload Dependency-Check report
