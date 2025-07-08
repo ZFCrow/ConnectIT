@@ -1,35 +1,31 @@
-# .github/workflows/dependency-check.yml 
+# .github/workflows/dependency-check.yml
 
+name: OWASP Dependency Check
 
-name: OWASP Dependency Check 
-
-on: 
-  push: 
-    branches: [ main]
-  pull_request: 
-    branches: [ main] 
-
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   security-scan:
-    runs-on: ubuntu-latest 
-    steps: 
-      - name: Checkout code 
-        uses : actions/checkout@v4
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Run OWASP Dependency Check 
-        uses: dependency-check/Dependency-Check_Action@main 
-        with: 
-          project: "ForumBackend" # Report header name 
-          path : "." # Directory to scan 
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "ConnectIt" # Report header name
+          path: "." # Directory to scan
           format: "HTML" # Output format : HTML , XML , JSON
           out: "dependency-check-report" # Output file name
-      
 
-      - name: Upload Dependency Check Report 
+      - name: Upload Dependency Check Report
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-check-report 
-          path : dependency-check-report # Path to the report file 
+          name: dependency-check-report
+          path: dependency-check-report # Path to the report file
 
-      
