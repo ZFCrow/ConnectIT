@@ -11,3 +11,6 @@ docker-compose.dev.yaml
 connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json
 images/
 /tests/__pycache__/
+odc-data/
+odc-reports/
+unused files123/

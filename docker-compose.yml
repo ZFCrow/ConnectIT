@@ -49,6 +49,19 @@ services:
     volumes:
       - redis-data:/data
 
+  dep-check: 
+    image: owasp/dependency-check
+    container_name: dep-check 
+    env_file:
+      - .env.dev 
+    environment: 
+      - NVD_API_KEY=${NVD_API_KEY}  # NVD API key for accessing the National Vulnerability Database 
+    volumes: 
+      - ./:/src
+      - ./odc-reports:/reports 
+      - ./odc-data:/usr/share/dependency-check/data
+    command: --scan /src --format "HTML" --out /reports --nvdApiKey ${NVD_API_KEY}
+
 volumes:
   redis-data:
 

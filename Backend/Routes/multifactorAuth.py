@@ -42,28 +42,39 @@ def verify_2fa():
 
     result, status_code = TwoFactorAuth.validate2FA(code, secret)
 
-    if result.get("verified"):
 
-        SplunkLogging.send_log(
-            {
-                "event": "Login Success",
-                "AccountId": accountId,
-                "ip": SplunkLogging.get_real_ip(request),
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
-    else:
-        SplunkLogging.send_log(
-            {
-                "event": "Login Failed",
-                "reason": "Failed 2FA validation",
-                "AccountId": accountId,
-                "ip": SplunkLogging.get_real_ip(request),
-                "user_agent": str(request.user_agent),
-                "method": request.method,
-                "path": request.path,
-            }
-        )
+    SplunkLogging.send_log( 
+        {
+            "event": "Login Success" if result.get("verified") else "Login Failed", 
+            "AccountId": accountId,
+            "ip": SplunkLogging.get_real_ip(request),
+            "user_agent": str(request.user_agent),
+            "method": request.method,
+            "path": request.path,
+        }
+    ) 
+    # if result.get("verified"):
+
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Success",
+    #             "AccountId": accountId,
+    #             "ip": SplunkLogging.get_real_ip(request),
+    #             "user_agent": str(request.user_agent),
+    #             "method": request.method,
+    #             "path": request.path,
+    #         }
+    #     )
+    # else:
+    #     SplunkLogging.send_log(
+    #         {
+    #             "event": "Login Failed",
+    #             "reason": "Failed 2FA validation",
+    #             "AccountId": accountId,
+    #             "ip": SplunkLogging.get_real_ip(request),
+    #             "user_agent": str(request.user_agent),
+    #             "method": request.method,
+    #             "path": request.path,
+    #         }
+    #     )
     return jsonify(result), status_code

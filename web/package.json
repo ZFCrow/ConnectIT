@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently --kill-others-on-fail \"npm run dev:vite\" \"npm run dev:flask\" \"npm run redis\"",
-    "dev:vite": "vite",               
-    "dev:flask": "cd ../backend && flask run",      
-    "redis": "cd.. && docker compose up redis", 
+    "dev:vite": "vite",
+    "dev:flask": "cd ../backend && flask run",
+    "redis": "cd.. && docker compose up redis",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
