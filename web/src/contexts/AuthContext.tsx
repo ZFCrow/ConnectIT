@@ -135,7 +135,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setCompanyId(null);
     setProfilePic(null);
     setVerified(null);
-    resetCsrf();
   }
 }, []);
 
@@ -143,7 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     await axios.post("/api/logout");
     resetCsrf();
     window.location.reload();
-  }, [resetCsrf]);
+  }, []);
 
   // 24-hour TTL logout
   useEffect(() => {
