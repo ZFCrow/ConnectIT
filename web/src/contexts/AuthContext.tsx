@@ -139,53 +139,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   }
 }, []);
 
-  const endSession = async () => {
-  await axios.post("/api/logout");
-  resetCsrf();
-  window.location.reload();
-};
+  const endSession = useCallback(async () => {
+    await axios.post("/api/logout");
+    resetCsrf();
+    window.location.reload();
+  }, [resetCsrf]);
 
+  // 24-hour TTL logout
   useEffect(() => {
-  const ttl = 24 * 60 * 60 * 1000;  // 24 hours
-  const ttlId = setTimeout(() => {
-    endSession()
-      .catch(err => console.error("endSession error:", err))
-      .finally(() => {
-        // reload or navigate to login
-        window.location.reload();
-      });
-  }, ttl);
-
-  return () => clearTimeout(ttlId);
-}, [endSession]);
-
-  useEffect(() => {
-  let timeoutId: ReturnType<typeof setTimeout>;
-
-  const resetTimer = () => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      // wrap in a promise chain so errors can’t abort the reload
+    const ttl = 24 * 60 * 60 * 1000; // 24 hours
+    const ttlId = setTimeout(() => {
       endSession()
-        .catch(err => {
-          console.error("endSession failed:", err);
-        })
+        .catch((err) => console.error("endSession error:", err))
         .finally(() => {
           window.location.reload();
         });
-    }, 30 * 60 * 1000);
-  };
+    }, ttl);
 
-  const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];
-  events.forEach(e => window.addEventListener(e, resetTimer));
+    return () => clearTimeout(ttlId);
+  }, [endSession]);
 
-  resetTimer(); // start initial timer
+  // Idle-timeout logout (30 min of no activity)
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-  return () => {
-    clearTimeout(timeoutId);
-    events.forEach(e => window.removeEventListener(e, resetTimer));
-  };
-}, [endSession]);
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        endSession()
+          .catch((err) => console.error("endSession failed:", err))
+          .finally(() => {
+            window.location.reload();
+          });
+      }, 30 * 60 * 1000);
+    };
+
+    const events = [
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "touchstart",
+      "scroll",
+    ];
+    events.forEach((evt) => window.addEventListener(evt, resetTimer));
+
+    resetTimer(); // start initial idle timer
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach((evt) => window.removeEventListener(evt, resetTimer));
+    };
+  }, [endSession]);
 
   // memoize the context value
   const authValue = useMemo(
