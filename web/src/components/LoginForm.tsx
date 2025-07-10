@@ -29,6 +29,8 @@ import { Generate2FAForm } from "./Generate2FAForm";
 import { Verify2FAForm } from "./Verify2FAForm";
 import { HCaptchaForm } from "./HcaptchaForm"; // Import your HCaptchaForm
 
+import { resetCsrf } from "@/utility/axiosConfig";
+
 type AccountData = ValidatedUser | ValidatedCompany | ValidatedAccount;
 
 function getCookie(name: string): string | null {
@@ -55,14 +57,30 @@ export function LoginForm() {
 
   const callCreateToken = async (account: AccountData) => {
     try {
+      resetCsrf();
+      
       await axios.post("/api/create_token", account, { withCredentials: true });
+      
+      try {
+        const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+        const csrf = match ? match[1] : "";
+        if (csrf) {
+          // Set it in axios default headers for future requests
+          axios.defaults.headers.common["X-CSRFToken"] = csrf;
+        } else {
+          console.warn("CSRF token not found in cookies after authentication");
+        }
+      } catch (csrfErr) {
+        console.error("Failed to initialize CSRF token:", csrfErr);
+      }
+
       login(account.accountId, account.role, account.name, {
         userId: (account as User).userId,
         companyId: (account as Company).companyId,
         profilePicUrl: account.profilePicUrl,
         verified:
           account.role === Role.Company
-            ? (account as Company).verified === 1 // 1 ⇒ true
+            ? (account as Company).verified === 1
             : true,
       });
 

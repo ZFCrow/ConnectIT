@@ -15,6 +15,7 @@ export const Role = {
   Company: "Company",
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
+import { resetCsrf } from "@/utility/axiosConfig";
 
 interface AuthContextType {
   accountId: number | null;
@@ -134,44 +135,57 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setCompanyId(null);
     setProfilePic(null);
     setVerified(null);
+    resetCsrf();
   }
 }, []);
 
   const endSession = async () => {
   await axios.post("/api/logout");
+  resetCsrf();
   window.location.reload();
 };
 
   useEffect(() => {
+  const ttl = 1 * 60 * 1000;  // 24 hours
   const ttlId = setTimeout(() => {
-    endSession();
-  }, 1440 * 60 * 1000); // 24 Hours
+    endSession()
+      .catch(err => console.error("endSession error:", err))
+      .finally(() => {
+        // reload or navigate to login
+        window.location.reload();
+      });
+  }, ttl);
 
   return () => clearTimeout(ttlId);
-}, []);
+}, [endSession]);
 
-  // inactivity detector
   useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
+  let timeoutId: ReturnType<typeof setTimeout>;
 
-    const resetTimer = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        endSession();
-        window.location.reload();
-      }, 30 * 60 * 1000);
-    };
+  const resetTimer = () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      // wrap in a promise chain so errors can’t abort the reload
+      endSession()
+        .catch(err => {
+          console.error("endSession failed:", err);
+        })
+        .finally(() => {
+          window.location.reload();
+        });
+    }, 30 * 60 * 1000);
+  };
 
-    const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];
-    events.forEach((e) => window.addEventListener(e, resetTimer));
+  const events = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];
+  events.forEach(e => window.addEventListener(e, resetTimer));
 
-    resetTimer(); // start initial timer
+  resetTimer(); // start initial timer
 
-    return () => {
-      clearTimeout(timeoutId);
-      events.forEach((e) => window.removeEventListener(e, resetTimer));
-    };
-  }, []);
+  return () => {
+    clearTimeout(timeoutId);
+    events.forEach(e => window.removeEventListener(e, resetTimer));
+  };
+}, [endSession]);
 
   // memoize the context value
   const authValue = useMemo(

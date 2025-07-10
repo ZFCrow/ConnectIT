@@ -12,6 +12,7 @@ from Security.Limiter import (
 from datetime import datetime
 import jwt
 import uuid
+from Utils.CsrfUtils import CsrfUtils
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -181,6 +182,34 @@ def create_token():
     resp = make_response(jsonify({"message": "Token created"}), 200)
     resp = JWTUtils.set_auth_cookie(resp, token)
 
+    try:
+        secure_token, public_token = CsrfUtils.generate_csrf_token_pair(token)
+        
+        # Set HttpOnly cookie (server-side validation)
+        resp.set_cookie(
+            "csrf_token_secure",
+            secure_token,
+            httponly=True,
+            secure=True,
+            samesite="Strict",
+            path="/",
+            max_age=3600  # 1 hour
+        )
+        
+        # Set JavaScript-readable cookie (client-side access)
+        resp.set_cookie(
+            "csrf_token",
+            public_token,
+            httponly=False,
+            secure=True,
+            samesite="Strict", 
+            path="/",
+            max_age=3600  # 1 hour
+        )
+    except Exception as e:
+        # Log CSRF token generation failure but don't fail the login
+        print(f"Warning: Failed to generate CSRF tokens: {e}")
+    
     SplunkLogging.send_log(
         {
             "event": "Token Created Success",
@@ -258,9 +287,15 @@ def me():
     try:
         data = JWTUtils.decode_jwt_token(token)
     except jwt.ExpiredSignatureError:
-        return jsonify({}), 200
+        resp = make_response(jsonify({}), 200)
+        resp.set_cookie("csrf_token_secure", "", expires=0, path="/")
+        resp.set_cookie("csrf_token", "", expires=0, path="/")
+        return resp
     except jwt.PyJWTError:
-        return jsonify({}), 200
+        resp = make_response(jsonify({}), 200)
+        resp.set_cookie("csrf_token_secure", "", expires=0, path="/")
+        resp.set_cookie("csrf_token", "", expires=0, path="/")
+        return resp
 
     return (
         jsonify(
@@ -297,7 +332,10 @@ def setSession():
 def refresh():
     token = JWTUtils.get_token_from_cookie()
     if not token:
-        abort(401)
+        resp = make_response(jsonify({"error": "No token"}), 401)
+        resp.set_cookie("csrf_token_secure", "", expires=0, path="/")
+        resp.set_cookie("csrf_token", "", expires=0, path="/")
+        return resp
 
     try:
         data = JWTUtils.decode_jwt_token(token)
@@ -343,4 +381,10 @@ def logout():
     )
 
     resp = make_response(jsonify({"message": "Logged out"}), 200)
-    return JWTUtils.remove_auth_cookie(resp)
+    resp = JWTUtils.remove_auth_cookie(resp)
+    
+    # Clear CSRF tokens on logout
+    resp.set_cookie("csrf_token_secure", "", expires=0, path="/")
+    resp.set_cookie("csrf_token", "", expires=0, path="/")
+    
+    return resp
