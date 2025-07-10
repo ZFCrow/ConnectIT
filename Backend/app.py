@@ -200,13 +200,15 @@ def create_app():
     @app.errorhandler(RateLimitExceeded)
     def handle_rate_limit_exceeded(e):
         if request.path == "/register":
-            user = ""
+            account_id = ""
         elif request.path == "/addJob":
-            company_id = (request.get_json()).get("company_id")
-            user = f"companyId={company_id}"
+            account_id = request.get_json().get("company_id", "")
         elif request.path == "/applyJob":
-            user_id = request.form.get("userId") or request.get_json().get("userId")
-            user = f"userId={user_id}"
+            account_id = (
+                request.form.get("userId")
+                or request.get_json().get("userId")
+                or ""
+            )
         else:
             account_id = (
                 request.form.get("accountId")
