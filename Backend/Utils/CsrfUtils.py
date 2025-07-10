@@ -114,15 +114,6 @@ class CsrfUtils:
         
     @staticmethod
     def generate_csrf_token_pair(session_id: Optional[str] = None) -> tuple[str, str]:
-        """
-        Generate a pair of CSRF tokens for double cookie submit
-        
-        Args:
-            session_id: Optional session identifier to bind token to session
-            
-        Returns:
-            Tuple of (secure_token, public_token) where public_token is derived from secure_token
-        """
         # Generate the main secure token
         secure_token = CsrfUtils.generate_csrf_token(session_id)
         
@@ -138,17 +129,6 @@ class CsrfUtils:
     
     @staticmethod
     def validate_csrf_token_pair(secure_token: str, public_token: str, session_id: Optional[str] = None) -> bool:
-        """
-        Validate a CSRF token pair
-        
-        Args:
-            secure_token: The HttpOnly cookie token
-            public_token: The client-accessible token (from header or JS cookie)
-            session_id: Optional session identifier to validate against
-            
-        Returns:
-            True if both tokens are valid and linked, False otherwise
-        """
         try:
             # First validate the secure token structure and expiry
             if not CsrfUtils.validate_csrf_token(secure_token, session_id):
