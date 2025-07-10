@@ -17,7 +17,6 @@ from flask_cors import CORS
 from flask_limiter.errors import RateLimitExceeded
 import os
 import jwt
-import hmac
 
 from Routes.profile import profile_bp
 from Routes.auth import auth_bp
