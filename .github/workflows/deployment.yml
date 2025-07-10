@@ -168,6 +168,7 @@ jobs:
             JWT_SECRET: ${{ secrets.JWT_SECRET }} # Set your JWT secret for authentication
             HCAPTCHA_SECRET: ${{ secrets.HCAPTCHA_SECRET }} # Set your hCaptcha secret key 
             AES_GCM_KEY: ${{secrets.AES_GCM_KEY}}
+            CSRF_SECRET_KEY: ${{ secrets.CSRF_SECRET_KEY }} # Set your CSRF secret key for security
         
             #.env.prod , some keys added a _PROD as it shares the same name as development keys
             MYSQL_ROOT_PASSWORD_PROD: ${{ secrets.MYSQL_ROOT_PASSWORD_PROD }} # Set your MySQL root password for production
@@ -235,6 +236,7 @@ jobs:
                     JWT_SECRET=$JWT_SECRET
                     HCAPTCHA_SECRET=$HCAPTCHA_SECRET
                     AES_GCM_KEY=$AES_GCM_KEY
+                    CSRF_SECRET_KEY=$CSRF_SECRET_KEY
                     E1
 
                     # ─── connectit-63f60-firebase-adminsdk-fbsvc-c106a0e591.json ───────────(Commented out)──────────────────────
