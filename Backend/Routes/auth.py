@@ -184,7 +184,7 @@ def create_token():
 
     try:
         secure_token, public_token = CsrfUtils.generate_csrf_token_pair(token)
-        
+
         # Set HttpOnly cookie (server-side validation)
         resp.set_cookie(
             "csrf_token_secure",
@@ -193,23 +193,23 @@ def create_token():
             secure=True,
             samesite="Strict",
             path="/",
-            max_age=3600  # 1 hour
+            max_age=3600,  # 1 hour
         )
-        
+
         # Set JavaScript-readable cookie (client-side access)
         resp.set_cookie(
             "csrf_token",
             public_token,
             httponly=False,
             secure=True,
-            samesite="Strict", 
+            samesite="Strict",
             path="/",
-            max_age=3600  # 1 hour
+            max_age=3600,  # 1 hour
         )
     except Exception as e:
         # Log CSRF token generation failure but don't fail the login
         print(f"Warning: Failed to generate CSRF tokens: {e}")
-    
+
     SplunkLogging.send_log(
         {
             "event": "Token Created Success",
@@ -382,9 +382,9 @@ def logout():
 
     resp = make_response(jsonify({"message": "Logged out"}), 200)
     resp = JWTUtils.remove_auth_cookie(resp)
-    
+
     # Clear CSRF tokens on logout
     resp.set_cookie("csrf_token_secure", "", expires=0, path="/")
     resp.set_cookie("csrf_token", "", expires=0, path="/")
-    
+
     return resp

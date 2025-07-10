@@ -85,7 +85,7 @@ def get_user(account_id):
 
 
 @profile_bp.route("/save", methods=["POST"])
-#@limiter.limit("1 per hour", key_func=get_account_key)
+# @limiter.limit("1 per hour", key_func=get_account_key)
 def save_profile():
     claims = _authenticate()
     user_id = claims.get("sub")
@@ -121,10 +121,13 @@ def save_profile():
 
     account = AccountControl.getAccountById(form_account_id)
 
-    if (updated_data.get("password") and updated_data.get("newPassword")
-       and updated_data.get("confirmNew")):
+    if (
+        updated_data.get("password")
+        and updated_data.get("newPassword")
+        and updated_data.get("confirmNew")
+    ):
 
-        if not verify_hash_password(updated_data['password'], account.passwordHash):
+        if not verify_hash_password(updated_data["password"], account.passwordHash):
             return jsonify({"error": "Incorrect old password"}), 400
 
         if updated_data["newPassword"] != updated_data["confirmNew"]:

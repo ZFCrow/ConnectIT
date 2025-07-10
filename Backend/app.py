@@ -66,7 +66,7 @@ def create_app():
             "SESSION_COOKIE_SAMESITE": "Strict",
         }
     )
-    
+
     # CSRFProtect(app)
 
     @app.before_request
@@ -89,8 +89,18 @@ def create_app():
             resp = make_response(jsonify({"error": message}), 401)
             resp = JWTUtils.remove_auth_cookie(resp)
             # Clear CSRF tokens on session invalidation
-            resp.set_cookie("csrf_token_secure", "", expires=0, path="/", httponly=True, secure=True, samesite="Strict")
-            resp.set_cookie("csrf_token", "", expires=0, path="/", secure=True, samesite="Strict")
+            resp.set_cookie(
+                "csrf_token_secure",
+                "",
+                expires=0,
+                path="/",
+                httponly=True,
+                secure=True,
+                samesite="Strict",
+            )
+            resp.set_cookie(
+                "csrf_token", "", expires=0, path="/", secure=True, samesite="Strict"
+            )
             return resp
 
         # Decode and validate token
@@ -113,17 +123,17 @@ def create_app():
             # Skip CSRF for authentication routes and CSRF token endpoint
             if request.endpoint in (
                 "csrf.get_csrf_token",
-                "auth.login", 
+                "auth.login",
                 "auth.register",
                 "auth.create_token",
-                None
+                None,
             ):
                 return
-            
+
             token = request.cookies.get("session_token")
             if not token:
                 return
-        
+
             # Helper to clear cookie + abort
             def _invalid_session(message):
                 resp = make_response(jsonify({"error": message}), 401)
@@ -154,23 +164,24 @@ def create_app():
             # Get CSRF token from header or JS-readable cookie
             header_token = request.headers.get("X-CSRFToken")
             js_cookie_token = request.cookies.get("csrf_token")
-            
+
             # Get CSRF token from HttpOnly cookie
             secure_cookie_token = request.cookies.get("csrf_token_secure")
-            
+
             # Prefer header, then JS cookie
             client_token = header_token or js_cookie_token
-            
+
             if not client_token:
                 abort(400, "Missing CSRF token")
-            
+
             if not secure_cookie_token:
                 abort(400, "Missing secure CSRF token")
-            
+
             # Use custom CSRF validation with token pair
-            if not CsrfUtils.validate_csrf_token_pair(secure_cookie_token, client_token, session_token):
+            if not CsrfUtils.validate_csrf_token_pair(
+                secure_cookie_token, client_token, session_token
+            ):
                 abort(400, "CSRF validation failed")
-            
 
     # Register your blueprints
     app.register_blueprint(profile_bp)

@@ -47,9 +47,10 @@ def validate_login(data: dict) -> dict:
 
 def load_bad_passwords() -> set:
     try:
-        file_path = os.path.join(os.path.dirname(__file__), "xato-net-10-million-passwords-10000.txt")
-        with open(file_path, "r", encoding="utf-8",
-                  errors="ignore") as f:
+        file_path = os.path.join(
+            os.path.dirname(__file__), "xato-net-10-million-passwords-10000.txt"
+        )
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
             return set(line.strip().lower() for line in f if line.strip())
     except FileNotFoundError:
         print("Warning: Blocklist file not found.")
@@ -77,8 +78,9 @@ def validate_register(data: dict) -> dict:
 
     pwd = data.get("password", "")
     if not ASCII_PRINTABLE.fullmatch(pwd):
-        errors["password"] = "Password must contain only " \
-            "printable ASCII characters."  # nosec
+        errors["password"] = (
+            "Password must contain only " "printable ASCII characters."
+        )  # nosec
     if len(pwd) < 8:
         errors["password"] = "Password must be at least 8 characters long."  # nosec
     elif len(pwd) > 64:
@@ -234,14 +236,16 @@ def validate_profile(data: dict) -> dict:
         new = data.get("newPassword", "")
         conf = data.get("confirmNew", "")
         if not old:
-            errors["password"] = "Current password is " \
-                "required to change password."  # nosec
+            errors["password"] = (
+                "Current password is " "required to change password."
+            )  # nosec
         elif new != conf:
             errors["confirmNew"] = "New password and confirmation do not match."
         else:
             if not ASCII_PRINTABLE.fullmatch(new):
-                errors["newPassword"] = "Password must contain only " \
-                    "printable ASCII characters."
+                errors["newPassword"] = (
+                    "Password must contain only " "printable ASCII characters."
+                )
             elif len(new) < 8:
                 errors["newPassword"] = "Password must be at least 8 characters long."
             elif len(new) > 64:
